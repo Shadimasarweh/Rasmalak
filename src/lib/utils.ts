@@ -1,0 +1,265 @@
+import { Transaction, DashboardStats, ChartDataPoint, Category } from '@/types';
+import { ALL_CATEGORIES, DEFAULT_CURRENCY, CURRENCIES } from './constants';
+
+// Format currency with Arabic locale
+export function formatCurrency(amount: number, currencyCode: string = DEFAULT_CURRENCY): string {
+  const currency = CURRENCIES.find(c => c.code === currencyCode);
+  const formatted = new Intl.NumberFormat('ar-SA', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(Math.abs(amount));
+
+  return `${formatted} ${currency?.symbol || currencyCode}`;
+}
+
+// Format number with Arabic locale
+export function formatNumber(num: number): string {
+  return new Intl.NumberFormat('ar-SA').format(num);
+}
+
+// Format percentage
+export function formatPercentage(value: number): string {
+  return `${value.toFixed(1)}%`;
+}
+
+// Format date in Arabic
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('ar-SA', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+}
+
+// Format date short
+export function formatDateShort(dateString: string): string {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('ar-SA', {
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
+}
+
+// Get relative time (e.g., "منذ 3 أيام")
+export function getRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInDays === 0) return 'اليوم';
+  if (diffInDays === 1) return 'أمس';
+  if (diffInDays < 7) return `منذ ${diffInDays} أيام`;
+  if (diffInDays < 30) return `منذ ${Math.floor(diffInDays / 7)} أسابيع`;
+  return formatDateShort(dateString);
+}
+
+// Calculate dashboard statistics
+export function calculateStats(transactions: Transaction[]): DashboardStats {
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const balance = totalIncome - totalExpenses;
+  const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0;
+
+  return {
+    totalIncome,
+    totalExpenses,
+    balance,
+    savingsRate: Math.max(0, savingsRate),
+  };
+}
+
+// Group transactions by category for charts
+export function groupByCategory(transactions: Transaction[], type: 'income' | 'expense'): ChartDataPoint[] {
+  const filtered = transactions.filter(t => t.type === type);
+  const grouped = filtered.reduce((acc, t) => {
+    acc[t.category] = (acc[t.category] || 0) + t.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return Object.entries(grouped)
+    .map(([categoryId, value]) => {
+      const category = ALL_CATEGORIES.find(c => c.id === categoryId);
+      return {
+        name: category?.nameAr || categoryId,
+        value,
+        color: category?.color,
+      };
+    })
+    .sort((a, b) => b.value - a.value);
+}
+
+// Get category by ID
+export function getCategoryById(categoryId: string): Category | undefined {
+  return ALL_CATEGORIES.find(c => c.id === categoryId);
+}
+
+// Generate unique ID
+export function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Get current month transactions
+export function getCurrentMonthTransactions(transactions: Transaction[]): Transaction[] {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return transactions.filter(t => {
+    const date = new Date(t.date);
+    return date >= startOfMonth && date <= endOfMonth;
+  });
+}
+
+// Get monthly data for charts
+export function getMonthlyData(transactions: Transaction[], months: number = 6): { month: string; income: number; expenses: number }[] {
+  const result: { month: string; income: number; expenses: number }[] = [];
+  const now = new Date();
+
+  for (let i = months - 1; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = new Intl.DateTimeFormat('ar-SA', { month: 'short' }).format(date);
+
+    const monthTransactions = transactions.filter(t => {
+      const tDate = new Date(t.date);
+      return tDate.getMonth() === date.getMonth() && tDate.getFullYear() === date.getFullYear();
+    });
+
+    const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+    result.push({ month: monthName, income, expenses });
+  }
+
+  return result;
+}
+
+// Validate email
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Clamp number between min and max
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+// Loan calculation
+export function calculateLoan(principal: number, annualRate: number, termMonths: number) {
+  const monthlyRate = annualRate / 100 / 12;
+
+  if (monthlyRate === 0) {
+    const monthlyPayment = principal / termMonths;
+    return {
+      principal,
+      interestRate: annualRate,
+      termMonths,
+      monthlyPayment,
+      totalPayment: principal,
+      totalInterest: 0,
+    };
+  }
+
+  const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
+  const totalPayment = monthlyPayment * termMonths;
+  const totalInterest = totalPayment - principal;
+
+  return {
+    principal,
+    interestRate: annualRate,
+    termMonths,
+    monthlyPayment,
+    totalPayment,
+    totalInterest,
+  };
+}
+
+// Savings calculation with compound interest
+export function calculateSavings(initialAmount: number, monthlyContribution: number, annualRate: number, termYears: number) {
+  const monthlyRate = annualRate / 100 / 12;
+  const totalMonths = termYears * 12;
+
+  let balance = initialAmount;
+  for (let i = 0; i < totalMonths; i++) {
+    balance = balance * (1 + monthlyRate) + monthlyContribution;
+  }
+
+  const totalContributions = initialAmount + (monthlyContribution * totalMonths);
+  const totalInterest = balance - totalContributions;
+
+  return {
+    initialAmount,
+    monthlyContribution,
+    interestRate: annualRate,
+    termYears,
+    finalAmount: balance,
+    totalContributions,
+    totalInterest,
+  };
+}
+
+// Home affordability calculation
+export function calculateHomeAffordability(
+  monthlyIncome: number,
+  monthlyDebts: number,
+  downPayment: number,
+  interestRate: number,
+  termYears: number = 25
+) {
+  // Using 28% front-end ratio and 36% back-end ratio
+  const maxMonthlyPayment = Math.min(
+    monthlyIncome * 0.28,
+    monthlyIncome * 0.36 - monthlyDebts
+  );
+
+  const monthlyRate = interestRate / 100 / 12;
+  const totalMonths = termYears * 12;
+
+  // Calculate max loan amount
+  let maxLoan: number;
+  if (monthlyRate === 0) {
+    maxLoan = maxMonthlyPayment * totalMonths;
+  } else {
+    maxLoan = maxMonthlyPayment * (Math.pow(1 + monthlyRate, totalMonths) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, totalMonths));
+  }
+
+  const maxHomePrice = maxLoan + downPayment;
+
+  return {
+    maxMonthlyPayment,
+    maxLoanAmount: maxLoan,
+    maxHomePrice,
+    downPayment,
+    downPaymentPercentage: (downPayment / maxHomePrice) * 100,
+  };
+}
+
+// Local storage helpers
+export function getFromStorage<T>(key: string, defaultValue: T): T {
+  if (typeof window === 'undefined') return defaultValue;
+
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+export function setToStorage<T>(key: string, value: T): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+}
