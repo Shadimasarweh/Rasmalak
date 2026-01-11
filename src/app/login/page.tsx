@@ -90,18 +90,18 @@ export default function LoginPage() {
                 {t.auth.email}
               </label>
               <div className="relative">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-[var(--color-primary)]" />
-                </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t.auth.email}
-                  className="input pr-16"
+                  className="input"
                   required
                   autoComplete="email"
                 />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Mail className="w-5 h-5 text-[var(--color-text-muted)]" />
+                </div>
               </div>
             </div>
 
@@ -111,22 +111,22 @@ export default function LoginPage() {
                 {t.auth.password}
               </label>
               <div className="relative">
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center">
-                  <Lock className="w-5 h-5 text-[var(--color-primary)]" />
-                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.auth.password}
-                  className="input pr-16 pl-14"
+                  className="input pl-12"
                   required
                   autoComplete="current-password"
                 />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Lock className="w-5 h-5 text-[var(--color-text-muted)]" />
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl hover:bg-[var(--color-bg-secondary)] flex items-center justify-center transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5 text-[var(--color-text-muted)]" />
