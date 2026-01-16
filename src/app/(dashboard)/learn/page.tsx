@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   BookOpen,
   PlayCircle,
@@ -18,10 +17,9 @@ import {
   ChevronRight,
   Sparkles,
 } from 'lucide-react';
-import { Header, BottomNav } from '@/components';
+import { PageHeader, PageContainer, SectionCard } from '@/components';
 import { useTranslation } from '@/hooks/useTranslation';
 
-// Learning categories with icons
 const categories = [
   { id: 'basics', icon: Wallet, color: '#059669' },
   { id: 'budgeting', icon: Target, color: '#3b82f6' },
@@ -31,7 +29,6 @@ const categories = [
   { id: 'planning', icon: BookOpen, color: '#06b6d4' },
 ];
 
-// Placeholder articles
 const featuredArticles = [
   {
     id: 1,
@@ -65,7 +62,6 @@ const featuredArticles = [
   },
 ];
 
-// Placeholder videos
 const videos = [
   {
     id: 1,
@@ -73,7 +69,6 @@ const videos = [
     titleEn: 'The 50/30/20 Budget Rule',
     duration: '5:30',
     category: 'budgeting',
-    thumbnail: '🎬',
   },
   {
     id: 2,
@@ -81,11 +76,9 @@ const videos = [
     titleEn: 'How to Build an Emergency Fund',
     duration: '8:15',
     category: 'saving',
-    thumbnail: '🎥',
   },
 ];
 
-// Placeholder courses
 const courses = [
   {
     id: 1,
@@ -110,7 +103,7 @@ const courses = [
 ];
 
 export default function LearnPage() {
-  const { t, language, isRTL } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const [activeTab, setActiveTab] = useState<'articles' | 'videos' | 'courses'>('articles');
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
@@ -129,26 +122,30 @@ export default function LearnPage() {
   };
 
   return (
-    <div className="min-h-screen pb-24 bg-[var(--color-bg-primary)]">
-      <Header title={language === 'ar' ? 'تعلّم المالية' : 'Learn Finance'} showGreeting={false} />
+    <div>
+      <PageHeader 
+        title={language === 'ar' ? 'تعلّم المالية' : 'Learn Finance'}
+        showBack
+        backUrl="/"
+      />
 
-      <main className="px-4 space-y-6 animate-fadeInUp">
+      <PageContainer>
         {/* Hero Section */}
-        <div className="card-gradient p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
+        <div className="card-gradient p-6 relative overflow-hidden rounded-2xl">
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
           <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-5 h-5 text-[var(--color-gold)]" />
               <span className="text-sm font-medium opacity-90">
                 {language === 'ar' ? 'ابنِ ثقافتك المالية' : 'Build Your Financial Culture'}
               </span>
             </div>
-            <h1 className="text-2xl font-bold mb-2">
+            <h1 className="text-3xl font-bold mb-2">
               {language === 'ar' ? 'تعلّم المالية' : 'Learn Finance'}
             </h1>
-            <p className="text-sm opacity-80">
+            <p className="text-base opacity-80 max-w-xl">
               {language === 'ar'
                 ? 'محتوى تعليمي متميز لمساعدتك في رحلتك المالية'
                 : 'Premium educational content to help you on your financial journey'}
@@ -158,24 +155,24 @@ export default function LearnPage() {
 
         {/* Categories */}
         <div>
-          <h2 className="section-title mb-3">
+          <h2 className="section-title mb-4">
             {language === 'ar' ? 'المواضيع' : 'Topics'}
           </h2>
-          <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+          <div className="grid grid-cols-6 gap-4">
             {categories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <button
                   key={cat.id}
-                  className="flex-shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-light)] hover:border-[var(--color-primary)] transition-all min-w-[80px]"
+                  className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-light)] hover:border-[var(--color-primary)] transition-all"
                 >
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    className="w-14 h-14 rounded-xl flex items-center justify-center"
                     style={{ backgroundColor: `${cat.color}15` }}
                   >
-                    <Icon className="w-6 h-6" style={{ color: cat.color }} />
+                    <Icon className="w-7 h-7" style={{ color: cat.color }} />
                   </div>
-                  <span className="text-xs font-medium text-[var(--color-text-primary)] text-center">
+                  <span className="text-sm font-medium text-[var(--color-text-primary)] text-center">
                     {getCategoryName(cat.id)}
                   </span>
                 </button>
@@ -209,24 +206,24 @@ export default function LearnPage() {
           </button>
         </div>
 
-        {/* Content based on active tab */}
+        {/* Articles Tab */}
         {activeTab === 'articles' && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
             {featuredArticles.map((article, index) => (
-              <div
+              <SectionCard
                 key={article.id}
-                className="card card-interactive animate-fadeInUp"
+                className="card-interactive"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-[var(--color-bg-secondary)] flex items-center justify-center text-3xl flex-shrink-0">
+                <div className="flex gap-5">
+                  <div className="w-20 h-20 rounded-xl bg-[var(--color-bg-secondary)] flex items-center justify-center text-4xl flex-shrink-0">
                     {article.image}
                   </div>
                   <div className="flex-1 min-w-0">
                     <span className="badge badge-primary text-xs mb-2">
                       {getCategoryName(article.category)}
                     </span>
-                    <h3 className="font-bold text-[var(--color-text-primary)] mb-1 line-clamp-1">
+                    <h3 className="font-bold text-lg text-[var(--color-text-primary)] mb-1">
                       {language === 'ar' ? article.titleAr : article.titleEn}
                     </h3>
                     <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2 mb-2">
@@ -239,45 +236,46 @@ export default function LearnPage() {
                   </div>
                   <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] flex-shrink-0 self-center" />
                 </div>
-              </div>
+              </SectionCard>
             ))}
           </div>
         )}
 
+        {/* Videos Tab */}
         {activeTab === 'videos' && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             {videos.map((video, index) => (
-              <div
+              <SectionCard
                 key={video.id}
-                className="card card-interactive animate-fadeInUp"
+                className="card-interactive"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex gap-4">
-                  <div className="w-24 h-16 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center text-3xl flex-shrink-0 relative">
-                    <PlayCircle className="w-8 h-8 text-white" />
-                    <span className="absolute bottom-1 right-1 text-[10px] bg-black/50 text-white px-1 rounded">
+                  <div className="w-28 h-20 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center flex-shrink-0 relative">
+                    <PlayCircle className="w-10 h-10 text-white" />
+                    <span className="absolute bottom-2 right-2 text-xs bg-black/50 text-white px-1.5 py-0.5 rounded">
                       {video.duration}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0 self-center">
-                    <span className="badge badge-primary text-xs mb-1">
+                    <span className="badge badge-primary text-xs mb-2">
                       {getCategoryName(video.category)}
                     </span>
-                    <h3 className="font-bold text-[var(--color-text-primary)] line-clamp-2">
+                    <h3 className="font-bold text-[var(--color-text-primary)]">
                       {language === 'ar' ? video.titleAr : video.titleEn}
                     </h3>
                   </div>
                 </div>
-              </div>
+              </SectionCard>
             ))}
 
             {/* Coming Soon */}
-            <div className="card bg-[var(--color-bg-secondary)] border-dashed border-2 border-[var(--color-border)]">
-              <div className="text-center py-6">
-                <div className="w-16 h-16 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mx-auto mb-3">
+            <SectionCard className="bg-[var(--color-bg-secondary)] border-dashed border-2 border-[var(--color-border)] col-span-2">
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mx-auto mb-4">
                   <PlayCircle className="w-8 h-8 text-[var(--color-primary)]" />
                 </div>
-                <h3 className="font-bold text-[var(--color-text-primary)] mb-1">
+                <h3 className="font-bold text-lg text-[var(--color-text-primary)] mb-2">
                   {language === 'ar' ? 'المزيد قادم قريباً' : 'More Coming Soon'}
                 </h3>
                 <p className="text-sm text-[var(--color-text-secondary)]">
@@ -286,16 +284,17 @@ export default function LearnPage() {
                     : 'We are working on adding new educational content'}
                 </p>
               </div>
-            </div>
+            </SectionCard>
           </div>
         )}
 
+        {/* Courses Tab */}
         {activeTab === 'courses' && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             {courses.map((course, index) => (
-              <div
+              <SectionCard
                 key={course.id}
-                className="card card-interactive animate-fadeInUp"
+                className="card-interactive"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -306,15 +305,14 @@ export default function LearnPage() {
                     {course.lessons} {language === 'ar' ? 'درس' : 'lessons'}
                   </span>
                 </div>
-                <h3 className="font-bold text-[var(--color-text-primary)] mb-1">
+                <h3 className="font-bold text-lg text-[var(--color-text-primary)] mb-2">
                   {language === 'ar' ? course.titleAr : course.titleEn}
                 </h3>
                 <p className="text-sm text-[var(--color-text-secondary)] mb-4">
                   {language === 'ar' ? course.descAr : course.descEn}
                 </p>
 
-                {/* Progress bar */}
-                <div className="mb-3">
+                <div className="mb-4">
                   <div className="flex justify-between text-xs text-[var(--color-text-muted)] mb-1">
                     <span>{language === 'ar' ? 'التقدم' : 'Progress'}</span>
                     <span>{course.progress}%</span>
@@ -328,13 +326,11 @@ export default function LearnPage() {
                   {language === 'ar' ? 'ابدأ الدورة' : 'Start Course'}
                   <ArrowIcon className="w-4 h-4" />
                 </button>
-              </div>
+              </SectionCard>
             ))}
           </div>
         )}
-      </main>
-
-      <BottomNav />
+      </PageContainer>
     </div>
   );
 }

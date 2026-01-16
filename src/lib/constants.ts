@@ -28,18 +28,18 @@ export const ALL_CATEGORIES = [...DEFAULT_EXPENSE_CATEGORIES, ...DEFAULT_INCOME_
 
 // Currency Options
 export const CURRENCIES = [
-  { code: 'SAR', name: 'ريال سعودي', symbol: 'ر.س' },
-  { code: 'AED', name: 'درهم إماراتي', symbol: 'د.إ' },
-  { code: 'KWD', name: 'دينار كويتي', symbol: 'د.ك' },
-  { code: 'BHD', name: 'دينار بحريني', symbol: 'د.ب' },
-  { code: 'QAR', name: 'ريال قطري', symbol: 'ر.ق' },
-  { code: 'OMR', name: 'ريال عماني', symbol: 'ر.ع' },
-  { code: 'JOD', name: 'دينار أردني', symbol: 'د.أ' },
-  { code: 'EGP', name: 'جنيه مصري', symbol: 'ج.م' },
-  { code: 'IQD', name: 'دينار عراقي', symbol: 'د.ع' },
-  { code: 'LBP', name: 'ليرة لبنانية', symbol: 'ل.ل' },
-  { code: 'USD', name: 'دولار أمريكي', symbol: '$' },
-  { code: 'EUR', name: 'يورو', symbol: '€' },
+  { code: 'SAR', name: 'Saudi Riyal', nameAr: 'ريال سعودي', symbol: 'SAR', symbolAr: 'ر.س' },
+  { code: 'AED', name: 'UAE Dirham', nameAr: 'درهم إماراتي', symbol: 'AED', symbolAr: 'د.إ' },
+  { code: 'KWD', name: 'Kuwaiti Dinar', nameAr: 'دينار كويتي', symbol: 'KWD', symbolAr: 'د.ك' },
+  { code: 'BHD', name: 'Bahraini Dinar', nameAr: 'دينار بحريني', symbol: 'BHD', symbolAr: 'د.ب' },
+  { code: 'QAR', name: 'Qatari Riyal', nameAr: 'ريال قطري', symbol: 'QAR', symbolAr: 'ر.ق' },
+  { code: 'OMR', name: 'Omani Rial', nameAr: 'ريال عماني', symbol: 'OMR', symbolAr: 'ر.ع' },
+  { code: 'JOD', name: 'Jordanian Dinar', nameAr: 'دينار أردني', symbol: 'JOD', symbolAr: 'د.أ' },
+  { code: 'EGP', name: 'Egyptian Pound', nameAr: 'جنيه مصري', symbol: 'EGP', symbolAr: 'ج.م' },
+  { code: 'IQD', name: 'Iraqi Dinar', nameAr: 'دينار عراقي', symbol: 'IQD', symbolAr: 'د.ع' },
+  { code: 'LBP', name: 'Lebanese Pound', nameAr: 'ليرة لبنانية', symbol: 'LBP', symbolAr: 'ل.ل' },
+  { code: 'USD', name: 'US Dollar', nameAr: 'دولار أمريكي', symbol: '$', symbolAr: '$' },
+  { code: 'EUR', name: 'Euro', nameAr: 'يورو', symbol: '€', symbolAr: '€' },
 ];
 
 // Default Settings

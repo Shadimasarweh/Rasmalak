@@ -77,6 +77,20 @@ export const translations = {
       noData: 'لا توجد بيانات',
     },
 
+    // Overview
+    overview: {
+      title: 'نظرة عامة',
+      totalBalance: 'إجمالي الرصيد',
+      monthlyIncome: 'الدخل الشهري',
+      monthlyExpenses: 'المصاريف الشهرية',
+      savings: 'المدخرات',
+      expenseBreakdown: 'تفصيل المصاريف',
+      incomeChart: 'الدخل',
+      recentTransactions: 'آخر المعاملات',
+      noTransactions: 'لا توجد معاملات بعد',
+      addFirst: 'أضف معاملتك الأولى',
+    },
+
     // Transactions
     transactions: {
       title: 'المعاملات',
@@ -95,6 +109,19 @@ export const translations = {
       all: 'الكل',
       noTransactions: 'لا توجد معاملات',
       startTracking: 'ابدأ بتتبع معاملاتك المالية',
+      overview: 'نظرة عامة',
+      hide: 'إخفاء',
+      show: 'إظهار',
+      search: 'بحث...',
+      addTransaction: 'إضافة معاملة',
+      daily: 'يومي',
+      weekly: 'أسبوعي',
+      monthly: 'شهري',
+      analysis: 'التحليل',
+      netBalance: 'صافي الرصيد',
+      totalIncome: 'إجمالي الدخل',
+      totalExpenses: 'إجمالي المصاريف',
+      transactionCount: 'عدد المعاملات',
     },
 
     // Categories
@@ -232,7 +259,7 @@ export const translations = {
       transactions: 'Transactions',
       add: 'Add',
       learn: 'Learn',
-      chat: 'Advisor',
+      chat: 'Mustashar',
       calculators: 'Calculators',
       settings: 'Settings',
     },
@@ -297,6 +324,20 @@ export const translations = {
       noData: 'No data',
     },
 
+    // Overview
+    overview: {
+      title: 'Overview',
+      totalBalance: 'Total Balance',
+      monthlyIncome: 'Monthly Income',
+      monthlyExpenses: 'Monthly Expenses',
+      savings: 'Savings',
+      expenseBreakdown: 'Expense Breakdown',
+      incomeChart: 'Income',
+      recentTransactions: 'Recent Transactions',
+      noTransactions: 'No transactions yet',
+      addFirst: 'Add your first transaction',
+    },
+
     // Transactions
     transactions: {
       title: 'Transactions',
@@ -315,6 +356,19 @@ export const translations = {
       all: 'All',
       noTransactions: 'No transactions',
       startTracking: 'Start tracking your financial transactions',
+      overview: 'Overview',
+      hide: 'Hide',
+      show: 'Show',
+      search: 'Search...',
+      addTransaction: 'Add Transaction',
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
+      analysis: 'Analysis',
+      netBalance: 'Net Balance',
+      totalIncome: 'Total Income',
+      totalExpenses: 'Total Expenses',
+      transactionCount: 'Transaction Count',
     },
 
     // Categories

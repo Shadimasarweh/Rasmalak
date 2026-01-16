@@ -80,6 +80,11 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-bg-primary)] py-8 relative overflow-hidden">
+      {/* DEBUG LABEL */}
+      <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-black text-center text-xs py-1 z-[100] font-mono">
+        DEBUG: AUTH UI UPDATED
+      </div>
+
       {/* Background decorations */}
       <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--color-primary)]/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
       <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[var(--color-gold)]/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
@@ -121,18 +126,19 @@ export default function SignupPage() {
                 {t.auth.name}
               </label>
               <div className="relative">
+                {/* Leading icon - positioned at start */}
+                <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
+                  <User className="w-5 h-5 text-[var(--color-text-muted)]" />
+                </div>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t.auth.name}
-                  className="input pl-12"
+                  className="input w-full ps-12 pe-4"
                   required
                   autoComplete="name"
                 />
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <User className="w-5 h-5 text-[var(--color-text-muted)]" />
-                </div>
               </div>
             </div>
 
@@ -142,18 +148,19 @@ export default function SignupPage() {
                 {t.auth.email}
               </label>
               <div className="relative">
+                {/* Leading icon - positioned at start */}
+                <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
+                  <Mail className="w-5 h-5 text-[var(--color-text-muted)]" />
+                </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t.auth.email}
-                  className="input pl-12"
+                  className="input w-full ps-12 pe-4"
                   required
                   autoComplete="email"
                 />
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Mail className="w-5 h-5 text-[var(--color-text-muted)]" />
-                </div>
               </div>
             </div>
 
@@ -163,27 +170,29 @@ export default function SignupPage() {
                 {t.auth.password}
               </label>
               <div className="relative">
+                {/* Leading icon - positioned at start */}
+                <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
+                  <Lock className="w-5 h-5 text-[var(--color-text-muted)]" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.auth.password}
-                  className="input pl-12"
+                  className="input w-full ps-12 pe-14"
                   required
                   autoComplete="new-password"
                 />
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Lock className="w-5 h-5 text-[var(--color-text-muted)]" />
-                </div>
+                {/* Trailing toggle - positioned at end */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                  className="absolute inset-y-0 end-0 flex items-center pe-4"
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-[var(--color-text-muted)]" />
+                    <EyeOff className="w-5 h-5 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors" />
                   ) : (
-                    <Eye className="w-5 h-5 text-[var(--color-text-muted)]" />
+                    <Eye className="w-5 h-5 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors" />
                   )}
                 </button>
               </div>
@@ -215,22 +224,23 @@ export default function SignupPage() {
                 {t.auth.confirmPassword}
               </label>
               <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder={t.auth.confirmPassword}
-                  className="input pl-12"
-                  required
-                  autoComplete="new-password"
-                />
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                {/* Leading icon - positioned at start */}
+                <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
                   {confirmPassword && password === confirmPassword ? (
                     <Check className="w-5 h-5 text-[var(--color-success)]" />
                   ) : (
                     <Lock className="w-5 h-5 text-[var(--color-text-muted)]" />
                   )}
                 </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t.auth.confirmPassword}
+                  className="input w-full ps-12 pe-4"
+                  required
+                  autoComplete="new-password"
+                />
               </div>
             </div>
 

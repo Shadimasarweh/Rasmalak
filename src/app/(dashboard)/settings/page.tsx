@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
-  ArrowRight,
-  ArrowLeft,
   User,
   Globe,
   Coins,
@@ -21,7 +18,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { BottomNav } from '@/components';
+import { PageHeader, PageContainer, SectionCard } from '@/components';
 import { useStore, useLogout } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CURRENCIES } from '@/lib/constants';
@@ -53,7 +50,6 @@ export default function SettingsPage() {
     router.push('/login');
   };
 
-  const BackArrow = isRTL ? ArrowRight : ArrowLeft;
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
   interface SettingItem {
@@ -86,7 +82,10 @@ export default function SettingsPage() {
         {
           icon: Coins,
           label: t.settings.currency,
-          value: CURRENCIES.find((c) => c.code === currency)?.name || currency,
+          value: (() => {
+            const curr = CURRENCIES.find((c) => c.code === currency);
+            return curr ? (language === 'ar' ? curr.nameAr : curr.name) : currency;
+          })(),
           onClick: () => setShowCurrencyModal(true),
         },
         {
@@ -153,35 +152,28 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen pb-24 bg-[var(--color-bg-primary)]">
-      {/* Header */}
-      <header className="sticky top-0 z-40 header-glass">
-        <div className="flex items-center gap-3 px-4 py-4">
-          <Link
-            href="/"
-            className="w-11 h-11 rounded-2xl bg-[var(--color-bg-card)] flex items-center justify-center shadow-sm border border-[var(--color-border-light)] transition-all hover:shadow-md"
-          >
-            <BackArrow className="w-5 h-5 text-[var(--color-text-secondary)]" />
-          </Link>
-          <h1 className="text-xl font-bold text-[var(--color-text-primary)]">{t.settings.title}</h1>
-        </div>
-      </header>
+    <div>
+      <PageHeader 
+        title={t.settings.title}
+        showBack
+        backUrl="/"
+      />
 
-      <main className="px-4 space-y-5 animate-fadeInUp">
+      <PageContainer>
         {/* Profile Card */}
-        <div className="card-gradient p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
+        <div className="card-gradient p-6 relative overflow-hidden rounded-2xl">
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
 
-          <div className="relative flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <User className="w-8 h-8" />
+          <div className="relative flex items-center gap-5">
+            <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <User className="w-10 h-10" />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-xl font-bold">{userName || t.dashboard.guestUser}</h2>
-                <Sparkles className="w-4 h-4 text-[var(--color-gold)]" />
+                <h2 className="text-2xl font-bold">{userName || t.dashboard.guestUser}</h2>
+                <Sparkles className="w-5 h-5 text-[var(--color-gold)]" />
               </div>
-              <p className="text-sm opacity-80">{t.settings.freeAccount}</p>
+              <p className="text-base opacity-80">{t.settings.freeAccount}</p>
             </div>
           </div>
         </div>
@@ -190,40 +182,40 @@ export default function SettingsPage() {
         {settingsSections.map((section, sectionIndex) => (
           <div key={section.title || sectionIndex} className="animate-fadeInUp" style={{ animationDelay: `${sectionIndex * 100}ms` }}>
             {section.title && (
-              <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] mb-2 px-1">
+              <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] mb-3 px-1">
                 {section.title}
               </h3>
             )}
-            <div className="card">
+            <SectionCard>
               {section.items.map((item, itemIndex) => {
                 const Icon = item.icon;
                 return (
                   <button
                     key={item.label}
                     onClick={item.onClick}
-                    className={`w-full flex items-center justify-between py-3.5 ${
+                    className={`w-full flex items-center justify-between py-4 ${
                       itemIndex !== section.items.length - 1 ? 'border-b border-[var(--color-border-light)]' : ''
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                         item.isDanger
                           ? 'bg-[var(--color-danger)]/10'
                           : 'bg-[var(--color-bg-secondary)]'
                       }`}>
-                        <Icon className={`w-5 h-5 ${
+                        <Icon className={`w-6 h-6 ${
                           item.isDanger
                             ? 'text-[var(--color-danger)]'
                             : 'text-[var(--color-text-secondary)]'
                         }`} />
                       </div>
-                      <span className={`font-medium ${
+                      <span className={`font-medium text-base ${
                         item.isDanger
                           ? 'text-[var(--color-danger)]'
                           : 'text-[var(--color-text-primary)]'
                       }`}>{item.label}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {item.value && (
                         <span className="text-sm text-[var(--color-text-muted)]">
                           {item.value}
@@ -234,7 +226,7 @@ export default function SettingsPage() {
                   </button>
                 );
               })}
-            </div>
+            </SectionCard>
           </div>
         ))}
 
@@ -242,16 +234,15 @@ export default function SettingsPage() {
         <p className="text-center text-sm text-[var(--color-text-muted)] pt-4">
           {t.settings.version} 1.0.0
         </p>
-      </main>
+      </PageContainer>
 
       {/* Name Modal */}
       {showNameModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--color-overlay)]" onClick={() => setShowNameModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" onClick={() => setShowNameModal(false)}>
           <div
-            className="w-full max-w-lg bg-[var(--color-bg-card)] rounded-t-3xl p-6 animate-slideUp"
+            className="w-full max-w-md bg-[var(--color-bg-card)] rounded-3xl p-6 mx-4 animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-1 bg-[var(--color-border)] rounded-full mx-auto mb-6" />
             <h2 className="text-xl font-bold mb-4 text-[var(--color-text-primary)]">{t.settings.changeName}</h2>
             <input
               type="text"
@@ -278,34 +269,37 @@ export default function SettingsPage() {
 
       {/* Currency Modal */}
       {showCurrencyModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--color-overlay)]" onClick={() => setShowCurrencyModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" onClick={() => setShowCurrencyModal(false)}>
           <div
-            className="w-full max-w-lg bg-[var(--color-bg-card)] rounded-t-3xl p-6 animate-slideUp max-h-[70vh] overflow-y-auto"
+            className="w-full max-w-md bg-[var(--color-bg-card)] rounded-3xl p-6 mx-4 animate-scaleIn max-h-[70vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-1 bg-[var(--color-border)] rounded-full mx-auto mb-6" />
             <h2 className="text-xl font-bold mb-4 text-[var(--color-text-primary)]">{t.settings.selectCurrency}</h2>
             <div className="space-y-2">
-              {CURRENCIES.map((curr) => (
-                <button
-                  key={curr.code}
-                  onClick={() => {
-                    setCurrency(curr.code);
-                    setShowCurrencyModal(false);
-                  }}
-                  className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
-                    currency === curr.code
-                      ? 'bg-[var(--color-primary)] text-white shadow-lg'
-                      : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]'
-                  }`}
-                >
-                  <span className="font-medium">{curr.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm ${currency === curr.code ? 'opacity-80' : 'text-[var(--color-text-muted)]'}`}>{curr.symbol}</span>
-                    {currency === curr.code && <Check className="w-5 h-5" />}
-                  </div>
-                </button>
-              ))}
+              {CURRENCIES.map((curr) => {
+                const currName = language === 'ar' ? curr.nameAr : curr.name;
+                const currSymbol = language === 'ar' ? curr.symbolAr : curr.symbol;
+                return (
+                  <button
+                    key={curr.code}
+                    onClick={() => {
+                      setCurrency(curr.code);
+                      setShowCurrencyModal(false);
+                    }}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
+                      currency === curr.code
+                        ? 'bg-[var(--color-primary)] text-white shadow-lg'
+                        : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]'
+                    }`}
+                  >
+                    <span className="font-medium">{currName}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm ${currency === curr.code ? 'opacity-80' : 'text-[var(--color-text-muted)]'}`}>{currSymbol}</span>
+                      {currency === curr.code && <Check className="w-5 h-5" />}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => setShowCurrencyModal(false)}
@@ -319,12 +313,11 @@ export default function SettingsPage() {
 
       {/* Language Modal */}
       {showLanguageModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--color-overlay)]" onClick={() => setShowLanguageModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" onClick={() => setShowLanguageModal(false)}>
           <div
-            className="w-full max-w-lg bg-[var(--color-bg-card)] rounded-t-3xl p-6 animate-slideUp"
+            className="w-full max-w-md bg-[var(--color-bg-card)] rounded-3xl p-6 mx-4 animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-1 bg-[var(--color-border)] rounded-full mx-auto mb-6" />
             <h2 className="text-xl font-bold mb-4 text-[var(--color-text-primary)]">{t.settings.selectLanguage}</h2>
             <div className="space-y-2">
               {LANGUAGES.map((lang) => (
@@ -357,8 +350,6 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
-
-      <BottomNav />
     </div>
   );
 }

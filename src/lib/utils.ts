@@ -88,7 +88,7 @@ export function groupByCategory(transactions: Transaction[], type: 'income' | 'e
     .map(([categoryId, value]) => {
       const category = ALL_CATEGORIES.find(c => c.id === categoryId);
       return {
-        name: category?.nameAr || categoryId,
+        name: categoryId, // Store the category ID for lookup
         value,
         color: category?.color,
       };
@@ -136,6 +136,55 @@ export function getMonthlyData(transactions: Transaction[], months: number = 6):
     const expenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
     result.push({ month: monthName, income, expenses });
+  }
+
+  return result;
+}
+
+// Get weekly data for charts
+export function getWeeklyData(transactions: Transaction[], weeks: number = 8): { month: string; income: number; expenses: number }[] {
+  const result: { month: string; income: number; expenses: number }[] = [];
+  const now = new Date();
+
+  for (let i = weeks - 1; i >= 0; i--) {
+    const weekEnd = new Date(now);
+    weekEnd.setDate(now.getDate() - (i * 7));
+    const weekStart = new Date(weekEnd);
+    weekStart.setDate(weekEnd.getDate() - 6);
+
+    const weekLabel = `${weekStart.getDate()}/${weekStart.getMonth() + 1}`;
+
+    const weekTransactions = transactions.filter(t => {
+      const tDate = new Date(t.date);
+      return tDate >= weekStart && tDate <= weekEnd;
+    });
+
+    const income = weekTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = weekTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+    result.push({ month: weekLabel, income, expenses });
+  }
+
+  return result;
+}
+
+// Get daily data for charts
+export function getDailyData(transactions: Transaction[], days: number = 14): { month: string; income: number; expenses: number }[] {
+  const result: { month: string; income: number; expenses: number }[] = [];
+  const now = new Date();
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    const dayLabel = `${date.getDate()}/${date.getMonth() + 1}`;
+
+    const dayTransactions = transactions.filter(t => t.date === dateStr);
+
+    const income = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+    result.push({ month: dayLabel, income, expenses });
   }
 
   return result;

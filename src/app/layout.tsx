@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Tajawal } from "next/font/google";
-import { ThemeProvider, AuthGuard } from "@/components";
+import { ThemeProvider } from "@/components";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -56,9 +56,7 @@ export default function RootLayout({
       </head>
       <body className={`${tajawal.className} antialiased`}>
         <ThemeProvider>
-          <AuthGuard>
-            {children}
-          </AuthGuard>
+          {children}
         </ThemeProvider>
       </body>
     </html>

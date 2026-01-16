@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-  MessageCircle,
   Send,
   Sparkles,
   TrendingUp,
@@ -13,15 +12,13 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { Header, BottomNav } from '@/components';
+import { PageHeader, PageContainer, SectionCard } from '@/components';
 import { useTranslation } from '@/hooks/useTranslation';
 
-// Quick action suggestions
 const quickActions = [
   {
     id: 'analyze',
-    iconAr: '📊',
-    iconEn: '📊',
+    icon: '📊',
     titleAr: 'حلل مصاريفي',
     titleEn: 'Analyze my expenses',
     promptAr: 'حلل مصاريفي الشهرية وأعطني نصائح للتحسين',
@@ -29,8 +26,7 @@ const quickActions = [
   },
   {
     id: 'save',
-    iconAr: '💰',
-    iconEn: '💰',
+    icon: '💰',
     titleAr: 'كيف أدخر أكثر؟',
     titleEn: 'How to save more?',
     promptAr: 'أعطني نصائح عملية لزيادة مدخراتي الشهرية',
@@ -38,8 +34,7 @@ const quickActions = [
   },
   {
     id: 'budget',
-    iconAr: '📋',
-    iconEn: '📋',
+    icon: '📋',
     titleAr: 'ضع لي ميزانية',
     titleEn: 'Create a budget',
     promptAr: 'ساعدني في وضع ميزانية شهرية مناسبة لدخلي',
@@ -47,8 +42,7 @@ const quickActions = [
   },
   {
     id: 'invest',
-    iconAr: '📈',
-    iconEn: '📈',
+    icon: '📈',
     titleAr: 'نصائح استثمارية',
     titleEn: 'Investment tips',
     promptAr: 'ما هي أفضل طرق الاستثمار للمبتدئين؟',
@@ -56,49 +50,39 @@ const quickActions = [
   },
 ];
 
-// Sample chat messages for demo
-const sampleMessages = [
-  {
-    id: 1,
-    type: 'bot',
-    textAr: 'مرحباً! أنا مستشارك المالي الذكي. كيف يمكنني مساعدتك اليوم؟',
-    textEn: 'Hello! I am your smart financial advisor. How can I help you today?',
-  },
-];
-
 export default function ChatPage() {
-  const { t, language, isRTL } = useTranslation();
-  const [messages] = useState(sampleMessages);
+  const { language, isRTL } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [isComingSoon] = useState(true);
 
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
 
   return (
-    <div className="min-h-screen pb-24 bg-[var(--color-bg-primary)]">
-      <Header
+    <div>
+      <PageHeader 
         title={language === 'ar' ? 'المستشار الذكي' : 'Smart Advisor'}
-        showGreeting={false}
+        showBack
+        backUrl="/"
       />
 
-      <main className="px-4 space-y-4 animate-fadeInUp">
+      <PageContainer>
         {/* Hero Card */}
-        <div className="card-gradient p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
+        <div className="card-gradient p-6 relative overflow-hidden rounded-2xl">
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-white/5 translate-y-1/2 -translate-x-1/2" />
 
-          <div className="relative flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center animate-float">
-              <Bot className="w-8 h-8 text-white" />
+          <div className="relative flex items-center gap-5">
+            <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center animate-float">
+              <Bot className="w-10 h-10 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-[var(--color-gold)]" />
-                <span className="text-xs font-medium opacity-90">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5 text-[var(--color-gold)]" />
+                <span className="text-sm font-medium opacity-90">
                   {language === 'ar' ? 'مدعوم بالذكاء الاصطناعي' : 'Powered by AI'}
                 </span>
               </div>
-              <h1 className="text-xl font-bold">
+              <h1 className="text-2xl font-bold">
                 {language === 'ar' ? 'المستشار المالي الذكي' : 'Smart Financial Advisor'}
               </h1>
             </div>
@@ -107,13 +91,13 @@ export default function ChatPage() {
 
         {/* Coming Soon Notice */}
         {isComingSoon && (
-          <div className="card bg-[var(--color-gold)]/10 border border-[var(--color-gold)]/30">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[var(--color-gold)]/20 flex items-center justify-center flex-shrink-0">
-                <Lightbulb className="w-5 h-5 text-[var(--color-gold)]" />
+          <SectionCard className="bg-[var(--color-gold)]/10 border-[var(--color-gold)]/30">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[var(--color-gold)]/20 flex items-center justify-center flex-shrink-0">
+                <Lightbulb className="w-6 h-6 text-[var(--color-gold)]" />
               </div>
               <div>
-                <h3 className="font-bold text-[var(--color-text-primary)] mb-1">
+                <h3 className="font-bold text-lg text-[var(--color-text-primary)] mb-1">
                   {language === 'ar' ? 'قريباً' : 'Coming Soon'}
                 </h3>
                 <p className="text-sm text-[var(--color-text-secondary)]">
@@ -123,23 +107,23 @@ export default function ChatPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </SectionCard>
         )}
 
         {/* Quick Actions */}
         <div>
-          <h2 className="section-title mb-3">
+          <h2 className="section-title mb-4">
             {language === 'ar' ? 'جرب أن تسأل' : 'Try asking'}
           </h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-4 gap-4">
             {quickActions.map((action, index) => (
               <button
                 key={action.id}
-                className="card card-interactive p-4 text-right animate-fadeInUp"
+                className="card card-interactive p-5 text-right animate-fadeInUp"
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => setInputValue(language === 'ar' ? action.promptAr : action.promptEn)}
               >
-                <span className="text-2xl mb-2 block">{action.iconAr}</span>
+                <span className="text-3xl mb-3 block">{action.icon}</span>
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">
                   {language === 'ar' ? action.titleAr : action.titleEn}
                 </span>
@@ -149,81 +133,73 @@ export default function ChatPage() {
         </div>
 
         {/* Features Preview */}
-        <div className="card">
-          <h3 className="font-bold text-[var(--color-text-primary)] mb-4">
-            {language === 'ar' ? 'ما يمكن للمستشار مساعدتك فيه' : 'What the advisor can help you with'}
-          </h3>
-
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg-secondary)]">
+        <SectionCard title={language === 'ar' ? 'ما يمكن للمستشار مساعدتك فيه' : 'What the advisor can help you with'}>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--color-bg-secondary)]">
               <div className="stat-icon stat-icon-income">
-                <TrendingUp className="w-5 h-5" />
+                <TrendingUp className="w-6 h-6" />
               </div>
               <div>
                 <p className="font-medium text-[var(--color-text-primary)]">
                   {language === 'ar' ? 'تحليل المصاريف' : 'Expense Analysis'}
                 </p>
-                <p className="text-xs text-[var(--color-text-secondary)]">
+                <p className="text-sm text-[var(--color-text-secondary)]">
                   {language === 'ar' ? 'فهم أين تذهب أموالك' : 'Understand where your money goes'}
                 </p>
               </div>
-              <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] mr-auto" />
+              <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] ml-auto" />
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg-secondary)]">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--color-bg-secondary)]">
               <div className="stat-icon stat-icon-savings">
-                <PiggyBank className="w-5 h-5" />
+                <PiggyBank className="w-6 h-6" />
               </div>
               <div>
                 <p className="font-medium text-[var(--color-text-primary)]">
                   {language === 'ar' ? 'نصائح الادخار' : 'Saving Tips'}
                 </p>
-                <p className="text-xs text-[var(--color-text-secondary)]">
+                <p className="text-sm text-[var(--color-text-secondary)]">
                   {language === 'ar' ? 'طرق ذكية لزيادة مدخراتك' : 'Smart ways to increase savings'}
                 </p>
               </div>
-              <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] mr-auto" />
+              <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] ml-auto" />
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-bg-secondary)]">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--color-bg-secondary)]">
               <div className="stat-icon stat-icon-balance">
-                <Target className="w-5 h-5" />
+                <Target className="w-6 h-6" />
               </div>
               <div>
                 <p className="font-medium text-[var(--color-text-primary)]">
                   {language === 'ar' ? 'تخطيط الأهداف' : 'Goal Planning'}
                 </p>
-                <p className="text-xs text-[var(--color-text-secondary)]">
+                <p className="text-sm text-[var(--color-text-secondary)]">
                   {language === 'ar' ? 'حقق أهدافك المالية' : 'Achieve your financial goals'}
                 </p>
               </div>
-              <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] mr-auto" />
+              <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] ml-auto" />
             </div>
           </div>
-        </div>
+        </SectionCard>
 
-        {/* Chat Input (disabled for now) */}
-        <div className="fixed bottom-20 left-4 right-4 max-w-lg mx-auto">
-          <div className="card p-2 flex items-center gap-2 shadow-lg">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={language === 'ar' ? 'اكتب سؤالك هنا...' : 'Type your question here...'}
-              className="flex-1 bg-transparent border-none outline-none px-2 text-[var(--color-text-primary)]"
-              disabled={isComingSoon}
-            />
-            <button
-              className={`btn btn-primary btn-icon ${isComingSoon ? 'opacity-50' : ''}`}
-              disabled={isComingSoon}
-            >
-              <Send className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </main>
-
-      <BottomNav />
+        {/* Chat Input */}
+        <SectionCard elevated className="flex items-center gap-4">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={language === 'ar' ? 'اكتب سؤالك هنا...' : 'Type your question here...'}
+            className="flex-1 bg-transparent border-none outline-none px-2 text-lg text-[var(--color-text-primary)]"
+            disabled={isComingSoon}
+          />
+          <button
+            className={`btn btn-primary btn-icon ${isComingSoon ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isComingSoon}
+          >
+            <Send className="w-5 h-5" />
+          </button>
+        </SectionCard>
+      </PageContainer>
     </div>
   );
 }

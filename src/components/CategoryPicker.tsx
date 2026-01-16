@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Category, TransactionType } from '@/types';
 import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES } from '@/lib/constants';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   utensils: Utensils,
@@ -51,6 +52,7 @@ export default function CategoryPicker({
   selectedCategory,
   onSelect,
 }: CategoryPickerProps) {
+  const { language } = useTranslation();
   const categories = type === 'expense' ? DEFAULT_EXPENSE_CATEGORIES : DEFAULT_INCOME_CATEGORIES;
 
   return (
@@ -58,6 +60,7 @@ export default function CategoryPicker({
       {categories.map((category) => {
         const Icon = iconMap[category.icon] || MoreHorizontal;
         const isSelected = selectedCategory === category.id;
+        const categoryName = language === 'ar' ? category.nameAr : category.name;
 
         return (
           <button
@@ -67,7 +70,7 @@ export default function CategoryPicker({
             className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
               isSelected
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'bg-gray-50 hover:bg-gray-100'
+                : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-elevated)]'
             }`}
           >
             <div
@@ -86,7 +89,7 @@ export default function CategoryPicker({
             <span className={`text-xs font-medium text-center leading-tight ${
               isSelected ? 'text-white' : 'text-[var(--color-text-primary)]'
             }`}>
-              {category.nameAr}
+              {categoryName}
             </span>
           </button>
         );

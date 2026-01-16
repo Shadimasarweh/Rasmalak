@@ -1,20 +1,25 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, X, Loader2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Settings, Loader2 } from 'lucide-react';
 import { CategoryPicker } from '@/components';
-import { useStore } from '@/store/useStore';
+import { useStore, useCurrency } from '@/store/useStore';
 import { TransactionType } from '@/types';
-import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES } from '@/lib/constants';
+import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES, CURRENCIES } from '@/lib/constants';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function NewTransactionForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const addTransaction = useStore((state) => state.addTransaction);
+  const currency = useCurrency();
+  const { t, language, isRTL } = useTranslation();
+  const amountInputRef = useRef<HTMLInputElement>(null);
 
   const initialType = (searchParams.get('type') as TransactionType) || 'expense';
+  const currencySymbol = CURRENCIES.find(c => c.code === currency)?.symbol || currency;
 
   const [type, setType] = useState<TransactionType>(initialType);
   const [amount, setAmount] = useState('');
@@ -22,11 +27,21 @@ function NewTransactionForm() {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const BackArrow = isRTL ? ArrowRight : ArrowLeft;
+
   // Set default category when type changes
   useEffect(() => {
     const categories = type === 'expense' ? DEFAULT_EXPENSE_CATEGORIES : DEFAULT_INCOME_CATEGORIES;
     setCategory(categories[0].id);
   }, [type]);
+
+  const handleCategorySelect = (categoryId: string) => {
+    setCategory(categoryId);
+    // Auto-focus amount input when category is selected
+    setTimeout(() => {
+      amountInputRef.current?.focus();
+    }, 100);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,34 +60,34 @@ function NewTransactionForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[var(--color-bg-primary)]">
+      <header className="sticky top-0 z-40 header-glass">
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <Link
               href="/transactions"
-              className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"
+              className="w-11 h-11 rounded-2xl bg-[var(--color-bg-card)] flex items-center justify-center shadow-sm border border-[var(--color-border-light)] transition-all hover:shadow-md"
             >
-              <ArrowRight className="w-5 h-5 text-[var(--color-text-secondary)]" />
+              <BackArrow className="w-5 h-5 text-[var(--color-text-secondary)]" />
             </Link>
-            <h1 className="text-xl font-bold">معاملة جديدة</h1>
+            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">{t.transactions.newTransaction}</h1>
           </div>
 
-          <button
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"
+          <Link
+            href="/settings"
+            className="w-11 h-11 rounded-2xl bg-[var(--color-bg-card)] flex items-center justify-center shadow-sm border border-[var(--color-border-light)] transition-all hover:shadow-md"
           >
-            <X className="w-5 h-5 text-[var(--color-text-secondary)]" />
-          </button>
+            <Settings className="w-5 h-5 text-[var(--color-text-secondary)]" />
+          </Link>
         </div>
       </header>
 
-      <form onSubmit={handleSubmit} className="px-4 space-y-6 pb-8">
+      <form onSubmit={handleSubmit} className="px-4 space-y-6 pb-8 animate-fadeInUp">
         {/* Type Toggle */}
         <div className="card">
           <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-3">
-            نوع المعاملة
+            {t.transactions.type}
           </label>
           <div className="flex gap-2">
             <button
@@ -80,22 +95,22 @@ function NewTransactionForm() {
               onClick={() => setType('expense')}
               className={`flex-1 py-3 rounded-xl font-medium transition-all ${
                 type === 'expense'
-                  ? 'bg-red-500 text-white'
-                  : 'bg-gray-100 text-[var(--color-text-secondary)]'
+                  ? 'bg-[var(--color-danger)] text-white'
+                  : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)]'
               }`}
             >
-              مصروف
+              {t.transactions.expense}
             </button>
             <button
               type="button"
               onClick={() => setType('income')}
               className={`flex-1 py-3 rounded-xl font-medium transition-all ${
                 type === 'income'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 text-[var(--color-text-secondary)]'
+                  ? 'bg-[var(--color-success)] text-white'
+                  : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)]'
               }`}
             >
-              دخل
+              {t.transactions.income}
             </button>
           </div>
         </div>
@@ -103,20 +118,21 @@ function NewTransactionForm() {
         {/* Amount Input */}
         <div className="card">
           <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-3">
-            المبلغ
+            {t.transactions.amount}
           </label>
           <div className="relative">
             <input
+              ref={amountInputRef}
               type="number"
               inputMode="decimal"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0"
-              className="w-full text-4xl font-bold text-center py-4 bg-gray-50 rounded-xl border-2 border-transparent focus:border-[var(--color-primary)] focus:bg-white transition-all outline-none"
+              className="w-full text-4xl font-bold text-center py-4 bg-[var(--color-bg-secondary)] rounded-xl border-2 border-transparent focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-card)] transition-all outline-none text-[var(--color-text-primary)]"
               required
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-[var(--color-text-muted)]">
-              ر.س
+            <span className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-lg text-[var(--color-text-muted)]`}>
+              {currencySymbol}
             </span>
           </div>
         </div>
@@ -124,25 +140,25 @@ function NewTransactionForm() {
         {/* Category Picker */}
         <div className="card">
           <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-3">
-            الفئة
+            {t.transactions.category}
           </label>
           <CategoryPicker
             type={type}
             selectedCategory={category}
-            onSelect={setCategory}
+            onSelect={handleCategorySelect}
           />
         </div>
 
         {/* Description */}
         <div className="card">
           <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-3">
-            الوصف (اختياري)
+            {t.transactions.descriptionOptional}
           </label>
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="أضف وصفاً..."
+            placeholder={t.transactions.descriptionPlaceholder}
             className="input"
           />
         </div>
@@ -150,7 +166,7 @@ function NewTransactionForm() {
         {/* Date */}
         <div className="card">
           <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-3">
-            التاريخ
+            {t.transactions.date}
           </label>
           <input
             type="date"
@@ -168,12 +184,12 @@ function NewTransactionForm() {
           className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
             amount && category
               ? type === 'expense'
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-green-500 text-white hover:bg-green-600'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                ? 'bg-[var(--color-danger)] text-white hover:opacity-90'
+                : 'bg-[var(--color-success)] text-white hover:opacity-90'
+              : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-muted)] cursor-not-allowed'
           }`}
         >
-          {type === 'expense' ? 'إضافة مصروف' : 'إضافة دخل'}
+          {type === 'expense' ? t.transactions.addExpense : t.transactions.addIncome}
         </button>
       </form>
     </div>
@@ -195,3 +211,5 @@ export default function NewTransactionPage() {
     </Suspense>
   );
 }
+
+

@@ -24,13 +24,16 @@ export default function BottomNav() {
     { id: 'home', path: '/', label: t.nav.home, icon: Home },
     { id: 'transactions', path: '/transactions', label: t.nav.transactions, icon: Receipt },
     { id: 'add', path: '/transactions/new', label: t.nav.add, icon: Plus, isAction: true },
-    { id: 'learn', path: '/learn', label: t.nav.learn || 'تعلّم', icon: GraduationCap },
-    { id: 'chat', path: '/chat', label: 'المستشار', icon: MessageCircle },
+    { id: 'learn', path: '/learn', label: t.nav.learn, icon: GraduationCap },
+    { id: 'chat', path: '/chat', label: t.nav.chat, icon: MessageCircle },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bottom-nav pb-safe z-50">
-      <div className="flex items-center justify-around h-16 px-2 max-w-lg mx-auto">
+    <nav 
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[var(--color-bg-card)] rounded-full shadow-lg border border-[var(--color-border)] px-4 py-2 z-50" 
+      dir="ltr"
+    >
+      <div className="flex items-center justify-center gap-1">
         {navItems.map((item) => {
           const isActive = pathname === item.path ||
             (item.path !== '/' && pathname.startsWith(item.path));
@@ -41,10 +44,10 @@ export default function BottomNav() {
               <Link
                 key={item.id}
                 href={item.path}
-                className="flex flex-col items-center justify-center -mt-8"
+                className="flex items-center justify-center mx-1"
               >
-                <div className="nav-fab w-14 h-14 rounded-2xl flex items-center justify-center">
-                  <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                <div className="w-12 h-12 rounded-full bg-[var(--color-primary)] flex items-center justify-center shadow-md">
+                  <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                 </div>
               </Link>
             );
@@ -54,19 +57,14 @@ export default function BottomNav() {
             <Link
               key={item.id}
               href={item.path}
-              className={`nav-item flex-1 max-w-[72px] ${
+              className={`flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-colors ${
                 isActive
-                  ? 'nav-item-active'
+                  ? 'text-[var(--color-primary)]'
                   : 'text-[var(--color-text-muted)]'
               }`}
             >
-              <div className={`relative ${isActive ? 'scale-110' : ''} transition-transform`}>
-                <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-                {isActive && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--color-primary)]" />
-                )}
-              </div>
-              <span className={`text-[10px] mt-1 ${isActive ? 'font-semibold' : 'font-medium'}`}>
+              <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+              <span className={`text-[10px] mt-0.5 ${isActive ? 'font-semibold' : 'font-medium'}`}>
                 {item.label}
               </span>
             </Link>
