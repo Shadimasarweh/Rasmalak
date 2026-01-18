@@ -769,7 +769,7 @@ export default function HomePage() {
                 {language === 'ar' ? 'مبلغ الميزانية' : 'Budget Amount'}
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">
+                <span className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]`}>
                   {CURRENCIES.find(c => c.code === currency)?.[language === 'ar' ? 'symbolAr' : 'symbol']}
                 </span>
                 <input
@@ -777,7 +777,7 @@ export default function HomePage() {
                   value={tempBudget}
                   onChange={(e) => setTempBudget(e.target.value)}
                   placeholder="0"
-                  className="input pl-12 text-xl font-bold"
+                  className={`input ${isRTL ? 'pr-12' : 'pl-12'} text-xl font-bold`}
                   autoFocus
                 />
               </div>

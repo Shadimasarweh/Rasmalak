@@ -174,7 +174,7 @@ export default function Sidebar() {
                 <span className={`text-sm truncate ${active ? 'font-medium' : ''}`}>{label}</span>
               )}
               {active && isExpanded && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
+                <div className="ms-auto w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
               )}
             </Link>
           );

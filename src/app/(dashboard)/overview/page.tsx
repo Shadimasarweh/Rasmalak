@@ -210,7 +210,7 @@ export default function OverviewPage() {
                   <span className="text-sm font-medium text-[var(--color-text-primary)]">
                     {action.label}
                   </span>
-                  <ViewAllArrow className="w-4 h-4 text-[var(--color-text-muted)] ml-auto" />
+                  <ViewAllArrow className="w-4 h-4 text-[var(--color-text-muted)] ms-auto" />
                 </Link>
               );
             })}
