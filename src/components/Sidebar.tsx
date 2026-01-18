@@ -96,10 +96,11 @@ export default function Sidebar() {
   return (
     <aside
       className={`
-        h-screen flex-shrink-0
+        sticky top-0 h-screen flex-shrink-0
         bg-[var(--sidebar-bg)]
         flex flex-col
         transition-all duration-300 ease-in-out
+        hidden lg:flex
         ${isExpanded ? 'w-60' : 'w-[72px]'}
       `}
     >

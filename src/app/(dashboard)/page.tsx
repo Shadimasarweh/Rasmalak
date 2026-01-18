@@ -199,7 +199,7 @@ export default function HomePage() {
             {/* Title & Date */}
             <div>
               <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-                {isRTL ? 'لوحة التحكم' : 'Dashboard'}
+                {language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
               </h1>
               <p className="text-sm text-[var(--color-text-muted)] mt-1">{getMonthName()}</p>
             </div>
@@ -488,13 +488,13 @@ export default function HomePage() {
             {/* Top Spending Bar Chart */}
             <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
               <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
-                {isRTL ? 'أعلى المصاريف' : 'Top Spending'}
+                {language === 'ar' ? 'أعلى المصاريف' : 'Top Spending'}
               </h2>
 
               {topCategories.length === 0 ? (
                 <div className="py-12 text-center">
                   <p className="text-sm text-[var(--color-text-muted)]">
-                    {isRTL ? 'لا توجد مصاريف هذا الشهر' : 'No expenses this month'}
+                    {language === 'ar' ? 'لا توجد مصاريف هذا الشهر' : 'No expenses this month'}
                   </p>
                 </div>
               ) : (
@@ -540,14 +540,14 @@ export default function HomePage() {
             {/* Expense Breakdown Donut */}
             <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
               <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
-                {isRTL ? 'توزيع المصاريف' : 'Expense Breakdown'}
+                {language === 'ar' ? 'توزيع المصاريف' : 'Expense Breakdown'}
               </h2>
 
               {expensesByCategory.length === 0 ? (
                 <div className="py-12 text-center">
                   <div className="w-20 h-20 rounded-full border-4 border-[var(--color-border-light)] mx-auto mb-3" />
                   <p className="text-sm text-[var(--color-text-muted)]">
-                    {isRTL ? 'لا توجد مصاريف' : 'No expenses'}
+                    {language === 'ar' ? 'لا توجد مصاريف' : 'No expenses'}
                   </p>
                 </div>
               ) : (
@@ -605,10 +605,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Hidden on mobile (use bottom nav instead) */}
       <Link
         href="/transactions/new"
-        className="fixed bottom-6 end-6 w-14 h-14 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 z-50"
+        className="hidden lg:flex fixed bottom-6 end-6 w-14 h-14 rounded-full bg-[var(--color-primary)] text-white items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 z-50"
         aria-label={t.transactions.addTransaction}
       >
         <Plus className="w-6 h-6" strokeWidth={2.5} />
