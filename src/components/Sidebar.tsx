@@ -7,20 +7,62 @@ import {
   LayoutDashboard,
   Receipt,
   GraduationCap,
+  Calculator,
+  MessageSquareText,
   Settings,
   ChevronLeft,
   ChevronRight,
-  User,
-  Circle,
+  LogOut,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useUserName, useUser } from '@/store/useStore';
+import { useUserName, useUser, useLogout } from '@/store/useStore';
 
 const navItems = [
-  { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard' },
-  { id: 'transactions', path: '/transactions', icon: Receipt, labelAr: 'المعاملات', labelEn: 'Transactions' },
-  { id: 'learn', path: '/learn', icon: GraduationCap, labelAr: 'تعلّم', labelEn: 'Learn' },
-  { id: 'settings', path: '/settings', icon: Settings, labelAr: 'الإعدادات', labelEn: 'Settings' },
+  { 
+    id: 'dashboard', 
+    path: '/', 
+    icon: LayoutDashboard, 
+    labelAr: 'الرئيسية', 
+    labelEn: 'Dashboard' 
+  },
+  { 
+    id: 'transactions', 
+    path: '/transactions', 
+    icon: Receipt, 
+    labelAr: 'المعاملات', 
+    labelEn: 'Transactions' 
+  },
+  { 
+    id: 'learn', 
+    path: '/learn', 
+    icon: GraduationCap, 
+    labelAr: 'تعلّم', 
+    labelEn: 'Learn' 
+  },
+  { 
+    id: 'chat', 
+    path: '/chat', 
+    icon: MessageSquareText, 
+    labelAr: 'المستشار', 
+    labelEn: 'Advisor' 
+  },
+  { 
+    id: 'calculators', 
+    path: '/calculators', 
+    icon: Calculator, 
+    labelAr: 'الحاسبات', 
+    labelEn: 'Tools' 
+  },
+];
+
+const bottomNavItems = [
+  { 
+    id: 'settings', 
+    path: '/settings', 
+    icon: Settings, 
+    labelAr: 'الإعدادات', 
+    labelEn: 'Settings' 
+  },
 ];
 
 export default function Sidebar() {
@@ -29,6 +71,7 @@ export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   const userName = useUserName();
   const user = useUser();
+  const logout = useLogout();
   const displayName = user?.name || userName || (language === 'ar' ? 'مستخدم' : 'User');
 
   const ToggleIcon = isRTL
@@ -45,52 +88,68 @@ export default function Sidebar() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+
   return (
     <aside
       className={`
         h-screen flex-shrink-0
-        bg-[var(--color-primary)]
+        bg-[var(--sidebar-bg)]
         flex flex-col
         transition-all duration-300 ease-in-out
-        ${isExpanded ? 'w-64' : 'w-20'}
-        border-r border-white/10
+        ${isExpanded ? 'w-60' : 'w-[72px]'}
       `}
     >
-      {/* Logo & User Profile */}
-      <div className="border-b border-white/10">
-        {/* Logo */}
-        <div className={`h-16 flex items-center justify-center ${isExpanded ? 'px-4' : ''}`}>
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-lg">{isRTL ? 'ر' : 'R'}</span>
-          </div>
+      {/* Logo */}
+      <div className={`h-16 flex items-center border-b border-[var(--sidebar-border)] ${isExpanded ? 'px-4 gap-3' : 'justify-center'}`}>
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center shadow-lg flex-shrink-0">
+          <span className="text-white font-bold text-lg">ر</span>
         </div>
-
-        {/* User Profile Section */}
         {isExpanded && (
-          <div className="px-4 pb-4 animate-fadeIn">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                  {getInitials(displayName)}
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[var(--color-primary)] shadow-sm">
-                  <Circle className="w-full h-full fill-emerald-400" />
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{displayName}</p>
-                <p className="text-xs text-white/60 truncate">{language === 'ar' ? 'متصل' : 'Online'}</p>
-              </div>
-            </div>
+          <div className="animate-fadeIn">
+            <span className="text-white font-semibold text-base">Rasmalak</span>
+            <span className="text-[var(--color-primary)] font-semibold text-base"> AI</span>
           </div>
         )}
       </div>
 
-      {/* Nav Items */}
-      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isExpanded ? 'px-3' : 'px-0'}`}>
+      {/* User Profile Section */}
+      <div className={`border-b border-[var(--sidebar-border)] ${isExpanded ? 'p-3' : 'p-2'}`}>
+        <div className={`
+          flex items-center rounded-xl transition-colors
+          ${isExpanded ? 'gap-3 p-2.5 bg-[var(--sidebar-bg-hover)]' : 'justify-center p-2'}
+        `}>
+          <div className="relative flex-shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center text-white font-medium text-sm shadow-md">
+              {getInitials(displayName)}
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--sidebar-bg)]" />
+          </div>
+          {isExpanded && (
+            <div className="flex-1 min-w-0 animate-fadeIn">
+              <p className="text-sm font-medium text-white truncate">{displayName}</p>
+              <p className="text-xs text-[var(--sidebar-text)] truncate">
+                {user?.email || (language === 'ar' ? 'حساب شخصي' : 'Personal Account')}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className={`flex-1 py-3 space-y-1 overflow-y-auto ${isExpanded ? 'px-3' : 'px-2'}`}>
+        {/* Section Label */}
+        {isExpanded && (
+          <p className="px-3 py-2 text-xs font-medium text-[var(--sidebar-text)] uppercase tracking-wider">
+            {language === 'ar' ? 'القائمة' : 'Menu'}
+          </p>
+        )}
+
         {navItems.map((item) => {
-          const isActive = pathname === item.path || 
-            (item.path !== '/' && pathname.startsWith(item.path));
+          const active = isActive(item.path);
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
 
@@ -99,31 +158,88 @@ export default function Sidebar() {
               key={item.id}
               href={item.path}
               className={`
-                flex items-center min-h-[44px] rounded-xl
-                transition-all duration-200
+                flex items-center min-h-[42px] rounded-lg
+                transition-all duration-150
                 ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
-                ${isActive
-                  ? 'bg-white/20 text-white shadow-lg shadow-black/10'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white'
+                ${active
+                  ? 'bg-[var(--sidebar-bg-active)] text-[var(--color-primary)]'
+                  : 'text-[var(--sidebar-text)] hover:bg-[var(--sidebar-bg-hover)] hover:text-white'
                 }
               `}
               title={!isExpanded ? label : undefined}
             >
-              <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'stroke-[2.5px]' : ''}`} />
+              <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'stroke-[2px]' : ''}`} />
               {isExpanded && (
-                <span className="text-sm font-medium truncate">{label}</span>
+                <span className={`text-sm truncate ${active ? 'font-medium' : ''}`}>{label}</span>
+              )}
+              {active && isExpanded && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
               )}
             </Link>
           );
         })}
       </nav>
 
+      {/* Bottom Section */}
+      <div className={`border-t border-[var(--sidebar-border)] py-3 ${isExpanded ? 'px-3' : 'px-2'}`}>
+        {bottomNavItems.map((item) => {
+          const active = isActive(item.path);
+          const Icon = item.icon;
+          const label = language === 'ar' ? item.labelAr : item.labelEn;
+
+          return (
+            <Link
+              key={item.id}
+              href={item.path}
+              className={`
+                flex items-center min-h-[42px] rounded-lg
+                transition-all duration-150
+                ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
+                ${active
+                  ? 'bg-[var(--sidebar-bg-active)] text-[var(--color-primary)]'
+                  : 'text-[var(--sidebar-text)] hover:bg-[var(--sidebar-bg-hover)] hover:text-white'
+                }
+              `}
+              title={!isExpanded ? label : undefined}
+            >
+              <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'stroke-[2px]' : ''}`} />
+              {isExpanded && (
+                <span className={`text-sm truncate ${active ? 'font-medium' : ''}`}>{label}</span>
+              )}
+            </Link>
+          );
+        })}
+
+        {/* Logout Button */}
+        <button
+          onClick={() => logout()}
+          className={`
+            w-full flex items-center min-h-[42px] rounded-lg
+            transition-all duration-150 mt-1
+            text-[var(--sidebar-text)] hover:bg-red-500/10 hover:text-red-400
+            ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
+          `}
+          title={!isExpanded ? (language === 'ar' ? 'تسجيل الخروج' : 'Logout') : undefined}
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {isExpanded && (
+            <span className="text-sm truncate">
+              {language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* Toggle Button */}
-      <div className={`border-t border-white/10 ${isExpanded ? 'p-3' : 'p-0'}`}>
+      <div className={`border-t border-[var(--sidebar-border)] ${isExpanded ? 'p-3' : 'p-2'}`}>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className={`w-full flex items-center justify-center min-h-[44px] rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-colors ${isExpanded ? '' : 'mx-auto'}`}
-          aria-label={isExpanded ? (language === 'ar' ? 'طي القائمة' : 'Collapse menu') : (language === 'ar' ? 'توسيع القائمة' : 'Expand menu')}
+          className={`
+            w-full flex items-center justify-center min-h-[40px] rounded-lg
+            text-[var(--sidebar-text)] hover:bg-[var(--sidebar-bg-hover)] hover:text-white
+            transition-all duration-150
+          `}
+          aria-label={isExpanded ? (language === 'ar' ? 'طي القائمة' : 'Collapse') : (language === 'ar' ? 'توسيع القائمة' : 'Expand')}
         >
           <ToggleIcon className="w-5 h-5" />
         </button>

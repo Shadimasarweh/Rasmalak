@@ -45,10 +45,12 @@ export default function SectionCard({
   return (
     <div 
       className={`
-        bg-[var(--color-bg-card)] 
-        rounded-2xl 
-        border border-[var(--color-border-light)]
+        bg-[var(--color-bg-card)]
+        rounded-xl
+        border border-[var(--color-border)]
         ${elevated ? 'shadow-md' : 'shadow-sm'}
+        transition-shadow
+        hover:shadow-md
         ${paddingClasses[padding]}
         ${className}
       `}

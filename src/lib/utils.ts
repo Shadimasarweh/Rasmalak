@@ -1,5 +1,10 @@
 import { Transaction, DashboardStats, ChartDataPoint, Category } from '@/types';
-import { ALL_CATEGORIES, DEFAULT_CURRENCY, CURRENCIES } from './constants';
+import { ALL_CATEGORIES, DEFAULT_CURRENCY, CURRENCIES, EXCHANGE_RATES } from './constants';
+
+// Helper to get transaction's currency (defaults to baseCurrency for old transactions)
+function getTransactionCurrency(transaction: Transaction, baseCurrency: string = DEFAULT_CURRENCY): string {
+  return transaction.currency || baseCurrency;
+}
 
 // Format currency with Arabic locale
 export function formatCurrency(amount: number, currencyCode: string = DEFAULT_CURRENCY): string {
@@ -15,6 +20,41 @@ export function formatCurrency(amount: number, currencyCode: string = DEFAULT_CU
 // Format number with Arabic locale
 export function formatNumber(num: number): string {
   return new Intl.NumberFormat('ar-SA').format(num);
+}
+
+/**
+ * Convert an amount from one currency to another
+ * @param amount - The amount to convert
+ * @param fromCurrency - The source currency code
+ * @param toCurrency - The target currency code
+ * @returns The converted amount
+ */
+export function convertCurrency(amount: number, fromCurrency: string, toCurrency: string): number {
+  if (fromCurrency === toCurrency) return amount;
+  
+  const fromRate = EXCHANGE_RATES[fromCurrency] || 1;
+  const toRate = EXCHANGE_RATES[toCurrency] || 1;
+  
+  // Convert to USD first, then to target currency
+  const amountInUSD = amount / fromRate;
+  const convertedAmount = amountInUSD * toRate;
+  
+  return convertedAmount;
+}
+
+/**
+ * Get the exchange rate between two currencies
+ * @param fromCurrency - The source currency code
+ * @param toCurrency - The target currency code
+ * @returns The exchange rate (1 fromCurrency = X toCurrency)
+ */
+export function getExchangeRate(fromCurrency: string, toCurrency: string): number {
+  if (fromCurrency === toCurrency) return 1;
+  
+  const fromRate = EXCHANGE_RATES[fromCurrency] || 1;
+  const toRate = EXCHANGE_RATES[toCurrency] || 1;
+  
+  return toRate / fromRate;
 }
 
 // Format percentage
@@ -55,15 +95,30 @@ export function getRelativeTime(dateString: string): string {
   return formatDateShort(dateString);
 }
 
-// Calculate dashboard statistics
-export function calculateStats(transactions: Transaction[]): DashboardStats {
+// Calculate dashboard statistics with optional currency conversion
+// baseCurrency is used as fallback for transactions without a stored currency
+export function calculateStats(transactions: Transaction[], displayCurrency?: string, baseCurrency?: string): DashboardStats {
   const totalIncome = transactions
     .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => {
+      // Convert to display currency if specified
+      const fromCurrency = getTransactionCurrency(t, baseCurrency);
+      const amount = displayCurrency 
+        ? convertCurrency(t.amount, fromCurrency, displayCurrency)
+        : t.amount;
+      return sum + amount;
+    }, 0);
 
   const totalExpenses = transactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => {
+      // Convert to display currency if specified
+      const fromCurrency = getTransactionCurrency(t, baseCurrency);
+      const amount = displayCurrency 
+        ? convertCurrency(t.amount, fromCurrency, displayCurrency)
+        : t.amount;
+      return sum + amount;
+    }, 0);
 
   const balance = totalIncome - totalExpenses;
   const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0;
@@ -76,11 +131,17 @@ export function calculateStats(transactions: Transaction[]): DashboardStats {
   };
 }
 
-// Group transactions by category for charts
-export function groupByCategory(transactions: Transaction[], type: 'income' | 'expense'): ChartDataPoint[] {
+// Group transactions by category for charts with optional currency conversion
+// baseCurrency is used as fallback for transactions without a stored currency
+export function groupByCategory(transactions: Transaction[], type: 'income' | 'expense', displayCurrency?: string, baseCurrency?: string): ChartDataPoint[] {
   const filtered = transactions.filter(t => t.type === type);
   const grouped = filtered.reduce((acc, t) => {
-    acc[t.category] = (acc[t.category] || 0) + t.amount;
+    // Convert to display currency if specified
+    const fromCurrency = getTransactionCurrency(t, baseCurrency);
+    const amount = displayCurrency 
+      ? convertCurrency(t.amount, fromCurrency, displayCurrency)
+      : t.amount;
+    acc[t.category] = (acc[t.category] || 0) + amount;
     return acc;
   }, {} as Record<string, number>);
 

@@ -44,8 +44,8 @@ export default function Header({ showGreeting = true, title }: HeaderProps) {
   };
 
   return (
-    <header className={`sticky top-0 z-40 header-glass border-b border-[var(--color-border-light)] ${isDashboard ? 'hidden' : ''}`}>
-      <div className="flex items-center justify-between px-6 py-4 gap-4">
+    <header className={`sticky top-0 z-40 bg-[var(--color-bg-primary)]/95 backdrop-blur-sm border-b border-[var(--color-border)] ${isDashboard ? 'hidden' : ''}`}>
+      <div className="flex items-center justify-between px-5 py-3 gap-4">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           {showGreeting && !isDashboard ? (
             <div className="animate-fadeIn min-w-0">

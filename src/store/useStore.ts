@@ -26,6 +26,8 @@ interface AppState {
   // Settings
   currency: string;
   setCurrency: (currency: string) => void;
+  baseCurrency: string; // The user's primary/home currency (for legacy transactions)
+  setBaseCurrency: (currency: string) => void;
 
   // Language
   language: Language;
@@ -148,9 +150,11 @@ export const useStore = create<AppState>()(
       transactions: [],
 
       addTransaction: (transactionData) => {
+        const state = get();
         const newTransaction: Transaction = {
           ...transactionData,
           id: generateId(),
+          currency: transactionData.currency || state.currency, // Use provided currency or current display currency
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -179,6 +183,8 @@ export const useStore = create<AppState>()(
       // Settings
       currency: DEFAULT_CURRENCY,
       setCurrency: (currency) => set({ currency }),
+      baseCurrency: DEFAULT_CURRENCY, // User's primary currency for legacy transactions
+      setBaseCurrency: (currency) => set({ baseCurrency: currency }),
 
       // Language
       language: 'ar',
@@ -204,6 +210,7 @@ export const useStore = create<AppState>()(
         isAuthenticated: state.isAuthenticated,
         transactions: state.transactions,
         currency: state.currency,
+        baseCurrency: state.baseCurrency,
         userName: state.userName,
         language: state.language,
         theme: state.theme,
@@ -215,6 +222,7 @@ export const useStore = create<AppState>()(
 // Selector hooks for better performance
 export const useTransactions = () => useStore((state) => state.transactions);
 export const useCurrency = () => useStore((state) => state.currency);
+export const useBaseCurrency = () => useStore((state) => state.baseCurrency);
 export const useUserName = () => useStore((state) => state.userName);
 export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);

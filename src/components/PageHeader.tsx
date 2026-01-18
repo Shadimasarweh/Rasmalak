@@ -25,8 +25,8 @@ interface PageHeaderProps {
  * - Title with optional back button (RTL/LTR aware)
  * - Right-side actions area (never overlaps title)
  * - Optional toolbar row for search/filters (sits below header row)
- * - Sticky glass effect
- * - Desktop padding (px-6)
+ * - Clean white header with subtle border
+ * - Uses page-container for consistent gutters
  */
 export default function PageHeader({ 
   title, 
@@ -39,38 +39,40 @@ export default function PageHeader({
   const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   return (
-    <header className="sticky top-0 z-40 header-glass">
+    <header className="sticky top-0 z-40 bg-[var(--color-bg-primary)]/95 backdrop-blur-sm border-b border-[var(--color-border)]">
       {/* Main header row: title + actions */}
-      <div className="flex items-center justify-between px-6 py-5 gap-6">
-        {/* Left side: Back button (optional) + Title */}
-        <div className="flex items-center gap-4 min-w-0 flex-1">
-          {showBack && (
-            <Link
-              href={backUrl}
-              className="flex-shrink-0 w-11 h-11 rounded-2xl bg-[var(--color-bg-card)] flex items-center justify-center shadow-sm border border-[var(--color-border-light)] transition-all hover:shadow-md hover:border-[var(--color-border)]"
-            >
-              <BackArrow className="w-5 h-5 text-[var(--color-text-secondary)]" />
-            </Link>
+      <div className="page-container">
+        <div className="flex items-center justify-between py-4 gap-6">
+          {/* Left side: Back button (optional) + Title */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {showBack && (
+              <Link
+                href={backUrl}
+                className="flex-shrink-0 w-9 h-9 rounded-lg bg-[var(--color-bg-card)] flex items-center justify-center border border-[var(--color-border)] transition-all hover:border-[var(--color-border-dark)] hover:shadow-sm"
+              >
+                <BackArrow className="w-4 h-4 text-[var(--color-text-secondary)]" />
+              </Link>
+            )}
+            <h1 className="text-lg font-semibold text-[var(--color-text-primary)] truncate">
+              {title}
+            </h1>
+          </div>
+
+          {/* Right side: Actions (never overlaps title due to flex gap) */}
+          {actions && (
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {actions}
+            </div>
           )}
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] truncate">
-            {title}
-          </h1>
         </div>
 
-        {/* Right side: Actions (never overlaps title due to flex gap) */}
-        {actions && (
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {actions}
+        {/* Toolbar row (search, filters, etc.) - separate row below header */}
+        {toolbar && (
+          <div className="pb-4">
+            {toolbar}
           </div>
         )}
       </div>
-
-      {/* Toolbar row (search, filters, etc.) - separate row below header */}
-      {toolbar && (
-        <div className="px-6 pb-4">
-          {toolbar}
-        </div>
-      )}
     </header>
   );
 }

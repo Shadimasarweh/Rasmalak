@@ -42,6 +42,23 @@ export const CURRENCIES = [
   { code: 'EUR', name: 'Euro', nameAr: 'يورو', symbol: '€', symbolAr: '€' },
 ];
 
+// Exchange rates relative to USD (1 USD = X currency)
+// These are approximate rates - in production, use a live API
+export const EXCHANGE_RATES: Record<string, number> = {
+  USD: 1.00,
+  SAR: 3.75,
+  AED: 3.67,
+  KWD: 0.31,
+  BHD: 0.38,
+  QAR: 3.64,
+  OMR: 0.38,
+  JOD: 0.71,
+  EGP: 50.85,
+  IQD: 1310.00,
+  LBP: 89500.00,
+  EUR: 0.92,
+};
+
 // Default Settings
 export const DEFAULT_CURRENCY = 'SAR';
 export const DEFAULT_LANGUAGE = 'ar';

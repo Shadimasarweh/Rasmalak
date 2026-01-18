@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Settings, TrendingUp, TrendingDown, Wallet, Hash } from 'lucide-react';
+import { Plus, Search, Settings, TrendingUp, TrendingDown, Wallet, Hash, Edit2, Trash2 } from 'lucide-react';
 import { PageHeader, PageContainer, SectionCard, TransactionItem, MonthlyChart } from '@/components';
-import { useTransactions, useCurrency } from '@/store/useStore';
-import { getMonthlyData, getWeeklyData, getDailyData } from '@/lib/utils';
+import { useTransactions, useCurrency, useBaseCurrency, useStore } from '@/store/useStore';
+import { getMonthlyData, getWeeklyData, getDailyData, convertCurrency, getCategoryById } from '@/lib/utils';
+import { Transaction } from '@/types';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CURRENCIES } from '@/lib/constants';
 
@@ -15,8 +16,12 @@ type ChartPeriod = 'daily' | 'weekly' | 'monthly';
 export default function TransactionsPage() {
   const transactions = useTransactions();
   const currency = useCurrency();
+  const baseCurrency = useBaseCurrency();
+  const deleteTransaction = useStore((state) => state.deleteTransaction);
   const { t, language, isRTL } = useTranslation();
   const [filter, setFilter] = useState<FilterType>('all');
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showChart, setShowChart] = useState(true);
   const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('monthly');
@@ -36,12 +41,22 @@ export default function TransactionsPage() {
   }, [transactions, chartPeriod]);
 
   const analysis = useMemo(() => {
-    const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-    const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const totalIncome = transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => {
+        const amount = convertCurrency(t.amount, t.currency || baseCurrency, currency);
+        return sum + amount;
+      }, 0);
+    const totalExpenses = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => {
+        const amount = convertCurrency(t.amount, t.currency || baseCurrency, currency);
+        return sum + amount;
+      }, 0);
     const netBalance = totalIncome - totalExpenses;
     const transactionCount = transactions.length;
     return { totalIncome, totalExpenses, netBalance, transactionCount };
-  }, [transactions]);
+  }, [transactions, currency, baseCurrency]);
 
   const filteredTransactions = transactions.filter((t) => {
     const matchesFilter = filter === 'all' || t.type === filter;
@@ -109,11 +124,9 @@ export default function TransactionsPage() {
   );
 
   return (
-    <div>
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <PageHeader 
         title={t.transactions.title}
-        showBack
-        backUrl="/"
         actions={
           <>
             <Link
@@ -222,11 +235,150 @@ export default function TransactionsPage() {
                 </p>
                 <SectionCard padding="sm" className="space-y-2">
                   {groupedTransactions[date].map((transaction) => (
-                    <TransactionItem key={transaction.id} transaction={transaction} />
+                    <TransactionItem 
+                      key={transaction.id} 
+                      transaction={transaction} 
+                      onClick={() => setSelectedTransaction(transaction)}
+                    />
                   ))}
                 </SectionCard>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Transaction Action Modal */}
+        {selectedTransaction && !showDeleteConfirm && (
+          <div 
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--color-overlay)]" 
+            onClick={() => setSelectedTransaction(null)}
+          >
+            <div
+              className="w-full sm:max-w-md bg-[var(--color-bg-card)] rounded-t-2xl sm:rounded-2xl p-6 mx-0 sm:mx-4 animate-slideUp"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Transaction Details */}
+              <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[var(--color-border-light)]">
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: (getCategoryById(selectedTransaction.category)?.color || '#64748b') + '15' }}
+                >
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: getCategoryById(selectedTransaction.category)?.color || '#64748b' }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg font-bold text-[var(--color-text-primary)]">
+                    {language === 'ar' 
+                      ? getCategoryById(selectedTransaction.category)?.nameAr 
+                      : getCategoryById(selectedTransaction.category)?.name || selectedTransaction.category}
+                  </p>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    {new Date(selectedTransaction.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </div>
+                <p className={`text-xl font-bold ltr-nums ${
+                  selectedTransaction.type === 'income' 
+                    ? 'text-[var(--color-success)]' 
+                    : 'text-[var(--color-danger)]'
+                }`}>
+                  {selectedTransaction.type === 'income' ? '+' : '-'}
+                  {new Intl.NumberFormat(language === 'ar' ? 'ar-SA' : 'en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                  }).format(convertCurrency(selectedTransaction.amount, selectedTransaction.currency || baseCurrency, currency))} {CURRENCIES.find(c => c.code === currency)?.[language === 'ar' ? 'symbolAr' : 'symbol']}
+                </p>
+              </div>
+
+              {selectedTransaction.description && (
+                <p className="text-sm text-[var(--color-text-secondary)] mb-6 px-1">
+                  {selectedTransaction.description}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="space-y-3">
+                <Link
+                  href={`/transactions/new?edit=${selectedTransaction.id}`}
+                  className="w-full btn btn-secondary flex items-center justify-center gap-3"
+                  onClick={() => setSelectedTransaction(null)}
+                >
+                  <Edit2 className="w-5 h-5" />
+                  {language === 'ar' ? 'تعديل المعاملة' : 'Edit Transaction'}
+                </Link>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="w-full btn flex items-center justify-center gap-3 bg-[var(--color-danger)]/10 text-[var(--color-danger)] hover:bg-[var(--color-danger)]/20"
+                >
+                  <Trash2 className="w-5 h-5" />
+                  {language === 'ar' ? 'حذف المعاملة' : 'Delete Transaction'}
+                </button>
+                <button
+                  onClick={() => setSelectedTransaction(null)}
+                  className="w-full btn btn-ghost"
+                >
+                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {selectedTransaction && showDeleteConfirm && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" 
+            onClick={() => {
+              setShowDeleteConfirm(false);
+              setSelectedTransaction(null);
+            }}
+          >
+            <div
+              className="w-full max-w-sm bg-[var(--color-bg-card)] rounded-2xl p-6 mx-4 animate-scaleIn"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-[var(--color-danger)]/10 flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-8 h-8 text-[var(--color-danger)]" />
+                </div>
+                <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
+                  {language === 'ar' ? 'حذف المعاملة؟' : 'Delete Transaction?'}
+                </h3>
+                <p className="text-sm text-[var(--color-text-muted)]">
+                  {language === 'ar' 
+                    ? 'لا يمكن التراجع عن هذا الإجراء.'
+                    : 'This action cannot be undone.'}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setSelectedTransaction(null);
+                  }}
+                  className="flex-1 btn btn-secondary"
+                >
+                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                </button>
+                <button
+                  onClick={() => {
+                    deleteTransaction(selectedTransaction.id);
+                    setShowDeleteConfirm(false);
+                    setSelectedTransaction(null);
+                  }}
+                  className="flex-1 btn bg-[var(--color-danger)] text-white hover:bg-[var(--color-danger)]/90"
+                >
+                  {language === 'ar' ? 'حذف' : 'Delete'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </PageContainer>

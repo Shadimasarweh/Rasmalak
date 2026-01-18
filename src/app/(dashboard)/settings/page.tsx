@@ -30,6 +30,7 @@ export default function SettingsPage() {
   const {
     userName, setUserName,
     currency, setCurrency,
+    baseCurrency, setBaseCurrency,
     language, setLanguage,
     theme, toggleTheme,
   } = useStore();
@@ -37,6 +38,7 @@ export default function SettingsPage() {
 
   const [showNameModal, setShowNameModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [showBaseCurrencyModal, setShowBaseCurrencyModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [tempName, setTempName] = useState(userName);
 
@@ -87,6 +89,15 @@ export default function SettingsPage() {
             return curr ? (language === 'ar' ? curr.nameAr : curr.name) : currency;
           })(),
           onClick: () => setShowCurrencyModal(true),
+        },
+        {
+          icon: Coins,
+          label: language === 'ar' ? 'العملة الأساسية' : 'Home Currency',
+          value: (() => {
+            const curr = CURRENCIES.find((c) => c.code === baseCurrency);
+            return curr ? (language === 'ar' ? curr.nameAr : curr.name) : baseCurrency;
+          })(),
+          onClick: () => setShowBaseCurrencyModal(true),
         },
         {
           icon: Globe,
@@ -152,11 +163,9 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div>
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <PageHeader 
         title={t.settings.title}
-        showBack
-        backUrl="/"
       />
 
       <PageContainer>
@@ -303,6 +312,57 @@ export default function SettingsPage() {
             </div>
             <button
               onClick={() => setShowCurrencyModal(false)}
+              className="w-full btn btn-secondary mt-4"
+            >
+              {t.settings.cancel}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Base Currency Modal */}
+      {showBaseCurrencyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" onClick={() => setShowBaseCurrencyModal(false)}>
+          <div
+            className="w-full max-w-md bg-[var(--color-bg-card)] rounded-3xl p-6 mx-4 animate-scaleIn max-h-[70vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-2 text-[var(--color-text-primary)]">
+              {language === 'ar' ? 'العملة الأساسية' : 'Home Currency'}
+            </h2>
+            <p className="text-sm text-[var(--color-text-muted)] mb-4">
+              {language === 'ar' 
+                ? 'العملة التي أدخلت بها معاملاتك السابقة. تُستخدم لتحويل المعاملات القديمة بشكل صحيح.'
+                : 'The currency your previous transactions were entered in. Used to correctly convert older transactions.'}
+            </p>
+            <div className="space-y-2">
+              {CURRENCIES.map((curr) => {
+                const currName = language === 'ar' ? curr.nameAr : curr.name;
+                const currSymbol = language === 'ar' ? curr.symbolAr : curr.symbol;
+                return (
+                  <button
+                    key={curr.code}
+                    onClick={() => {
+                      setBaseCurrency(curr.code);
+                      setShowBaseCurrencyModal(false);
+                    }}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
+                      baseCurrency === curr.code
+                        ? 'bg-[var(--color-primary)] text-white shadow-lg'
+                        : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)]'
+                    }`}
+                  >
+                    <span className="font-medium">{currName}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm ${baseCurrency === curr.code ? 'opacity-80' : 'text-[var(--color-text-muted)]'}`}>{currSymbol}</span>
+                      {baseCurrency === curr.code && <Check className="w-5 h-5" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => setShowBaseCurrencyModal(false)}
               className="w-full btn btn-secondary mt-4"
             >
               {t.settings.cancel}

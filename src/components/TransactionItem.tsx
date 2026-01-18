@@ -19,8 +19,8 @@ import {
   Award,
 } from 'lucide-react';
 import { Transaction } from '@/types';
-import { formatCurrency, getRelativeTime, getCategoryById } from '@/lib/utils';
-import { useCurrency } from '@/store/useStore';
+import { formatCurrency, getRelativeTime, getCategoryById, convertCurrency } from '@/lib/utils';
+import { useCurrency, useBaseCurrency } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -49,6 +49,7 @@ interface TransactionItemProps {
 
 export default function TransactionItem({ transaction, onClick }: TransactionItemProps) {
   const currency = useCurrency();
+  const baseCurrency = useBaseCurrency();
   const { language } = useTranslation();
   const category = getCategoryById(transaction.category);
 
@@ -84,7 +85,10 @@ export default function TransactionItem({ transaction, onClick }: TransactionIte
             isIncome ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'
           }`}
         >
-          {isIncome ? '+' : '-'}{formatCurrency(transaction.amount, currency)}
+          {isIncome ? '+' : '-'}{formatCurrency(
+            convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency),
+            currency
+          )}
         </p>
         <p className="text-xs text-[var(--color-text-muted)]">
           {getRelativeTime(transaction.date)}

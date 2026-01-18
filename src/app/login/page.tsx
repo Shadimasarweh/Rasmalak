@@ -48,54 +48,113 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-bg-primary)] py-8 relative overflow-hidden">
-      {/* DEBUG LABEL */}
-      <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-black text-center text-xs py-1 z-[100] font-mono">
-        DEBUG: AUTH UI UPDATED
-      </div>
-
-      {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--color-primary)]/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[var(--color-gold)]/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
-
-      {/* Theme and Language Switcher */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <ThemeLanguageSwitcher />
-      </div>
-
-      <div className="w-full max-w-md relative animate-fadeInUp">
+    <div className="min-h-screen flex bg-slate-900">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-20 w-72 h-72 rounded-full border border-white/20" />
+          <div className="absolute bottom-40 right-20 w-96 h-96 rounded-full border border-white/20" />
+          <div className="absolute top-1/2 left-1/3 w-48 h-48 rounded-full border border-white/20" />
+        </div>
+        
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="relative inline-block">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
-              <span className="text-white font-bold text-4xl">{isRTL ? 'ر' : 'R'}</span>
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <span className="text-white font-bold text-xl">ر</span>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--color-gold)] border-4 border-[var(--color-bg-primary)] flex items-center justify-center">
-              <Sparkles className="w-3 h-3 text-white" />
+            <div>
+              <span className="text-white font-semibold text-xl">Rasmalak</span>
+              <span className="text-emerald-400 font-semibold text-xl"> AI</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-3">
-            {t.auth.welcomeBack}
-          </h1>
-          <p className="text-base text-[var(--color-text-secondary)]">{t.appTagline}</p>
+        </div>
+        
+        {/* Hero Text */}
+        <div className="relative z-10">
+          <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
+            {language === 'ar' 
+              ? 'ثقافة مالية ذكية\nللعالم العربي'
+              : 'Smart Financial\nLiteracy for\nthe Arab World'
+            }
+          </h2>
+          <p className="text-slate-400 text-lg max-w-md">
+            {language === 'ar'
+              ? 'منصة ذكية للتثقيف المالي وإدارة الميزانية مصممة خصيصاً للمنطقة العربية'
+              : 'AI-powered financial education and budgeting platform designed for the MENA region'
+            }
+          </p>
+          
+          {/* Feature Pills */}
+          <div className="flex flex-wrap gap-2 mt-8">
+            <span className="px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium border border-emerald-500/20">
+              {language === 'ar' ? 'تعلم تفاعلي' : 'Interactive Learning'}
+            </span>
+            <span className="px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-medium border border-amber-500/20">
+              {language === 'ar' ? 'متوافق مع الشريعة' : 'Sharia Compliant'}
+            </span>
+            <span className="px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium border border-blue-500/20">
+              {language === 'ar' ? 'مستشار ذكي' : 'AI Advisor'}
+            </span>
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <div className="text-slate-500 text-sm">
+          © 2026 Rasmalak AI. All rights reserved.
+        </div>
+      </div>
+      
+      {/* Right Side - Form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[var(--color-bg-primary)] relative">
+        {/* Background decorations */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-emerald-500/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-amber-500/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
+
+        {/* Theme and Language Switcher */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 lg:bottom-8 lg:right-8 lg:left-auto lg:translate-x-0">
+          <ThemeLanguageSwitcher />
         </div>
 
-        {/* Login Form */}
-        <div className="card card-elevated">
+        <div className="w-full max-w-md relative animate-fadeInUp">
+          {/* Mobile Logo */}
+          <div className="text-center mb-8 lg:hidden">
+            <div className="relative inline-block">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <span className="text-white font-bold text-3xl">{isRTL ? 'ر' : 'R'}</span>
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
+              Rasmalak <span className="text-emerald-500">AI</span>
+            </h1>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
+              {t.auth.welcomeBack}
+            </h2>
+            <p className="text-[var(--color-text-secondary)]">
+              {language === 'ar' 
+                ? 'سجل دخولك للوصول إلى حسابك'
+                : 'Sign in to access your account'
+              }
+            </p>
+          </div>
+
+          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-4 rounded-xl bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/20 text-[var(--color-danger)] text-sm animate-fadeIn">
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-fadeIn">
                 {error}
               </div>
             )}
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-[var(--color-text-primary)] mb-2">
-                {t.auth.email}
-              </label>
+              <label className="label">{t.auth.email}</label>
               <div className="relative">
-                {/* Leading icon - positioned at start */}
                 <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
                   <Mail className="w-5 h-5 text-[var(--color-text-muted)]" />
                 </div>
@@ -103,7 +162,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t.auth.email}
+                  placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
                   className="input w-full ps-12 pe-4"
                   required
                   autoComplete="email"
@@ -113,11 +172,8 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-semibold text-[var(--color-text-primary)] mb-2">
-                {t.auth.password}
-              </label>
+              <label className="label">{t.auth.password}</label>
               <div className="relative">
-                {/* Leading icon - positioned at start */}
                 <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
                   <Lock className="w-5 h-5 text-[var(--color-text-muted)]" />
                 </div>
@@ -125,12 +181,11 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t.auth.password}
+                  placeholder={language === 'ar' ? 'أدخل كلمة المرور' : 'Enter your password'}
                   className="input w-full ps-12 pe-14"
                   required
                   autoComplete="current-password"
                 />
-                {/* Trailing toggle - positioned at end */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -143,7 +198,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              {/* Forgot Password Link */}
               <div className="mt-2 text-end">
                 <Link
                   href="/forgot-password"
@@ -158,24 +212,24 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full btn btn-primary py-4 text-base ${isLoading ? 'opacity-70' : ''}`}
+              className="w-full btn btn-primary py-3.5 text-base"
             >
               {isLoading ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   <span className="spinner" />
                   {t.common.loading}
                 </span>
               ) : (
-                <>
+                <span className="flex items-center justify-center gap-2">
                   {t.auth.login}
                   <ArrowIcon className="w-5 h-5" />
-                </>
+                </span>
               )}
             </button>
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-8 pt-6 border-t border-[var(--color-border)] text-center">
+          <div className="mt-8 text-center">
             <p className="text-sm text-[var(--color-text-secondary)]">
               {t.auth.noAccount}{' '}
               <Link

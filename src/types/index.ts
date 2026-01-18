@@ -5,6 +5,7 @@ export interface Transaction {
   id: string;
   type: TransactionType;
   amount: number;
+  currency: string; // The currency the transaction was entered in
   category: string;
   description: string;
   date: string;

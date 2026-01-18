@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Calculator, Home, PiggyBank } from 'lucide-react';
-import { PageHeader, PageContainer, SectionCard } from '@/components';
+import { Calculator, Home, PiggyBank, DollarSign, Percent, Calendar, TrendingUp, Download, ArrowRight, ArrowLeft, Info } from 'lucide-react';
+import { PageHeader } from '@/components';
 import { calculateLoan, calculateSavings, calculateHomeAffordability, formatCurrency } from '@/lib/utils';
 import { useCurrency } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -11,8 +11,10 @@ type CalculatorType = 'loan' | 'savings' | 'home';
 
 export default function CalculatorsPage() {
   const currency = useCurrency();
-  const { language } = useTranslation();
+  const { language, isRTL } = useTranslation();
   const [activeCalculator, setActiveCalculator] = useState<CalculatorType>('loan');
+
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   // Loan Calculator State
   const [loanAmount, setLoanAmount] = useState('100000');
@@ -52,69 +54,107 @@ export default function CalculatorsPage() {
   );
 
   const calculators = [
-    { id: 'loan' as CalculatorType, name: language === 'ar' ? 'حاسبة القرض' : 'Loan Calculator', icon: Calculator, color: '#3B82F6' },
-    { id: 'savings' as CalculatorType, name: language === 'ar' ? 'حاسبة الادخار' : 'Savings Calculator', icon: PiggyBank, color: '#10B981' },
-    { id: 'home' as CalculatorType, name: language === 'ar' ? 'القدرة على شراء منزل' : 'Home Affordability', icon: Home, color: '#8B5CF6' },
+    { 
+      id: 'loan' as CalculatorType, 
+      name: language === 'ar' ? 'حاسبة القرض' : 'Loan Calculator', 
+      icon: Calculator, 
+      color: '#3b82f6',
+      descAr: 'احسب أقساطك الشهرية',
+      descEn: 'Calculate your monthly payments',
+    },
+    { 
+      id: 'savings' as CalculatorType, 
+      name: language === 'ar' ? 'حاسبة الادخار' : 'Savings Calculator', 
+      icon: PiggyBank, 
+      color: '#10b981',
+      descAr: 'تتبع نمو مدخراتك',
+      descEn: 'Track your savings growth',
+    },
+    { 
+      id: 'home' as CalculatorType, 
+      name: language === 'ar' ? 'القدرة الشرائية' : 'Home Affordability', 
+      icon: Home, 
+      color: '#8b5cf6',
+      descAr: 'اعرف ميزانية منزلك',
+      descEn: 'Know your home budget',
+    },
   ];
 
-  // Calculator tabs as toolbar
-  const calculatorTabs = (
-    <div className="flex gap-3">
-      {calculators.map((calc) => {
-        const Icon = calc.icon;
-        const isActive = activeCalculator === calc.id;
-        return (
-          <button
-            key={calc.id}
-            onClick={() => setActiveCalculator(calc.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all ${
-              isActive
-                ? 'bg-[var(--color-primary)] text-white shadow-lg'
-                : 'bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] border border-[var(--color-border-light)] hover:border-[var(--color-border)]'
-            }`}
-          >
-            <Icon className="w-5 h-5" />
-            {calc.name}
-          </button>
-        );
-      })}
-    </div>
-  );
-
   return (
-    <div>
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <PageHeader 
-        title={language === 'ar' ? 'الحاسبات المالية' : 'Financial Calculators'}
-        showBack
-        backUrl="/"
-        toolbar={calculatorTabs}
+        title={language === 'ar' ? 'الأدوات المالية' : 'Financial Tools'}
       />
 
-      <PageContainer>
+      <div className="page-container py-6 space-y-6">
+        {/* Calculator Selection Cards */}
+        <div className="grid grid-cols-3 gap-4">
+          {calculators.map((calc) => {
+            const Icon = calc.icon;
+            const isActive = activeCalculator === calc.id;
+            return (
+              <button
+                key={calc.id}
+                onClick={() => setActiveCalculator(calc.id)}
+                className={`card p-5 text-start transition-all ${
+                  isActive
+                    ? 'ring-2 ring-[var(--color-primary)] border-transparent shadow-lg'
+                    : 'hover:border-[var(--color-border-dark)]'
+                }`}
+              >
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                  style={{ backgroundColor: `${calc.color}15` }}
+                >
+                  <Icon className="w-6 h-6" style={{ color: calc.color }} />
+                </div>
+                <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">
+                  {calc.name}
+                </h3>
+                <p className="text-sm text-[var(--color-text-muted)]">
+                  {language === 'ar' ? calc.descAr : calc.descEn}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Loan Calculator */}
         {activeCalculator === 'loan' && (
-          <div className="grid grid-cols-2 gap-6">
-            <SectionCard padding="lg">
-              <h2 className="font-bold text-xl flex items-center gap-3 mb-6">
-                <Calculator className="w-6 h-6 text-blue-500" />
-                {language === 'ar' ? 'حاسبة القرض' : 'Loan Calculator'}
-              </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+            <div className="card">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Calculator className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-lg text-[var(--color-text-primary)]">
+                    {language === 'ar' ? 'حاسبة القرض' : 'Loan Calculator'}
+                  </h2>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    {language === 'ar' ? 'احسب أقساطك الشهرية' : 'Calculate your monthly payments'}
+                  </p>
+                </div>
+              </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
-                    {language === 'ar' ? 'مبلغ القرض (ر.س)' : 'Loan Amount (SAR)'}
+                  <label className="label flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    {language === 'ar' ? 'مبلغ القرض' : 'Loan Amount'}
                   </label>
                   <input
                     type="number"
                     value={loanAmount}
                     onChange={(e) => setLoanAmount(e.target.value)}
                     className="input"
+                    placeholder="100,000"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
+                  <label className="label flex items-center gap-2">
+                    <Percent className="w-4 h-4" />
                     {language === 'ar' ? 'معدل الفائدة السنوي (%)' : 'Annual Interest Rate (%)'}
                   </label>
                   <input
@@ -123,11 +163,13 @@ export default function CalculatorsPage() {
                     value={loanRate}
                     onChange={(e) => setLoanRate(e.target.value)}
                     className="input"
+                    placeholder="5"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
+                  <label className="label flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
                     {language === 'ar' ? 'مدة السداد (شهر)' : 'Loan Term (months)'}
                   </label>
                   <input
@@ -135,52 +177,74 @@ export default function CalculatorsPage() {
                     value={loanTerm}
                     onChange={(e) => setLoanTerm(e.target.value)}
                     className="input"
+                    placeholder="60"
                   />
                 </div>
               </div>
-            </SectionCard>
+            </div>
 
-            <SectionCard padding="lg" className="bg-blue-50 border-blue-100">
-              <h3 className="font-bold text-xl mb-6 text-blue-800">
+            <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+              <h3 className="font-semibold text-lg mb-6 opacity-90">
                 {language === 'ar' ? 'النتائج' : 'Results'}
               </h3>
-              <div className="grid grid-cols-2 gap-5">
+              
+              <div className="space-y-6">
                 <div>
-                  <p className="text-sm text-blue-600 mb-1">{language === 'ar' ? 'القسط الشهري' : 'Monthly Payment'}</p>
-                  <p className="text-2xl font-bold text-blue-800 ltr-nums">
+                  <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'القسط الشهري' : 'Monthly Payment'}</p>
+                  <p className="text-4xl font-bold ltr-nums">
                     {formatCurrency(loanResult.monthlyPayment, currency)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-blue-600 mb-1">{language === 'ar' ? 'إجمالي المدفوعات' : 'Total Payment'}</p>
-                  <p className="text-2xl font-bold text-blue-800 ltr-nums">
-                    {formatCurrency(loanResult.totalPayment, currency)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-blue-600 mb-1">{language === 'ar' ? 'إجمالي الفوائد' : 'Total Interest'}</p>
-                  <p className="text-2xl font-bold text-red-600 ltr-nums">
-                    {formatCurrency(loanResult.totalInterest, currency)}
-                  </p>
+
+                <div className="h-px bg-white/20" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'إجمالي المدفوعات' : 'Total Payment'}</p>
+                    <p className="text-2xl font-bold ltr-nums">
+                      {formatCurrency(loanResult.totalPayment, currency)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'إجمالي الفوائد' : 'Total Interest'}</p>
+                    <p className="text-2xl font-bold ltr-nums text-red-200">
+                      {formatCurrency(loanResult.totalInterest, currency)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </SectionCard>
+
+              <button className="btn btn-secondary w-full mt-6 bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Download className="w-4 h-4" />
+                {language === 'ar' ? 'تحميل جدول الأقساط' : 'Download Schedule'}
+              </button>
+            </div>
           </div>
         )}
 
         {/* Savings Calculator */}
         {activeCalculator === 'savings' && (
-          <div className="grid grid-cols-2 gap-6">
-            <SectionCard padding="lg">
-              <h2 className="font-bold text-xl flex items-center gap-3 mb-6">
-                <PiggyBank className="w-6 h-6 text-green-500" />
-                {language === 'ar' ? 'حاسبة الادخار' : 'Savings Calculator'}
-              </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+            <div className="card">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <PiggyBank className="w-5 h-5 text-emerald-500" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-lg text-[var(--color-text-primary)]">
+                    {language === 'ar' ? 'حاسبة الادخار' : 'Savings Calculator'}
+                  </h2>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    {language === 'ar' ? 'تتبع نمو مدخراتك' : 'Track your savings growth'}
+                  </p>
+                </div>
+              </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
-                    {language === 'ar' ? 'المبلغ الأولي (ر.س)' : 'Initial Amount (SAR)'}
+                  <label className="label flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    {language === 'ar' ? 'المبلغ الأولي' : 'Initial Amount'}
                   </label>
                   <input
                     type="number"
@@ -191,8 +255,9 @@ export default function CalculatorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
-                    {language === 'ar' ? 'الإيداع الشهري (ر.س)' : 'Monthly Deposit (SAR)'}
+                  <label className="label flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    {language === 'ar' ? 'الإيداع الشهري' : 'Monthly Deposit'}
                   </label>
                   <input
                     type="number"
@@ -203,7 +268,8 @@ export default function CalculatorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
+                  <label className="label flex items-center gap-2">
+                    <Percent className="w-4 h-4" />
                     {language === 'ar' ? 'معدل العائد السنوي (%)' : 'Annual Return Rate (%)'}
                   </label>
                   <input
@@ -216,7 +282,8 @@ export default function CalculatorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
+                  <label className="label flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
                     {language === 'ar' ? 'مدة الادخار (سنة)' : 'Savings Period (years)'}
                   </label>
                   <input
@@ -227,49 +294,70 @@ export default function CalculatorsPage() {
                   />
                 </div>
               </div>
-            </SectionCard>
+            </div>
 
-            <SectionCard padding="lg" className="bg-green-50 border-green-100">
-              <h3 className="font-bold text-xl mb-6 text-green-800">
+            <div className="card bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+              <h3 className="font-semibold text-lg mb-6 opacity-90">
                 {language === 'ar' ? 'النتائج' : 'Results'}
               </h3>
-              <div className="grid grid-cols-2 gap-5">
-                <div className="col-span-2">
-                  <p className="text-sm text-green-600 mb-1">{language === 'ar' ? 'القيمة النهائية' : 'Final Value'}</p>
-                  <p className="text-3xl font-bold text-green-800 ltr-nums">
+              
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'القيمة النهائية' : 'Final Value'}</p>
+                  <p className="text-4xl font-bold ltr-nums">
                     {formatCurrency(savingsResult.finalAmount, currency)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-green-600 mb-1">{language === 'ar' ? 'إجمالي المساهمات' : 'Total Contributions'}</p>
-                  <p className="text-2xl font-bold text-green-700 ltr-nums">
-                    {formatCurrency(savingsResult.totalContributions, currency)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-green-600 mb-1">{language === 'ar' ? 'الأرباح المكتسبة' : 'Earnings'}</p>
-                  <p className="text-2xl font-bold text-green-700 ltr-nums">
-                    {formatCurrency(savingsResult.totalInterest, currency)}
-                  </p>
+
+                <div className="h-px bg-white/20" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'إجمالي المساهمات' : 'Total Contributions'}</p>
+                    <p className="text-2xl font-bold ltr-nums">
+                      {formatCurrency(savingsResult.totalContributions, currency)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'الأرباح المكتسبة' : 'Earnings'}</p>
+                    <p className="text-2xl font-bold ltr-nums text-emerald-200">
+                      {formatCurrency(savingsResult.totalInterest, currency)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </SectionCard>
+
+              <button className="btn btn-secondary w-full mt-6 bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Download className="w-4 h-4" />
+                {language === 'ar' ? 'تحميل التقرير' : 'Download Report'}
+              </button>
+            </div>
           </div>
         )}
 
         {/* Home Affordability Calculator */}
         {activeCalculator === 'home' && (
-          <div className="grid grid-cols-2 gap-6">
-            <SectionCard padding="lg">
-              <h2 className="font-bold text-xl flex items-center gap-3 mb-6">
-                <Home className="w-6 h-6 text-purple-500" />
-                {language === 'ar' ? 'القدرة على شراء منزل' : 'Home Affordability'}
-              </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+            <div className="card">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <Home className="w-5 h-5 text-purple-500" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-lg text-[var(--color-text-primary)]">
+                    {language === 'ar' ? 'القدرة على شراء منزل' : 'Home Affordability'}
+                  </h2>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    {language === 'ar' ? 'اعرف ميزانية منزلك' : 'Know your home budget'}
+                  </p>
+                </div>
+              </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
-                    {language === 'ar' ? 'الدخل الشهري (ر.س)' : 'Monthly Income (SAR)'}
+                  <label className="label flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    {language === 'ar' ? 'الدخل الشهري' : 'Monthly Income'}
                   </label>
                   <input
                     type="number"
@@ -280,8 +368,9 @@ export default function CalculatorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
-                    {language === 'ar' ? 'الديون الشهرية (ر.س)' : 'Monthly Debts (SAR)'}
+                  <label className="label flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    {language === 'ar' ? 'الديون الشهرية' : 'Monthly Debts'}
                   </label>
                   <input
                     type="number"
@@ -292,8 +381,9 @@ export default function CalculatorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
-                    {language === 'ar' ? 'الدفعة المقدمة (ر.س)' : 'Down Payment (SAR)'}
+                  <label className="label flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    {language === 'ar' ? 'الدفعة المقدمة' : 'Down Payment'}
                   </label>
                   <input
                     type="number"
@@ -304,7 +394,8 @@ export default function CalculatorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-[var(--color-text-secondary)] mb-2">
+                  <label className="label flex items-center gap-2">
+                    <Percent className="w-4 h-4" />
                     {language === 'ar' ? 'معدل الفائدة (%)' : 'Interest Rate (%)'}
                   </label>
                   <input
@@ -316,48 +407,85 @@ export default function CalculatorsPage() {
                   />
                 </div>
               </div>
-            </SectionCard>
+            </div>
 
-            <SectionCard padding="lg" className="bg-purple-50 border-purple-100">
-              <h3 className="font-bold text-xl mb-6 text-purple-800">
+            <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+              <h3 className="font-semibold text-lg mb-6 opacity-90">
                 {language === 'ar' ? 'النتائج' : 'Results'}
               </h3>
-              <div className="grid grid-cols-2 gap-5">
-                <div className="col-span-2">
-                  <p className="text-sm text-purple-600 mb-1">{language === 'ar' ? 'أقصى سعر للمنزل' : 'Max Home Price'}</p>
-                  <p className="text-3xl font-bold text-purple-800 ltr-nums">
+              
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'أقصى سعر للمنزل' : 'Max Home Price'}</p>
+                  <p className="text-4xl font-bold ltr-nums">
                     {formatCurrency(homeResult.maxHomePrice, currency)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-purple-600 mb-1">{language === 'ar' ? 'أقصى مبلغ للقرض' : 'Max Loan Amount'}</p>
-                  <p className="text-2xl font-bold text-purple-700 ltr-nums">
-                    {formatCurrency(homeResult.maxLoanAmount, currency)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-purple-600 mb-1">{language === 'ar' ? 'القسط الشهري المقدر' : 'Est. Monthly Payment'}</p>
-                  <p className="text-2xl font-bold text-purple-700 ltr-nums">
-                    {formatCurrency(homeResult.maxMonthlyPayment, currency)}
-                  </p>
+
+                <div className="h-px bg-white/20" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'أقصى مبلغ للقرض' : 'Max Loan Amount'}</p>
+                    <p className="text-2xl font-bold ltr-nums">
+                      {formatCurrency(homeResult.maxLoanAmount, currency)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'القسط الشهري المقدر' : 'Est. Monthly Payment'}</p>
+                    <p className="text-2xl font-bold ltr-nums">
+                      {formatCurrency(homeResult.maxMonthlyPayment, currency)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </SectionCard>
+
+              <button className="btn btn-secondary w-full mt-6 bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Download className="w-4 h-4" />
+                {language === 'ar' ? 'تحميل التقرير' : 'Download Report'}
+              </button>
+            </div>
           </div>
         )}
 
         {/* Info Card */}
-        <SectionCard className="bg-[var(--color-gold)]/10 border-[var(--color-gold)]/20">
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            <strong className="text-[var(--color-text-primary)]">
-              {language === 'ar' ? 'ملاحظة:' : 'Note:'}
-            </strong>{' '}
-            {language === 'ar' 
-              ? 'هذه الحسابات تقديرية وقد تختلف عن العروض الفعلية من البنوك والمؤسسات المالية.'
-              : 'These calculations are estimates and may differ from actual offers from banks and financial institutions.'}
+        <div className="card border-amber-500/20 bg-amber-500/5">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+              <Info className="w-4 h-4 text-amber-500" />
+            </div>
+            <div>
+              <h4 className="font-medium text-[var(--color-text-primary)] mb-1">
+                {language === 'ar' ? 'ملاحظة هامة' : 'Important Note'}
+              </h4>
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                {language === 'ar' 
+                  ? 'هذه الحسابات تقديرية للأغراض التعليمية فقط وقد تختلف عن العروض الفعلية من البنوك والمؤسسات المالية. يرجى استشارة متخصص مالي للحصول على نصائح دقيقة.'
+                  : 'These calculations are estimates for educational purposes only and may differ from actual offers from banks and financial institutions. Please consult a financial professional for accurate advice.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* More Tools Coming Soon */}
+        <div className="card card-gradient text-center py-8">
+          <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
+            <Calculator className="w-8 h-8 text-amber-400" />
+          </div>
+          <h3 className="font-bold text-xl mb-2">
+            {language === 'ar' ? 'المزيد من الأدوات قريباً' : 'More Tools Coming Soon'}
+          </h3>
+          <p className="text-slate-400 max-w-md mx-auto mb-4">
+            {language === 'ar'
+              ? 'نعمل على إضافة المزيد من الأدوات المالية المفيدة مثل حاسبة الزكاة وأداة المقارنة'
+              : 'We are working on adding more useful financial tools like Zakat Calculator and Comparison Tool'}
           </p>
-        </SectionCard>
-      </PageContainer>
+          <div className="flex items-center justify-center gap-2 text-sm text-emerald-400">
+            <span>{language === 'ar' ? 'تابعنا للتحديثات' : 'Stay tuned for updates'}</span>
+            <ArrowIcon className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
