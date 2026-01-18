@@ -42,8 +42,32 @@ const categories = [
     nameAr: 'التمويل الإسلامي', nameEn: 'Islamic Finance' },
 ];
 
+// Module type definition
+interface Module {
+  id: number;
+  titleAr: string;
+  titleEn: string;
+  completed: boolean;
+  lessons: number;
+  current?: boolean;
+  locked?: boolean;
+}
+
+interface LearningPath {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  descAr: string;
+  descEn: string;
+  color: string;
+  icon: typeof Zap;
+  modules: Module[];
+  progress: number;
+  locked?: boolean;
+}
+
 // Learning paths (structured curriculum)
-const learningPaths = [
+const learningPaths: LearningPath[] = [
   {
     id: 'beginner',
     titleAr: 'مسار المبتدئين',

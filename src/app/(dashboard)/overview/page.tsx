@@ -14,6 +14,7 @@ import {
   Calculator,
   ChevronRight,
   ChevronLeft,
+  Receipt,
 } from 'lucide-react';
 import { OverviewTransactionRow } from '@/components';
 import { useTransactions, useCurrency } from '@/store/useStore';
@@ -76,9 +77,6 @@ export default function OverviewPage() {
       bg: 'rgba(139, 92, 246, 0.1)',
     },
   ];
-
-  // Import Receipt icon
-  const Receipt = TrendingDown; // Placeholder, using TrendingDown as Receipt
 
   return (
     <div className="w-full min-h-screen bg-[var(--color-bg-primary)]">
