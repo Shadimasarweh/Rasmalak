@@ -31,14 +31,14 @@ export default function TransactionsPage() {
   const chartData = useMemo(() => {
     switch (chartPeriod) {
       case 'daily':
-        return getDailyData(transactions, 14);
+        return getDailyData(transactions, 14, language);
       case 'weekly':
-        return getWeeklyData(transactions, 8);
+        return getWeeklyData(transactions, 8, language);
       case 'monthly':
       default:
-        return getMonthlyData(transactions, 6);
+        return getMonthlyData(transactions, 6, language);
     }
-  }, [transactions, chartPeriod]);
+  }, [transactions, chartPeriod, language]);
 
   const analysis = useMemo(() => {
     const totalIncome = transactions

@@ -180,13 +180,14 @@ export function getCurrentMonthTransactions(transactions: Transaction[]): Transa
 }
 
 // Get monthly data for charts
-export function getMonthlyData(transactions: Transaction[], months: number = 6): { month: string; income: number; expenses: number }[] {
+export function getMonthlyData(transactions: Transaction[], months: number = 6, language: 'ar' | 'en' = 'ar'): { month: string; income: number; expenses: number }[] {
   const result: { month: string; income: number; expenses: number }[] = [];
   const now = new Date();
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
 
   for (let i = months - 1; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthName = new Intl.DateTimeFormat('ar-SA', { month: 'short' }).format(date);
+    const monthName = new Intl.DateTimeFormat(locale, { month: 'short' }).format(date);
 
     const monthTransactions = transactions.filter(t => {
       const tDate = new Date(t.date);
@@ -203,9 +204,10 @@ export function getMonthlyData(transactions: Transaction[], months: number = 6):
 }
 
 // Get weekly data for charts
-export function getWeeklyData(transactions: Transaction[], weeks: number = 8): { month: string; income: number; expenses: number }[] {
+export function getWeeklyData(transactions: Transaction[], weeks: number = 8, language: 'ar' | 'en' = 'ar'): { month: string; income: number; expenses: number }[] {
   const result: { month: string; income: number; expenses: number }[] = [];
   const now = new Date();
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
 
   for (let i = weeks - 1; i >= 0; i--) {
     const weekEnd = new Date(now);
@@ -213,7 +215,7 @@ export function getWeeklyData(transactions: Transaction[], weeks: number = 8): {
     const weekStart = new Date(weekEnd);
     weekStart.setDate(weekEnd.getDate() - 6);
 
-    const weekLabel = `${weekStart.getDate()}/${weekStart.getMonth() + 1}`;
+    const weekLabel = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(weekStart);
 
     const weekTransactions = transactions.filter(t => {
       const tDate = new Date(t.date);
@@ -230,15 +232,16 @@ export function getWeeklyData(transactions: Transaction[], weeks: number = 8): {
 }
 
 // Get daily data for charts
-export function getDailyData(transactions: Transaction[], days: number = 14): { month: string; income: number; expenses: number }[] {
+export function getDailyData(transactions: Transaction[], days: number = 14, language: 'ar' | 'en' = 'ar'): { month: string; income: number; expenses: number }[] {
   const result: { month: string; income: number; expenses: number }[] = [];
   const now = new Date();
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
 
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(now.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
-    const dayLabel = `${date.getDate()}/${date.getMonth() + 1}`;
+    const dayLabel = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(date);
 
     const dayTransactions = transactions.filter(t => t.date === dateStr);
 

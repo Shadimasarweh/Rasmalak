@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
 import { useCurrency } from '@/store/useStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface MonthlyChartProps {
   data: { month: string; income: number; expenses: number }[];
@@ -19,11 +20,12 @@ interface MonthlyChartProps {
 
 export default function MonthlyChart({ data }: MonthlyChartProps) {
   const currency = useCurrency();
+  const { language } = useTranslation();
 
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-[var(--color-text-muted)]">
-        لا توجد بيانات
+        {language === 'ar' ? 'لا توجد بيانات' : 'No data available'}
       </div>
     );
   }
@@ -31,11 +33,14 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-100">
-          <p className="font-medium mb-2">{label}</p>
+        <div className="bg-[var(--color-bg-card)] p-3 rounded-lg shadow-lg border border-[var(--color-border)]">
+          <p className="font-medium mb-2 text-[var(--color-text-primary)]">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {formatCurrency(entry.value, currency)}
+              {entry.name === 'income' 
+                ? (language === 'ar' ? 'الدخل' : 'Income')
+                : (language === 'ar' ? 'المصاريف' : 'Expenses')
+              }: {formatCurrency(entry.value, currency)}
             </p>
           ))}
         </div>
@@ -48,21 +53,26 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
     <div className="chart-container h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-light)" />
           <XAxis
             dataKey="month"
-            tick={{ fill: '#6B7280', fontSize: 12 }}
-            axisLine={{ stroke: '#E5E7EB' }}
+            tick={{ fill: 'var(--color-text-muted)', fontSize: 12 }}
+            axisLine={{ stroke: 'var(--color-border-light)' }}
           />
           <YAxis
-            tick={{ fill: '#6B7280', fontSize: 12 }}
-            axisLine={{ stroke: '#E5E7EB' }}
+            tick={{ fill: 'var(--color-text-muted)', fontSize: 12 }}
+            axisLine={{ stroke: 'var(--color-border-light)' }}
             tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend
             formatter={(value) => (
-              <span className="text-sm">{value === 'income' ? 'الدخل' : 'المصاريف'}</span>
+              <span className="text-sm text-[var(--color-text-secondary)]">
+                {value === 'income' 
+                  ? (language === 'ar' ? 'الدخل' : 'Income')
+                  : (language === 'ar' ? 'المصاريف' : 'Expenses')
+                }
+              </span>
             )}
           />
           <Bar
