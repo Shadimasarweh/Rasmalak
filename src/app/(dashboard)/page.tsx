@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown } from 'lucide-react';
-import { useTransactions, useCurrency, useBaseCurrency, useStore } from '@/store/useStore';
+import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown, Target, AlertTriangle, Settings2, PiggyBank } from 'lucide-react';
+import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget, useCategoryBudgets, useSavingsGoals } from '@/store/useStore';
 import { Transaction } from '@/types';
 import { calculateStats, getCurrentMonthTransactions, groupByCategory, getCategoryById, convertCurrency } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CURRENCIES } from '@/lib/constants';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 // Locale-aware currency formatting
 function formatAmount(amount: number, currencyCode: string, language: string): string {
@@ -39,15 +39,34 @@ export default function HomePage() {
   const currency = useCurrency();
   const baseCurrency = useBaseCurrency();
   const deleteTransaction = useStore((state) => state.deleteTransaction);
+  const monthlyBudget = useMonthlyBudget();
+  const setMonthlyBudget = useStore((state) => state.setMonthlyBudget);
+  const categoryBudgets = useCategoryBudgets();
+  const savingsGoals = useSavingsGoals();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [tempBudget, setTempBudget] = useState(monthlyBudget.toString());
 
   const currentMonthTransactions = getCurrentMonthTransactions(transactions);
   const stats = calculateStats(currentMonthTransactions, currency, baseCurrency);
   const expensesByCategory = groupByCategory(currentMonthTransactions, 'expense', currency, baseCurrency);
   const topCategories = expensesByCategory.slice(0, 5);
   const recentTransactions = transactions.slice(0, 6);
+
+  // Budget calculations
+  const budgetProgress = monthlyBudget > 0 ? Math.min((stats.totalExpenses / monthlyBudget) * 100, 100) : 0;
+  const budgetRemaining = monthlyBudget - stats.totalExpenses;
+  const isOverBudget = stats.totalExpenses > monthlyBudget && monthlyBudget > 0;
+  const isNearBudget = budgetProgress >= 80 && budgetProgress < 100;
+
+  const handleSaveBudget = () => {
+    const amount = parseFloat(tempBudget) || 0;
+    setMonthlyBudget(amount);
+    setShowBudgetModal(false);
+  };
 
   // Calculate previous month for comparison
   const previousMonthTransactions = transactions.filter(t => {
@@ -233,6 +252,150 @@ export default function HomePage() {
             icon={TrendingDown}
             color="danger"
           />
+        </div>
+
+        {/* Budget Progress Card */}
+        <div className="mb-6">
+          <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  isOverBudget 
+                    ? 'bg-red-500/10' 
+                    : isNearBudget 
+                      ? 'bg-amber-500/10' 
+                      : 'bg-emerald-500/10'
+                }`}>
+                  {isOverBudget ? (
+                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                  ) : (
+                    <Target className="w-5 h-5 text-emerald-500" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="font-semibold text-[var(--color-text-primary)]">
+                    {language === 'ar' ? 'ميزانية الشهر' : 'Monthly Budget'}
+                  </h2>
+                  {monthlyBudget > 0 && (
+                    <p className="text-sm text-[var(--color-text-muted)]">
+                      {language === 'ar' 
+                        ? `${budgetProgress.toFixed(0)}% مستخدم`
+                        : `${budgetProgress.toFixed(0)}% used`
+                      }
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setTempBudget(monthlyBudget.toString());
+                  setShowBudgetModal(true);
+                }}
+                className="btn btn-sm btn-secondary"
+              >
+                <Settings2 className="w-4 h-4" />
+                {monthlyBudget > 0 
+                  ? (language === 'ar' ? 'تعديل' : 'Edit')
+                  : (language === 'ar' ? 'تعيين ميزانية' : 'Set Budget')
+                }
+              </button>
+            </div>
+
+            {monthlyBudget > 0 ? (
+              <>
+                {/* Progress Bar */}
+                <div className="mb-4">
+                  <div className="h-3 bg-[var(--color-bg-inset)] rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        isOverBudget 
+                          ? 'bg-red-500' 
+                          : isNearBudget 
+                            ? 'bg-amber-500' 
+                            : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${Math.min(budgetProgress, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Budget Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
+                      {language === 'ar' ? 'الميزانية' : 'Budget'}
+                    </p>
+                    <p className="text-lg font-bold text-[var(--color-text-primary)] ltr-nums">
+                      {formatAmount(monthlyBudget, currency, language)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
+                      {language === 'ar' ? 'المصروف' : 'Spent'}
+                    </p>
+                    <p className="text-lg font-bold text-[var(--color-text-primary)] ltr-nums">
+                      {formatAmount(stats.totalExpenses, currency, language)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
+                      {language === 'ar' ? 'المتبقي' : 'Remaining'}
+                    </p>
+                    <p className={`text-lg font-bold ltr-nums ${
+                      budgetRemaining >= 0 ? 'text-emerald-500' : 'text-red-500'
+                    }`}>
+                      {formatAmount(Math.abs(budgetRemaining), currency, language)}
+                      {budgetRemaining < 0 && ` (${language === 'ar' ? 'تجاوز' : 'over'})`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Alert Message */}
+                {isOverBudget && (
+                  <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                    <div className="flex items-center gap-2 text-red-500">
+                      <AlertTriangle className="w-4 h-4" />
+                      <p className="text-sm font-medium">
+                        {language === 'ar' 
+                          ? 'تجاوزت ميزانيتك الشهرية!'
+                          : 'You have exceeded your monthly budget!'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {isNearBudget && !isOverBudget && (
+                  <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <div className="flex items-center gap-2 text-amber-500">
+                      <AlertTriangle className="w-4 h-4" />
+                      <p className="text-sm font-medium">
+                        {language === 'ar' 
+                          ? 'أنت قريب من حد ميزانيتك'
+                          : 'You are approaching your budget limit'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <PiggyBank className="w-12 h-12 text-[var(--color-text-muted)] mx-auto mb-3" />
+                <p className="text-sm text-[var(--color-text-muted)] mb-1">
+                  {language === 'ar' 
+                    ? 'لم يتم تعيين ميزانية بعد'
+                    : 'No budget set yet'
+                  }
+                </p>
+                <p className="text-xs text-[var(--color-text-muted)]">
+                  {language === 'ar' 
+                    ? 'حدد ميزانية شهرية لتتبع إنفاقك'
+                    : 'Set a monthly budget to track your spending'
+                  }
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Main Grid: 2 columns */}
@@ -568,6 +731,76 @@ export default function HomePage() {
                 className="flex-1 px-4 py-2.5 bg-[var(--color-danger)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
               >
                 {language === 'ar' ? 'حذف' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Budget Setting Modal */}
+      {showBudgetModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" 
+          onClick={() => setShowBudgetModal(false)}
+        >
+          <div
+            className="w-full max-w-md bg-[var(--color-bg-card)] rounded-2xl p-6 mx-4 animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <Target className="w-6 h-6 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
+                  {language === 'ar' ? 'تعيين الميزانية الشهرية' : 'Set Monthly Budget'}
+                </h3>
+                <p className="text-sm text-[var(--color-text-muted)]">
+                  {language === 'ar' 
+                    ? 'حدد الحد الأقصى لإنفاقك الشهري'
+                    : 'Set your maximum monthly spending limit'
+                  }
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+                {language === 'ar' ? 'مبلغ الميزانية' : 'Budget Amount'}
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">
+                  {CURRENCIES.find(c => c.code === currency)?.[language === 'ar' ? 'symbolAr' : 'symbol']}
+                </span>
+                <input
+                  type="number"
+                  value={tempBudget}
+                  onChange={(e) => setTempBudget(e.target.value)}
+                  placeholder="0"
+                  className="input pl-12 text-xl font-bold"
+                  autoFocus
+                />
+              </div>
+              <p className="text-xs text-[var(--color-text-muted)] mt-2">
+                {language === 'ar' 
+                  ? 'سيتم تنبيهك عند اقترابك من الحد المعين'
+                  : 'You will be alerted when approaching this limit'
+                }
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowBudgetModal(false)}
+                className="flex-1 btn btn-secondary"
+              >
+                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                onClick={handleSaveBudget}
+                className="flex-1 btn btn-primary"
+              >
+                {language === 'ar' ? 'حفظ' : 'Save'}
               </button>
             </div>
           </div>
