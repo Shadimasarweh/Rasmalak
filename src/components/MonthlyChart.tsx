@@ -30,12 +30,15 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
     );
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  // Render tooltip content as a function (not a component)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderTooltip = (props: any) => {
+    const { active, payload, label } = props;
     if (active && payload && payload.length) {
       return (
         <div className="bg-[var(--color-bg-card)] p-3 rounded-lg shadow-lg border border-[var(--color-border)]">
           <p className="font-medium mb-2 text-[var(--color-text-primary)]">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry: { name: string; value: number; color: string }, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name === 'income' 
                 ? (language === 'ar' ? 'الدخل' : 'Income')
@@ -64,7 +67,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
             axisLine={{ stroke: 'var(--color-border-light)' }}
             tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={renderTooltip} />
           <Legend
             formatter={(value) => (
               <span className="text-sm text-[var(--color-text-secondary)]">

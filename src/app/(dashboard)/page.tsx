@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown, Target, AlertTriangle, Settings2, PiggyBank } from 'lucide-react';
-import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget, useCategoryBudgets, useSavingsGoals } from '@/store/useStore';
+import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget } from '@/store/useStore';
 import { Transaction } from '@/types';
 import { calculateStats, getCurrentMonthTransactions, groupByCategory, getCategoryById, convertCurrency } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -13,14 +13,14 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 // Locale-aware currency formatting
 function formatAmount(amount: number, currencyCode: string, language: string): string {
   const locale = language === 'ar' ? 'ar-SA' : 'en-US';
-  const currency = CURRENCIES.find(c => c.code === currencyCode);
+  const currencyInfo = CURRENCIES.find(c => c.code === currencyCode);
   
   const formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(Math.abs(amount));
 
-  const symbol = language === 'ar' ? currency?.symbolAr : currency?.symbol;
+  const symbol = language === 'ar' ? currencyInfo?.symbolAr : currencyInfo?.symbol;
   return `${formatted} ${symbol || currencyCode}`;
 }
 
@@ -33,6 +33,56 @@ function formatCompact(amount: number, language: string): string {
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount);
 }
 
+// KPI Card component - moved outside to prevent recreating on each render
+function KPICard({ 
+  title, 
+  value, 
+  change, 
+  icon: Icon, 
+  color,
+  currency,
+  language,
+}: { 
+  title: string; 
+  value: number; 
+  change: number; 
+  icon: React.ComponentType<{ className?: string }>; 
+  color: 'primary' | 'success' | 'danger';
+  currency: string;
+  language: string;
+}) {
+  const colorClasses = {
+    primary: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
+    success: 'bg-[var(--color-success-bg)] text-[var(--color-success)]',
+    danger: 'bg-[var(--color-danger-bg)] text-[var(--color-danger)]',
+  };
+  const borderColors = {
+    primary: 'border-[var(--color-primary)]/20',
+    success: 'border-[var(--color-success)]/20',
+    danger: 'border-[var(--color-danger)]/20',
+  };
+  
+  return (
+    <div className={`bg-[var(--color-bg-card)] rounded-xl border ${borderColors[color]} p-5 transition-shadow hover:shadow-md`}>
+      <div className="flex items-start justify-between mb-4">
+        <div className={`w-10 h-10 rounded-lg ${colorClasses[color]} flex items-center justify-center`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        {change !== 0 && (
+          <div className={`flex items-center gap-1 text-xs font-semibold ${change > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
+            {change > 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+            {Math.abs(change).toFixed(1)}%
+          </div>
+        )}
+      </div>
+      <p className="text-2xl font-bold text-[var(--color-text-primary)] ltr-nums mb-1">
+        {formatAmount(value, currency, language)}
+      </p>
+      <p className="text-sm text-[var(--color-text-muted)]">{title}</p>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const { t, language, isRTL } = useTranslation();
   const transactions = useTransactions();
@@ -41,8 +91,6 @@ export default function HomePage() {
   const deleteTransaction = useStore((state) => state.deleteTransaction);
   const monthlyBudget = useMonthlyBudget();
   const setMonthlyBudget = useStore((state) => state.setMonthlyBudget);
-  const categoryBudgets = useCategoryBudgets();
-  const savingsGoals = useSavingsGoals();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -120,18 +168,10 @@ export default function HomePage() {
 
   const chartTotal = chartData.reduce((sum, c) => sum + c.value, 0);
 
-  // Bar chart data for top spending
-  const barChartData = topCategories.slice(0, 5).map(cat => {
-    const category = getCategoryById(cat.name);
-    return {
-      name: language === 'ar' ? (category?.nameAr || cat.name) : (category?.name || cat.name),
-      amount: cat.value,
-      fill: cat.color || category?.color || '#14452F',
-    };
-  });
-
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ name: string; value: number; payload: { color: string } }> }) => {
+  // Render tooltip content (not a component to avoid re-creation)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderTooltip = (props: any) => {
+    const { active, payload } = props;
     if (active && payload && payload.length) {
       const data = payload[0];
       return (
@@ -142,52 +182,6 @@ export default function HomePage() {
       );
     }
     return null;
-  };
-
-  // KPI Card component
-  const KPICard = ({ 
-    title, 
-    value, 
-    change, 
-    icon: Icon, 
-    color 
-  }: { 
-    title: string; 
-    value: number; 
-    change: number; 
-    icon: React.ComponentType<{ className?: string }>; 
-    color: 'primary' | 'success' | 'danger';
-  }) => {
-    const colorClasses = {
-      primary: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
-      success: 'bg-[var(--color-success-bg)] text-[var(--color-success)]',
-      danger: 'bg-[var(--color-danger-bg)] text-[var(--color-danger)]',
-    };
-    const borderColors = {
-      primary: 'border-[var(--color-primary)]/20',
-      success: 'border-[var(--color-success)]/20',
-      danger: 'border-[var(--color-danger)]/20',
-    };
-    
-    return (
-      <div className={`bg-[var(--color-bg-card)] rounded-xl border ${borderColors[color]} p-5 transition-shadow hover:shadow-md`}>
-        <div className="flex items-start justify-between mb-4">
-          <div className={`w-10 h-10 rounded-lg ${colorClasses[color]} flex items-center justify-center`}>
-            <Icon className="w-5 h-5" />
-          </div>
-          {change !== 0 && (
-            <div className={`flex items-center gap-1 text-xs font-semibold ${change > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
-              {change > 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
-              {Math.abs(change).toFixed(1)}%
-            </div>
-          )}
-        </div>
-        <p className="text-2xl font-bold text-[var(--color-text-primary)] ltr-nums mb-1">
-          {formatAmount(value, currency, language)}
-        </p>
-        <p className="text-sm text-[var(--color-text-muted)]">{title}</p>
-      </div>
-    );
   };
 
   return (
@@ -237,6 +231,8 @@ export default function HomePage() {
             change={balanceChange}
             icon={Wallet}
             color="primary"
+            currency={currency}
+            language={language}
           />
           <KPICard
             title={t.dashboard.income}
@@ -244,6 +240,8 @@ export default function HomePage() {
             change={incomeChange}
             icon={TrendingUp}
             color="success"
+            currency={currency}
+            language={language}
           />
           <KPICard
             title={t.dashboard.expenses}
@@ -251,6 +249,8 @@ export default function HomePage() {
             change={expenseChange}
             icon={TrendingDown}
             color="danger"
+            currency={currency}
+            language={language}
           />
         </div>
 
@@ -570,7 +570,7 @@ export default function HomePage() {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip content={renderTooltip} />
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
