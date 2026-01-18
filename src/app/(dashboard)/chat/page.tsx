@@ -148,7 +148,7 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] flex flex-col">
       <PageHeader 
-        title={language === 'ar' ? 'المستشار المالي' : 'Financial Advisor'}
+        title={language === 'ar' ? 'مستشارك' : 'Mustasharak'}
       />
 
       <div className="flex-1 flex flex-col page-container py-6">
@@ -169,7 +169,7 @@ export default function ChatPage() {
                 </span>
               </div>
               <h1 className="text-xl font-bold">
-                {language === 'ar' ? 'المستشار المالي الذكي' : 'AI Financial Advisor'}
+                {language === 'ar' ? 'مستشارك الذكي' : 'Mustasharak AI'}
               </h1>
               <p className="text-sm text-slate-400 mt-1">
                 {language === 'ar' 
@@ -259,7 +259,7 @@ export default function ChatPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">
-                      {language === 'ar' ? 'المستشار قيد التطوير' : 'Advisor Under Development'}
+                      {language === 'ar' ? 'مستشارك قيد التطوير' : 'Mustasharak Under Development'}
                     </h3>
                     <p className="text-sm text-[var(--color-text-secondary)]">
                       {language === 'ar'
@@ -287,7 +287,7 @@ export default function ChatPage() {
                       <div className="flex items-center gap-2 mb-2">
                         <Bot className="w-4 h-4 text-amber-500" />
                         <span className="text-xs font-medium text-amber-500">
-                          {language === 'ar' ? 'المستشار' : 'Advisor'}
+                          {language === 'ar' ? 'مستشارك' : 'Mustasharak'}
                         </span>
                       </div>
                     )}

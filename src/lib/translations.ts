@@ -12,7 +12,7 @@ export const translations = {
       transactions: 'المعاملات',
       add: 'إضافة',
       learn: 'تعلّم',
-      chat: 'المستشار',
+      chat: 'مستشارك',
       calculators: 'أدوات',
       settings: 'الإعدادات',
     },
@@ -48,14 +48,14 @@ export const translations = {
 
     // Chat
     chat: {
-      title: 'المستشار الذكي',
+      title: 'مستشارك',
       subtitle: 'مستشارك المالي بالذكاء الاصطناعي',
       placeholder: 'اكتب سؤالك هنا...',
       send: 'إرسال',
       comingSoon: 'قريباً',
       comingSoonDesc: 'نعمل على تطوير مستشارك المالي الذكي',
       tryAsking: 'جرب أن تسأل',
-      features: 'ما يمكن للمستشار مساعدتك فيه',
+      features: 'ما يمكن لمستشارك مساعدتك فيه',
     },
 
     // Dashboard
@@ -259,7 +259,7 @@ export const translations = {
       transactions: 'Transactions',
       add: 'Add',
       learn: 'Learn',
-      chat: 'Mustashar',
+      chat: 'Mustasharak',
       calculators: 'Calculators',
       settings: 'Settings',
     },
@@ -295,14 +295,14 @@ export const translations = {
 
     // Chat
     chat: {
-      title: 'Smart Advisor',
+      title: 'Mustasharak',
       subtitle: 'Your AI Financial Advisor',
       placeholder: 'Type your question here...',
       send: 'Send',
       comingSoon: 'Coming Soon',
       comingSoonDesc: 'We are developing your smart financial advisor',
       tryAsking: 'Try asking',
-      features: 'What the advisor can help you with',
+      features: 'What Mustasharak can help you with',
     },
 
     // Dashboard

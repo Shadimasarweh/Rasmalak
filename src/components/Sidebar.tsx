@@ -43,8 +43,8 @@ const navItems = [
     id: 'chat', 
     path: '/chat', 
     icon: MessageSquareText, 
-    labelAr: 'المستشار', 
-    labelEn: 'Advisor' 
+    labelAr: 'مستشارك', 
+    labelEn: 'Mustasharak' 
   },
   { 
     id: 'calculators', 
