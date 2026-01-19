@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown, Target, AlertTriangle, Settings2, PiggyBank } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget } from '@/store/useStore';
 import { Transaction } from '@/types';
 import { calculateStats, getCurrentMonthTransactions, groupByCategory, getCategoryById, convertCurrency } from '@/lib/utils';
@@ -84,19 +85,17 @@ function KPICard({
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const { t, language, isRTL } = useTranslation();
   const transactions = useTransactions();
   const currency = useCurrency();
   const baseCurrency = useBaseCurrency();
   const deleteTransaction = useStore((state) => state.deleteTransaction);
   const monthlyBudget = useMonthlyBudget();
-  const setMonthlyBudget = useStore((state) => state.setMonthlyBudget);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showBudgetModal, setShowBudgetModal] = useState(false);
-  const [tempBudget, setTempBudget] = useState(monthlyBudget.toString());
 
   const currentMonthTransactions = getCurrentMonthTransactions(transactions);
   const stats = calculateStats(currentMonthTransactions, currency, baseCurrency);
@@ -109,12 +108,6 @@ export default function HomePage() {
   const budgetRemaining = monthlyBudget - stats.totalExpenses;
   const isOverBudget = stats.totalExpenses > monthlyBudget && monthlyBudget > 0;
   const isNearBudget = budgetProgress >= 80 && budgetProgress < 100;
-
-  const handleSaveBudget = () => {
-    const amount = parseFloat(tempBudget) || 0;
-    setMonthlyBudget(amount);
-    setShowBudgetModal(false);
-  };
 
   // Calculate previous month for comparison
   const previousMonthTransactions = transactions.filter(t => {
@@ -287,10 +280,7 @@ export default function HomePage() {
                 </div>
               </div>
               <button 
-                onClick={() => {
-                  setTempBudget(monthlyBudget.toString());
-                  setShowBudgetModal(true);
-                }}
+                onClick={() => router.push('/budget')}
                 className="btn btn-sm btn-secondary"
               >
                 <Settings2 className="w-4 h-4" />
@@ -737,75 +727,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Budget Setting Modal */}
-      {showBudgetModal && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" 
-          onClick={() => setShowBudgetModal(false)}
-        >
-          <div
-            className="w-full max-w-md bg-[var(--color-bg-card)] rounded-2xl p-6 mx-4 animate-scaleIn"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <Target className="w-6 h-6 text-emerald-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-[var(--color-text-primary)]">
-                  {language === 'ar' ? 'تعيين الميزانية الشهرية' : 'Set Monthly Budget'}
-                </h3>
-                <p className="text-sm text-[var(--color-text-muted)]">
-                  {language === 'ar' 
-                    ? 'حدد الحد الأقصى لإنفاقك الشهري'
-                    : 'Set your maximum monthly spending limit'
-                  }
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
-                {language === 'ar' ? 'مبلغ الميزانية' : 'Budget Amount'}
-              </label>
-              <div className="relative">
-                <span className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]`}>
-                  {CURRENCIES.find(c => c.code === currency)?.[language === 'ar' ? 'symbolAr' : 'symbol']}
-                </span>
-                <input
-                  type="number"
-                  value={tempBudget}
-                  onChange={(e) => setTempBudget(e.target.value)}
-                  placeholder="0"
-                  className={`input ${isRTL ? 'pr-12' : 'pl-12'} text-xl font-bold`}
-                  autoFocus
-                />
-              </div>
-              <p className="text-xs text-[var(--color-text-muted)] mt-2">
-                {language === 'ar' 
-                  ? 'سيتم تنبيهك عند اقترابك من الحد المعين'
-                  : 'You will be alerted when approaching this limit'
-                }
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowBudgetModal(false)}
-                className="flex-1 btn btn-secondary"
-              >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
-              </button>
-              <button
-                onClick={handleSaveBudget}
-                className="flex-1 btn btn-primary"
-              >
-                {language === 'ar' ? 'حفظ' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

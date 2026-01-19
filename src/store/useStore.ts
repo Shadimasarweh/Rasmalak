@@ -32,6 +32,14 @@ export interface SavingsGoal {
   color: string;
 }
 
+// Onboarding types
+export interface OnboardingData {
+  preferredLanguage: 'ar' | 'en';
+  currency: string;
+  monthlyIncomeRange: string; // 'under-5k' | '5k-10k' | '10k-20k' | '20k-50k' | 'over-50k'
+  primaryGoal: string; // 'save' | 'payoff-debt' | 'emergency-fund' | 'invest' | 'budget'
+}
+
 interface AppState {
   // Authentication
   user: AuthUser | null;
@@ -81,6 +89,12 @@ interface AppState {
   // UI State
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+
+  // Onboarding
+  hasCompletedOnboarding: boolean;
+  onboardingData: OnboardingData | null;
+  completeOnboarding: (data: OnboardingData) => void;
+  resetOnboarding: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -279,6 +293,25 @@ export const useStore = create<AppState>()(
       // UI State
       isLoading: false,
       setIsLoading: (loading) => set({ isLoading: loading }),
+
+      // Onboarding
+      hasCompletedOnboarding: false,
+      onboardingData: null,
+      completeOnboarding: (data) => {
+        set({
+          hasCompletedOnboarding: true,
+          onboardingData: data,
+          language: data.preferredLanguage,
+          currency: data.currency,
+          baseCurrency: data.currency,
+        });
+      },
+      resetOnboarding: () => {
+        set({
+          hasCompletedOnboarding: false,
+          onboardingData: null,
+        });
+      },
     }),
     {
       name: 'rasmalak-storage',
@@ -294,6 +327,8 @@ export const useStore = create<AppState>()(
         monthlyBudget: state.monthlyBudget,
         categoryBudgets: state.categoryBudgets,
         savingsGoals: state.savingsGoals,
+        hasCompletedOnboarding: state.hasCompletedOnboarding,
+        onboardingData: state.onboardingData,
       }),
     }
   )
@@ -319,3 +354,8 @@ export const useIsAuthenticated = () => useStore((state) => state.isAuthenticate
 export const useLogin = () => useStore((state) => state.login);
 export const useSignup = () => useStore((state) => state.signup);
 export const useLogout = () => useStore((state) => state.logout);
+
+// Onboarding selectors
+export const useHasCompletedOnboarding = () => useStore((state) => state.hasCompletedOnboarding);
+export const useOnboardingData = () => useStore((state) => state.onboardingData);
+export const useCompleteOnboarding = () => useStore((state) => state.completeOnboarding);

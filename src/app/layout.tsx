@@ -43,6 +43,28 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Inline script to prevent layout shift by setting lang/dir/theme before React hydrates
+const initScript = `
+(function() {
+  try {
+    var stored = localStorage.getItem('rasmalak-storage');
+    if (stored) {
+      var data = JSON.parse(stored);
+      var state = data.state || {};
+      // Set language direction
+      if (state.language) {
+        document.documentElement.lang = state.language;
+        document.documentElement.dir = state.language === 'ar' ? 'rtl' : 'ltr';
+      }
+      // Set theme
+      if (state.theme) {
+        document.documentElement.setAttribute('data-theme', state.theme);
+      }
+    }
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -51,6 +73,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: initScript }} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>

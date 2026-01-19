@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, User, ArrowRight, ArrowLeft, Check } from 'lucide-react';
-import { useSignup, useIsAuthenticated } from '@/store/useStore';
+import { useSignup, useIsAuthenticated, useHasCompletedOnboarding } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ThemeLanguageSwitcher } from '@/components';
 
@@ -12,6 +12,7 @@ export default function SignupPage() {
   const router = useRouter();
   const signup = useSignup();
   const isAuthenticated = useIsAuthenticated();
+  const hasCompletedOnboarding = useHasCompletedOnboarding();
   const { t, language, isRTL } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,9 +26,10 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/');
+      // If user already completed onboarding, go to dashboard; otherwise go to onboarding
+      router.push(hasCompletedOnboarding ? '/' : '/onboarding');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, hasCompletedOnboarding, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +60,8 @@ export default function SignupPage() {
     setIsLoading(false);
 
     if (result.success) {
-      router.push('/');
+      // New signups always go to onboarding
+      router.push('/onboarding');
     } else {
       setError(result.error || t.auth.signupError);
     }
