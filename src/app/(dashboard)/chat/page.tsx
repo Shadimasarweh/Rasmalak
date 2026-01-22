@@ -121,24 +121,70 @@ export default function ChatPage() {
         />
       </div>
 
-      {/* Header */}
-      <div className="relative flex-shrink-0 px-6 py-4 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/80 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Sparkles className="w-5 h-5 text-white" />
+      {/* Header with Input Bar */}
+      <div className="relative flex-shrink-0 px-6 py-6 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/80 backdrop-blur-sm">
+        <div className="max-w-2xl mx-auto">
+          {/* Title */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              {/* Online indicator */}
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[var(--color-bg-primary)]" />
             </div>
-            {/* Online indicator */}
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[var(--color-bg-primary)]" />
+            <div className="text-center">
+              <h1 className="text-base font-semibold text-[var(--color-text-primary)]">
+                {language === 'ar' ? 'مستشارك' : 'Mustasharak'}
+              </h1>
+              <p className="text-xs text-[var(--color-text-muted)]">
+                {language === 'ar' ? 'مستشارك المالي الذكي' : 'Your AI Financial Advisor'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-base font-semibold text-[var(--color-text-primary)]">
-              {language === 'ar' ? 'مستشارك' : 'Mustasharak'}
-            </h1>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              {language === 'ar' ? 'مستشارك المالي الذكي' : 'Your AI Financial Advisor'}
-            </p>
+
+          {/* Input Bar - Centered at Top */}
+          <div
+            className={`
+              flex items-center gap-3 p-2
+              bg-white dark:bg-slate-800
+              rounded-2xl border-2
+              transition-all duration-200
+              ${isFocused
+                ? 'border-indigo-400 shadow-lg shadow-indigo-500/10'
+                : 'border-[var(--color-border)] shadow-sm'
+              }
+            `}
+          >
+            <input
+              type="text"
+              dir={isRTL ? 'rtl' : 'ltr'}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder={language === 'ar' ? 'اكتب سؤالك هنا...' : 'Type your question here...'}
+              className={`flex-1 bg-transparent border-none outline-none px-4 py-2.5 text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] text-base ${isRTL ? 'text-right' : 'text-left'}`}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!inputValue.trim() || isLoading}
+              className="h-11 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-medium inline-flex items-center gap-2 hover:from-indigo-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-95"
+            >
+              <Send className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {language === 'ar' ? 'إرسال' : 'Send'}
+              </span>
+            </button>
           </div>
+          {/* Status Line */}
+          <p className="text-[11px] text-center text-[var(--color-text-muted)] mt-3 flex items-center justify-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            {language === 'ar'
+              ? 'المستشار في مرحلة التطوير النشط'
+              : 'Advisor in active development'}
+          </p>
         </div>
       </div>
 
@@ -235,51 +281,6 @@ export default function ChatPage() {
         )}
       </div>
 
-      {/* Input Bar - Premium Style */}
-      <div className="relative flex-shrink-0 px-6 py-4 border-t border-[var(--color-border)] bg-[var(--color-bg-primary)]/80 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto">
-          <div 
-            className={`
-              flex items-center gap-3 p-2 
-              bg-white dark:bg-slate-800 
-              rounded-2xl border-2 
-              transition-all duration-200
-              ${isFocused 
-                ? 'border-indigo-400 shadow-lg shadow-indigo-500/10' 
-                : 'border-[var(--color-border)] shadow-sm'
-              }
-            `}
-          >
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder={language === 'ar' ? 'اكتب سؤالك هنا...' : 'Type your question here...'}
-              className="flex-1 bg-transparent border-none outline-none px-4 py-2.5 text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] text-base"
-            />
-            <button
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isLoading}
-              className="h-11 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-medium inline-flex items-center gap-2 hover:from-indigo-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-95"
-            >
-              <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {language === 'ar' ? 'إرسال' : 'Send'}
-              </span>
-            </button>
-          </div>
-          {/* Status Line */}
-          <p className="text-[11px] text-center text-[var(--color-text-muted)] mt-3 flex items-center justify-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            {language === 'ar' 
-              ? 'المستشار في مرحلة التطوير النشط'
-              : 'Advisor in active development'}
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

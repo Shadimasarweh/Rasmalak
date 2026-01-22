@@ -81,9 +81,10 @@ export default function CalculatorsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <PageHeader 
         title={language === 'ar' ? 'الأدوات المالية' : 'Financial Tools'}
+        hero
       />
 
       <div className="page-container py-6 space-y-6">

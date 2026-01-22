@@ -127,19 +127,20 @@ export default function TransactionsPage() {
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <PageHeader 
         title={t.transactions.title}
+        hero
         actions={
           <>
             <Link
               href="/transactions/new"
-              className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-200 active:scale-95"
+              className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-white/15 hover:border-white/20 active:scale-95 transition-all"
             >
               <Plus className="w-5 h-5 text-white" />
             </Link>
             <Link
               href="/settings"
-              className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-[var(--color-border)] transition-all duration-200 hover:shadow-md hover:border-[var(--color-border-dark)]"
+              className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-white/15 hover:border-white/20 active:scale-95 transition-all"
             >
-              <Settings className="w-5 h-5 text-[var(--color-text-secondary)]" />
+              <Settings className="w-5 h-5 text-white/80" />
             </Link>
           </>
         }

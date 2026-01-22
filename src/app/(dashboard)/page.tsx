@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown, Target, AlertTriangle, Settings2, PiggyBank, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight, Plus, Search, X, Edit2, Trash2, Wallet, ChevronDown, ChevronUp, TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
 import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget } from '@/store/useStore';
 import { Transaction } from '@/types';
 import { calculateStats, getCurrentMonthTransactions, groupByCategory, getCategoryById, convertCurrency } from '@/lib/utils';
@@ -11,7 +10,16 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { CURRENCIES } from '@/lib/constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-// Locale-aware currency formatting
+// Domain imports for insights
+import type { Insight } from '@/insights/insight';
+import type { RuleContext } from '@/rules/Rule';
+import { runRules } from '@/application/ruleRunner';
+import { overspendingRule, lowSavingsRule, highDebtRiskRule } from '@/rules';
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
 function formatAmount(amount: number, currencyCode: string, language: string): string {
   const locale = language === 'ar' ? 'ar-SA' : 'en-US';
   const currencyInfo = CURRENCIES.find(c => c.code === currencyCode);
@@ -25,7 +33,6 @@ function formatAmount(amount: number, currencyCode: string, language: string): s
   return `${formatted} ${symbol || currencyCode}`;
 }
 
-// Compact number formatter
 function formatCompact(amount: number, language: string): string {
   const locale = language === 'ar' ? 'ar-SA' : 'en-US';
   if (Math.abs(amount) >= 1000000) {
@@ -34,87 +41,202 @@ function formatCompact(amount: number, language: string): string {
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount);
 }
 
-// KPI Card component - Premium glass style with animations
-function KPICard({ 
+// ============================================================================
+// ZONE 1: FINANCIAL SNAPSHOT - Grounded, not dull
+// ============================================================================
+
+const snapshotIcons = {
+  income: TrendingUp,
+  expenses: TrendingDown,
+  balance: Wallet,
+  savings: PiggyBank,
+  debt: CreditCard,
+};
+
+function SnapshotCard({ 
   title, 
   value, 
-  change, 
-  icon: Icon, 
-  color,
   currency,
   language,
-  delay = 0,
+  type = 'balance',
 }: { 
   title: string; 
   value: number; 
-  change: number; 
-  icon: React.ComponentType<{ className?: string }>; 
-  color: 'primary' | 'success' | 'danger';
   currency: string;
   language: string;
-  delay?: number;
+  type?: 'income' | 'expenses' | 'balance' | 'savings' | 'debt';
 }) {
-  const [mounted, setMounted] = useState(false);
+  const Icon = snapshotIcons[type] || Wallet;
   
-  useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  const iconColors = {
-    primary: 'from-indigo-500 to-indigo-600',
-    success: 'from-emerald-500 to-emerald-600',
-    danger: 'from-rose-500 to-rose-600',
+  // Subtle accent colors - understated but present
+  const accentColors = {
+    income: 'text-emerald-600/70 dark:text-emerald-400/70',
+    expenses: 'text-slate-500 dark:text-slate-400',
+    balance: 'text-indigo-600/70 dark:text-indigo-400/70',
+    savings: 'text-amber-600/70 dark:text-amber-400/70',
+    debt: 'text-slate-500 dark:text-slate-400',
   };
 
-  const glowColors = {
-    primary: 'shadow-indigo-500/20',
-    success: 'shadow-emerald-500/20',
-    danger: 'shadow-rose-500/20',
+  const iconBg = {
+    income: 'bg-emerald-500/8',
+    expenses: 'bg-slate-500/8',
+    balance: 'bg-indigo-500/8',
+    savings: 'bg-amber-500/8',
+    debt: 'bg-slate-500/8',
   };
+
+  return (
+    <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-4 hover:border-[var(--color-border-dark)] transition-colors">
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <div className={`w-7 h-7 rounded-lg ${iconBg[type]} flex items-center justify-center`}>
+          <Icon className={`w-3.5 h-3.5 ${accentColors[type]}`} />
+        </div>
+        <p className="text-xs text-[var(--color-text-muted)] font-medium">{title}</p>
+      </div>
+      <p className="text-lg font-semibold text-[var(--color-text-primary)] ltr-nums tabular-nums">
+        {formatAmount(value, currency, language)}
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// GUIDANCE LAYER - State-aware bridge for early/empty users
+// ============================================================================
+
+interface GuidanceItem {
+  key: string;
+  text: string;
+  href: string;
+}
+
+function GuidanceLayer({ 
+  items,
+  title,
+}: { 
+  items: GuidanceItem[];
+  title: string;
+}) {
+  if (items.length === 0) return null;
+  
+  // Limit to 2 items max
+  const visibleItems = items.slice(0, 2);
   
   return (
-    <div 
-      className={`
-        relative overflow-hidden
-        bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm
-        rounded-2xl border border-white/50 dark:border-slate-700/50
-        p-5 transition-all duration-300 ease-out
-        hover:shadow-lg hover:-translate-y-1
-        ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-      `}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
-      
-      <div className="relative">
-        <div className="flex items-start justify-between mb-3">
-          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${iconColors[color]} flex items-center justify-center shadow-lg ${glowColors[color]}`}>
-            <Icon className="w-5 h-5 text-white" />
-          </div>
-          {change !== 0 && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-              change > 0 
-                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' 
-                : 'bg-rose-50 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
-            }`}>
-              {change > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-              {Math.abs(change).toFixed(1)}%
-            </div>
-          )}
-        </div>
-        <p className="text-2xl font-bold text-[var(--color-text-primary)] ltr-nums mb-0.5 tracking-tight">
-          {formatAmount(value, currency, language)}
-        </p>
-        <p className="text-sm text-[var(--color-text-muted)] font-medium">{title}</p>
+    <div className="rounded-xl border border-[var(--color-border)] border-dashed bg-[var(--color-bg-secondary)]/30 p-6">
+      <h2 className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide mb-4">
+        {title}
+      </h2>
+      <div className="space-y-3">
+        {visibleItems.map((item) => (
+          <Link
+            key={item.key}
+            href={item.href}
+            className="flex items-center gap-3.5 px-4 py-3.5 bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-dark)] hover:bg-[var(--color-bg-primary)] transition-all group"
+          >
+            <div className="w-2 h-2 rounded-full bg-[var(--color-primary)]/40 group-hover:bg-[var(--color-primary)] transition-colors shrink-0" />
+            <span className="text-sm text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)] transition-colors">
+              {item.text}
+            </span>
+            <ArrowRight className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] ms-auto transition-colors rtl:rotate-180" />
+          </Link>
+        ))}
       </div>
     </div>
   );
 }
 
+// ============================================================================
+// ZONE 2: INSIGHTS - Authoritative, not polite
+// ============================================================================
+
+function InsightCard({ 
+  insight, 
+  language,
+  t,
+}: { 
+  insight: Insight;
+  language: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: any;
+}) {
+  const getInsightText = (titleKey: string) => {
+    if (titleKey.includes('monthly_overspend')) {
+      return {
+        title: t.insights?.monthly_overspend?.title || 'High Spending',
+        body: t.insights?.monthly_overspend?.body || 'Expenses exceed 90% of income',
+      };
+    }
+    if (titleKey.includes('low_savings')) {
+      return {
+        title: t.insights?.low_savings_rate?.title || 'Low Savings',
+        body: t.insights?.low_savings_rate?.body || 'Savings below 10%',
+      };
+    }
+    if (titleKey.includes('high_debt')) {
+      return {
+        title: t.insights?.high_debt_risk?.title || 'High Debt',
+        body: t.insights?.high_debt_risk?.body || 'Debt exceeds 40%',
+      };
+    }
+    return { title: titleKey, body: '' };
+  };
+
+  const { title, body } = getInsightText(insight.titleKey);
+
+  // Severity-specific styling - authoritative presence
+  const severityConfig = {
+    critical: {
+      container: 'bg-red-500/[0.04] dark:bg-red-500/[0.08] border-red-500/20 shadow-sm shadow-red-500/5',
+      accent: 'bg-red-500',
+      badge: 'bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20',
+      label: language === 'ar' ? 'حرج' : 'Critical',
+    },
+    warning: {
+      container: 'bg-amber-500/[0.04] dark:bg-amber-500/[0.08] border-amber-500/20 shadow-sm shadow-amber-500/5',
+      accent: 'bg-amber-500',
+      badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20',
+      label: language === 'ar' ? 'تنبيه' : 'Warning',
+    },
+    info: {
+      container: 'bg-slate-500/[0.03] dark:bg-slate-500/[0.06] border-slate-300/50 dark:border-slate-600/50',
+      accent: 'bg-slate-400',
+      badge: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 ring-1 ring-slate-500/20',
+      label: language === 'ar' ? 'معلومة' : 'Info',
+    },
+  };
+
+  const config = severityConfig[insight.severity];
+
+  return (
+    <div className={`relative rounded-xl border ${config.container} p-5 overflow-hidden`}>
+      {/* Left accent bar */}
+      <div className={`absolute top-0 bottom-0 start-0 w-1 ${config.accent}`} />
+      
+      <div className="flex items-start gap-4 ps-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 mb-2.5">
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${config.badge}`}>
+              {config.label}
+            </span>
+          </div>
+          <h3 className="text-base font-semibold text-[var(--color-text-primary)] leading-snug mb-1.5">
+            {title}
+          </h3>
+          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+            {body}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MAIN DASHBOARD COMPONENT
+// ============================================================================
+
 export default function HomePage() {
-  const router = useRouter();
   const { t, language, isRTL } = useTranslation();
   const transactions = useTransactions();
   const currency = useCurrency();
@@ -125,43 +247,127 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAllInsights, setShowAllInsights] = useState(false);
 
   const currentMonthTransactions = getCurrentMonthTransactions(transactions);
   const stats = calculateStats(currentMonthTransactions, currency, baseCurrency);
   const expensesByCategory = groupByCategory(currentMonthTransactions, 'expense', currency, baseCurrency);
   const topCategories = expensesByCategory.slice(0, 5);
   const recentTransactions = transactions.slice(0, 6);
+  const monthlyDebtPayment = 0;
 
-  // Budget calculations
-  const budgetProgress = monthlyBudget > 0 ? Math.min((stats.totalExpenses / monthlyBudget) * 100, 100) : 0;
-  const budgetRemaining = monthlyBudget - stats.totalExpenses;
-  const isOverBudget = stats.totalExpenses > monthlyBudget && monthlyBudget > 0;
-  const isNearBudget = budgetProgress >= 80 && budgetProgress < 100;
+  // ============================================================================
+  // INSIGHTS GENERATION
+  // ============================================================================
+  
+  const insights = useMemo((): Insight[] => {
+    const ruleContext: RuleContext = {
+      user: {
+        id: 'current-user',
+        type: 'individual',
+        country: 'JO',
+        currency: currency,
+        language: language as 'ar' | 'en',
+        createdAt: new Date(),
+      },
+      profile: {
+        userId: 'current-user',
+        income: {
+          amount: stats.totalIncome,
+          frequency: 'monthly',
+        },
+        liabilities: monthlyDebtPayment > 0 ? {
+          totalDebt: 0,
+          monthlyDebtPayment: monthlyDebtPayment,
+        } : undefined,
+      },
+      transactions: currentMonthTransactions.map(tx => ({
+        id: tx.id,
+        userId: 'current-user',
+        type: tx.type as 'income' | 'expense',
+        category: tx.category,
+        amount: tx.amount,
+        date: new Date(tx.date),
+        notes: tx.description,
+      })),
+      calculatorResults: {},
+    };
 
-  // Calculate previous month for comparison
-  const previousMonthTransactions = transactions.filter(t => {
-    const date = new Date(t.date);
-    const now = new Date();
-    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-    return date >= prevMonth && date <= prevMonthEnd;
-  });
-  const prevStats = calculateStats(previousMonthTransactions, currency, baseCurrency);
+    if (stats.totalIncome <= 0) {
+      return [];
+    }
 
-  // Calculate percentage changes
-  const incomeChange = prevStats.totalIncome > 0 
-    ? ((stats.totalIncome - prevStats.totalIncome) / prevStats.totalIncome) * 100 
-    : 0;
-  const expenseChange = prevStats.totalExpenses > 0 
-    ? ((stats.totalExpenses - prevStats.totalExpenses) / prevStats.totalExpenses) * 100 
-    : 0;
-  const balanceChange = prevStats.balance !== 0 
-    ? ((stats.balance - prevStats.balance) / Math.abs(prevStats.balance)) * 100 
-    : 0;
+    const allRules = [overspendingRule, lowSavingsRule, highDebtRiskRule];
+    return runRules(allRules, ruleContext);
+  }, [currentMonthTransactions, stats.totalIncome, currency, language, monthlyDebtPayment]);
+
+  const sortedInsights = useMemo(() => {
+    const severityOrder = { critical: 0, warning: 1, info: 2 };
+    return [...insights].sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+  }, [insights]);
+
+  const visibleInsights = showAllInsights ? sortedInsights : sortedInsights.slice(0, 2);
+  const hasMoreInsights = sortedInsights.length > 2;
+  const primaryInsight = sortedInsights[0];
+
+  // ============================================================================
+  // GUIDANCE LAYER LOGIC
+  // Conditions: no transactions, no budget, or insights empty/trivial
+  // ============================================================================
+  
+  const MINIMUM_TRANSACTION_THRESHOLD = 3;
+  const hasIncome = stats.totalIncome > 0;
+  const hasExpenses = stats.totalExpenses > 0;
+  const hasSufficientTransactions = currentMonthTransactions.length >= MINIMUM_TRANSACTION_THRESHOLD;
+  const hasBudgetSet = monthlyBudget > 0;
+  const hasNonTrivialInsights = sortedInsights.some(i => i.severity === 'critical' || i.severity === 'warning');
+
+  const guidanceItems = useMemo((): GuidanceItem[] => {
+    const items: GuidanceItem[] = [];
+    
+    // Condition 1: No transactions or below threshold
+    if (!hasSufficientTransactions && !hasExpenses) {
+      items.push({
+        key: 'add-transaction',
+        text: t.guidance?.addFirstTransaction || (language === 'ar' 
+          ? 'أضِف أول معاملة لتتبّع أنماط إنفاقك' 
+          : 'Add your first expense to see spending patterns'),
+        href: '/transactions/new',
+      });
+    }
+    
+    // Condition 2: No budget set
+    if (!hasBudgetSet) {
+      items.push({
+        key: 'set-budget',
+        text: t.guidance?.setBudget || (language === 'ar' 
+          ? 'حدّد ميزانية شهرية لتفعيل التنبيهات' 
+          : 'Set a monthly budget to activate alerts'),
+        href: '/budget',
+      });
+    }
+    
+    // Condition 3: No income logged
+    if (!hasIncome && hasSufficientTransactions) {
+      items.push({
+        key: 'log-income',
+        text: t.guidance?.logIncome || (language === 'ar' 
+          ? 'سجّل دخلك لحساب معدل الادخار' 
+          : 'Log your income to calculate savings rate'),
+        href: '/transactions/new',
+      });
+    }
+    
+    return items;
+  }, [hasSufficientTransactions, hasExpenses, hasBudgetSet, hasIncome, t.guidance, language]);
+
+  // Guidance layer only shows when:
+  // 1. There are guidance items to show AND
+  // 2. There are no non-trivial insights (so it doesn't compete)
+  const showGuidanceLayer = guidanceItems.length > 0 && !hasNonTrivialInsights;
 
   const ViewAllArrow = isRTL ? ArrowLeft : ArrowRight;
 
-  // Locale-aware date formatting
   const formatDate = (dateStr: string) => {
     const locale = language === 'ar' ? 'ar-SA' : 'en-US';
     return new Date(dateStr).toLocaleDateString(locale, {
@@ -170,27 +376,26 @@ export default function HomePage() {
     });
   };
 
-  // Get current month name
   const getMonthName = () => {
     const now = new Date();
     const locale = language === 'ar' ? 'ar-SA' : 'en-US';
     return now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   };
 
-  // Prepare chart data
+  // Confident chart palette - muted but with presence
+  const chartPalette = ['#475569', '#64748b', '#78716c', '#71717a', '#6b7280'];
+  
   const chartData = expensesByCategory.slice(0, 5).map((cat, index) => {
     const category = getCategoryById(cat.name);
-    const defaultColors = ['#14452F', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'];
     return {
       name: language === 'ar' ? (category?.nameAr || cat.name) : (category?.name || cat.name),
       value: cat.value,
-      color: cat.color || category?.color || defaultColors[index % defaultColors.length],
+      color: chartPalette[index % chartPalette.length],
     };
   });
 
   const chartTotal = chartData.reduce((sum, c) => sum + c.value, 0);
 
-  // Render tooltip content (not a component to avoid re-creation)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderTooltip = (props: any) => {
     const { active, payload } = props;
@@ -199,7 +404,7 @@ export default function HomePage() {
       return (
         <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg px-3 py-2 shadow-lg text-sm">
           <p className="font-medium text-[var(--color-text-primary)]">{data.name}</p>
-          <p className="font-bold text-[var(--color-text-secondary)]">{formatAmount(data.value, currency, language)}</p>
+          <p className="text-[var(--color-text-secondary)] ltr-nums">{formatAmount(data.value, currency, language)}</p>
         </div>
       );
     }
@@ -207,507 +412,398 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Premium Hero Section */}
-      <div className="relative overflow-hidden">
-        {/* Gradient Background */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%)',
-          }}
-        />
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+      {/* ================================================================== */}
+      {/* HEADER - The visual heartbeat / energy source */}
+      {/* ================================================================== */}
+      <header className="relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
         
-        {/* Mesh gradient orbs */}
+        {/* Subtle ambient orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div 
-            className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-30 blur-3xl animate-pulse"
-            style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%)' }}
+            className="absolute -top-20 -right-20 w-56 h-56 rounded-full opacity-[0.08]"
+            style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 1) 0%, transparent 70%)' }}
           />
           <div 
-            className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full opacity-20 blur-3xl"
-            style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%)' }}
+            className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full opacity-[0.06]"
+            style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 1) 0%, transparent 70%)' }}
           />
         </div>
 
-        <div className="relative page-container">
-          {/* Hero Content */}
-          <div className="pt-8 pb-28">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
-              {/* Greeting & Date */}
-              <div className="animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
-                  <span className="text-amber-400/90 text-sm font-medium">
-                    {language === 'ar' ? 'مرحباً بك' : 'Welcome back'}
-                  </span>
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                  {language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-                </h1>
-                <p className="text-slate-400 mt-2 text-base">{getMonthName()}</p>
-              </div>
-
-              {/* Search */}
-              <div className="relative w-full sm:w-80 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400`} />
-                <input
-                  type="text"
-                  placeholder={language === 'ar' ? 'ابحث...' : 'Search transactions...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full ${isRTL ? 'pr-11 pl-4' : 'pl-11 pr-4'} py-3 bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/15 transition-all duration-200`}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className={`absolute ${isRTL ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors`}
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+        <div className="relative page-container py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-semibold text-white tracking-tight">
+                {t.dashboard.financialSnapshot || (language === 'ar' ? 'الموقف المالي' : 'Financial Snapshot')}
+              </h1>
+              <p className="text-sm text-slate-400 mt-0.5">{getMonthName()}</p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Cards - Floating on Hero */}
-      <div className="page-container -mt-20 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <KPICard
-            title={t.dashboard.balance}
-            value={stats.balance}
-            change={balanceChange}
-            icon={Wallet}
-            color="primary"
-            currency={currency}
-            language={language}
-            delay={0}
-          />
-          <KPICard
-            title={t.dashboard.income}
-            value={stats.totalIncome}
-            change={incomeChange}
-            icon={TrendingUp}
-            color="success"
-            currency={currency}
-            language={language}
-            delay={100}
-          />
-          <KPICard
-            title={t.dashboard.expenses}
-            value={stats.totalExpenses}
-            change={expenseChange}
-            icon={TrendingDown}
-            color="danger"
-            currency={currency}
-            language={language}
-            delay={200}
-          />
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="page-container pb-6">
-
-        {/* Budget Progress Card */}
-        <div className="mb-6 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-          <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  isOverBudget 
-                    ? 'bg-red-500/10' 
-                    : isNearBudget 
-                      ? 'bg-amber-500/10' 
-                      : 'bg-indigo-500/10'
-                }`}>
-                  {isOverBudget ? (
-                    <AlertTriangle className="w-5 h-5 text-red-500" />
-                  ) : (
-                    <Target className="w-5 h-5 text-indigo-500" />
-                  )}
-                </div>
-                <div>
-                  <h2 className="font-semibold text-[var(--color-text-primary)]">
-                    {language === 'ar' ? 'ميزانية الشهر' : 'Monthly Budget'}
-                  </h2>
-                  {monthlyBudget > 0 && (
-                    <p className="text-sm text-[var(--color-text-muted)]">
-                      {language === 'ar' 
-                        ? `${budgetProgress.toFixed(0)}% مستخدم`
-                        : `${budgetProgress.toFixed(0)}% used`
-                      }
-                    </p>
-                  )}
-                </div>
-              </div>
-              <button 
-                onClick={() => router.push('/budget')}
-                className="btn btn-sm btn-secondary"
-              >
-                <Settings2 className="w-4 h-4" />
-                {monthlyBudget > 0 
-                  ? (language === 'ar' ? 'تعديل' : 'Edit')
-                  : (language === 'ar' ? 'تعيين ميزانية' : 'Set Budget')
-                }
-              </button>
-            </div>
-
-            {monthlyBudget > 0 ? (
-              <>
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="h-3 bg-[var(--color-bg-inset)] rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isOverBudget 
-                          ? 'bg-red-500' 
-                          : isNearBudget 
-                            ? 'bg-amber-500' 
-                            : 'bg-indigo-500'
-                      }`}
-                      style={{ width: `${Math.min(budgetProgress, 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Budget Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
-                      {language === 'ar' ? 'الميزانية' : 'Budget'}
-                    </p>
-                    <p className="text-lg font-bold text-[var(--color-text-primary)] ltr-nums">
-                      {formatAmount(monthlyBudget, currency, language)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
-                      {language === 'ar' ? 'المصروف' : 'Spent'}
-                    </p>
-                    <p className="text-lg font-bold text-[var(--color-text-primary)] ltr-nums">
-                      {formatAmount(stats.totalExpenses, currency, language)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--color-text-muted)] mb-1">
-                      {language === 'ar' ? 'المتبقي' : 'Remaining'}
-                    </p>
-                    <p className={`text-lg font-bold ltr-nums ${
-                      budgetRemaining >= 0 ? 'text-emerald-500' : 'text-red-500'
-                    }`}>
-                      {formatAmount(Math.abs(budgetRemaining), currency, language)}
-                      {budgetRemaining < 0 && ` (${language === 'ar' ? 'تجاوز' : 'over'})`}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Alert Message */}
-                {isOverBudget && (
-                  <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                    <div className="flex items-center gap-2 text-red-500">
-                      <AlertTriangle className="w-4 h-4" />
-                      <p className="text-sm font-medium">
-                        {language === 'ar' 
-                          ? 'تجاوزت ميزانيتك الشهرية!'
-                          : 'You have exceeded your monthly budget!'
-                        }
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {isNearBudget && !isOverBudget && (
-                  <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <div className="flex items-center gap-2 text-amber-500">
-                      <AlertTriangle className="w-4 h-4" />
-                      <p className="text-sm font-medium">
-                        {language === 'ar' 
-                          ? 'أنت قريب من حد ميزانيتك'
-                          : 'You are approaching your budget limit'
-                        }
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-4">
-                <PiggyBank className="w-12 h-12 text-[var(--color-text-muted)] mx-auto mb-3" />
-                <p className="text-sm text-[var(--color-text-muted)] mb-1">
-                  {language === 'ar' 
-                    ? 'لم يتم تعيين ميزانية بعد'
-                    : 'No budget set yet'
-                  }
-                </p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {language === 'ar' 
-                    ? 'حدد ميزانية شهرية لتتبع إنفاقك'
-                    : 'Set a monthly budget to track your spending'
-                  }
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Main Grid: 2 columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: Recent Transactions */}
-          <div className="lg:col-span-7 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-            <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-              {/* Card Header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-light)]">
-                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-                  {t.dashboard.recentTransactions}
-                </h2>
-                {recentTransactions.length > 0 && (
-                  <Link
-                    href="/transactions"
-                    className="text-sm font-medium text-[var(--color-primary)] hover:underline flex items-center gap-1"
-                  >
-                    {t.dashboard.viewAll}
-                    <ViewAllArrow className="w-4 h-4" />
-                  </Link>
-                )}
-              </div>
-
-              {/* Transactions List */}
-              {recentTransactions.length === 0 ? (
-                <div className="py-16 text-center">
-                  <div className="w-14 h-14 bg-[var(--color-bg-secondary)] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Wallet className="w-6 h-6 text-[var(--color-text-muted)]" />
-                  </div>
-                  <p className="text-sm text-[var(--color-text-muted)] mb-4">{t.dashboard.noTransactions}</p>
-                  <Link href="/transactions/new" className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity">
-                    <Plus className="w-4 h-4" />
-                    {t.transactions.addTransaction}
-                  </Link>
-                </div>
-              ) : (
-                <div className="divide-y divide-[var(--color-border-light)]">
-                  {recentTransactions.map((transaction) => {
-                    const category = getCategoryById(transaction.category);
-                    const categoryColor = category?.color || '#64748b';
-                    return (
-                      <button
-                        key={transaction.id}
-                        onClick={() => setSelectedTransaction(transaction)}
-                        className="w-full flex items-center gap-4 px-5 py-4 hover:bg-[var(--color-bg-secondary)] transition-colors text-start"
-                      >
-                        {/* Icon */}
-                        <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: categoryColor + '15' }}
-                        >
-                          <div 
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: categoryColor }}
-                          />
-                        </div>
-                        
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
-                            {language === 'ar' ? category?.nameAr : category?.name || transaction.category}
-                          </p>
-                          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                            {formatDate(transaction.date)}
-                          </p>
-                        </div>
-                        
-                        {/* Amount */}
-                        <p className={`text-sm font-semibold ltr-nums shrink-0 ${
-                          transaction.type === 'income' 
-                            ? 'text-[var(--color-success)]' 
-                            : 'text-[var(--color-text-primary)]'
-                        }`}>
-                          {transaction.type === 'income' ? '+' : '-'}{formatAmount(
-                            convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency),
-                            currency,
-                            language
-                          )}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
+            {/* Search */}
+            <div className="relative w-full sm:w-56">
+              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500`} />
+              <input
+                type="text"
+                placeholder={language === 'ar' ? 'بحث...' : 'Search...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full ${isRTL ? 'pr-9 pl-3' : 'pl-9 pr-3'} py-2.5 bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:bg-white/15 focus:border-white/20 transition-all`}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-slate-500 hover:text-white`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
               )}
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Right Column: Charts */}
-          <div className="lg:col-span-5 space-y-6 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
-            {/* Top Spending Bar Chart */}
-            <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
-                {language === 'ar' ? 'أعلى المصاريف' : 'Top Spending'}
-              </h2>
+      <div className="page-container py-8">
+        
+        {/* ================================================================== */}
+        {/* ZONE 1: FINANCIAL SNAPSHOT */}
+        {/* ================================================================== */}
+        <section>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <SnapshotCard
+              title={t.dashboard.income}
+              value={stats.totalIncome}
+              currency={currency}
+              language={language}
+              type="income"
+            />
+            <SnapshotCard
+              title={t.dashboard.expenses}
+              value={stats.totalExpenses}
+              currency={currency}
+              language={language}
+              type="expenses"
+            />
+            <SnapshotCard
+              title={t.dashboard.balance}
+              value={stats.balance}
+              currency={currency}
+              language={language}
+              type="balance"
+            />
+            <SnapshotCard
+              title={t.dashboard.savingsRate || (language === 'ar' ? 'معدل الادخار' : 'Savings Rate')}
+              value={stats.totalIncome > 0 ? Math.round(((stats.totalIncome - stats.totalExpenses) / stats.totalIncome) * 100) : 0}
+              currency="%"
+              language={language}
+              type="savings"
+            />
+          </div>
+        </section>
 
-              {topCategories.length === 0 ? (
-                <div className="py-12 text-center">
-                  <p className="text-sm text-[var(--color-text-muted)]">
-                    {language === 'ar' ? 'لا توجد مصاريف هذا الشهر' : 'No expenses this month'}
-                  </p>
+        {/* ================================================================== */}
+        {/* GUIDANCE LAYER - Self-removing bridge for early users */}
+        {/* Appears only when data is insufficient, disappears automatically */}
+        {/* More vertical margin to feel intentional, not sandwiched */}
+        {/* ================================================================== */}
+        {showGuidanceLayer && (
+          <section className="mt-10">
+            <GuidanceLayer 
+              items={guidanceItems}
+              title={t.guidance?.title || (language === 'ar' ? 'الخطوة التالية' : 'Next step')}
+            />
+          </section>
+        )}
+
+        {/* ================================================================== */}
+        {/* ZONE 2: INSIGHTS - Visually dominant, authoritative */}
+        {/* ================================================================== */}
+        {sortedInsights.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+              {t.dashboard.insightsSection || (language === 'ar' ? 'التنبيهات' : 'Insights')}
+            </h2>
+            <div className="space-y-4">
+              {visibleInsights.map((insight, index) => (
+                <InsightCard 
+                  key={index} 
+                  insight={insight} 
+                  language={language}
+                  t={t}
+                />
+              ))}
+            </div>
+            {hasMoreInsights && (
+              <button
+                onClick={() => setShowAllInsights(!showAllInsights)}
+                className="mt-4 flex items-center gap-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
+              >
+                {showAllInsights 
+                  ? (language === 'ar' ? 'عرض أقل' : 'Show less')
+                  : (language === 'ar' ? `عرض ${sortedInsights.length - 2} المزيد` : `Show ${sortedInsights.length - 2} more`)
+                }
+                {showAllInsights ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+            )}
+          </section>
+        )}
+
+        {/* ================================================================== */}
+        {/* ZONE 3: PRIMARY ACTION - Deliberate, intentional */}
+        {/* ================================================================== */}
+        {primaryInsight && primaryInsight.severity === 'critical' && (
+          <section className="mt-8">
+            <Link
+              href="/budget"
+              className="block w-full py-3.5 px-5 bg-[var(--color-primary)] text-white rounded-xl text-center text-sm font-semibold shadow-lg shadow-[var(--color-primary)]/20 hover:shadow-xl hover:shadow-[var(--color-primary)]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+            >
+              {language === 'ar' ? 'راجع ميزانيتك' : 'Review Your Budget'}
+            </Link>
+          </section>
+        )}
+
+        {/* ================================================================== */}
+        {/* BREATHING GAP - Visual pause between conclusions and details */}
+        {/* Whitespace signals: "Conclusion above, details below" */}
+        {/* ================================================================== */}
+        <div className="h-6" aria-hidden="true" />
+
+        {/* ================================================================== */}
+        {/* ZONE 4: EXPLORATION & CONTEXT - Confident, useful */}
+        {/* ================================================================== */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-5">
+            {t.dashboard.exploreContext || (language === 'ar' ? 'التفاصيل والتحليل' : 'Details & Analysis')}
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Recent Transactions */}
+            <div className="lg:col-span-7">
+              <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4">
+                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
+                    {t.dashboard.recentTransactions}
+                  </h3>
+                  {recentTransactions.length > 0 && (
+                    <Link
+                      href="/transactions"
+                      className="text-xs font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] flex items-center gap-1 transition-colors"
+                    >
+                      {t.dashboard.viewAll}
+                      <ViewAllArrow className="w-3.5 h-3.5" />
+                    </Link>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {topCategories.map((cat, index) => {
-                    const category = getCategoryById(cat.name);
-                    const displayName = language === 'ar' 
-                      ? (category?.nameAr || cat.name) 
-                      : (category?.name || cat.name);
-                    const categoryColor = cat.color || category?.color || '#14452F';
-                    const percentage = chartTotal > 0 ? (cat.value / chartTotal) * 100 : 0;
-                    
-                    return (
-                      <div key={index}>
-                        <div className="flex items-center justify-between text-sm mb-1.5">
-                          <div className="flex items-center gap-2">
+
+                {recentTransactions.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <div className="w-12 h-12 rounded-xl bg-[var(--color-bg-secondary)] flex items-center justify-center mx-auto mb-3">
+                      <Wallet className="w-5 h-5 text-[var(--color-text-muted)]" />
+                    </div>
+                    <p className="text-sm text-[var(--color-text-muted)]">{t.dashboard.noTransactions}</p>
+                  </div>
+                ) : (
+                  <div className="border-t border-[var(--color-border)]">
+                    {recentTransactions.map((transaction, idx) => {
+                      const category = getCategoryById(transaction.category);
+                      const categoryColor = category?.color || '#64748b';
+                      const isLast = idx === recentTransactions.length - 1;
+                      return (
+                        <button
+                          key={transaction.id}
+                          onClick={() => setSelectedTransaction(transaction)}
+                          className={`w-full flex items-center gap-3.5 px-5 py-3.5 hover:bg-[var(--color-bg-secondary)] active:bg-[var(--color-bg-inset)] transition-colors text-start ${!isLast ? 'border-b border-[var(--color-border-light)]' : ''}`}
+                        >
+                          <div
+                            className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: categoryColor + '15' }}
+                          >
                             <div 
-                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              className="w-2.5 h-2.5 rounded-full"
                               style={{ backgroundColor: categoryColor }}
                             />
-                            <span className="font-medium text-[var(--color-text-secondary)] truncate">{displayName}</span>
                           </div>
-                          <span className="font-semibold text-[var(--color-text-primary)] ltr-nums shrink-0">
-                            {formatAmount(cat.value, currency, language)}
-                          </span>
-                        </div>
-                        <div className="h-2 bg-[var(--color-bg-secondary)] rounded-full overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ 
-                              width: `${percentage}%`,
-                              backgroundColor: categoryColor 
-                            }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+                              {language === 'ar' ? category?.nameAr : category?.name || transaction.category}
+                            </p>
+                            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                              {formatDate(transaction.date)}
+                            </p>
+                          </div>
+                          <p className="text-sm font-medium ltr-nums tabular-nums shrink-0 text-[var(--color-text-primary)]">
+                            {transaction.type === 'income' ? '+' : '−'}{formatAmount(
+                              convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency),
+                              currency,
+                              language
+                            )}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Expense Breakdown Donut */}
-            <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
-                {language === 'ar' ? 'توزيع المصاريف' : 'Expense Breakdown'}
-              </h2>
+            {/* Charts Column */}
+            <div className="lg:col-span-5 space-y-5">
+              {/* Top Spending */}
+              <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+                  {language === 'ar' ? 'أعلى المصاريف' : 'Top Spending'}
+                </h3>
 
-              {expensesByCategory.length === 0 ? (
-                <div className="py-12 text-center">
-                  <div className="w-20 h-20 rounded-full border-4 border-[var(--color-border-light)] mx-auto mb-3" />
-                  <p className="text-sm text-[var(--color-text-muted)]">
-                    {language === 'ar' ? 'لا توجد مصاريف' : 'No expenses'}
-                  </p>
-                </div>
-              ) : (
-                <div className="flex items-center gap-6">
-                  {/* Donut Chart */}
-                  <div className="relative w-32 h-32 shrink-0">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={chartData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={35}
-                          outerRadius={55}
-                          paddingAngle={2}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip content={renderTooltip} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="text-center">
-                        <span className="text-xs font-bold text-[var(--color-text-primary)] ltr-nums">
-                          {formatCompact(chartTotal, language)}
-                        </span>
-                      </div>
-                    </div>
+                {topCategories.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <p className="text-sm text-[var(--color-text-muted)]">
+                      {language === 'ar' ? 'لا توجد مصاريف' : 'No expenses'}
+                    </p>
                   </div>
-
-                  {/* Legend */}
-                  <div className="flex-1 space-y-2 min-w-0">
-                    {chartData.slice(0, 4).map((cat, index) => {
+                ) : (
+                  <div className="space-y-3.5">
+                    {topCategories.map((cat, index) => {
+                      const category = getCategoryById(cat.name);
+                      const displayName = language === 'ar' 
+                        ? (category?.nameAr || cat.name) 
+                        : (category?.name || cat.name);
+                      const barColor = chartPalette[index % chartPalette.length];
                       const percentage = chartTotal > 0 ? (cat.value / chartTotal) * 100 : 0;
+                      
                       return (
-                        <div key={index} className="flex items-center gap-2 text-sm">
-                          <div
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ backgroundColor: cat.color }}
-                          />
-                          <span className="text-[var(--color-text-secondary)] truncate flex-1">{cat.name}</span>
-                          <span className="text-[var(--color-text-muted)] text-xs shrink-0">{percentage.toFixed(0)}%</span>
+                        <div key={index}>
+                          <div className="flex items-center justify-between text-sm mb-1.5">
+                            <span className="text-[var(--color-text-primary)] font-medium truncate">{displayName}</span>
+                            <span className="text-[var(--color-text-secondary)] ltr-nums tabular-nums shrink-0 ms-3">
+                              {formatAmount(cat.value, currency, language)}
+                            </span>
+                          </div>
+                          <div className="h-2 bg-[var(--color-bg-secondary)] rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ 
+                                width: `${percentage}%`,
+                                backgroundColor: barColor,
+                              }}
+                            />
+                          </div>
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+
+              {/* Expense Breakdown */}
+              <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+                  {language === 'ar' ? 'توزيع المصاريف' : 'Expense Breakdown'}
+                </h3>
+
+                {expensesByCategory.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <div className="w-14 h-14 rounded-full border-2 border-[var(--color-border)] mx-auto mb-3" />
+                    <p className="text-sm text-[var(--color-text-muted)]">
+                      {language === 'ar' ? 'لا توجد مصاريف' : 'No expenses'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-5">
+                    <div className="relative w-28 h-28 shrink-0">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={32}
+                            outerRadius={52}
+                            paddingAngle={2}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            {chartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip content={renderTooltip} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-sm font-bold text-[var(--color-text-primary)] ltr-nums">
+                          {formatCompact(chartTotal, language)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-2 min-w-0">
+                      {chartData.slice(0, 4).map((cat, index) => {
+                        const percentage = chartTotal > 0 ? (cat.value / chartTotal) * 100 : 0;
+                        return (
+                          <div key={index} className="flex items-center gap-2.5 text-sm">
+                            <div
+                              className="w-2.5 h-2.5 rounded-sm shrink-0"
+                              style={{ backgroundColor: cat.color }}
+                            />
+                            <span className="text-[var(--color-text-primary)] truncate flex-1">{cat.name}</span>
+                            <span className="text-[var(--color-text-muted)] text-xs tabular-nums shrink-0">{percentage.toFixed(0)}%</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+        
+        {/* Bottom breathing room */}
+        <div className="h-8" aria-hidden="true" />
       </div>
 
-      {/* Floating Action Button - Premium style */}
+      {/* ================================================================== */}
+      {/* ZONE 5: SYSTEM ACTIONS - Deliberate, clickable */}
+      {/* ================================================================== */}
       <Link
         href="/transactions/new"
-        className="hidden lg:flex fixed bottom-8 end-8 w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white items-center justify-center shadow-xl shadow-indigo-500/25 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all duration-300 hover:scale-105 active:scale-95 z-50"
-        aria-label={t.transactions.addTransaction}
+        className="hidden lg:flex fixed bottom-6 end-6 w-12 h-12 rounded-xl bg-[var(--color-primary)] text-white items-center justify-center shadow-lg shadow-[var(--color-primary)]/25 hover:shadow-xl hover:shadow-[var(--color-primary)]/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all z-50"
+        aria-label={t.transactions?.addTransaction || 'Add Transaction'}
       >
-        <Plus className="w-6 h-6" strokeWidth={2.5} />
+        <Plus className="w-5 h-5" />
       </Link>
 
-      {/* Transaction Action Modal */}
+      {/* Transaction Modal */}
       {selectedTransaction && !showDeleteConfirm && (
         <div 
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--color-overlay)]" 
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" 
           onClick={() => setSelectedTransaction(null)}
         >
           <div
-            className="w-full sm:max-w-md bg-[var(--color-bg-card)] rounded-t-lg sm:rounded-lg p-6 mx-0 sm:mx-4 animate-slideUp"
+            className="w-full sm:max-w-sm bg-[var(--color-bg-card)] rounded-t-2xl sm:rounded-2xl p-5 mx-0 sm:mx-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Transaction Details */}
-            <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[var(--color-border-light)]">
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--color-border)]">
               <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center"
+                className="w-11 h-11 rounded-xl flex items-center justify-center"
                 style={{ backgroundColor: (getCategoryById(selectedTransaction.category)?.color || '#64748b') + '15' }}
               >
                 <div 
-                  className="w-3.5 h-3.5 rounded-full"
+                  className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: getCategoryById(selectedTransaction.category)?.color || '#64748b' }}
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-lg font-semibold text-[var(--color-text-primary)]">
+                <p className="font-semibold text-[var(--color-text-primary)]">
                   {language === 'ar' 
                     ? getCategoryById(selectedTransaction.category)?.nameAr 
                     : getCategoryById(selectedTransaction.category)?.name || selectedTransaction.category}
                 </p>
                 <p className="text-sm text-[var(--color-text-muted)]">
-                  {new Date(selectedTransaction.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {formatDate(selectedTransaction.date)}
                 </p>
               </div>
-              <p className={`text-xl font-bold ltr-nums ${
-                selectedTransaction.type === 'income' ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'
-              }`}>
-                {selectedTransaction.type === 'income' ? '+' : '-'}{formatAmount(
+              <p className="text-lg font-semibold ltr-nums text-[var(--color-text-primary)]">
+                {selectedTransaction.type === 'income' ? '+' : '−'}{formatAmount(
                   convertCurrency(selectedTransaction.amount, selectedTransaction.currency || baseCurrency, currency),
                   currency,
                   language
@@ -716,14 +812,13 @@ export default function HomePage() {
             </div>
 
             {selectedTransaction.description && (
-              <p className="text-sm text-[var(--color-text-secondary)] mb-6">{selectedTransaction.description}</p>
+              <p className="text-sm text-[var(--color-text-secondary)] mb-4">{selectedTransaction.description}</p>
             )}
 
-            {/* Actions */}
             <div className="space-y-2">
               <Link
                 href={`/transactions/new?edit=${selectedTransaction.id}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] font-medium rounded-lg hover:bg-[var(--color-bg-primary)] transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-sm font-medium rounded-xl hover:bg-[var(--color-bg-inset)] active:scale-[0.98] transition-all"
                 onClick={() => setSelectedTransaction(null)}
               >
                 <Edit2 className="w-4 h-4" />
@@ -731,14 +826,14 @@ export default function HomePage() {
               </Link>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-danger-bg)] text-[var(--color-danger)] font-medium rounded-lg hover:opacity-80 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 text-sm font-medium rounded-xl hover:bg-red-500/5 active:scale-[0.98] transition-all"
               >
                 <Trash2 className="w-4 h-4" />
                 {language === 'ar' ? 'حذف' : 'Delete'}
               </button>
               <button
                 onClick={() => setSelectedTransaction(null)}
-                className="w-full px-4 py-3 text-[var(--color-text-muted)] font-medium hover:text-[var(--color-text-secondary)] transition-colors"
+                className="w-full px-4 py-2.5 text-[var(--color-text-muted)] text-sm hover:text-[var(--color-text-secondary)] transition-colors"
               >
                 {language === 'ar' ? 'إلغاء' : 'Cancel'}
               </button>
@@ -747,21 +842,21 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {selectedTransaction && showDeleteConfirm && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)]" 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" 
           onClick={() => { setShowDeleteConfirm(false); setSelectedTransaction(null); }}
         >
           <div
-            className="w-full max-w-sm bg-[var(--color-bg-card)] rounded-lg p-6 mx-4 animate-scaleIn"
+            className="w-full max-w-xs bg-[var(--color-bg-card)] rounded-2xl p-5 mx-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-full bg-[var(--color-danger-bg)] flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-6 h-6 text-[var(--color-danger)]" />
+            <div className="text-center mb-5">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-3">
+                <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-1">
+              <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">
                 {language === 'ar' ? 'حذف المعاملة؟' : 'Delete Transaction?'}
               </h3>
               <p className="text-sm text-[var(--color-text-muted)]">
@@ -772,7 +867,7 @@ export default function HomePage() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowDeleteConfirm(false); setSelectedTransaction(null); }}
-                className="flex-1 px-4 py-2.5 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] font-medium rounded-lg hover:bg-[var(--color-bg-primary)] transition-colors"
+                className="flex-1 px-4 py-2.5 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-sm font-medium rounded-xl hover:bg-[var(--color-bg-inset)] active:scale-[0.98] transition-all"
               >
                 {language === 'ar' ? 'إلغاء' : 'Cancel'}
               </button>
@@ -782,7 +877,7 @@ export default function HomePage() {
                   setShowDeleteConfirm(false);
                   setSelectedTransaction(null);
                 }}
-                className="flex-1 px-4 py-2.5 bg-[var(--color-danger)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 active:scale-[0.98] transition-all"
               >
                 {language === 'ar' ? 'حذف' : 'Delete'}
               </button>
@@ -790,7 +885,6 @@ export default function HomePage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

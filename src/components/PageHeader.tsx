@@ -20,16 +20,17 @@ interface PageHeaderProps {
   toolbar?: ReactNode;
   /** Compact mode for minimal headers (default: false) */
   compact?: boolean;
+  /** Hero mode with gradient background (default: false) */
+  hero?: boolean;
 }
 
 /**
- * PageHeader - Consistent local page header
+ * PageHeader - Consistent page header with visual energy
  * 
- * Features:
- * - Title with optional subtitle and back button (RTL/LTR aware)
- * - Right-side actions area
- * - Optional toolbar row for search/filters
- * - Does NOT stick — global header is sticky
+ * The header serves as the "visual heartbeat" of each page:
+ * - Provides tonal depth and energy at the top
+ * - Everything below remains calmer
+ * - Creates a recognizable, consistent identity across pages
  */
 export default function PageHeader({ 
   title, 
@@ -39,38 +40,110 @@ export default function PageHeader({
   actions,
   toolbar,
   compact = false,
+  hero = false,
 }: PageHeaderProps) {
   const { isRTL } = useTranslation();
   const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
+  // Hero mode: dark gradient with subtle depth
+  if (hero) {
+    return (
+      <header className="relative overflow-hidden">
+        {/* Gradient background - the visual energy source */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
+        
+        {/* Subtle ambient glow */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute -top-24 -right-24 w-64 h-64 rounded-full opacity-[0.07]"
+            style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 1) 0%, transparent 70%)' }}
+          />
+          <div 
+            className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full opacity-[0.05]"
+            style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 1) 0%, transparent 70%)' }}
+          />
+        </div>
+
+        <div className={`relative page-container ${compact ? 'py-4' : 'py-6'}`}>
+          {/* Main header row */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Back + Title */}
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {showBack && (
+                <Link
+                  href={backUrl}
+                  className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 hover:border-white/20 transition-all active:scale-95"
+                >
+                  <BackArrow className="w-4 h-4 text-white/80" />
+                </Link>
+              )}
+              <div className="min-w-0">
+                <h1 className={`font-semibold text-white truncate tracking-tight ${compact ? 'text-lg' : 'text-xl'}`}>
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className="text-sm text-slate-400 mt-0.5">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Actions */}
+            {actions && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {actions}
+              </div>
+            )}
+          </div>
+
+          {/* Toolbar */}
+          {toolbar && (
+            <div className="mt-5">
+              {toolbar}
+            </div>
+          )}
+        </div>
+      </header>
+    );
+  }
+
+  // Standard mode: warm gradient with subtle tonal depth
   return (
-    <header className={`bg-[var(--color-bg-primary)] border-b border-[var(--color-border)] ${compact ? 'py-3' : 'py-5'}`}>
-      <div className="page-container">
-        {/* Main header row: title + actions */}
-        <div className="flex items-center justify-between gap-4 animate-fade-in">
-          {/* Left side: Back button (optional) + Title */}
+    <header className="relative overflow-hidden">
+      {/* Subtle gradient background - warm, confident */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-card)] to-[var(--color-bg-primary)]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--color-primary)]/[0.02] to-transparent" />
+      
+      {/* Bottom border with subtle gradient */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent" />
+
+      <div className={`relative page-container ${compact ? 'py-4' : 'py-5'}`}>
+        {/* Main header row */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Back + Title */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {showBack && (
               <Link
                 href={backUrl}
-                className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 border border-[var(--color-border)] hover:border-[var(--color-border-dark)] hover:shadow-sm transition-all duration-200 active:scale-95"
+                className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-bg-secondary)] border border-[var(--color-border)] hover:border-[var(--color-primary)]/30 hover:bg-[var(--color-bg-card)] transition-all active:scale-95"
               >
                 <BackArrow className="w-4 h-4 text-[var(--color-text-secondary)]" />
               </Link>
             )}
             <div className="min-w-0">
-              <h1 className={`font-bold text-[var(--color-text-primary)] truncate tracking-tight ${compact ? 'text-lg' : 'text-2xl'}`}>
+              <h1 className={`font-semibold text-[var(--color-text-primary)] truncate tracking-tight ${compact ? 'text-lg' : 'text-xl'}`}>
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-wide mt-0.5 font-medium">
+                <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
                   {subtitle}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Right side: Actions */}
+          {/* Right: Actions */}
           {actions && (
             <div className="flex items-center gap-2 flex-shrink-0">
               {actions}
@@ -78,7 +151,7 @@ export default function PageHeader({
           )}
         </div>
 
-        {/* Toolbar row (search, filters, etc.) */}
+        {/* Toolbar */}
         {toolbar && (
           <div className="mt-5">
             {toolbar}

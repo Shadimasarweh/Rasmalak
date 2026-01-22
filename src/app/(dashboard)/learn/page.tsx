@@ -190,9 +190,10 @@ export default function LearnPage() {
   );
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <PageHeader 
         title={language === 'ar' ? 'تعلّم المالية' : 'Learn Finance'}
+        hero
       />
 
       <div className="page-container py-6 space-y-6">
