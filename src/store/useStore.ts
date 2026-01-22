@@ -33,12 +33,125 @@ export interface SavingsGoal {
 }
 
 // Onboarding types
+export type UserSegment = 'individual' | 'self_employed' | 'sme';
+
 export interface OnboardingData {
-  preferredLanguage: 'ar' | 'en';
-  currency: string;
-  monthlyIncomeRange: string; // 'under-5k' | '5k-10k' | '10k-20k' | '20k-50k' | 'over-50k'
-  primaryGoal: string; // 'save' | 'payoff-debt' | 'emergency-fund' | 'invest' | 'budget'
+  segment: UserSegment;
+  topics: string[]; // IDs: 'budgeting', 'saving', 'debt', 'investing', 'islamic_finance', 'business_cashflow'
+  preferredInsights: string[]; // IDs: 'spending_patterns', 'cashflow', 'debt_payoff', 'savings_plan', 'investment_learning'
 }
+
+// Community types
+export type CommunityPostType = 'question' | 'collaboration' | 'experience' | 'poll';
+export type CommunityVisibility = 'country' | 'industry' | 'all';
+
+export interface CommunityPost {
+  id: string;
+  type: CommunityPostType;
+  title: string;
+  content: string;
+  authorName: string;
+  authorSegment: UserSegment;
+  industry: string;
+  country: string;
+  visibility: CommunityVisibility;
+  tags: string[];
+  createdAt: string;
+  replyCount: number;
+  isHelpful?: boolean;
+  // For polls
+  pollOptions?: { id: string; text: string; votes: number }[];
+}
+
+export interface CommunityReply {
+  id: string;
+  postId: string;
+  content: string;
+  authorName: string;
+  createdAt: string;
+  isHelpful: boolean;
+}
+
+// Seed data for community posts
+export const SEED_COMMUNITY_POSTS: CommunityPost[] = [
+  {
+    id: 'post-1',
+    type: 'question',
+    title: 'أفضل طريقة لإدارة التدفق النقدي في موسم الركود؟',
+    content: 'نواجه تحديات في إدارة التدفق النقدي خلال أشهر الصيف. ما هي استراتيجياتكم للحفاظ على السيولة؟',
+    authorName: 'أحمد م.',
+    authorSegment: 'sme',
+    industry: 'retail',
+    country: 'SA',
+    visibility: 'all',
+    tags: ['cashflow', 'seasonality'],
+    createdAt: '2026-01-20T10:00:00Z',
+    replyCount: 5,
+  },
+  {
+    id: 'post-2',
+    type: 'collaboration',
+    title: 'Looking for logistics partner in UAE',
+    content: 'We are an F&B SME based in Dubai looking for a reliable cold-chain logistics partner for distribution across Emirates.',
+    authorName: 'Sara K.',
+    authorSegment: 'sme',
+    industry: 'fnb',
+    country: 'AE',
+    visibility: 'country',
+    tags: ['logistics', 'partnership'],
+    createdAt: '2026-01-19T14:30:00Z',
+    replyCount: 3,
+  },
+  {
+    id: 'post-3',
+    type: 'experience',
+    title: 'تجربتي في تسجيل شركة ذات مسؤولية محدودة في المنطقة الحرة',
+    content: 'شاركت تجربتي الكاملة من البداية للنهاية، بما في ذلك التكاليف والوقت المستغرق والأوراق المطلوبة.',
+    authorName: 'محمد ع.',
+    authorSegment: 'self_employed',
+    industry: 'services',
+    country: 'AE',
+    visibility: 'all',
+    tags: ['registration', 'freezone', 'legal'],
+    createdAt: '2026-01-18T09:15:00Z',
+    replyCount: 12,
+    isHelpful: true,
+  },
+  {
+    id: 'post-4',
+    type: 'poll',
+    title: 'Which POS system do you use?',
+    content: 'Curious what POS systems work best for small retail businesses in the region.',
+    authorName: 'Fatima H.',
+    authorSegment: 'sme',
+    industry: 'retail',
+    country: 'JO',
+    visibility: 'industry',
+    tags: ['pos', 'technology'],
+    createdAt: '2026-01-17T16:45:00Z',
+    replyCount: 8,
+    pollOptions: [
+      { id: 'opt-1', text: 'Foodics', votes: 15 },
+      { id: 'opt-2', text: 'Lightspeed', votes: 8 },
+      { id: 'opt-3', text: 'Square', votes: 12 },
+      { id: 'opt-4', text: 'Other', votes: 5 },
+    ],
+  },
+  {
+    id: 'post-5',
+    type: 'question',
+    title: 'معاملة ضريبة القيمة المضافة للخدمات الرقمية عبر الحدود',
+    content: 'هل يوجد من لديه خبرة في معاملة ضريبة القيمة المضافة لخدمات SaaS التي تُقدم لعملاء في السعودية من شركة مسجلة في الأردن؟',
+    authorName: 'رامي س.',
+    authorSegment: 'self_employed',
+    industry: 'tech',
+    country: 'JO',
+    visibility: 'all',
+    tags: ['vat', 'tax', 'cross-border'],
+    createdAt: '2026-01-16T11:20:00Z',
+    replyCount: 7,
+  },
+];
 
 interface AppState {
   // Authentication
@@ -94,6 +207,7 @@ interface AppState {
   hasCompletedOnboarding: boolean;
   onboardingData: OnboardingData | null;
   completeOnboarding: (data: OnboardingData) => void;
+  skipOnboarding: () => void;
   resetOnboarding: () => void;
 }
 
@@ -179,6 +293,11 @@ export const useStore = create<AppState>()(
             user: authUser,
             isAuthenticated: true,
             userName: newUser.name,
+            // Reset onboarding for new users
+            hasCompletedOnboarding: false,
+            onboardingData: null,
+            // Reset transactions for new user
+            transactions: [],
           });
 
           return { success: true };
@@ -193,6 +312,8 @@ export const useStore = create<AppState>()(
           isAuthenticated: false,
           userName: '',
           transactions: [], // Clear transactions on logout
+          hasCompletedOnboarding: false, // Reset onboarding for next user
+          onboardingData: null,
         });
       },
 
@@ -301,9 +422,16 @@ export const useStore = create<AppState>()(
         set({
           hasCompletedOnboarding: true,
           onboardingData: data,
-          language: data.preferredLanguage,
-          currency: data.currency,
-          baseCurrency: data.currency,
+        });
+      },
+      skipOnboarding: () => {
+        set({
+          hasCompletedOnboarding: true,
+          onboardingData: {
+            segment: 'individual',
+            topics: [],
+            preferredInsights: [],
+          },
         });
       },
       resetOnboarding: () => {
@@ -359,3 +487,4 @@ export const useLogout = () => useStore((state) => state.logout);
 export const useHasCompletedOnboarding = () => useStore((state) => state.hasCompletedOnboarding);
 export const useOnboardingData = () => useStore((state) => state.onboardingData);
 export const useCompleteOnboarding = () => useStore((state) => state.completeOnboarding);
+export const useSkipOnboarding = () => useStore((state) => state.skipOnboarding);

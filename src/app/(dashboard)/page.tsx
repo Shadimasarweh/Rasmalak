@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown, Target, AlertTriangle, Settings2, PiggyBank } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, ArrowUpRight, ArrowDownRight, Search, X, Edit2, Trash2, Wallet, TrendingUp, TrendingDown, Target, AlertTriangle, Settings2, PiggyBank, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget } from '@/store/useStore';
 import { Transaction } from '@/types';
@@ -34,7 +34,7 @@ function formatCompact(amount: number, language: string): string {
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount);
 }
 
-// KPI Card component - moved outside to prevent recreating on each render
+// KPI Card component - Premium glass style with animations
 function KPICard({ 
   title, 
   value, 
@@ -43,6 +43,7 @@ function KPICard({
   color,
   currency,
   language,
+  delay = 0,
 }: { 
   title: string; 
   value: number; 
@@ -51,35 +52,63 @@ function KPICard({
   color: 'primary' | 'success' | 'danger';
   currency: string;
   language: string;
+  delay?: number;
 }) {
-  const colorClasses = {
-    primary: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
-    success: 'bg-[var(--color-success-bg)] text-[var(--color-success)]',
-    danger: 'bg-[var(--color-danger-bg)] text-[var(--color-danger)]',
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  const iconColors = {
+    primary: 'from-indigo-500 to-indigo-600',
+    success: 'from-emerald-500 to-emerald-600',
+    danger: 'from-rose-500 to-rose-600',
   };
-  const borderColors = {
-    primary: 'border-[var(--color-primary)]/20',
-    success: 'border-[var(--color-success)]/20',
-    danger: 'border-[var(--color-danger)]/20',
+
+  const glowColors = {
+    primary: 'shadow-indigo-500/20',
+    success: 'shadow-emerald-500/20',
+    danger: 'shadow-rose-500/20',
   };
   
   return (
-    <div className={`bg-[var(--color-bg-card)] rounded-xl border ${borderColors[color]} p-5 transition-shadow hover:shadow-md`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-10 h-10 rounded-lg ${colorClasses[color]} flex items-center justify-center`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        {change !== 0 && (
-          <div className={`flex items-center gap-1 text-xs font-semibold ${change > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
-            {change > 0 ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
-            {Math.abs(change).toFixed(1)}%
+    <div 
+      className={`
+        relative overflow-hidden
+        bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm
+        rounded-2xl border border-white/50 dark:border-slate-700/50
+        p-5 transition-all duration-300 ease-out
+        hover:shadow-lg hover:-translate-y-1
+        ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+      `}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
+      
+      <div className="relative">
+        <div className="flex items-start justify-between mb-3">
+          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${iconColors[color]} flex items-center justify-center shadow-lg ${glowColors[color]}`}>
+            <Icon className="w-5 h-5 text-white" />
           </div>
-        )}
+          {change !== 0 && (
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+              change > 0 
+                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' 
+                : 'bg-rose-50 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
+            }`}>
+              {change > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+              {Math.abs(change).toFixed(1)}%
+            </div>
+          )}
+        </div>
+        <p className="text-2xl font-bold text-[var(--color-text-primary)] ltr-nums mb-0.5 tracking-tight">
+          {formatAmount(value, currency, language)}
+        </p>
+        <p className="text-sm text-[var(--color-text-muted)] font-medium">{title}</p>
       </div>
-      <p className="text-2xl font-bold text-[var(--color-text-primary)] ltr-nums mb-1">
-        {formatAmount(value, currency, language)}
-      </p>
-      <p className="text-sm text-[var(--color-text-muted)]">{title}</p>
     </div>
   );
 }
@@ -178,45 +207,73 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen app-surface">
-      {/* Clean Header */}
-      <div className="bg-[var(--color-bg-card)] border-b border-[var(--color-border)]">
-        <div className="page-container">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-6">
-            {/* Title & Date */}
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-                {language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-              </h1>
-              <p className="text-sm text-[var(--color-text-muted)] mt-1">{getMonthName()}</p>
-            </div>
+    <div className="min-h-screen">
+      {/* Premium Hero Section */}
+      <div className="relative overflow-hidden">
+        {/* Gradient Background */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%)',
+          }}
+        />
+        
+        {/* Mesh gradient orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-30 blur-3xl animate-pulse"
+            style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%)' }}
+          />
+          <div 
+            className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full opacity-20 blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%)' }}
+          />
+        </div>
 
-            {/* Search */}
-            <div className="relative w-full sm:w-72">
-              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]`} />
-              <input
-                type="text"
-                placeholder={language === 'ar' ? 'ابحث...' : 'Search transactions...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full ${isRTL ? 'pr-10 pl-3' : 'pl-10 pr-3'} py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all`}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+        <div className="relative page-container">
+          {/* Hero Content */}
+          <div className="pt-8 pb-28">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+              {/* Greeting & Date */}
+              <div className="animate-fade-in-up">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <span className="text-amber-400/90 text-sm font-medium">
+                    {language === 'ar' ? 'مرحباً بك' : 'Welcome back'}
+                  </span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                  {language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
+                </h1>
+                <p className="text-slate-400 mt-2 text-base">{getMonthName()}</p>
+              </div>
+
+              {/* Search */}
+              <div className="relative w-full sm:w-80 animate-fade-in" style={{ animationDelay: '100ms' }}>
+                <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400`} />
+                <input
+                  type="text"
+                  placeholder={language === 'ar' ? 'ابحث...' : 'Search transactions...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`w-full ${isRTL ? 'pr-11 pl-4' : 'pl-11 pr-4'} py-3 bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/15 transition-all duration-200`}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className={`absolute ${isRTL ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors`}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="page-container py-6">
-        {/* KPI Cards Row */}
+      {/* KPI Cards - Floating on Hero */}
+      <div className="page-container -mt-20 relative z-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <KPICard
             title={t.dashboard.balance}
@@ -226,6 +283,7 @@ export default function HomePage() {
             color="primary"
             currency={currency}
             language={language}
+            delay={0}
           />
           <KPICard
             title={t.dashboard.income}
@@ -235,6 +293,7 @@ export default function HomePage() {
             color="success"
             currency={currency}
             language={language}
+            delay={100}
           />
           <KPICard
             title={t.dashboard.expenses}
@@ -244,12 +303,17 @@ export default function HomePage() {
             color="danger"
             currency={currency}
             language={language}
+            delay={200}
           />
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="page-container pb-6">
 
         {/* Budget Progress Card */}
-        <div className="mb-6">
-          <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
+        <div className="mb-6 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+          <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -257,12 +321,12 @@ export default function HomePage() {
                     ? 'bg-red-500/10' 
                     : isNearBudget 
                       ? 'bg-amber-500/10' 
-                      : 'bg-emerald-500/10'
+                      : 'bg-indigo-500/10'
                 }`}>
                   {isOverBudget ? (
                     <AlertTriangle className="w-5 h-5 text-red-500" />
                   ) : (
-                    <Target className="w-5 h-5 text-emerald-500" />
+                    <Target className="w-5 h-5 text-indigo-500" />
                   )}
                 </div>
                 <div>
@@ -302,7 +366,7 @@ export default function HomePage() {
                           ? 'bg-red-500' 
                           : isNearBudget 
                             ? 'bg-amber-500' 
-                            : 'bg-emerald-500'
+                            : 'bg-indigo-500'
                       }`}
                       style={{ width: `${Math.min(budgetProgress, 100)}%` }}
                     />
@@ -391,8 +455,8 @@ export default function HomePage() {
         {/* Main Grid: 2 columns */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Recent Transactions */}
-          <div className="lg:col-span-7">
-            <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] overflow-hidden">
+          <div className="lg:col-span-7 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+            <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
               {/* Card Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-light)]">
                 <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
@@ -474,9 +538,9 @@ export default function HomePage() {
           </div>
 
           {/* Right Column: Charts */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
             {/* Top Spending Bar Chart */}
-            <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
+            <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
               <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
                 {language === 'ar' ? 'أعلى المصاريف' : 'Top Spending'}
               </h2>
@@ -528,7 +592,7 @@ export default function HomePage() {
             </div>
 
             {/* Expense Breakdown Donut */}
-            <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
+            <div className="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border)] p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
               <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-4">
                 {language === 'ar' ? 'توزيع المصاريف' : 'Expense Breakdown'}
               </h2>
@@ -595,10 +659,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Floating Action Button - Hidden on mobile (use bottom nav instead) */}
+      {/* Floating Action Button - Premium style */}
       <Link
         href="/transactions/new"
-        className="hidden lg:flex fixed bottom-6 end-6 w-14 h-14 rounded-full bg-[var(--color-primary)] text-white items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105 z-50"
+        className="hidden lg:flex fixed bottom-8 end-8 w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white items-center justify-center shadow-xl shadow-indigo-500/25 hover:shadow-2xl hover:shadow-indigo-500/30 transition-all duration-300 hover:scale-105 active:scale-95 z-50"
         aria-label={t.transactions.addTransaction}
       >
         <Plus className="w-6 h-6" strokeWidth={2.5} />
@@ -611,13 +675,13 @@ export default function HomePage() {
           onClick={() => setSelectedTransaction(null)}
         >
           <div
-            className="w-full sm:max-w-md bg-[var(--color-bg-card)] rounded-t-2xl sm:rounded-xl p-6 mx-0 sm:mx-4 animate-slideUp"
+            className="w-full sm:max-w-md bg-[var(--color-bg-card)] rounded-t-lg sm:rounded-lg p-6 mx-0 sm:mx-4 animate-slideUp"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Transaction Details */}
             <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[var(--color-border-light)]">
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
+                className="w-12 h-12 rounded-lg flex items-center justify-center"
                 style={{ backgroundColor: (getCategoryById(selectedTransaction.category)?.color || '#64748b') + '15' }}
               >
                 <div 
@@ -690,7 +754,7 @@ export default function HomePage() {
           onClick={() => { setShowDeleteConfirm(false); setSelectedTransaction(null); }}
         >
           <div
-            className="w-full max-w-sm bg-[var(--color-bg-card)] rounded-xl p-6 mx-4 animate-scaleIn"
+            className="w-full max-w-sm bg-[var(--color-bg-card)] rounded-lg p-6 mx-4 animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-6">

@@ -91,29 +91,29 @@ export default function TransactionsPage() {
 
   // Toolbar: Search + Filters (below header, no overlap)
   const searchToolbar = (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
       {/* Search Input */}
-      <div className="relative max-w-md">
-        <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-muted)]`} />
+      <div className="relative max-w-md group">
+        <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-muted)] transition-colors group-focus-within:text-[var(--color-primary)]`} />
         <input
           type="text"
           placeholder={t.transactions.search}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className={`input ${isRTL ? 'pr-12' : 'pl-12'}`}
+          className={`input ${isRTL ? 'pr-12' : 'pl-12'} focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all duration-200`}
         />
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         {(['all', 'income', 'expense'] as FilterType[]).map((type) => (
           <button
             key={type}
             onClick={() => setFilter(type)}
-            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               filter === type
-                ? 'bg-[var(--color-primary)] text-white'
-                : 'bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] border border-[var(--color-border-light)] hover:border-[var(--color-border)]'
+                ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-md shadow-indigo-500/20'
+                : 'bg-white dark:bg-slate-800 text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-indigo-300 hover:text-indigo-600'
             }`}
           >
             {type === 'all' ? t.transactions.all : type === 'income' ? t.transactions.income : t.transactions.expense}
@@ -131,13 +131,13 @@ export default function TransactionsPage() {
           <>
             <Link
               href="/transactions/new"
-              className="w-11 h-11 rounded-2xl bg-[var(--color-primary)] flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+              className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-200 active:scale-95"
             >
               <Plus className="w-5 h-5 text-white" />
             </Link>
             <Link
               href="/settings"
-              className="w-11 h-11 rounded-2xl bg-[var(--color-bg-card)] flex items-center justify-center shadow-sm border border-[var(--color-border-light)] transition-all hover:shadow-md"
+              className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-[var(--color-border)] transition-all duration-200 hover:shadow-md hover:border-[var(--color-border-dark)]"
             >
               <Settings className="w-5 h-5 text-[var(--color-text-secondary)]" />
             </Link>
@@ -147,41 +147,49 @@ export default function TransactionsPage() {
       />
 
       <PageContainer>
-        {/* Analysis Section */}
-        <SectionCard title={t.transactions.analysis}>
-          <div className="grid grid-cols-4 gap-4">
-            <div className="bg-[var(--color-bg-secondary)] rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-[var(--color-success)]" />
-                <span className="text-sm text-[var(--color-text-muted)]">{t.transactions.totalIncome}</span>
+        {/* Analysis Section - Premium KPI Cards */}
+        <div className="mb-6 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-500/20">
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-[var(--color-text-muted)]">{t.transactions.totalIncome}</span>
               </div>
-              <p className="text-xl font-bold text-[var(--color-success)] ltr-nums">{currencySymbol} {analysis.totalIncome.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 ltr-nums tracking-tight">{currencySymbol} {analysis.totalIncome.toLocaleString()}</p>
             </div>
-            <div className="bg-[var(--color-bg-secondary)] rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingDown className="w-5 h-5 text-[var(--color-danger)]" />
-                <span className="text-sm text-[var(--color-text-muted)]">{t.transactions.totalExpenses}</span>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-sm shadow-rose-500/20">
+                  <TrendingDown className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-[var(--color-text-muted)]">{t.transactions.totalExpenses}</span>
               </div>
-              <p className="text-xl font-bold text-[var(--color-danger)] ltr-nums">{currencySymbol} {analysis.totalExpenses.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 ltr-nums tracking-tight">{currencySymbol} {analysis.totalExpenses.toLocaleString()}</p>
             </div>
-            <div className="bg-[var(--color-bg-secondary)] rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="w-5 h-5 text-[var(--color-primary)]" />
-                <span className="text-sm text-[var(--color-text-muted)]">{t.transactions.netBalance}</span>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-500/20">
+                  <Wallet className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-[var(--color-text-muted)]">{t.transactions.netBalance}</span>
               </div>
-              <p className={`text-xl font-bold ltr-nums ${analysis.netBalance >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
+              <p className={`text-2xl font-bold ltr-nums tracking-tight ${analysis.netBalance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {currencySymbol} {analysis.netBalance.toLocaleString()}
               </p>
             </div>
-            <div className="bg-[var(--color-bg-secondary)] rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Hash className="w-5 h-5 text-[var(--color-text-secondary)]" />
-                <span className="text-sm text-[var(--color-text-muted)]">{t.transactions.transactionCount}</span>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center shadow-sm">
+                  <Hash className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-[var(--color-text-muted)]">{t.transactions.transactionCount}</span>
               </div>
-              <p className="text-xl font-bold text-[var(--color-text-primary)]">{analysis.transactionCount}</p>
+              <p className="text-2xl font-bold text-[var(--color-text-primary)] tracking-tight">{analysis.transactionCount}</p>
             </div>
           </div>
-        </SectionCard>
+        </div>
 
         {/* Chart Section */}
         {chartData.length > 0 && (
@@ -310,20 +318,20 @@ export default function TransactionsPage() {
                   onClick={() => setSelectedTransaction(null)}
                 >
                   <Edit2 className="w-5 h-5" />
-                  {language === 'ar' ? 'تعديل المعاملة' : 'Edit Transaction'}
+                  {t.transactions.editTransaction}
                 </Link>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
                   className="w-full btn flex items-center justify-center gap-3 bg-[var(--color-danger)]/10 text-[var(--color-danger)] hover:bg-[var(--color-danger)]/20"
                 >
                   <Trash2 className="w-5 h-5" />
-                  {language === 'ar' ? 'حذف المعاملة' : 'Delete Transaction'}
+                  {t.transactions.deleteTransaction}
                 </button>
                 <button
                   onClick={() => setSelectedTransaction(null)}
                   className="w-full btn btn-ghost"
                 >
-                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  {t.transactions.cancel}
                 </button>
               </div>
             </div>
@@ -348,12 +356,10 @@ export default function TransactionsPage() {
                   <Trash2 className="w-8 h-8 text-[var(--color-danger)]" />
                 </div>
                 <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
-                  {language === 'ar' ? 'حذف المعاملة؟' : 'Delete Transaction?'}
+                  {t.transactions.deleteConfirm}
                 </h3>
                 <p className="text-sm text-[var(--color-text-muted)]">
-                  {language === 'ar' 
-                    ? 'لا يمكن التراجع عن هذا الإجراء.'
-                    : 'This action cannot be undone.'}
+                  {t.transactions.deleteWarning}
                 </p>
               </div>
 
@@ -365,7 +371,7 @@ export default function TransactionsPage() {
                   }}
                   className="flex-1 btn btn-secondary"
                 >
-                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  {t.transactions.cancel}
                 </button>
                 <button
                   onClick={() => {
@@ -375,7 +381,7 @@ export default function TransactionsPage() {
                   }}
                   className="flex-1 btn bg-[var(--color-danger)] text-white hover:bg-[var(--color-danger)]/90"
                 >
-                  {language === 'ar' ? 'حذف' : 'Delete'}
+                  {t.transactions.delete}
                 </button>
               </div>
             </div>

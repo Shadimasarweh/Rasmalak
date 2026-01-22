@@ -163,7 +163,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="min-h-screen bg-transparent">
       <PageHeader 
         title={t.settings.title}
       />

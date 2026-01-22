@@ -81,7 +81,7 @@ export default function CalculatorsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="min-h-screen bg-transparent">
       <PageHeader 
         title={language === 'ar' ? 'الأدوات المالية' : 'Financial Tools'}
       />
@@ -227,8 +227,8 @@ export default function CalculatorsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
             <div className="card">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <PiggyBank className="w-5 h-5 text-emerald-500" />
+                <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                  <PiggyBank className="w-5 h-5 text-indigo-500" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-lg text-[var(--color-text-primary)]">
@@ -296,7 +296,7 @@ export default function CalculatorsPage() {
               </div>
             </div>
 
-            <div className="card bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+            <div className="card bg-gradient-to-br from-indigo-500 to-indigo-600 text-white">
               <h3 className="font-semibold text-lg mb-6 opacity-90">
                 {language === 'ar' ? 'النتائج' : 'Results'}
               </h3>
@@ -320,7 +320,7 @@ export default function CalculatorsPage() {
                   </div>
                   <div>
                     <p className="text-sm opacity-80 mb-1">{language === 'ar' ? 'الأرباح المكتسبة' : 'Earnings'}</p>
-                    <p className="text-2xl font-bold ltr-nums text-emerald-200">
+                    <p className="text-2xl font-bold ltr-nums text-indigo-200">
                       {formatCurrency(savingsResult.totalInterest, currency)}
                     </p>
                   </div>
@@ -480,7 +480,7 @@ export default function CalculatorsPage() {
               ? 'نعمل على إضافة المزيد من الأدوات المالية المفيدة مثل حاسبة الزكاة وأداة المقارنة'
               : 'We are working on adding more useful financial tools like Zakat Calculator and Comparison Tool'}
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-emerald-400">
+          <div className="flex items-center justify-center gap-2 text-sm text-indigo-400">
             <span>{language === 'ar' ? 'تابعنا للتحديثات' : 'Stay tuned for updates'}</span>
             <ArrowIcon className="w-4 h-4" />
           </div>

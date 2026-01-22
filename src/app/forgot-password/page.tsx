@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="relative inline-block">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
+            <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
               <KeyRound className="w-10 h-10 text-white" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--color-gold)] border-4 border-[var(--color-bg-primary)] flex items-center justify-center">

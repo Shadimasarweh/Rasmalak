@@ -190,21 +190,21 @@ export default function LearnPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="min-h-screen bg-transparent">
       <PageHeader 
         title={language === 'ar' ? 'تعلّم المالية' : 'Learn Finance'}
       />
 
       <div className="page-container py-6 space-y-6">
         {/* Hero Card with Progress */}
-        <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-2xl p-6 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-emerald-500/10 -translate-y-1/2 translate-x-1/2 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-blue-500/10 translate-y-1/2 -translate-x-1/2 blur-3xl" />
+        <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-2xl p-6 text-white relative overflow-hidden animate-fade-in-up shadow-xl">
+          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-indigo-500/10 -translate-y-1/2 translate-x-1/2 blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-blue-500/10 translate-y-1/2 -translate-x-1/2 blur-3xl animate-pulse" style={{ animationDuration: '5s' }} />
           
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
-                <GraduationCap className="w-5 h-5 text-emerald-400" />
+                <GraduationCap className="w-5 h-5 text-indigo-400" />
                 <span className="text-sm font-medium text-slate-400">
                   {language === 'ar' ? 'مركز التعلم' : 'Learning Hub'}
                 </span>
@@ -241,7 +241,7 @@ export default function LearnPage() {
                     fill="none"
                     strokeDasharray={`${totalProgress * 2.26} 226`}
                     strokeLinecap="round"
-                    className="text-emerald-400"
+                    className="text-indigo-400"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -261,7 +261,7 @@ export default function LearnPage() {
         </div>
 
         {/* Categories */}
-        <section>
+        <section className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           <h2 className="section-title mb-4">
             {language === 'ar' ? 'المواضيع' : 'Topics'}
           </h2>
@@ -525,8 +525,8 @@ export default function LearnPage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="card text-center">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mx-auto mb-2">
-                  <BookOpen className="w-5 h-5 text-emerald-500" />
+                <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center mx-auto mb-2">
+                  <BookOpen className="w-5 h-5 text-indigo-500" />
                 </div>
                 <p className="text-2xl font-bold text-[var(--color-text-primary)]">{articles.length}</p>
                 <p className="text-xs text-[var(--color-text-muted)]">

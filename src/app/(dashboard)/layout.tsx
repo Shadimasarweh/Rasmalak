@@ -10,7 +10,7 @@ export default function DashboardLayout({
   return (
     <AuthGuard>
       {/* Flex container: sidebar + main content side by side */}
-      <div className="flex min-h-screen w-full bg-[var(--color-bg-primary)]">
+      <div className="flex min-h-screen w-full bg-transparent">
         {/* Sidebar - hidden on mobile, sticky on desktop */}
         <Sidebar />
         

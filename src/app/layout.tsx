@@ -78,8 +78,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className={`${tajawal.className} antialiased`}>
+        {/* Soft mesh gradient background */}
+        <div className="mesh-gradient-bg" aria-hidden="true" />
         <ThemeProvider>
-          {children}
+          <div className="soft-surface">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

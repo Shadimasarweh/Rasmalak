@@ -61,12 +61,12 @@ export default function LoginPage() {
         {/* Logo */}
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <span className="text-white font-bold text-xl">ر</span>
             </div>
             <div>
               <span className="text-white font-semibold text-xl">Rasmalak</span>
-              <span className="text-emerald-400 font-semibold text-xl"> AI</span>
+              <span className="text-indigo-400 font-semibold text-xl"> AI</span>
             </div>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function LoginPage() {
           
           {/* Feature Pills */}
           <div className="flex flex-wrap gap-2 mt-8">
-            <span className="px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium border border-emerald-500/20">
+            <span className="px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 text-sm font-medium border border-indigo-500/20">
               {language === 'ar' ? 'تعلم تفاعلي' : 'Interactive Learning'}
             </span>
             <span className="px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-400 text-sm font-medium border border-amber-500/20">
@@ -107,9 +107,9 @@ export default function LoginPage() {
       </div>
       
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[var(--color-bg-primary)] relative">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[var(--color-bg-primary)]/80 backdrop-blur-sm relative">
         {/* Background decorations */}
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-emerald-500/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-indigo-500/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-amber-500/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
 
         {/* Theme and Language Switcher */}
@@ -121,12 +121,12 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="text-center mb-8 lg:hidden">
             <div className="relative inline-block">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-xl">
+              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-xl">
                 <span className="text-white font-bold text-3xl">{isRTL ? 'ر' : 'R'}</span>
               </div>
             </div>
             <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-              Rasmalak <span className="text-emerald-500">AI</span>
+              Rasmalak <span className="text-indigo-500">AI</span>
             </h1>
           </div>
 
@@ -146,7 +146,7 @@ export default function LoginPage() {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-fadeIn">
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-fadeIn">
                 {error}
               </div>
             )}

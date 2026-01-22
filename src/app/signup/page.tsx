@@ -95,12 +95,12 @@ export default function SignupPage() {
         {/* Logo */}
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <span className="text-white font-bold text-xl">ر</span>
             </div>
             <div>
               <span className="text-white font-semibold text-xl">Rasmalak</span>
-              <span className="text-emerald-400 font-semibold text-xl"> AI</span>
+              <span className="text-indigo-400 font-semibold text-xl"> AI</span>
             </div>
           </div>
         </div>
@@ -128,8 +128,8 @@ export default function SignupPage() {
               language === 'ar' ? 'محتوى عربي أصيل' : 'Native Arabic content',
             ].map((benefit, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-emerald-400" />
+                <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                  <Check className="w-3 h-3 text-indigo-400" />
                 </div>
                 <span className="text-slate-300">{benefit}</span>
               </div>
@@ -144,9 +144,9 @@ export default function SignupPage() {
       </div>
       
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-8 bg-[var(--color-bg-primary)] relative overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center px-6 py-8 bg-[var(--color-bg-primary)]/80 backdrop-blur-sm relative overflow-y-auto">
         {/* Background decorations */}
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-emerald-500/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-indigo-500/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-amber-500/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
 
         {/* Theme and Language Switcher */}
@@ -158,12 +158,12 @@ export default function SignupPage() {
           {/* Mobile Logo */}
           <div className="text-center mb-6 lg:hidden">
             <div className="relative inline-block">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-xl">
+              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-xl">
                 <span className="text-white font-bold text-3xl">{isRTL ? 'ر' : 'R'}</span>
               </div>
             </div>
             <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-              Rasmalak <span className="text-emerald-500">AI</span>
+              Rasmalak <span className="text-indigo-500">AI</span>
             </h1>
           </div>
 
@@ -180,7 +180,7 @@ export default function SignupPage() {
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-fadeIn">
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm animate-fadeIn">
                 {error}
               </div>
             )}
@@ -279,7 +279,7 @@ export default function SignupPage() {
               <div className="relative">
                 <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
                   {confirmPassword && password === confirmPassword ? (
-                    <Check className="w-5 h-5 text-emerald-500" />
+                    <Check className="w-5 h-5 text-indigo-500" />
                   ) : (
                     <Lock className="w-5 h-5 text-[var(--color-text-muted)]" />
                   )}

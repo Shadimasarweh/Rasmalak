@@ -20,18 +20,24 @@
 - [ ] Successful signup redirects to **/onboarding** (not dashboard)
 - [ ] Error messages display correctly for duplicate email
 
-#### Onboarding (New Feature)
+#### Onboarding (Personalization Flow)
 - [ ] Onboarding page loads after signup
-- [ ] Progress bar updates correctly (4 steps)
-- [ ] Language selection works
-- [ ] Currency selection works
-- [ ] Income range selection works (optional)
-- [ ] Goal selection works
+- [ ] Starts in **Arabic by default**
+- [ ] Progress bar updates correctly (3 steps)
+- [ ] **Language toggle button** visible in header (shows "English" in Arabic mode)
+- [ ] Clicking language toggle switches UI immediately (Arabic ↔ English)
+- [ ] **Step 1 - Segment**: Individual / Self-employed / SME cards display correctly
+- [ ] Segment selection required to proceed
+- [ ] **Step 2 - Topics**: Multi-select chips for financial topics
+- [ ] Topics step is optional (can proceed with none selected)
+- [ ] **Step 3 - Insights**: Multi-select cards for preferred insights
+- [ ] Insights step is optional (can proceed with none selected)
 - [ ] "Skip" button completes onboarding with defaults
 - [ ] "Next" button advances steps
 - [ ] "Back" button returns to previous step
 - [ ] Completing onboarding redirects to dashboard
 - [ ] Re-visiting /onboarding when already onboarded → redirects to dashboard
+- [ ] Onboarding data persists in localStorage after completion
 
 #### Login
 - [ ] Login page loads correctly

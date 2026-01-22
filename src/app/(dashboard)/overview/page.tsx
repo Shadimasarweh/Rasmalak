@@ -79,7 +79,7 @@ export default function OverviewPage() {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-[var(--color-bg-primary)]">
+    <div className="w-full min-h-screen bg-transparent">
       {/* Hero Section - Welcome Banner */}
       <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 text-white">
         <div className="page-container py-8">

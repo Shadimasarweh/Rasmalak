@@ -53,7 +53,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
   };
 
   return (
-    <div className="chart-container h-64">
+    <div className="chart-container h-48">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-light)" />

@@ -7,7 +7,6 @@ import {
   Receipt,
   Plus,
   GraduationCap,
-  MessageSquareText,
   Settings,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -62,7 +61,7 @@ export default function BottomNav() {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 bg-[var(--color-bg-card)] border-t border-[var(--color-border)] z-50 pb-safe" 
+      className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-[var(--color-border-light)] z-50 pb-safe lg:hidden" 
     >
       <div className="flex items-center justify-around py-2 px-2 max-w-md mx-auto">
         {navItems.map((item) => {
@@ -76,9 +75,9 @@ export default function BottomNav() {
               <Link
                 key={item.id}
                 href={item.path}
-                className="flex items-center justify-center -mt-4"
+                className="flex items-center justify-center -mt-5"
               >
-                <div className="w-14 h-14 rounded-full bg-[var(--color-primary)] flex items-center justify-center shadow-lg shadow-[var(--color-primary)]/30">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 active:scale-95 transition-transform duration-150">
                   <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                 </div>
               </Link>
@@ -89,14 +88,19 @@ export default function BottomNav() {
             <Link
               key={item.id}
               href={item.path}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-lg transition-colors ${
+              className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 ${
                 isActive
-                  ? 'text-[var(--color-primary)]'
+                  ? 'text-indigo-600 dark:text-indigo-400'
                   : 'text-[var(--color-text-muted)]'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[10px] mt-1 ${isActive ? 'font-semibold' : 'font-medium'}`}>
+              <div className={`relative ${isActive ? '' : ''}`}>
+                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+                {isActive && (
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-500" />
+                )}
+              </div>
+              <span className={`text-[10px] mt-1.5 ${isActive ? 'font-semibold' : 'font-medium'}`}>
                 {label}
               </span>
             </Link>

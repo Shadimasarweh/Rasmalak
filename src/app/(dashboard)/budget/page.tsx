@@ -98,10 +98,10 @@ export default function BudgetSettingsPage() {
       {/* Content */}
       <div className="page-container py-6">
         {/* Monthly Budget Card */}
-        <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-6 mb-6">
+        <div className="bg-[var(--color-bg-card)] rounded-lg border border-[var(--color-border)] p-6 mb-6">
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-              <Target className="w-6 h-6 text-emerald-500" />
+            <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+              <Target className="w-6 h-6 text-indigo-500" />
             </div>
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
@@ -128,9 +128,9 @@ export default function BudgetSettingsPage() {
         </div>
 
         {/* Category Budgets Card */}
-        <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-6 mb-6">
+        <div className="bg-[var(--color-bg-card)] rounded-lg border border-[var(--color-border)] p-6 mb-6">
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
               <PiggyBank className="w-6 h-6 text-amber-500" />
             </div>
             <div className="flex-1">
@@ -217,7 +217,7 @@ export default function BudgetSettingsPage() {
             onClick={handleSave}
             disabled={isSaved}
             className={`flex-1 btn btn-primary flex items-center justify-center gap-2 ${
-              isSaved ? 'bg-emerald-500' : ''
+              isSaved ? 'bg-indigo-500' : ''
             }`}
           >
             {isSaved ? (
