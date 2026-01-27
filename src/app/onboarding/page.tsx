@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useIsAuthenticated, useHasCompletedOnboarding, useCompleteOnboarding, useSkipOnboarding, OnboardingData, UserSegment } from '@/store/useStore';
 import { useIntl } from 'react-intl';
@@ -71,7 +71,7 @@ const GOALS = [
 ];
 
 // Step 2: User Segment
-const SEGMENTS: { id: UserSegment; labelKey: string; defaultLabel: string; descKey: string; defaultDesc: string; icon: JSX.Element }[] = [
+const SEGMENTS: { id: UserSegment; labelKey: string; defaultLabel: string; descKey: string; defaultDesc: string; icon: ReactNode }[] = [
   {
     id: 'individual',
     labelKey: 'onboarding.segment_individual',
