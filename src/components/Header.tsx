@@ -67,9 +67,18 @@ export default function Header() {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-[var(--radius-pill)]" />
           </button>
 
-          {/* Theme Toggle */}
+          {/* Settings - visible on mobile only (lg:hidden) */}
+          <Link 
+            href="/settings"
+            className="p-2 rounded-[var(--radius-input)] lg:hidden"
+            style={{ color: 'var(--theme-text-secondary)' }}
+          >
+            <Settings className="w-5 h-5" />
+          </Link>
+
+          {/* Theme Toggle - hidden on mobile, visible on desktop */}
           <button 
-            className="p-2 rounded-[var(--radius-input)]"
+            className="p-2 rounded-[var(--radius-input)] hidden lg:block"
             style={{ color: 'var(--theme-text-secondary)' }}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
