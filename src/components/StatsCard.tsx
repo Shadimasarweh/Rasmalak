@@ -1,8 +1,8 @@
 'use client';
 
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
-import { useCurrency } from '@/store/useStore';
+import { useIntl } from 'react-intl';
+import { useCurrency, useStore } from '@/store/useStore';
 
 interface StatsCardProps {
   type: 'income' | 'expense' | 'balance' | 'savings';
@@ -35,8 +35,18 @@ const config = {
 };
 
 export default function StatsCard({ type, value, label, percentage }: StatsCardProps) {
+  const intl = useIntl();
   const currency = useCurrency();
+  const language = useStore((state) => state.language);
   const { icon: Icon, iconClass, valueColor } = config[type];
+
+  // Format percentage with locale-appropriate percent sign
+  const formatPercentage = (pct: number) => {
+    const formatted = intl.formatNumber(Math.abs(pct), { maximumFractionDigits: 1 });
+    const sign = pct >= 0 ? '+' : '-';
+    const percentSign = language === 'ar' ? '٪' : '%';
+    return `${sign}${formatted}${percentSign}`;
+  };
 
   return (
     <div className="card card-elevated group">
@@ -48,14 +58,14 @@ export default function StatsCard({ type, value, label, percentage }: StatsCardP
           <span className={`badge ${
             percentage >= 0 ? 'badge-success' : 'badge-danger'
           }`}>
-            {percentage >= 0 ? '+' : ''}{percentage.toFixed(1)}%
+            {formatPercentage(percentage)}
           </span>
         )}
       </div>
 
       <p className="text-sm text-[var(--color-text-secondary)] mb-1 font-medium">{label}</p>
       <p className={`text-xl font-bold ${valueColor} ltr-nums`}>
-        {formatCurrency(value, currency)}
+        {intl.formatNumber(value, { style: 'currency', currency })}
       </p>
     </div>
   );

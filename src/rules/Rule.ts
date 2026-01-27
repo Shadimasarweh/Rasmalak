@@ -21,3 +21,5 @@ export interface Rule {
   appliesTo: UserType[];
   evaluate(ctx: RuleContext): RuleResult | null;
 }
+
+

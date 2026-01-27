@@ -4,3 +4,5 @@ export interface Insight {
   bodyKey: string;
   payload?: Record<string, unknown>;
 }
+
+

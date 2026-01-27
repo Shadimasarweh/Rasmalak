@@ -26,18 +26,25 @@ export const DEFAULT_INCOME_CATEGORIES: Category[] = [
 
 export const ALL_CATEGORIES = [...DEFAULT_EXPENSE_CATEGORIES, ...DEFAULT_INCOME_CATEGORIES];
 
-// Currency Options
+// Currency Options - Common Arab-region currencies
 export const CURRENCIES = [
+  { code: 'JOD', name: 'Jordanian Dinar', nameAr: 'دينار أردني', symbol: 'JOD', symbolAr: 'د.أ' },
   { code: 'SAR', name: 'Saudi Riyal', nameAr: 'ريال سعودي', symbol: 'SAR', symbolAr: 'ر.س' },
   { code: 'AED', name: 'UAE Dirham', nameAr: 'درهم إماراتي', symbol: 'AED', symbolAr: 'د.إ' },
   { code: 'KWD', name: 'Kuwaiti Dinar', nameAr: 'دينار كويتي', symbol: 'KWD', symbolAr: 'د.ك' },
-  { code: 'BHD', name: 'Bahraini Dinar', nameAr: 'دينار بحريني', symbol: 'BHD', symbolAr: 'د.ب' },
   { code: 'QAR', name: 'Qatari Riyal', nameAr: 'ريال قطري', symbol: 'QAR', symbolAr: 'ر.ق' },
+  { code: 'BHD', name: 'Bahraini Dinar', nameAr: 'دينار بحريني', symbol: 'BHD', symbolAr: 'د.ب' },
   { code: 'OMR', name: 'Omani Rial', nameAr: 'ريال عماني', symbol: 'OMR', symbolAr: 'ر.ع' },
-  { code: 'JOD', name: 'Jordanian Dinar', nameAr: 'دينار أردني', symbol: 'JOD', symbolAr: 'د.أ' },
   { code: 'EGP', name: 'Egyptian Pound', nameAr: 'جنيه مصري', symbol: 'EGP', symbolAr: 'ج.م' },
+  { code: 'MAD', name: 'Moroccan Dirham', nameAr: 'درهم مغربي', symbol: 'MAD', symbolAr: 'د.م' },
+  { code: 'DZD', name: 'Algerian Dinar', nameAr: 'دينار جزائري', symbol: 'DZD', symbolAr: 'د.ج' },
+  { code: 'TND', name: 'Tunisian Dinar', nameAr: 'دينار تونسي', symbol: 'TND', symbolAr: 'د.ت' },
   { code: 'IQD', name: 'Iraqi Dinar', nameAr: 'دينار عراقي', symbol: 'IQD', symbolAr: 'د.ع' },
   { code: 'LBP', name: 'Lebanese Pound', nameAr: 'ليرة لبنانية', symbol: 'LBP', symbolAr: 'ل.ل' },
+  { code: 'SYP', name: 'Syrian Pound', nameAr: 'ليرة سورية', symbol: 'SYP', symbolAr: 'ل.س' },
+  { code: 'LYD', name: 'Libyan Dinar', nameAr: 'دينار ليبي', symbol: 'LYD', symbolAr: 'د.ل' },
+  { code: 'SDG', name: 'Sudanese Pound', nameAr: 'جنيه سوداني', symbol: 'SDG', symbolAr: 'ج.س' },
+  { code: 'YER', name: 'Yemeni Rial', nameAr: 'ريال يمني', symbol: 'YER', symbolAr: 'ر.ي' },
   { code: 'USD', name: 'US Dollar', nameAr: 'دولار أمريكي', symbol: '$', symbolAr: '$' },
   { code: 'EUR', name: 'Euro', nameAr: 'يورو', symbol: '€', symbolAr: '€' },
 ];
@@ -46,16 +53,23 @@ export const CURRENCIES = [
 // These are approximate rates - in production, use a live API
 export const EXCHANGE_RATES: Record<string, number> = {
   USD: 1.00,
+  JOD: 0.71,
   SAR: 3.75,
   AED: 3.67,
   KWD: 0.31,
-  BHD: 0.38,
   QAR: 3.64,
+  BHD: 0.38,
   OMR: 0.38,
-  JOD: 0.71,
   EGP: 50.85,
+  MAD: 10.00,
+  DZD: 135.00,
+  TND: 3.10,
   IQD: 1310.00,
   LBP: 89500.00,
+  SYP: 13000.00,
+  LYD: 4.85,
+  SDG: 600.00,
+  YER: 250.00,
   EUR: 0.92,
 };
 

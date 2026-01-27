@@ -1,890 +1,546 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Plus, Search, X, Edit2, Trash2, Wallet, ChevronDown, ChevronUp, TrendingUp, TrendingDown, PiggyBank, CreditCard } from 'lucide-react';
-import { useTransactions, useCurrency, useBaseCurrency, useStore, useMonthlyBudget } from '@/store/useStore';
-import { Transaction } from '@/types';
-import { calculateStats, getCurrentMonthTransactions, groupByCategory, getCategoryById, convertCurrency } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useTranslation';
-import { CURRENCIES } from '@/lib/constants';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { useIntl } from 'react-intl';
+import { useCurrency, useUser, useUserName } from '@/store/useStore';
+import { useTransactions } from '@/store/transactionStore';
+import { useMemo } from 'react';
 
-// Domain imports for insights
-import type { Insight } from '@/insights/insight';
-import type { RuleContext } from '@/rules/Rule';
-import { runRules } from '@/application/ruleRunner';
-import { overspendingRule, lowSavingsRule, highDebtRiskRule } from '@/rules';
+export default function OverviewPage() {
+  const intl = useIntl();
+  const { transactions, getTotalIncome, getTotalExpenses, getNetBalance } = useTransactions();
+  const currency = useCurrency();
+  const user = useUser();
+  const userName = useUserName();
+  const displayName = user?.name || userName || intl.formatMessage({ id: 'dashboard.guest_user', defaultMessage: 'User' });
 
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
+  // Filter transactions for current month
+  const currentMonthTransactions = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    return transactions.filter(t => {
+      const date = new Date(t.date);
+      return date >= startOfMonth && date <= endOfMonth;
+    });
+  }, [transactions]);
 
-function formatAmount(amount: number, currencyCode: string, language: string): string {
-  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
-  const currencyInfo = CURRENCIES.find(c => c.code === currencyCode);
-  
-  const formatted = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(Math.abs(amount));
+  // Compute monthly metrics from real data
+  const monthlyIncome = useMemo(() => {
+    return currentMonthTransactions
+      .filter((tx) => tx.type === 'income')
+      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  }, [currentMonthTransactions]);
 
-  const symbol = language === 'ar' ? currencyInfo?.symbolAr : currencyInfo?.symbol;
-  return `${formatted} ${symbol || currencyCode}`;
-}
+  const monthlyExpenses = useMemo(() => {
+    return currentMonthTransactions
+      .filter((tx) => tx.type === 'expense')
+      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  }, [currentMonthTransactions]);
 
-function formatCompact(amount: number, language: string): string {
-  const locale = language === 'ar' ? 'ar-SA' : 'en-US';
-  if (Math.abs(amount) >= 1000000) {
-    return new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).format(amount);
+  const monthlyCashFlow = monthlyIncome - monthlyExpenses;
+
+  // Total balance (all-time income - expenses)
+  const totalBalance = getNetBalance();
+
+  // Recent transactions (most recent 5)
+  const recentTransactions = transactions.slice(0, 5);
+  const hasTransactions = transactions.length > 0;
+
+  // Weekly spending data - expenses grouped by day of current week
+  const weeklySpending = useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 = Sunday
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const spending: Record<string, number> = {};
+    days.forEach(day => { spending[day] = 0; });
+    
+    transactions.forEach(tx => {
+      if (tx.type !== 'expense') return;
+      const txDate = new Date(tx.date);
+      if (txDate >= startOfWeek && txDate <= now) {
+        const dayName = days[txDate.getDay()];
+        spending[dayName] += Math.abs(tx.amount);
+      }
+    });
+    
+    const maxSpending = Math.max(...Object.values(spending), 1);
+    const todayName = days[now.getDay()];
+    
+    return days.map(day => ({
+      day,
+      amount: spending[day],
+      // Height as percentage of max (minimum 5% for visibility if non-zero)
+      height: spending[day] > 0 ? Math.max((spending[day] / maxSpending) * 100, 5) : 0,
+      isToday: day === todayName,
+    }));
+  }, [transactions]);
+
+  const hasWeeklySpending = weeklySpending.some(d => d.amount > 0);
+
+  // Determine time of day for ICU select
+  const hour = new Date().getHours();
+  let timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night' = 'morning';
+  if (hour >= 5 && hour < 12) {
+    timeOfDay = 'morning';
+  } else if (hour >= 12 && hour < 17) {
+    timeOfDay = 'afternoon';
+  } else if (hour >= 17 && hour < 22) {
+    timeOfDay = 'evening';
+  } else {
+    timeOfDay = 'night';
   }
-  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount);
-}
-
-// ============================================================================
-// ZONE 1: FINANCIAL SNAPSHOT - Grounded, not dull
-// ============================================================================
-
-const snapshotIcons = {
-  income: TrendingUp,
-  expenses: TrendingDown,
-  balance: Wallet,
-  savings: PiggyBank,
-  debt: CreditCard,
-};
-
-function SnapshotCard({ 
-  title, 
-  value, 
-  currency,
-  language,
-  type = 'balance',
-}: { 
-  title: string; 
-  value: number; 
-  currency: string;
-  language: string;
-  type?: 'income' | 'expenses' | 'balance' | 'savings' | 'debt';
-}) {
-  const Icon = snapshotIcons[type] || Wallet;
-  
-  // Subtle accent colors - understated but present
-  const accentColors = {
-    income: 'text-emerald-600/70 dark:text-emerald-400/70',
-    expenses: 'text-slate-500 dark:text-slate-400',
-    balance: 'text-indigo-600/70 dark:text-indigo-400/70',
-    savings: 'text-amber-600/70 dark:text-amber-400/70',
-    debt: 'text-slate-500 dark:text-slate-400',
-  };
-
-  const iconBg = {
-    income: 'bg-emerald-500/8',
-    expenses: 'bg-slate-500/8',
-    balance: 'bg-indigo-500/8',
-    savings: 'bg-amber-500/8',
-    debt: 'bg-slate-500/8',
-  };
-
-  return (
-    <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-4 hover:border-[var(--color-border-dark)] transition-colors">
-      <div className="flex items-center gap-2.5 mb-2.5">
-        <div className={`w-7 h-7 rounded-lg ${iconBg[type]} flex items-center justify-center`}>
-          <Icon className={`w-3.5 h-3.5 ${accentColors[type]}`} />
-        </div>
-        <p className="text-xs text-[var(--color-text-muted)] font-medium">{title}</p>
-      </div>
-      <p className="text-lg font-semibold text-[var(--color-text-primary)] ltr-nums tabular-nums">
-        {formatAmount(value, currency, language)}
-      </p>
-    </div>
+  const greeting = intl.formatMessage(
+    { id: 'dashboard.greeting', defaultMessage: '{timeOfDay, select, morning {Good Morning} afternoon {Good Afternoon} evening {Good Evening} night {Good Night} other {Hello}}' },
+    { timeOfDay }
   );
-}
-
-// ============================================================================
-// GUIDANCE LAYER - State-aware bridge for early/empty users
-// ============================================================================
-
-interface GuidanceItem {
-  key: string;
-  text: string;
-  href: string;
-}
-
-function GuidanceLayer({ 
-  items,
-  title,
-}: { 
-  items: GuidanceItem[];
-  title: string;
-}) {
-  if (items.length === 0) return null;
-  
-  // Limit to 2 items max
-  const visibleItems = items.slice(0, 2);
-  
-  return (
-    <div className="rounded-xl border border-[var(--color-border)] border-dashed bg-[var(--color-bg-secondary)]/30 p-6">
-      <h2 className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide mb-4">
-        {title}
-      </h2>
-      <div className="space-y-3">
-        {visibleItems.map((item) => (
-          <Link
-            key={item.key}
-            href={item.href}
-            className="flex items-center gap-3.5 px-4 py-3.5 bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-dark)] hover:bg-[var(--color-bg-primary)] transition-all group"
-          >
-            <div className="w-2 h-2 rounded-full bg-[var(--color-primary)]/40 group-hover:bg-[var(--color-primary)] transition-colors shrink-0" />
-            <span className="text-sm text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)] transition-colors">
-              {item.text}
-            </span>
-            <ArrowRight className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] ms-auto transition-colors rtl:rotate-180" />
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// ZONE 2: INSIGHTS - Authoritative, not polite
-// ============================================================================
-
-function InsightCard({ 
-  insight, 
-  language,
-  t,
-}: { 
-  insight: Insight;
-  language: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: any;
-}) {
-  const getInsightText = (titleKey: string) => {
-    if (titleKey.includes('monthly_overspend')) {
-      return {
-        title: t.insights?.monthly_overspend?.title || 'High Spending',
-        body: t.insights?.monthly_overspend?.body || 'Expenses exceed 90% of income',
-      };
-    }
-    if (titleKey.includes('low_savings')) {
-      return {
-        title: t.insights?.low_savings_rate?.title || 'Low Savings',
-        body: t.insights?.low_savings_rate?.body || 'Savings below 10%',
-      };
-    }
-    if (titleKey.includes('high_debt')) {
-      return {
-        title: t.insights?.high_debt_risk?.title || 'High Debt',
-        body: t.insights?.high_debt_risk?.body || 'Debt exceeds 40%',
-      };
-    }
-    return { title: titleKey, body: '' };
-  };
-
-  const { title, body } = getInsightText(insight.titleKey);
-
-  // Severity-specific styling - authoritative presence
-  const severityConfig = {
-    critical: {
-      container: 'bg-red-500/[0.04] dark:bg-red-500/[0.08] border-red-500/20 shadow-sm shadow-red-500/5',
-      accent: 'bg-red-500',
-      badge: 'bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20',
-      label: language === 'ar' ? 'حرج' : 'Critical',
-    },
-    warning: {
-      container: 'bg-amber-500/[0.04] dark:bg-amber-500/[0.08] border-amber-500/20 shadow-sm shadow-amber-500/5',
-      accent: 'bg-amber-500',
-      badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20',
-      label: language === 'ar' ? 'تنبيه' : 'Warning',
-    },
-    info: {
-      container: 'bg-slate-500/[0.03] dark:bg-slate-500/[0.06] border-slate-300/50 dark:border-slate-600/50',
-      accent: 'bg-slate-400',
-      badge: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 ring-1 ring-slate-500/20',
-      label: language === 'ar' ? 'معلومة' : 'Info',
-    },
-  };
-
-  const config = severityConfig[insight.severity];
 
   return (
-    <div className={`relative rounded-xl border ${config.container} p-5 overflow-hidden`}>
-      {/* Left accent bar */}
-      <div className={`absolute top-0 bottom-0 start-0 w-1 ${config.accent}`} />
-      
-      <div className="flex items-start gap-4 ps-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 mb-2.5">
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${config.badge}`}>
-              {config.label}
-            </span>
-          </div>
-          <h3 className="text-base font-semibold text-[var(--color-text-primary)] leading-snug mb-1.5">
-            {title}
-          </h3>
-          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-            {body}
+    <div style={{ padding: 'var(--spacing-3)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* ===== GREETING SECTION ===== */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ minWidth: 0 }}>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>{greeting}, {displayName}</h1>
+          <p className="text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
+            {intl.formatMessage({ id: 'dashboard.financial_overview', defaultMessage: "Here's your financial overview for today." })}
           </p>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+          <button 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem', 
+              paddingInline: '1rem', 
+              paddingBlock: '0.625rem',
+              backgroundColor: 'var(--theme-bg-card)',
+              color: 'var(--theme-text-primary)',
+              border: '1px solid var(--theme-border)',
+            }} 
+            className="text-sm font-medium rounded-xl"
+          >
+            <svg style={{ width: '1rem', height: '1rem', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>{intl.formatMessage({ id: 'dashboard.report', defaultMessage: 'Report' })}</span>
+          </button>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingInline: '1rem', paddingBlock: '0.625rem' }} className="text-sm font-medium text-white bg-emerald-500 rounded-xl hover:bg-emerald-600">
+            <svg style={{ width: '1rem', height: '1rem', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>{intl.formatMessage({ id: 'dashboard.add_transaction', defaultMessage: 'Add Transaction' })}</span>
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
 
-// ============================================================================
-// MAIN DASHBOARD COMPONENT
-// ============================================================================
-
-export default function HomePage() {
-  const { t, language, isRTL } = useTranslation();
-  const transactions = useTransactions();
-  const currency = useCurrency();
-  const baseCurrency = useBaseCurrency();
-  const deleteTransaction = useStore((state) => state.deleteTransaction);
-  const monthlyBudget = useMonthlyBudget();
-  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showAllInsights, setShowAllInsights] = useState(false);
-
-  const currentMonthTransactions = getCurrentMonthTransactions(transactions);
-  const stats = calculateStats(currentMonthTransactions, currency, baseCurrency);
-  const expensesByCategory = groupByCategory(currentMonthTransactions, 'expense', currency, baseCurrency);
-  const topCategories = expensesByCategory.slice(0, 5);
-  const recentTransactions = transactions.slice(0, 6);
-  const monthlyDebtPayment = 0;
-
-  // ============================================================================
-  // INSIGHTS GENERATION
-  // ============================================================================
-  
-  const insights = useMemo((): Insight[] => {
-    const ruleContext: RuleContext = {
-      user: {
-        id: 'current-user',
-        type: 'individual',
-        country: 'JO',
-        currency: currency,
-        language: language as 'ar' | 'en',
-        createdAt: new Date(),
-      },
-      profile: {
-        userId: 'current-user',
-        income: {
-          amount: stats.totalIncome,
-          frequency: 'monthly',
-        },
-        liabilities: monthlyDebtPayment > 0 ? {
-          totalDebt: 0,
-          monthlyDebtPayment: monthlyDebtPayment,
-        } : undefined,
-      },
-      transactions: currentMonthTransactions.map(tx => ({
-        id: tx.id,
-        userId: 'current-user',
-        type: tx.type as 'income' | 'expense',
-        category: tx.category,
-        amount: tx.amount,
-        date: new Date(tx.date),
-        notes: tx.description,
-      })),
-      calculatorResults: {},
-    };
-
-    if (stats.totalIncome <= 0) {
-      return [];
-    }
-
-    const allRules = [overspendingRule, lowSavingsRule, highDebtRiskRule];
-    return runRules(allRules, ruleContext);
-  }, [currentMonthTransactions, stats.totalIncome, currency, language, monthlyDebtPayment]);
-
-  const sortedInsights = useMemo(() => {
-    const severityOrder = { critical: 0, warning: 1, info: 2 };
-    return [...insights].sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
-  }, [insights]);
-
-  const visibleInsights = showAllInsights ? sortedInsights : sortedInsights.slice(0, 2);
-  const hasMoreInsights = sortedInsights.length > 2;
-  const primaryInsight = sortedInsights[0];
-
-  // ============================================================================
-  // GUIDANCE LAYER LOGIC
-  // Conditions: no transactions, no budget, or insights empty/trivial
-  // ============================================================================
-  
-  const MINIMUM_TRANSACTION_THRESHOLD = 3;
-  const hasIncome = stats.totalIncome > 0;
-  const hasExpenses = stats.totalExpenses > 0;
-  const hasSufficientTransactions = currentMonthTransactions.length >= MINIMUM_TRANSACTION_THRESHOLD;
-  const hasBudgetSet = monthlyBudget > 0;
-  const hasNonTrivialInsights = sortedInsights.some(i => i.severity === 'critical' || i.severity === 'warning');
-
-  const guidanceItems = useMemo((): GuidanceItem[] => {
-    const items: GuidanceItem[] = [];
-    
-    // Condition 1: No transactions or below threshold
-    if (!hasSufficientTransactions && !hasExpenses) {
-      items.push({
-        key: 'add-transaction',
-        text: t.guidance?.addFirstTransaction || (language === 'ar' 
-          ? 'أضِف أول معاملة لتتبّع أنماط إنفاقك' 
-          : 'Add your first expense to see spending patterns'),
-        href: '/transactions/new',
-      });
-    }
-    
-    // Condition 2: No budget set
-    if (!hasBudgetSet) {
-      items.push({
-        key: 'set-budget',
-        text: t.guidance?.setBudget || (language === 'ar' 
-          ? 'حدّد ميزانية شهرية لتفعيل التنبيهات' 
-          : 'Set a monthly budget to activate alerts'),
-        href: '/budget',
-      });
-    }
-    
-    // Condition 3: No income logged
-    if (!hasIncome && hasSufficientTransactions) {
-      items.push({
-        key: 'log-income',
-        text: t.guidance?.logIncome || (language === 'ar' 
-          ? 'سجّل دخلك لحساب معدل الادخار' 
-          : 'Log your income to calculate savings rate'),
-        href: '/transactions/new',
-      });
-    }
-    
-    return items;
-  }, [hasSufficientTransactions, hasExpenses, hasBudgetSet, hasIncome, t.guidance, language]);
-
-  // Guidance layer only shows when:
-  // 1. There are guidance items to show AND
-  // 2. There are no non-trivial insights (so it doesn't compete)
-  const showGuidanceLayer = guidanceItems.length > 0 && !hasNonTrivialInsights;
-
-  const ViewAllArrow = isRTL ? ArrowLeft : ArrowRight;
-
-  const formatDate = (dateStr: string) => {
-    const locale = language === 'ar' ? 'ar-SA' : 'en-US';
-    return new Date(dateStr).toLocaleDateString(locale, {
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const getMonthName = () => {
-    const now = new Date();
-    const locale = language === 'ar' ? 'ar-SA' : 'en-US';
-    return now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
-  };
-
-  // Confident chart palette - muted but with presence
-  const chartPalette = ['#475569', '#64748b', '#78716c', '#71717a', '#6b7280'];
-  
-  const chartData = expensesByCategory.slice(0, 5).map((cat, index) => {
-    const category = getCategoryById(cat.name);
-    return {
-      name: language === 'ar' ? (category?.nameAr || cat.name) : (category?.name || cat.name),
-      value: cat.value,
-      color: chartPalette[index % chartPalette.length],
-    };
-  });
-
-  const chartTotal = chartData.reduce((sum, c) => sum + c.value, 0);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderTooltip = (props: any) => {
-    const { active, payload } = props;
-    if (active && payload && payload.length) {
-      const data = payload[0];
-      return (
-        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg px-3 py-2 shadow-lg text-sm">
-          <p className="font-medium text-[var(--color-text-primary)]">{data.name}</p>
-          <p className="text-[var(--color-text-secondary)] ltr-nums">{formatAmount(data.value, currency, language)}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      {/* ================================================================== */}
-      {/* HEADER - The visual heartbeat / energy source */}
-      {/* ================================================================== */}
-      <header className="relative overflow-hidden">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800" />
-        
-        {/* Subtle ambient orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div 
-            className="absolute -top-20 -right-20 w-56 h-56 rounded-full opacity-[0.08]"
-            style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 1) 0%, transparent 70%)' }}
-          />
-          <div 
-            className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full opacity-[0.06]"
-            style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 1) 0%, transparent 70%)' }}
-          />
-        </div>
-
-        <div className="relative page-container py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-semibold text-white tracking-tight">
-                {t.dashboard.financialSnapshot || (language === 'ar' ? 'الموقف المالي' : 'Financial Snapshot')}
-              </h1>
-              <p className="text-sm text-slate-400 mt-0.5">{getMonthName()}</p>
-            </div>
-            {/* Search */}
-            <div className="relative w-full sm:w-56">
-              <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500`} />
-              <input
-                type="text"
-                placeholder={language === 'ar' ? 'بحث...' : 'Search...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full ${isRTL ? 'pr-9 pl-3' : 'pl-9 pr-3'} py-2.5 bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:bg-white/15 focus:border-white/20 transition-all`}
+      {/* ===== TOP CARDS ROW ===== */}
+      <div className="grid grid-cols-12 gap-5">
+        {/* Total Balance Card - HERO */}
+        <div 
+          className="col-span-4 rounded-2xl p-5 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #065F46 0%, #047857 50%, #10B981 100%)',
+            minHeight: '180px'
+          }}
+        >
+          <p className="text-emerald-200 text-sm font-medium mb-1">
+            {intl.formatMessage({ id: 'dashboard.total_balance', defaultMessage: 'Total Balance' })}
+          </p>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-white text-4xl font-bold tracking-tight">
+              {intl.formatNumber(totalBalance, { style: 'currency', currency })}
+            </span>
+          </div>
+          
+          {/* Empty state hint if no transactions */}
+          {!hasTransactions && (
+            <p className="text-emerald-200/70 text-xs mt-2">
+              {intl.formatMessage({ id: 'dashboard.add_first_transaction_hint', defaultMessage: 'Add your first transaction to see your balance' })}
+            </p>
+          )}
+          
+          {/* Chart Illustration */}
+          <div className="absolute bottom-0 left-0 right-0 h-20">
+            <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="heroGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.25)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0 60 Q30 55 60 50 T120 42 T180 32 T240 26 T300 20"
+                stroke="rgba(255,255,255,0.6)"
+                strokeWidth="2"
+                fill="none"
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-slate-500 hover:text-white`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+              <path
+                d="M0 60 Q30 55 60 50 T120 42 T180 32 T240 26 T300 20 L300 80 L0 80 Z"
+                fill="url(#heroGradient)"
+              />
+            </svg>
+          </div>
+          
+          {/* Decorative Icon */}
+          <div style={{ position: 'absolute', top: '1.25rem', insetInlineEnd: '1.25rem' }} className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
+            <svg className="w-6 h-6 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
           </div>
         </div>
-      </header>
 
-      <div className="page-container py-8">
-        
-        {/* ================================================================== */}
-        {/* ZONE 1: FINANCIAL SNAPSHOT */}
-        {/* ================================================================== */}
-        <section>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <SnapshotCard
-              title={t.dashboard.income}
-              value={stats.totalIncome}
-              currency={currency}
-              language={language}
-              type="income"
-            />
-            <SnapshotCard
-              title={t.dashboard.expenses}
-              value={stats.totalExpenses}
-              currency={currency}
-              language={language}
-              type="expenses"
-            />
-            <SnapshotCard
-              title={t.dashboard.balance}
-              value={stats.balance}
-              currency={currency}
-              language={language}
-              type="balance"
-            />
-            <SnapshotCard
-              title={t.dashboard.savingsRate || (language === 'ar' ? 'معدل الادخار' : 'Savings Rate')}
-              value={stats.totalIncome > 0 ? Math.round(((stats.totalIncome - stats.totalExpenses) / stats.totalIncome) * 100) : 0}
-              currency="%"
-              language={language}
-              type="savings"
-            />
+        {/* Cash Flow Card */}
+        <div 
+          className="col-span-5 rounded-2xl shadow-sm" 
+          style={{ 
+            padding: '1.25rem',
+            backgroundColor: 'var(--theme-bg-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
+          <p className="text-sm font-medium" style={{ marginBlockEnd: '1rem', color: 'var(--theme-text-secondary)' }}>
+            {intl.formatMessage({ id: 'dashboard.cash_flow_monthly', defaultMessage: 'Cash Flow (Monthly)' })}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2.5rem', flexWrap: 'wrap' }}>
+            {/* Income */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="rounded-xl" style={{ width: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
+                <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                    {intl.formatMessage({ id: 'dashboard.income', defaultMessage: 'Income' })}
+                  </p>
+                <p className="text-xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>
+                  {intl.formatNumber(monthlyIncome, { style: 'currency', currency })}
+                </p>
+              </div>
+            </div>
+            {/* Divider */}
+            <div style={{ width: '1px', height: '3rem', flexShrink: 0, backgroundColor: 'var(--theme-border)' }} />
+            {/* Expenses */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="rounded-xl" style={{ width: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(239, 68, 68, 0.15)' }}>
+                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                    {intl.formatMessage({ id: 'dashboard.expenses', defaultMessage: 'Expenses' })}
+                  </p>
+                <p className="text-xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>
+                  {intl.formatNumber(monthlyExpenses, { style: 'currency', currency })}
+                </p>
+              </div>
+            </div>
           </div>
-        </section>
-
-        {/* ================================================================== */}
-        {/* GUIDANCE LAYER - Self-removing bridge for early users */}
-        {/* Appears only when data is insufficient, disappears automatically */}
-        {/* More vertical margin to feel intentional, not sandwiched */}
-        {/* ================================================================== */}
-        {showGuidanceLayer && (
-          <section className="mt-10">
-            <GuidanceLayer 
-              items={guidanceItems}
-              title={t.guidance?.title || (language === 'ar' ? 'الخطوة التالية' : 'Next step')}
-            />
-          </section>
-        )}
-
-        {/* ================================================================== */}
-        {/* ZONE 2: INSIGHTS - Visually dominant, authoritative */}
-        {/* ================================================================== */}
-        {sortedInsights.length > 0 && (
-          <section className="mt-10">
-            <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
-              {t.dashboard.insightsSection || (language === 'ar' ? 'التنبيهات' : 'Insights')}
-            </h2>
-            <div className="space-y-4">
-              {visibleInsights.map((insight, index) => (
-                <InsightCard 
-                  key={index} 
-                  insight={insight} 
-                  language={language}
-                  t={t}
+          {/* Progress Bar - shows ratio of income to expenses */}
+          {(monthlyIncome > 0 || monthlyExpenses > 0) ? (
+            <>
+              <div className="mt-4 h-1.5 rounded-full overflow-hidden flex" style={{ backgroundColor: 'var(--theme-border)' }}>
+                <div 
+                  className="h-full bg-emerald-500 rounded-full" 
+                  style={{ width: `${monthlyIncome + monthlyExpenses > 0 ? (monthlyIncome / (monthlyIncome + monthlyExpenses)) * 100 : 50}%` }} 
                 />
+                <div 
+                  className="h-full bg-red-400 rounded-full" 
+                  style={{ width: `${monthlyIncome + monthlyExpenses > 0 ? (monthlyExpenses / (monthlyIncome + monthlyExpenses)) * 100 : 50}%` }} 
+                />
+              </div>
+              <p className={`text-center text-sm font-medium mt-3 ${monthlyCashFlow >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                {monthlyCashFlow >= 0 
+                  ? intl.formatMessage(
+                      { id: 'dashboard.saved_this_month', defaultMessage: 'Saved {amount} this month' }, 
+                      { amount: intl.formatNumber(monthlyCashFlow, { style: 'currency', currency }) }
+                    )
+                  : intl.formatMessage(
+                      { id: 'dashboard.overspent_this_month', defaultMessage: 'Overspent {amount} this month' },
+                      { amount: intl.formatNumber(Math.abs(monthlyCashFlow), { style: 'currency', currency }) }
+                    )
+                }
+              </p>
+            </>
+          ) : (
+            <p className="text-center text-sm mt-4" style={{ color: 'var(--theme-text-muted)' }}>
+              {intl.formatMessage({ id: 'dashboard.no_monthly_data', defaultMessage: 'No transactions this month' })}
+            </p>
+          )}
+        </div>
+
+        {/* Top Goal Card - Empty State (Goals feature coming soon) */}
+        <div 
+          className="col-span-3 rounded-2xl shadow-sm" 
+          style={{ 
+            padding: '1.25rem',
+            backgroundColor: 'var(--theme-bg-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '1rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <p className="text-sm font-medium" style={{ color: 'var(--theme-text-secondary)' }}>
+              {intl.formatMessage({ id: 'dashboard.top_goal', defaultMessage: 'Top Goal' })}
+            </p>
+            <Link href="/goals" className="text-sm text-emerald-500 font-medium hover:underline" style={{ flexShrink: 0 }}>
+              {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}
+            </Link>
+          </div>
+          {/* Empty state */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '1.5rem', gap: '0.75rem' }}>
+            <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
+              <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <p className="text-sm text-center" style={{ color: 'var(--theme-text-secondary)' }}>
+              {intl.formatMessage({ id: 'dashboard.no_goals_yet', defaultMessage: 'No goals yet' })}
+            </p>
+            <Link 
+              href="/goals" 
+              className="text-sm text-emerald-500 font-medium hover:underline"
+            >
+              {intl.formatMessage({ id: 'dashboard.create_first_goal', defaultMessage: 'Create your first goal' })}
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== MIDDLE SECTION: SPENDING + BUDGETS ===== */}
+      <div className="grid grid-cols-12 gap-5">
+        {/* Spending Analysis */}
+        <div 
+          className="col-span-8 rounded-2xl shadow-sm" 
+          style={{ 
+            padding: '1.25rem',
+            backgroundColor: 'var(--theme-bg-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '1.5rem', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
+              {intl.formatMessage({ id: 'dashboard.spending_analysis', defaultMessage: 'Spending Analysis' })}
+            </h2>
+            <span 
+              className="text-sm rounded-lg"
+              style={{ 
+                paddingInline: '0.75rem', 
+                paddingBlock: '0.375rem', 
+                flexShrink: 0,
+                color: 'var(--theme-text-secondary)',
+                border: '1px solid var(--theme-border)',
+              }}
+            >
+              {intl.formatMessage({ id: 'dashboard.period_this_week', defaultMessage: 'This Week' })}
+            </span>
+          </div>
+          {/* Bar Chart - Real weekly spending data */}
+          {hasWeeklySpending ? (
+            <div className="h-48 flex items-end justify-between gap-3 pt-4">
+              {weeklySpending.map((bar) => (
+                <div key={bar.day} className="flex-1 flex flex-col items-center gap-2">
+                  <div className="w-full flex justify-center" style={{ height: '140px', alignItems: 'flex-end', display: 'flex' }}>
+                    <div
+                      className="w-9 rounded-t-lg transition-all"
+                      style={{ 
+                        height: bar.height > 0 ? `${Math.max(bar.height, 8)}%` : '4px',
+                        backgroundColor: bar.isToday ? '#10B981' : 'var(--theme-border)',
+                      }}
+                      title={intl.formatNumber(bar.amount, { style: 'currency', currency })}
+                    />
+                  </div>
+                  <span 
+                    className="text-xs font-medium"
+                    style={{ color: bar.isToday ? '#10B981' : 'var(--theme-text-muted)' }}
+                  >
+                    {bar.day}
+                  </span>
+                </div>
               ))}
             </div>
-            {hasMoreInsights && (
-              <button
-                onClick={() => setShowAllInsights(!showAllInsights)}
-                className="mt-4 flex items-center gap-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
-              >
-                {showAllInsights 
-                  ? (language === 'ar' ? 'عرض أقل' : 'Show less')
-                  : (language === 'ar' ? `عرض ${sortedInsights.length - 2} المزيد` : `Show ${sortedInsights.length - 2} more`)
-                }
-                {showAllInsights ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-            )}
-          </section>
-        )}
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '12rem', gap: '0.75rem' }}>
+              <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <p className="text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
+                {intl.formatMessage({ id: 'dashboard.no_spending_this_week', defaultMessage: 'No spending recorded this week' })}
+              </p>
+              <Link href="/transactions/new" className="text-sm text-emerald-500 font-medium hover:underline">
+                {intl.formatMessage({ id: 'dashboard.add_first_expense', defaultMessage: 'Add your first expense' })}
+              </Link>
+            </div>
+          )}
+        </div>
 
-        {/* ================================================================== */}
-        {/* ZONE 3: PRIMARY ACTION - Deliberate, intentional */}
-        {/* ================================================================== */}
-        {primaryInsight && primaryInsight.severity === 'critical' && (
-          <section className="mt-8">
-            <Link
-              href="/budget"
-              className="block w-full py-3.5 px-5 bg-[var(--color-primary)] text-white rounded-xl text-center text-sm font-semibold shadow-lg shadow-[var(--color-primary)]/20 hover:shadow-xl hover:shadow-[var(--color-primary)]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all"
-            >
-              {language === 'ar' ? 'راجع ميزانيتك' : 'Review Your Budget'}
+        {/* Budgets - Empty State (Budgets feature coming soon) */}
+        <div 
+          className="col-span-4 rounded-2xl shadow-sm" 
+          style={{ 
+            padding: '1.25rem',
+            backgroundColor: 'var(--theme-bg-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '1rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
+              {intl.formatMessage({ id: 'dashboard.budgets', defaultMessage: 'Budgets' })}
+            </h2>
+            <Link href="/budgets" className="text-sm text-emerald-500 font-medium hover:underline" style={{ flexShrink: 0 }}>
+              {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}
             </Link>
-          </section>
-        )}
-
-        {/* ================================================================== */}
-        {/* BREATHING GAP - Visual pause between conclusions and details */}
-        {/* Whitespace signals: "Conclusion above, details below" */}
-        {/* ================================================================== */}
-        <div className="h-6" aria-hidden="true" />
-
-        {/* ================================================================== */}
-        {/* ZONE 4: EXPLORATION & CONTEXT - Confident, useful */}
-        {/* ================================================================== */}
-        <section className="mt-8">
-          <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-5">
-            {t.dashboard.exploreContext || (language === 'ar' ? 'التفاصيل والتحليل' : 'Details & Analysis')}
-          </h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Recent Transactions */}
-            <div className="lg:col-span-7">
-              <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4">
-                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-                    {t.dashboard.recentTransactions}
-                  </h3>
-                  {recentTransactions.length > 0 && (
-                    <Link
-                      href="/transactions"
-                      className="text-xs font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] flex items-center gap-1 transition-colors"
-                    >
-                      {t.dashboard.viewAll}
-                      <ViewAllArrow className="w-3.5 h-3.5" />
-                    </Link>
-                  )}
-                </div>
-
-                {recentTransactions.length === 0 ? (
-                  <div className="py-16 text-center">
-                    <div className="w-12 h-12 rounded-xl bg-[var(--color-bg-secondary)] flex items-center justify-center mx-auto mb-3">
-                      <Wallet className="w-5 h-5 text-[var(--color-text-muted)]" />
-                    </div>
-                    <p className="text-sm text-[var(--color-text-muted)]">{t.dashboard.noTransactions}</p>
-                  </div>
-                ) : (
-                  <div className="border-t border-[var(--color-border)]">
-                    {recentTransactions.map((transaction, idx) => {
-                      const category = getCategoryById(transaction.category);
-                      const categoryColor = category?.color || '#64748b';
-                      const isLast = idx === recentTransactions.length - 1;
-                      return (
-                        <button
-                          key={transaction.id}
-                          onClick={() => setSelectedTransaction(transaction)}
-                          className={`w-full flex items-center gap-3.5 px-5 py-3.5 hover:bg-[var(--color-bg-secondary)] active:bg-[var(--color-bg-inset)] transition-colors text-start ${!isLast ? 'border-b border-[var(--color-border-light)]' : ''}`}
-                        >
-                          <div
-                            className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: categoryColor + '15' }}
-                          >
-                            <div 
-                              className="w-2.5 h-2.5 rounded-full"
-                              style={{ backgroundColor: categoryColor }}
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
-                              {language === 'ar' ? category?.nameAr : category?.name || transaction.category}
-                            </p>
-                            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                              {formatDate(transaction.date)}
-                            </p>
-                          </div>
-                          <p className="text-sm font-medium ltr-nums tabular-nums shrink-0 text-[var(--color-text-primary)]">
-                            {transaction.type === 'income' ? '+' : '−'}{formatAmount(
-                              convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency),
-                              currency,
-                              language
-                            )}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Charts Column */}
-            <div className="lg:col-span-5 space-y-5">
-              {/* Top Spending */}
-              <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
-                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
-                  {language === 'ar' ? 'أعلى المصاريف' : 'Top Spending'}
-                </h3>
-
-                {topCategories.length === 0 ? (
-                  <div className="py-10 text-center">
-                    <p className="text-sm text-[var(--color-text-muted)]">
-                      {language === 'ar' ? 'لا توجد مصاريف' : 'No expenses'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3.5">
-                    {topCategories.map((cat, index) => {
-                      const category = getCategoryById(cat.name);
-                      const displayName = language === 'ar' 
-                        ? (category?.nameAr || cat.name) 
-                        : (category?.name || cat.name);
-                      const barColor = chartPalette[index % chartPalette.length];
-                      const percentage = chartTotal > 0 ? (cat.value / chartTotal) * 100 : 0;
-                      
-                      return (
-                        <div key={index}>
-                          <div className="flex items-center justify-between text-sm mb-1.5">
-                            <span className="text-[var(--color-text-primary)] font-medium truncate">{displayName}</span>
-                            <span className="text-[var(--color-text-secondary)] ltr-nums tabular-nums shrink-0 ms-3">
-                              {formatAmount(cat.value, currency, language)}
-                            </span>
-                          </div>
-                          <div className="h-2 bg-[var(--color-bg-secondary)] rounded-full overflow-hidden">
-                            <div 
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{ 
-                                width: `${percentage}%`,
-                                backgroundColor: barColor,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Expense Breakdown */}
-              <div className="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border)] p-5">
-                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
-                  {language === 'ar' ? 'توزيع المصاريف' : 'Expense Breakdown'}
-                </h3>
-
-                {expensesByCategory.length === 0 ? (
-                  <div className="py-10 text-center">
-                    <div className="w-14 h-14 rounded-full border-2 border-[var(--color-border)] mx-auto mb-3" />
-                    <p className="text-sm text-[var(--color-text-muted)]">
-                      {language === 'ar' ? 'لا توجد مصاريف' : 'No expenses'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-5">
-                    <div className="relative w-28 h-28 shrink-0">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={32}
-                            outerRadius={52}
-                            paddingAngle={2}
-                            dataKey="value"
-                            stroke="none"
-                          >
-                            {chartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip content={renderTooltip} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-sm font-bold text-[var(--color-text-primary)] ltr-nums">
-                          {formatCompact(chartTotal, language)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex-1 space-y-2 min-w-0">
-                      {chartData.slice(0, 4).map((cat, index) => {
-                        const percentage = chartTotal > 0 ? (cat.value / chartTotal) * 100 : 0;
-                        return (
-                          <div key={index} className="flex items-center gap-2.5 text-sm">
-                            <div
-                              className="w-2.5 h-2.5 rounded-sm shrink-0"
-                              style={{ backgroundColor: cat.color }}
-                            />
-                            <span className="text-[var(--color-text-primary)] truncate flex-1">{cat.name}</span>
-                            <span className="text-[var(--color-text-muted)] text-xs tabular-nums shrink-0">{percentage.toFixed(0)}%</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
-        </section>
-        
-        {/* Bottom breathing room */}
-        <div className="h-8" aria-hidden="true" />
+          {/* Empty state */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '2rem', gap: '0.75rem' }}>
+            <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
+              <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p className="text-sm text-center" style={{ color: 'var(--theme-text-secondary)' }}>
+              {intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}
+            </p>
+            <Link 
+              href="/budgets" 
+              className="text-sm text-emerald-500 font-medium hover:underline"
+            >
+              {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* ================================================================== */}
-      {/* ZONE 5: SYSTEM ACTIONS - Deliberate, clickable */}
-      {/* ================================================================== */}
-      <Link
-        href="/transactions/new"
-        className="hidden lg:flex fixed bottom-6 end-6 w-12 h-12 rounded-xl bg-[var(--color-primary)] text-white items-center justify-center shadow-lg shadow-[var(--color-primary)]/25 hover:shadow-xl hover:shadow-[var(--color-primary)]/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all z-50"
-        aria-label={t.transactions?.addTransaction || 'Add Transaction'}
+      {/* ===== RECENT TRANSACTIONS ===== */}
+      <div 
+        className="rounded-2xl shadow-sm" 
+        style={{ 
+          padding: '1.25rem',
+          backgroundColor: 'var(--theme-bg-card)',
+          border: '1px solid var(--theme-border)',
+        }}
       >
-        <Plus className="w-5 h-5" />
-      </Link>
-
-      {/* Transaction Modal */}
-      {selectedTransaction && !showDeleteConfirm && (
-        <div 
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" 
-          onClick={() => setSelectedTransaction(null)}
-        >
-          <div
-            className="w-full sm:max-w-sm bg-[var(--color-bg-card)] rounded-t-2xl sm:rounded-2xl p-5 mx-0 sm:mx-4 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--color-border)]">
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: (getCategoryById(selectedTransaction.category)?.color || '#64748b') + '15' }}
-              >
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: getCategoryById(selectedTransaction.category)?.color || '#64748b' }}
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[var(--color-text-primary)]">
-                  {language === 'ar' 
-                    ? getCategoryById(selectedTransaction.category)?.nameAr 
-                    : getCategoryById(selectedTransaction.category)?.name || selectedTransaction.category}
-                </p>
-                <p className="text-sm text-[var(--color-text-muted)]">
-                  {formatDate(selectedTransaction.date)}
-                </p>
-              </div>
-              <p className="text-lg font-semibold ltr-nums text-[var(--color-text-primary)]">
-                {selectedTransaction.type === 'income' ? '+' : '−'}{formatAmount(
-                  convertCurrency(selectedTransaction.amount, selectedTransaction.currency || baseCurrency, currency),
-                  currency,
-                  language
-                )}
-              </p>
-            </div>
-
-            {selectedTransaction.description && (
-              <p className="text-sm text-[var(--color-text-secondary)] mb-4">{selectedTransaction.description}</p>
-            )}
-
-            <div className="space-y-2">
-              <Link
-                href={`/transactions/new?edit=${selectedTransaction.id}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-sm font-medium rounded-xl hover:bg-[var(--color-bg-inset)] active:scale-[0.98] transition-all"
-                onClick={() => setSelectedTransaction(null)}
-              >
-                <Edit2 className="w-4 h-4" />
-                {language === 'ar' ? 'تعديل' : 'Edit'}
-              </Link>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 text-sm font-medium rounded-xl hover:bg-red-500/5 active:scale-[0.98] transition-all"
-              >
-                <Trash2 className="w-4 h-4" />
-                {language === 'ar' ? 'حذف' : 'Delete'}
-              </button>
-              <button
-                onClick={() => setSelectedTransaction(null)}
-                className="w-full px-4 py-2.5 text-[var(--color-text-muted)] text-sm hover:text-[var(--color-text-secondary)] transition-colors"
-              >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
-              </button>
-            </div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '1rem', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
+            {intl.formatMessage({ id: 'dashboard.recent_transactions', defaultMessage: 'Recent Transactions' })}
+          </h2>
+          <Link href="/transactions" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }} className="text-sm text-emerald-500 font-medium hover:underline">
+            <span>{intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}</span>
+            <svg style={{ width: '1rem', height: '1rem', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
         </div>
-      )}
 
-      {/* Delete Modal */}
-      {selectedTransaction && showDeleteConfirm && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" 
-          onClick={() => { setShowDeleteConfirm(false); setSelectedTransaction(null); }}
-        >
-          <div
-            className="w-full max-w-xs bg-[var(--color-bg-card)] rounded-2xl p-5 mx-4 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center mb-5">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-3">
-                <Trash2 className="w-5 h-5 text-red-600" />
-              </div>
-              <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">
-                {language === 'ar' ? 'حذف المعاملة؟' : 'Delete Transaction?'}
-              </h3>
-              <p className="text-sm text-[var(--color-text-muted)]">
-                {language === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء.' : 'This action cannot be undone.'}
-              </p>
-            </div>
+        {/* Table or Empty State */}
+        {recentTransactions.length > 0 ? (
+          <table className="w-full">
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--theme-border)' }}>
+                <th style={{ textAlign: 'start', paddingBlock: '0.75rem', color: 'var(--theme-text-muted)' }} className="text-xs font-medium uppercase tracking-wider">
+                  {intl.formatMessage({ id: 'dashboard.transaction', defaultMessage: 'Transaction' })}
+                </th>
+                <th style={{ textAlign: 'start', paddingBlock: '0.75rem', color: 'var(--theme-text-muted)' }} className="text-xs font-medium uppercase tracking-wider">
+                  {intl.formatMessage({ id: 'dashboard.category', defaultMessage: 'Category' })}
+                </th>
+                <th style={{ textAlign: 'start', paddingBlock: '0.75rem', color: 'var(--theme-text-muted)' }} className="text-xs font-medium uppercase tracking-wider">
+                  {intl.formatMessage({ id: 'dashboard.date', defaultMessage: 'Date' })}
+                </th>
+                <th style={{ textAlign: 'start', paddingBlock: '0.75rem', color: 'var(--theme-text-muted)' }} className="text-xs font-medium uppercase tracking-wider">
+                  {intl.formatMessage({ id: 'dashboard.status', defaultMessage: 'Status' })}
+                </th>
+                <th style={{ textAlign: 'end', paddingBlock: '0.75rem', color: 'var(--theme-text-muted)' }} className="text-xs font-medium uppercase tracking-wider">
+                  {intl.formatMessage({ id: 'dashboard.amount', defaultMessage: 'Amount' })}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentTransactions.map((tx) => {
+                // Map category to emoji icon
+                const getCategoryIcon = (category: string | null) => {
+                  const icons: Record<string, string> = {
+                    food: '🍽️',
+                    transport: '🚗',
+                    shopping: '🛍️',
+                    entertainment: '🎬',
+                    health: '🏥',
+                    utilities: '💡',
+                    salary: '💰',
+                    freelance: '💼',
+                    investment: '📈',
+                    gift: '🎁',
+                    other: '📋',
+                  };
+                  return icons[category || 'other'] || '📋';
+                };
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setShowDeleteConfirm(false); setSelectedTransaction(null); }}
-                className="flex-1 px-4 py-2.5 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] text-sm font-medium rounded-xl hover:bg-[var(--color-bg-inset)] active:scale-[0.98] transition-all"
-              >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
-              </button>
-              <button
-                onClick={() => {
-                  deleteTransaction(selectedTransaction.id);
-                  setShowDeleteConfirm(false);
-                  setSelectedTransaction(null);
-                }}
-                className="flex-1 px-4 py-2.5 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 active:scale-[0.98] transition-all"
-              >
-                {language === 'ar' ? 'حذف' : 'Delete'}
-              </button>
+                return (
+                  <tr key={tx.id} style={{ borderBottom: '1px solid var(--theme-divider)' }} className="last:border-b-0">
+                    <td style={{ paddingBlock: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div className="rounded-xl" style={{ width: '2.5rem', height: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0, backgroundColor: 'var(--theme-border)' }}>
+                          {getCategoryIcon(tx.category)}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <p className="text-sm font-medium" style={{ color: 'var(--theme-text-primary)' }}>{tx.description || tx.category || intl.formatMessage({ id: 'dashboard.transaction', defaultMessage: 'Transaction' })}</p>
+                          <p className="text-xs capitalize" style={{ color: 'var(--theme-text-muted)' }}>{tx.type === 'income' ? intl.formatMessage({ id: 'dashboard.income', defaultMessage: 'Income' }) : intl.formatMessage({ id: 'dashboard.expense', defaultMessage: 'Expense' })}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ paddingBlock: '1rem', color: 'var(--theme-text-secondary)' }} className="text-sm capitalize">{tx.category || '—'}</td>
+                    <td style={{ paddingBlock: '1rem', color: 'var(--theme-text-secondary)' }} className="text-sm">
+                      {tx.date ? intl.formatDate(new Date(tx.date), { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                    </td>
+                    <td style={{ paddingBlock: '1rem' }}>
+                      <span style={{ paddingInline: '0.5rem', paddingBlock: '0.125rem', backgroundColor: 'rgba(16, 185, 129, 0.15)' }} className="text-xs font-medium rounded-full text-emerald-500">
+                        {intl.formatMessage({ id: 'dashboard.completed', defaultMessage: 'Completed' })}
+                      </span>
+                    </td>
+                    <td 
+                      style={{ paddingBlock: '1rem', textAlign: 'end' }} 
+                      className={`text-sm font-medium ${tx.type === 'expense' ? '' : 'text-emerald-500'}`}
+                    >
+                      <span style={{ color: tx.type === 'expense' ? 'var(--theme-text-primary)' : '#10B981' }}>
+                        {tx.type === 'income' ? '+' : '-'}{intl.formatNumber(Math.abs(tx.amount), { style: 'currency', currency: tx.currency || currency })}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '3rem', gap: '1rem' }}>
+            <div className="rounded-xl" style={{ width: '4rem', height: '4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
+              <svg className="w-8 h-8" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
             </div>
+            <p className="text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
+              {intl.formatMessage({ id: 'dashboard.no_transactions_yet', defaultMessage: 'No transactions yet' })}
+            </p>
+            <p className="text-xs text-center max-w-xs" style={{ color: 'var(--theme-text-muted)' }}>
+              {intl.formatMessage({ id: 'dashboard.add_transaction_hint', defaultMessage: 'Add your first transaction to start tracking your finances' })}
+            </p>
+            <Link 
+              href="/transactions/new" 
+              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-500 rounded-xl hover:bg-emerald-600 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              {intl.formatMessage({ id: 'dashboard.add_transaction', defaultMessage: 'Add Transaction' })}
+            </Link>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

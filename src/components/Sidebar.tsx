@@ -52,10 +52,10 @@ const navItems = [
     smeOnly: false,
   },
   { 
-    id: 'calculators', 
-    path: '/calculators', 
+    id: 'tools', 
+    path: '/tools', 
     icon: Calculator, 
-    labelAr: 'الحاسبات', 
+    labelAr: 'الأدوات', 
     labelEn: 'Tools',
     smeOnly: false,
   },
@@ -119,47 +119,37 @@ export default function Sidebar() {
         hidden lg:flex
         ${isExpanded ? 'w-60' : 'w-[72px]'}
       `}
-      style={{
-        background: 'var(--gradient-sidebar)',
-        boxShadow: isRTL 
-          ? '-4px 0 24px rgba(0, 0, 0, 0.15)' 
-          : '4px 0 24px rgba(0, 0, 0, 0.15)',
-      }}
+      style={{ backgroundColor: 'var(--theme-bg-sidebar)' }}
     >
       {/* Logo */}
-      <div className={`h-20 flex items-center border-b border-[var(--sidebar-border)] ${isExpanded ? 'px-5 gap-3' : 'justify-center'}`}>
-        <div className="relative">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center shadow-lg flex-shrink-0">
-            <span className="text-white font-bold text-xl">ر</span>
-          </div>
-          {/* Subtle glow behind logo */}
-          <div className="absolute inset-0 rounded-xl bg-[var(--color-primary)] blur-xl opacity-30 -z-10" />
+      <div 
+        className={`h-16 flex items-center ${isExpanded ? 'px-5 gap-3' : 'justify-center'}`}
+        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
+      >
+        <div className="w-8 h-8 rounded-[var(--radius-input)] bg-[#10B981] flex items-center justify-center flex-shrink-0">
+          <span className="text-[#FFFFFF] font-bold text-sm">R</span>
         </div>
         {isExpanded && (
-          <div className="animate-fade-in">
-            <span className="text-white font-semibold text-lg tracking-tight">Rasmalak</span>
-            <span className="text-[var(--color-primary-light)] font-semibold text-lg"> AI</span>
-          </div>
+          <span className="text-[#FFFFFF] font-semibold">
+            Rasmalak <span className="text-[#10B981]">AI</span>
+          </span>
         )}
       </div>
 
       {/* User Profile Section */}
-      <div className={`border-b border-[var(--sidebar-border)] ${isExpanded ? 'p-4' : 'p-2'}`}>
-        <div className={`
-          flex items-center rounded-xl transition-all duration-200
-          ${isExpanded ? 'gap-3 p-3 bg-white/5 hover:bg-white/8' : 'justify-center p-2'}
-        `}>
-          <div className="relative flex-shrink-0">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center text-white font-semibold text-sm shadow-md">
-              {getInitials(displayName)}
-            </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#1e293b] animate-pulse" />
+      <div 
+        className={`${isExpanded ? 'px-4 py-4' : 'p-2'}`}
+        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
+      >
+        <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'}`}>
+          <div className="w-10 h-10 rounded-[var(--radius-input)] bg-[#10B981]/20 flex items-center justify-center text-[#10B981] font-semibold text-sm flex-shrink-0">
+            {getInitials(displayName)}
           </div>
           {isExpanded && (
-            <div className="flex-1 min-w-0 animate-fade-in">
-              <p className="text-sm font-medium text-white truncate">{displayName}</p>
-              <p className="text-xs text-slate-400 truncate mt-0.5">
-                {user?.email || (language === 'ar' ? 'حساب شخصي' : 'Personal Account')}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-[#FFFFFF] truncate">{displayName}</p>
+              <p className="text-xs text-[#FFFFFF]/50 truncate">
+                {user?.email || (language === 'ar' ? 'حساب شخصي' : 'Free Account')}
               </p>
             </div>
           )}
@@ -169,12 +159,12 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isExpanded ? 'px-3' : 'px-2'}`}>
         {isExpanded && (
-          <p className="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+          <p className="px-3 py-2 text-[10px] font-semibold text-[#FFFFFF]/40 uppercase tracking-wider">
             {language === 'ar' ? 'القائمة الرئيسية' : 'Main Menu'}
           </p>
         )}
 
-        {visibleNavItems.map((item, index) => {
+        {visibleNavItems.map((item) => {
           const active = isActive(item.path);
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
@@ -184,32 +174,19 @@ export default function Sidebar() {
               key={item.id}
               href={item.path}
               className={`
-                group relative flex items-center min-h-[44px] rounded-xl
-                transition-all duration-200 ease-out
+                flex items-center rounded-[var(--radius-input)] min-h-[44px]
+                transition-colors duration-150
                 ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
                 ${active
-                  ? 'bg-[var(--color-primary)]/15 text-white'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-[#10B981] text-[#FFFFFF]'
+                  : 'text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]'
                 }
               `}
-              style={{ animationDelay: `${index * 30}ms` }}
               title={!isExpanded ? label : undefined}
             >
-              {/* Active indicator bar */}
-              {active && (
-                <div 
-                  className={`absolute ${isRTL ? 'right-0 rounded-l-full' : 'left-0 rounded-r-full'} top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--color-primary)] shadow-[0_0_8px_var(--color-primary)]`}
-                />
-              )}
-              
-              <div className={`relative ${active ? '' : 'group-hover:scale-110'} transition-transform duration-200`}>
-                <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-[var(--color-primary)]' : ''}`} />
-              </div>
-              
+              <Icon className="w-5 h-5 flex-shrink-0" />
               {isExpanded && (
-                <span className={`text-sm truncate ${active ? 'font-semibold' : 'font-medium'}`}>
-                  {label}
-                </span>
+                <span className="text-sm font-medium truncate">{label}</span>
               )}
             </Link>
           );
@@ -217,7 +194,10 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className={`border-t border-[var(--sidebar-border)] py-3 ${isExpanded ? 'px-3' : 'px-2'}`}>
+      <div 
+        className={`py-3 space-y-1 ${isExpanded ? 'px-3' : 'px-2'}`}
+        style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
+      >
         {bottomNavItems.map((item) => {
           const active = isActive(item.path);
           const Icon = item.icon;
@@ -228,26 +208,19 @@ export default function Sidebar() {
               key={item.id}
               href={item.path}
               className={`
-                group relative flex items-center min-h-[44px] rounded-xl
-                transition-all duration-200 ease-out
+                flex items-center rounded-[var(--radius-input)] min-h-[44px]
+                transition-colors duration-150
                 ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
                 ${active
-                  ? 'bg-[var(--color-primary)]/15 text-white'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-[#10B981] text-[#FFFFFF]'
+                  : 'text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]'
                 }
               `}
               title={!isExpanded ? label : undefined}
             >
-              {active && (
-                <div 
-                  className={`absolute ${isRTL ? 'right-0 rounded-l-full' : 'left-0 rounded-r-full'} top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--color-primary)] shadow-[0_0_8px_var(--color-primary)]`}
-                />
-              )}
-              <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-[var(--color-primary)]' : ''}`} />
+              <Icon className="w-5 h-5 flex-shrink-0" />
               {isExpanded && (
-                <span className={`text-sm truncate ${active ? 'font-semibold' : 'font-medium'}`}>
-                  {label}
-                </span>
+                <span className="text-sm font-medium truncate">{label}</span>
               )}
             </Link>
           );
@@ -257,9 +230,9 @@ export default function Sidebar() {
         <button
           onClick={() => logout()}
           className={`
-            w-full flex items-center min-h-[44px] rounded-xl
-            transition-all duration-200 mt-1
-            text-slate-400 hover:bg-red-500/10 hover:text-red-400
+            w-full flex items-center rounded-[var(--radius-input)] min-h-[44px]
+            transition-colors duration-150
+            text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]
             ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
           `}
           title={!isExpanded ? (language === 'ar' ? 'تسجيل الخروج' : 'Logout') : undefined}
@@ -270,21 +243,6 @@ export default function Sidebar() {
               {language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
             </span>
           )}
-        </button>
-      </div>
-
-      {/* Toggle Button */}
-      <div className={`border-t border-[var(--sidebar-border)] ${isExpanded ? 'p-3' : 'p-2'}`}>
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className={`
-            w-full flex items-center justify-center min-h-[42px] rounded-xl
-            text-slate-400 hover:bg-white/5 hover:text-white
-            transition-all duration-200 active:scale-95
-          `}
-          aria-label={isExpanded ? (language === 'ar' ? 'طي القائمة' : 'Collapse') : (language === 'ar' ? 'توسيع القائمة' : 'Expand')}
-        >
-          <ToggleIcon className="w-5 h-5" />
         </button>
       </div>
     </aside>

@@ -87,3 +87,5 @@ function calculateMonthlyExpenses(transactions: { type: string; amount: number; 
     })
     .reduce((sum, t) => sum + t.amount, 0);
 }
+
+

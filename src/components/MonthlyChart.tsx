@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { formatCurrency } from '@/lib/utils';
+import { useIntl } from 'react-intl';
 import { useCurrency } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -19,6 +19,7 @@ interface MonthlyChartProps {
 }
 
 export default function MonthlyChart({ data }: MonthlyChartProps) {
+  const intl = useIntl();
   const currency = useCurrency();
   const { language } = useTranslation();
 
@@ -29,6 +30,17 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
       </div>
     );
   }
+
+  // Format currency using intl
+  const formatCurrencyValue = (value: number) => {
+    return intl.formatNumber(value, { style: 'currency', currency });
+  };
+
+  // Format axis tick (abbreviated)
+  const formatAxisTick = (value: number) => {
+    const formatted = intl.formatNumber(value / 1000, { maximumFractionDigits: 0 });
+    return `${formatted}k`;
+  };
 
   // Render tooltip content as a function (not a component)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,7 +55,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
               {entry.name === 'income' 
                 ? (language === 'ar' ? 'الدخل' : 'Income')
                 : (language === 'ar' ? 'المصاريف' : 'Expenses')
-              }: {formatCurrency(entry.value, currency)}
+              }: {formatCurrencyValue(entry.value)}
             </p>
           ))}
         </div>
@@ -65,7 +77,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
           <YAxis
             tick={{ fill: 'var(--color-text-muted)', fontSize: 12 }}
             axisLine={{ stroke: 'var(--color-border-light)' }}
-            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+            tickFormatter={formatAxisTick}
           />
           <Tooltip content={renderTooltip} />
           <Legend

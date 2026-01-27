@@ -1,584 +1,995 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  BookOpen,
-  PlayCircle,
-  FileText,
-  TrendingUp,
-  PiggyBank,
-  Wallet,
-  Target,
-  CreditCard,
-  Clock,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  CheckCircle2,
-  Lock,
-  Star,
-  GraduationCap,
-  Award,
-  Zap,
-  ArrowRight,
-  ArrowLeft,
-  BarChart3,
-} from 'lucide-react';
-import { PageHeader, PageContainer } from '@/components';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useIntl } from 'react-intl';
 
-const categories = [
-  { id: 'basics', icon: Wallet, color: '#059669', 
-    nameAr: 'أساسيات المال', nameEn: 'Money Basics' },
-  { id: 'budgeting', icon: Target, color: '#3b82f6',
-    nameAr: 'الميزانية', nameEn: 'Budgeting' },
-  { id: 'saving', icon: PiggyBank, color: '#f59e0b',
-    nameAr: 'الادخار', nameEn: 'Saving' },
-  { id: 'investing', icon: TrendingUp, color: '#8b5cf6',
-    nameAr: 'الاستثمار', nameEn: 'Investing' },
-  { id: 'debt', icon: CreditCard, color: '#ef4444',
-    nameAr: 'إدارة الديون', nameEn: 'Debt Management' },
-  { id: 'islamic', icon: Star, color: '#06b6d4',
-    nameAr: 'التمويل الإسلامي', nameEn: 'Islamic Finance' },
-];
+/* ============================================
+   LEARN PAGE
+   Structure-Locked: Visual layout matching Stitch design
+   Full learning ecosystem with placeholder data
+   ============================================ */
 
-// Module type definition
-interface Module {
-  id: number;
-  titleAr: string;
-  titleEn: string;
-  completed: boolean;
+/* ===== ICONS ===== */
+const CheckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const ArrowRightIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+  </svg>
+);
+
+const CircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+  </svg>
+);
+
+const BookIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </svg>
+);
+
+const CoinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="8" />
+    <line x1="12" y1="8" x2="12" y2="16" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+const TrendIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+
+const ShieldIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const LightbulbIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z" />
+  </svg>
+);
+
+const LiteracyCheckIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+/* ===== REUSABLE COMPONENTS ===== */
+
+/* ----- Topic Card ----- */
+function TopicCard({
+  icon,
+  iconBg,
+  iconColor,
+  title,
+  lessons,
+  duration,
+}: {
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  title: string;
   lessons: number;
-  current?: boolean;
-  locked?: boolean;
-}
-
-interface LearningPath {
-  id: string;
-  titleAr: string;
-  titleEn: string;
-  descAr: string;
-  descEn: string;
-  color: string;
-  icon: typeof Zap;
-  modules: Module[];
-  progress: number;
-  locked?: boolean;
-}
-
-// Learning paths (structured curriculum)
-const learningPaths: LearningPath[] = [
-  {
-    id: 'beginner',
-    titleAr: 'مسار المبتدئين',
-    titleEn: 'Beginner Path',
-    descAr: 'ابدأ رحلتك المالية من الصفر',
-    descEn: 'Start your financial journey from scratch',
-    color: '#10b981',
-    icon: Zap,
-    modules: [
-      { id: 1, titleAr: 'فهم المال', titleEn: 'Understanding Money', completed: true, lessons: 4 },
-      { id: 2, titleAr: 'أساسيات الميزانية', titleEn: 'Budgeting Basics', completed: true, lessons: 6 },
-      { id: 3, titleAr: 'بناء عادة الادخار', titleEn: 'Building Savings Habits', completed: false, lessons: 5, current: true },
-      { id: 4, titleAr: 'إدارة الديون', titleEn: 'Debt Management', completed: false, lessons: 4, locked: true },
-      { id: 5, titleAr: 'صندوق الطوارئ', titleEn: 'Emergency Fund', completed: false, lessons: 3, locked: true },
-    ],
-    progress: 40,
-  },
-  {
-    id: 'intermediate',
-    titleAr: 'مسار المتوسطين',
-    titleEn: 'Intermediate Path',
-    descAr: 'طور مهاراتك المالية',
-    descEn: 'Develop your financial skills',
-    color: '#3b82f6',
-    icon: BarChart3,
-    modules: [
-      { id: 1, titleAr: 'مقدمة في الاستثمار', titleEn: 'Introduction to Investing', completed: false, lessons: 8 },
-      { id: 2, titleAr: 'فهم الأسواق المالية', titleEn: 'Understanding Financial Markets', completed: false, lessons: 6 },
-      { id: 3, titleAr: 'بناء المحفظة الاستثمارية', titleEn: 'Building Your Portfolio', completed: false, lessons: 5 },
-    ],
-    progress: 0,
-    locked: true,
-  },
-  {
-    id: 'islamic',
-    titleAr: 'مسار التمويل الإسلامي',
-    titleEn: 'Islamic Finance Path',
-    descAr: 'تعلم أساسيات التمويل المتوافق مع الشريعة',
-    descEn: 'Learn Sharia-compliant finance principles',
-    color: '#06b6d4',
-    icon: Star,
-    modules: [
-      { id: 1, titleAr: 'مبادئ التمويل الإسلامي', titleEn: 'Islamic Finance Principles', completed: false, lessons: 5 },
-      { id: 2, titleAr: 'المرابحة والإجارة', titleEn: 'Murabaha & Ijara', completed: false, lessons: 4 },
-      { id: 3, titleAr: 'الصكوك والاستثمار الحلال', titleEn: 'Sukuk & Halal Investing', completed: false, lessons: 6 },
-    ],
-    progress: 0,
-  },
-];
-
-// Featured articles
-const articles = [
-  {
-    id: 1,
-    titleAr: 'كيف تبدأ رحلتك في الادخار',
-    titleEn: 'How to Start Your Savings Journey',
-    descAr: 'دليلك الشامل لبناء عادة الادخار وتحقيق أهدافك المالية',
-    descEn: 'Your comprehensive guide to building savings habits and achieving financial goals',
-    category: 'saving',
-    readTime: 5,
-    featured: true,
-  },
-  {
-    id: 2,
-    titleAr: 'أساسيات الميزانية الشخصية',
-    titleEn: 'Personal Budget Basics',
-    descAr: 'تعلم كيف تنظم ميزانيتك الشهرية بخطوات بسيطة',
-    descEn: 'Learn how to organize your monthly budget with simple steps',
-    category: 'budgeting',
-    readTime: 7,
-  },
-  {
-    id: 3,
-    titleAr: 'قاعدة 50/30/20 للميزانية',
-    titleEn: 'The 50/30/20 Budget Rule',
-    descAr: 'استراتيجية بسيطة وفعالة لتوزيع دخلك',
-    descEn: 'A simple and effective strategy for allocating your income',
-    category: 'budgeting',
-    readTime: 4,
-  },
-  {
-    id: 4,
-    titleAr: 'مقدمة في الاستثمار للمبتدئين',
-    titleEn: 'Introduction to Investing for Beginners',
-    descAr: 'اكتشف عالم الاستثمار وابدأ في بناء ثروتك',
-    descEn: 'Discover the world of investing and start building your wealth',
-    category: 'investing',
-    readTime: 10,
-  },
-  {
-    id: 5,
-    titleAr: 'التمويل الإسلامي: المفاهيم الأساسية',
-    titleEn: 'Islamic Finance: Core Concepts',
-    descAr: 'فهم مبادئ التمويل المتوافق مع الشريعة الإسلامية',
-    descEn: 'Understanding Sharia-compliant finance principles',
-    category: 'islamic',
-    readTime: 8,
-  },
-];
-
-export default function LearnPage() {
-  const { language, isRTL } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'paths' | 'articles' | 'all'>('paths');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
-  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
-
-  const getCategoryInfo = (catId: string) => {
-    return categories.find(c => c.id === catId);
-  };
-
-  const filteredArticles = selectedCategory 
-    ? articles.filter(a => a.category === selectedCategory)
-    : articles;
-
-  // Calculate overall progress
-  const totalProgress = Math.round(
-    learningPaths.reduce((sum, path) => sum + path.progress, 0) / learningPaths.length
-  );
-
+  duration: string;
+}) {
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <PageHeader 
-        title={language === 'ar' ? 'تعلّم المالية' : 'Learn Finance'}
-        hero
-      />
+    <div className="card-standard" style={{ cursor: 'pointer' }}>
+      <div
+        style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: 'var(--radius-sm)',
+          background: iconBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 'var(--spacing-2)',
+          color: iconColor,
+        }}
+      >
+        {icon}
+      </div>
+      <h3
+        style={{
+          fontSize: '0.9375rem',
+          fontWeight: 600,
+          color: 'var(--color-brand-navy)',
+          marginBottom: '4px',
+        }}
+      >
+        {title}
+      </h3>
+      <p
+        style={{
+          fontSize: '0.75rem',
+          color: 'rgba(10, 25, 47, 0.5)',
+        }}
+      >
+        {lessons} Lessons • {duration}
+      </p>
+    </div>
+  );
+}
 
-      <div className="page-container py-6 space-y-6">
-        {/* Hero Card with Progress */}
-        <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-2xl p-6 text-white relative overflow-hidden animate-fade-in-up shadow-xl">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-indigo-500/10 -translate-y-1/2 translate-x-1/2 blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-          <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-blue-500/10 translate-y-1/2 -translate-x-1/2 blur-3xl animate-pulse" style={{ animationDuration: '5s' }} />
-          
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <GraduationCap className="w-5 h-5 text-indigo-400" />
-                <span className="text-sm font-medium text-slate-400">
-                  {language === 'ar' ? 'مركز التعلم' : 'Learning Hub'}
-                </span>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-2">
-                {language === 'ar' ? 'ابنِ ثقافتك المالية' : 'Build Your Financial Literacy'}
-              </h1>
-              <p className="text-slate-400 max-w-lg">
-                {language === 'ar'
-                  ? 'محتوى تعليمي مخصص لمساعدتك في رحلتك نحو الاستقلال المالي'
-                  : 'Personalized educational content to help you on your journey to financial independence'}
-              </p>
-            </div>
-            
-            {/* Progress Ring */}
-            <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20">
-                <svg className="w-20 h-20 -rotate-90">
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="none"
-                    className="text-white/10"
-                  />
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="none"
-                    strokeDasharray={`${totalProgress * 2.26} 226`}
-                    strokeLinecap="round"
-                    className="text-indigo-400"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold">{totalProgress}%</span>
-                </div>
+/* ----- Learning Path Card ----- */
+function LearningPathCard({
+  badge,
+  badgeColor,
+  moduleInfo,
+  title,
+  progress,
+  lessons,
+  completedLabel,
+  currentDescription,
+  startLabel,
+}: {
+  badge: string;
+  badgeColor: string;
+  moduleInfo: string;
+  title: string;
+  progress: number;
+  lessons: { title: string; duration: string; completed: boolean; current?: boolean }[];
+  completedLabel: string;
+  currentDescription: string;
+  startLabel: string;
+}) {
+  return (
+    <div className="card-standard">
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--spacing-2)',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span
+              style={{
+                fontSize: '0.625rem',
+                fontWeight: 600,
+                color: badgeColor,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              {badge}
+            </span>
+            <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>
+              {moduleInfo}
+            </span>
+          </div>
+          <h3
+            style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--color-brand-navy)',
+            }}
+          >
+            {title}
+          </h3>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <p
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: 'var(--color-brand-navy)',
+            }}
+          >
+            {progress}%
+          </p>
+          <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>{completedLabel}</p>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div
+        style={{
+          height: '6px',
+          background: 'rgba(10, 25, 47, 0.1)',
+          borderRadius: 'var(--radius-pill)',
+          marginBottom: 'var(--spacing-2)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${progress}%`,
+            background: 'var(--color-brand-emerald)',
+            borderRadius: 'var(--radius-pill)',
+          }}
+        />
+      </div>
+
+      {/* Lesson List */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        {lessons.map((lesson, index) => (
+          <LessonRow
+            key={index}
+            title={lesson.title}
+            duration={lesson.duration}
+            completed={lesson.completed}
+            current={lesson.current}
+            currentDescription={lesson.current ? currentDescription : undefined}
+            startLabel={lesson.current ? startLabel : undefined}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ----- Lesson Row ----- */
+function LessonRow({
+  title,
+  duration,
+  completed,
+  current = false,
+  currentDescription,
+  startLabel,
+}: {
+  title: string;
+  duration: string;
+  completed: boolean;
+  current?: boolean;
+  currentDescription?: string;
+  startLabel?: string;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 0',
+        borderBottom: '1px solid rgba(10, 25, 47, 0.05)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span
+          style={{
+            color: completed ? 'var(--color-brand-emerald)' : 'rgba(10, 25, 47, 0.25)',
+          }}
+        >
+          {completed ? <CheckCircleIcon /> : <CircleIcon />}
+        </span>
+        <div>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              color: completed ? 'rgba(10, 25, 47, 0.5)' : 'var(--color-brand-navy)',
+              textDecoration: completed ? 'line-through' : 'none',
+            }}
+          >
+            {title}
+          </p>
+          {current && currentDescription && (
+            <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>
+              {currentDescription}
+            </p>
+          )}
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.4)' }}>{duration}</span>
+        {current && startLabel && (
+          <button
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: '#FFFFFF',
+              background: 'var(--color-info)',
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            {startLabel}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ----- Recommendation Card ----- */
+function RecommendationCard({
+  icon,
+  iconColor,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  iconColor: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div
+      style={{
+        background: 'rgba(245, 158, 11, 0.08)',
+        border: '1px solid rgba(245, 158, 11, 0.15)',
+        borderRadius: 'var(--radius-card)',
+        padding: 'var(--spacing-2)',
+      }}
+    >
+      <div style={{ display: 'flex', gap: '12px' }}>
+        <span style={{ color: iconColor, flexShrink: 0 }}>{icon}</span>
+        <div>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: 'var(--color-warning)',
+              marginBottom: '4px',
+            }}
+          >
+            {title}
+          </p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-warning)', lineHeight: 1.5 }}>
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ----- Article Card ----- */
+function ArticleCard({
+  image,
+  badge,
+  title,
+  description,
+}: {
+  image: string;
+  badge: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div
+      className="card-standard"
+      style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}
+    >
+      {/* Image */}
+      <div
+        style={{
+          height: '120px',
+          background: image,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          position: 'relative',
+        }}
+      >
+        <span
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            fontSize: '0.625rem',
+            fontWeight: 600,
+            color: '#FFFFFF',
+            background: 'rgba(10, 25, 47, 0.7)',
+            padding: '4px 8px',
+            borderRadius: 'var(--radius-sm)',
+            textTransform: 'uppercase',
+          }}
+        >
+          {badge}
+        </span>
+      </div>
+      {/* Content */}
+      <div style={{ padding: 'var(--spacing-2)' }}>
+        <h4
+          style={{
+            fontSize: '0.9375rem',
+            fontWeight: 600,
+            color: 'var(--color-brand-navy)',
+            marginBottom: '6px',
+          }}
+        >
+          {title}
+        </h4>
+        <p
+          style={{
+            fontSize: '0.8125rem',
+            color: 'rgba(10, 25, 47, 0.6)',
+            lineHeight: 1.5,
+          }}
+        >
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ===== MAIN PAGE ===== */
+export default function LearnPage() {
+  const intl = useIntl();
+  
+  return (
+    <div className="page-container">
+      {/* ===== HERO ROW ===== */}
+      <div className="dashboard-grid">
+        {/* Welcome Hero Card */}
+        <div
+          style={{
+            gridColumn: 'span 8',
+            background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 50%, #A5B4FC 100%)',
+            borderRadius: 'var(--radius-card)',
+            padding: 'var(--spacing-3)',
+            color: '#FFFFFF',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Decorative gradient overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '50%',
+              height: '100%',
+              background: 'linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <h1
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 700,
+                marginBottom: '8px',
+                lineHeight: 1.3,
+              }}
+            >
+              {intl.formatMessage({ id: 'learn.welcome_back', defaultMessage: 'Welcome back to your learning journey, {name}!' }, { name: 'Shadi' })}
+            </h1>
+            <p
+              style={{
+                fontSize: '0.9375rem',
+                opacity: 0.9,
+                marginBottom: 'var(--spacing-3)',
+                maxWidth: '400px',
+              }}
+            >
+              {intl.formatMessage({ id: 'learn.progress_message', defaultMessage: "You're making great progress. Continue your lessons to unlock more financial insights tailored for you." })}
+            </p>
+            <button
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: '#6366F1',
+                background: '#FFFFFF',
+                border: 'none',
+                borderRadius: 'var(--radius-input)',
+                padding: '12px 20px',
+                cursor: 'pointer',
+              }}
+            >
+              {intl.formatMessage({ id: 'learn.continue_learning', defaultMessage: 'Continue Learning' })}
+              <ArrowRightIcon />
+            </button>
+          </div>
+        </div>
+
+        {/* Financial Literacy Score Card */}
+        <div
+          className="card-standard"
+          style={{
+            gridColumn: 'span 4',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: 'var(--spacing-2)',
+            }}
+          >
+            <span style={{ color: 'var(--color-brand-emerald)' }}>
+              <LiteracyCheckIcon />
+            </span>
+            <span
+              style={{
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                color: 'var(--color-brand-navy)',
+              }}
+            >
+              {intl.formatMessage({ id: 'learn.financial_literacy_score', defaultMessage: 'Financial Literacy Score' })}
+            </span>
+          </div>
+
+          {/* Score Display */}
+          <div
+            style={{
+              width: '120px',
+              height: '120px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.2) 100%)',
+              border: '8px solid #6366F1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 'var(--spacing-1)',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: 'var(--color-brand-navy)',
+                lineHeight: 1,
+              }}
+            >
+              750
+            </p>
+          </div>
+
+          <span
+            style={{
+              display: 'inline-block',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: 'var(--color-brand-emerald)',
+              background: 'rgba(16, 185, 129, 0.1)',
+              padding: '4px 12px',
+              borderRadius: 'var(--radius-pill)',
+              marginBottom: '8px',
+            }}
+          >
+            {intl.formatMessage({ id: 'learn.good_standing', defaultMessage: 'Good Standing' })}
+          </span>
+          <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>
+            {intl.formatMessage({ id: 'learn.top_users_mena', defaultMessage: 'Top {percent}% of users in MENA' }, { percent: 15 })}
+          </p>
+        </div>
+      </div>
+
+      {/* ===== EXPLORE TOPICS SECTION ===== */}
+      <div>
+        <div className="section-header">
+          <h2 className="heading-3">{intl.formatMessage({ id: 'learn.explore_topics', defaultMessage: 'Explore Topics' })}</h2>
+          <a href="#" className="link-action">
+            {intl.formatMessage({ id: 'learn.view_all', defaultMessage: 'View all' })}
+          </a>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 'var(--spacing-2)',
+          }}
+        >
+          <TopicCard
+            icon={<BookIcon />}
+            iconBg="rgba(99, 102, 241, 0.1)"
+            iconColor="#6366F1"
+            title={intl.formatMessage({ id: 'learn.money_basics', defaultMessage: 'Money Basics' })}
+            lessons={12}
+            duration="2h 15m"
+          />
+          <TopicCard
+            icon={<CoinIcon />}
+            iconBg="rgba(16, 185, 129, 0.1)"
+            iconColor="#10B981"
+            title={intl.formatMessage({ id: 'learn.budgeting_101', defaultMessage: 'Budgeting 101' })}
+            lessons={8}
+            duration="1h 45m"
+          />
+          <TopicCard
+            icon={<TrendIcon />}
+            iconBg="rgba(245, 158, 11, 0.1)"
+            iconColor="#F59E0B"
+            title={intl.formatMessage({ id: 'learn.investing', defaultMessage: 'Investing' })}
+            lessons={15}
+            duration="3h 10m"
+          />
+          <TopicCard
+            icon={<ShieldIcon />}
+            iconBg="rgba(239, 68, 68, 0.1)"
+            iconColor="#EF4444"
+            title={intl.formatMessage({ id: 'learn.debt_management', defaultMessage: 'Debt Management' })}
+            lessons={6}
+            duration="1h 20m"
+          />
+        </div>
+      </div>
+
+      {/* ===== LEARNING PATH + RECOMMENDATIONS ROW ===== */}
+      <div className="dashboard-grid">
+        {/* Current Learning Path */}
+        <div style={{ gridColumn: 'span 8' }}>
+          <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+            {intl.formatMessage({ id: 'learn.current_learning_path', defaultMessage: 'Current Learning Path' })}
+          </h2>
+          <LearningPathCard
+            badge={intl.formatMessage({ id: 'learn.beginner_path', defaultMessage: 'Beginner Path' })}
+            badgeColor="#6366F1"
+            moduleInfo={intl.formatMessage({ id: 'learn.module_of', defaultMessage: 'Module {current} of {total}' }, { current: 1, total: 4 })}
+            title={intl.formatMessage({ id: 'learn.financial_foundations', defaultMessage: 'Financial Foundations' })}
+            progress={40}
+            completedLabel={intl.formatMessage({ id: 'learn.completed', defaultMessage: 'Completed' })}
+            currentDescription={intl.formatMessage({ id: 'learn.needs_vs_wants_desc', defaultMessage: 'Learn how to prioritize spending efficiently.' })}
+            startLabel={intl.formatMessage({ id: 'learn.start', defaultMessage: 'Start' })}
+            lessons={[
+              { title: intl.formatMessage({ id: 'learn.intro_personal_finance', defaultMessage: 'Introduction to Personal Finance' }), duration: '5m', completed: true },
+              { title: intl.formatMessage({ id: 'learn.setting_smart_goals', defaultMessage: 'Setting SMART Goals' }), duration: '8m', completed: true },
+              {
+                title: intl.formatMessage({ id: 'learn.needs_vs_wants', defaultMessage: 'Understanding Needs vs. Wants' }),
+                duration: '',
+                completed: false,
+                current: true,
+              },
+              { title: intl.formatMessage({ id: 'learn.creating_first_budget', defaultMessage: 'Creating Your First Budget' }), duration: '12m', completed: false },
+            ]}
+          />
+        </div>
+
+        {/* Recommended for You */}
+        <div style={{ gridColumn: 'span 4' }}>
+          <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+            {intl.formatMessage({ id: 'learn.recommended_for_you', defaultMessage: 'Recommended for You' })}
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+            <RecommendationCard
+              icon={<LightbulbIcon />}
+              iconColor="#F59E0B"
+              title={intl.formatMessage({ id: 'learn.based_on_spending', defaultMessage: 'Based on your spending' })}
+              description={intl.formatMessage({ id: 'learn.spending_recommendation', defaultMessage: 'We noticed higher dining out expenses this month. Check out this quick guide on meal prep savings.' })}
+            />
+            <ArticleCard
+              image="linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.4) 100%)"
+              badge={intl.formatMessage({ id: 'learn.article', defaultMessage: 'Article' })}
+              title={intl.formatMessage({ id: 'learn.save_groceries_title', defaultMessage: '5 Ways to Save on Groceries' })}
+              description={intl.formatMessage({ id: 'learn.save_groceries_desc', defaultMessage: 'Learn practical tips to reduce your monthly food bill without sacrificing nutrition.' })}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ===== ADDITIONAL LEARNING PATHS ===== */}
+      <div>
+        <div className="section-header">
+          <h2 className="heading-3">{intl.formatMessage({ id: 'learn.more_learning_paths', defaultMessage: 'More Learning Paths' })}</h2>
+          <a href="#" className="link-action">
+            {intl.formatMessage({ id: 'learn.view_all_paths', defaultMessage: 'View all paths' })}
+          </a>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 'var(--spacing-2)',
+          }}
+        >
+          {/* Intermediate Path */}
+          <div className="card-standard">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#3B82F6',
+                }}
+              >
+                <TrendIcon />
               </div>
               <div>
-                <p className="text-sm text-slate-400">
-                  {language === 'ar' ? 'التقدم الإجمالي' : 'Overall Progress'}
+                <p style={{ fontSize: '0.625rem', fontWeight: 600, color: '#3B82F6', textTransform: 'uppercase' }}>
+                  {intl.formatMessage({ id: 'learn.intermediate', defaultMessage: 'Intermediate' })}
                 </p>
-                <p className="text-lg font-semibold">
-                  {language === 'ar' ? 'استمر!' : 'Keep going!'}
-                </p>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+                  {intl.formatMessage({ id: 'learn.investment_basics', defaultMessage: 'Investment Basics' })}
+                </h3>
               </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>6 Modules • 4h 30m</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>0%</span>
+            </div>
+            <div style={{ height: '4px', background: 'rgba(10, 25, 47, 0.1)', borderRadius: 'var(--radius-pill)' }}>
+              <div style={{ height: '100%', width: '0%', background: '#3B82F6', borderRadius: 'var(--radius-pill)' }} />
+            </div>
+          </div>
+
+          {/* Advanced Path */}
+          <div className="card-standard">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#8B5CF6',
+                }}
+              >
+                <ShieldIcon />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.625rem', fontWeight: 600, color: '#8B5CF6', textTransform: 'uppercase' }}>
+                  {intl.formatMessage({ id: 'learn.advanced', defaultMessage: 'Advanced' })}
+                </p>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+                  {intl.formatMessage({ id: 'learn.wealth_building', defaultMessage: 'Wealth Building' })}
+                </h3>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>8 Modules • 6h 15m</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>0%</span>
+            </div>
+            <div style={{ height: '4px', background: 'rgba(10, 25, 47, 0.1)', borderRadius: 'var(--radius-pill)' }}>
+              <div style={{ height: '100%', width: '0%', background: '#8B5CF6', borderRadius: 'var(--radius-pill)' }} />
+            </div>
+          </div>
+
+          {/* Islamic Finance Path */}
+          <div className="card-standard">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(6, 182, 212, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#06B6D4',
+                }}
+              >
+                <BookIcon />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.625rem', fontWeight: 600, color: '#06B6D4', textTransform: 'uppercase' }}>
+                  {intl.formatMessage({ id: 'learn.specialized', defaultMessage: 'Specialized' })}
+                </p>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+                  {intl.formatMessage({ id: 'learn.islamic_finance', defaultMessage: 'Islamic Finance' })}
+                </h3>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>5 Modules • 3h 45m</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>0%</span>
+            </div>
+            <div style={{ height: '4px', background: 'rgba(10, 25, 47, 0.1)', borderRadius: 'var(--radius-pill)' }}>
+              <div style={{ height: '100%', width: '0%', background: '#06B6D4', borderRadius: 'var(--radius-pill)' }} />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Categories */}
-        <section className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          <h2 className="section-title mb-4">
-            {language === 'ar' ? 'المواضيع' : 'Topics'}
-          </h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              const isSelected = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setSelectedCategory(isSelected ? null : cat.id);
-                    setActiveTab('articles');
+      {/* ===== ARTICLES & VIDEOS SECTION ===== */}
+      <div className="dashboard-grid">
+        {/* Latest Articles */}
+        <div style={{ gridColumn: 'span 6' }}>
+          <div className="section-header">
+            <h2 className="heading-3">{intl.formatMessage({ id: 'learn.latest_articles', defaultMessage: 'Latest Articles' })}</h2>
+            <a href="#" className="link-action">
+              {intl.formatMessage({ id: 'learn.view_all', defaultMessage: 'View all' })}
+            </a>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+            {[
+              { title: intl.formatMessage({ id: 'learn.budget_rule_title', defaultMessage: 'The 50/30/20 Budget Rule Explained' }), category: intl.formatMessage({ id: 'learn.budgeting', defaultMessage: 'Budgeting' }), time: intl.formatMessage({ id: 'learn.min_read', defaultMessage: '{min} min read' }, { min: 5 }) },
+              { title: intl.formatMessage({ id: 'learn.emergency_funds_title', defaultMessage: 'Emergency Funds: How Much is Enough?' }), category: intl.formatMessage({ id: 'learn.saving', defaultMessage: 'Saving' }), time: intl.formatMessage({ id: 'learn.min_read', defaultMessage: '{min} min read' }, { min: 7 }) },
+              { title: intl.formatMessage({ id: 'learn.compound_interest_title', defaultMessage: 'Understanding Compound Interest' }), category: intl.formatMessage({ id: 'learn.investing', defaultMessage: 'Investing' }), time: intl.formatMessage({ id: 'learn.min_read', defaultMessage: '{min} min read' }, { min: 6 }) },
+            ].map((article, index) => (
+              <div
+                key={index}
+                className="card-standard"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+              >
+                <div>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-info)', fontWeight: 500, marginBottom: '4px' }}>
+                    {article.category}
+                  </p>
+                  <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+                    {article.title}
+                  </h4>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.4)' }}>{article.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Videos */}
+        <div style={{ gridColumn: 'span 6' }}>
+          <div className="section-header">
+            <h2 className="heading-3">{intl.formatMessage({ id: 'learn.featured_videos', defaultMessage: 'Featured Videos' })}</h2>
+            <a href="#" className="link-action">
+              {intl.formatMessage({ id: 'learn.view_all', defaultMessage: 'View all' })}
+            </a>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-2)' }}>
+            {[
+              { title: intl.formatMessage({ id: 'learn.budgeting_for_beginners', defaultMessage: 'Budgeting for Beginners' }), duration: '8:24', color: '#10B981' },
+              { title: intl.formatMessage({ id: 'learn.investing_101', defaultMessage: 'Investing 101' }), duration: '12:05', color: '#6366F1' },
+            ].map((video, index) => (
+              <div
+                key={index}
+                className="card-standard"
+                style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}
+              >
+                <div
+                  style={{
+                    height: '100px',
+                    background: `linear-gradient(135deg, ${video.color}20 0%, ${video.color}40 100%)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
                   }}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-                    isSelected 
-                      ? 'bg-[var(--color-primary-muted)] border-[var(--color-primary)]' 
-                      : 'bg-[var(--color-bg-card)] border-[var(--color-border-light)] hover:border-[var(--color-primary)]'
-                  }`}
                 >
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: `${cat.color}15` }}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    }}
                   >
-                    <Icon className="w-6 h-6" style={{ color: cat.color }} />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill={video.color}>
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
                   </div>
-                  <span className="text-xs font-medium text-[var(--color-text-primary)] text-center">
-                    {language === 'ar' ? cat.nameAr : cat.nameEn}
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      right: '8px',
+                      fontSize: '0.6875rem',
+                      fontWeight: 500,
+                      color: '#FFFFFF',
+                      background: 'rgba(0,0,0,0.6)',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    {video.duration}
                   </span>
-                </button>
-              );
-            })}
+                </div>
+                <div style={{ padding: '12px' }}>
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+                    {video.title}
+                  </h4>
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
-
-        {/* Tabs */}
-        <div className="tabs">
-          <button
-            onClick={() => { setActiveTab('paths'); setSelectedCategory(null); }}
-            className={`tab ${activeTab === 'paths' ? 'tab-active' : ''}`}
-          >
-            <GraduationCap className="w-4 h-4" />
-            {language === 'ar' ? 'مسارات التعلم' : 'Learning Paths'}
-          </button>
-          <button
-            onClick={() => setActiveTab('articles')}
-            className={`tab ${activeTab === 'articles' ? 'tab-active' : ''}`}
-          >
-            <FileText className="w-4 h-4" />
-            {language === 'ar' ? 'المقالات' : 'Articles'}
-          </button>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`tab ${activeTab === 'all' ? 'tab-active' : ''}`}
-          >
-            <BookOpen className="w-4 h-4" />
-            {language === 'ar' ? 'الكل' : 'All Content'}
-          </button>
         </div>
+      </div>
 
-        {/* Learning Paths Tab */}
-        {activeTab === 'paths' && (
-          <div className="space-y-4">
-            {learningPaths.map((path, pathIndex) => {
-              const PathIcon = path.icon;
-              const isLocked = path.locked;
-              
-              return (
-                <div 
-                  key={path.id}
-                  className={`card ${isLocked ? 'opacity-75' : ''}`}
-                  style={{ animationDelay: `${pathIndex * 100}ms` }}
-                >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: `${path.color}15` }}
-                    >
-                      {isLocked ? (
-                        <Lock className="w-6 h-6" style={{ color: path.color }} />
-                      ) : (
-                        <PathIcon className="w-6 h-6" style={{ color: path.color }} />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-lg text-[var(--color-text-primary)]">
-                          {language === 'ar' ? path.titleAr : path.titleEn}
-                        </h3>
-                        {isLocked && (
-                          <span className="badge badge-neutral text-xs">
-                            {language === 'ar' ? 'مقفل' : 'Locked'}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-[var(--color-text-secondary)]">
-                        {language === 'ar' ? path.descAr : path.descEn}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-2xl font-bold text-[var(--color-text-primary)]">{path.progress}%</p>
-                      <p className="text-xs text-[var(--color-text-muted)]">
-                        {language === 'ar' ? 'مكتمل' : 'Complete'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="h-2 bg-[var(--color-bg-inset)] rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${path.progress}%`,
-                          backgroundColor: path.color
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Modules */}
-                  <div className="space-y-2">
-                    {path.modules.map((module, index) => (
-                      <button
-                        key={module.id}
-                        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-                          module.locked 
-                            ? 'bg-[var(--color-bg-inset)] opacity-60 cursor-not-allowed'
-                            : module.current 
-                              ? 'bg-[var(--color-primary-muted)] border border-[var(--color-primary)]'
-                              : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-bg-inset)]'
-                        }`}
-                        disabled={module.locked}
-                      >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          module.completed 
-                            ? 'bg-emerald-500 text-white'
-                            : module.current
-                              ? 'bg-[var(--color-primary)] text-white'
-                              : 'bg-[var(--color-bg-card)] text-[var(--color-text-muted)] border border-[var(--color-border)]'
-                        }`}>
-                          {module.completed ? (
-                            <CheckCircle2 className="w-5 h-5" />
-                          ) : module.locked ? (
-                            <Lock className="w-4 h-4" />
-                          ) : (
-                            <span className="text-sm font-semibold">{index + 1}</span>
-                          )}
-                        </div>
-                        <div className="flex-1 text-start">
-                          <p className={`font-medium ${
-                            module.completed 
-                              ? 'text-[var(--color-text-secondary)]' 
-                              : 'text-[var(--color-text-primary)]'
-                          }`}>
-                            {language === 'ar' ? module.titleAr : module.titleEn}
-                          </p>
-                          <p className="text-xs text-[var(--color-text-muted)]">
-                            {module.lessons} {language === 'ar' ? 'دروس' : 'lessons'}
-                          </p>
-                        </div>
-                        {!module.locked && (
-                          <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)]" />
-                        )}
-                        {module.current && (
-                          <span className="badge badge-primary text-xs">
-                            {language === 'ar' ? 'الحالي' : 'Current'}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-
-                  {!isLocked && path.progress < 100 && (
-                    <button className="btn btn-primary w-full mt-4">
-                      {path.progress > 0 
-                        ? (language === 'ar' ? 'استمر في التعلم' : 'Continue Learning')
-                        : (language === 'ar' ? 'ابدأ المسار' : 'Start Path')
-                      }
-                      <ArrowIcon className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Articles Tab */}
-        {activeTab === 'articles' && (
-          <div className="space-y-3">
-            {selectedCategory && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  {language === 'ar' ? 'تصفية حسب:' : 'Filtering by:'}{' '}
-                  <span className="font-semibold text-[var(--color-text-primary)]">
-                    {language === 'ar' 
-                      ? getCategoryInfo(selectedCategory)?.nameAr 
-                      : getCategoryInfo(selectedCategory)?.nameEn
-                    }
+      {/* ===== ACHIEVEMENTS / BADGES SECTION ===== */}
+      <div>
+        <div className="section-header">
+          <h2 className="heading-3">{intl.formatMessage({ id: 'learn.your_achievements', defaultMessage: 'Your Achievements' })}</h2>
+          <a href="#" className="link-action">
+            {intl.formatMessage({ id: 'learn.view_all', defaultMessage: 'View all' })}
+          </a>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 'var(--spacing-2)',
+          }}
+        >
+          {[
+            { name: intl.formatMessage({ id: 'learn.first_steps', defaultMessage: 'First Steps' }), desc: intl.formatMessage({ id: 'learn.first_steps_desc', defaultMessage: 'Completed your first lesson' }), earned: true, color: '#10B981' },
+            { name: intl.formatMessage({ id: 'learn.budget_master', defaultMessage: 'Budget Master' }), desc: intl.formatMessage({ id: 'learn.budget_master_desc', defaultMessage: 'Complete Budgeting 101' }), earned: true, color: '#6366F1' },
+            { name: intl.formatMessage({ id: 'learn.saver', defaultMessage: 'Saver' }), desc: intl.formatMessage({ id: 'learn.saver_desc', defaultMessage: 'Complete Saving module' }), earned: false, color: '#F59E0B' },
+            { name: intl.formatMessage({ id: 'learn.investor', defaultMessage: 'Investor' }), desc: intl.formatMessage({ id: 'learn.investor_desc', defaultMessage: 'Complete Investing path' }), earned: false, color: '#8B5CF6' },
+          ].map((badge, index) => (
+            <div
+              key={index}
+              className="card-standard"
+              style={{
+                textAlign: 'center',
+                opacity: badge.earned ? 1 : 0.5,
+              }}
+            >
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: badge.earned ? `${badge.color}20` : 'rgba(10, 25, 47, 0.05)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto var(--spacing-1)',
+                }}
+              >
+                {badge.earned ? (
+                  <span style={{ color: badge.color }}>
+                    <CheckIcon />
                   </span>
-                </p>
-                <button 
-                  onClick={() => setSelectedCategory(null)}
-                  className="text-sm text-[var(--color-primary)] hover:underline"
-                >
-                  {language === 'ar' ? 'مسح الفلتر' : 'Clear filter'}
-                </button>
+                ) : (
+                  <span style={{ color: 'rgba(10, 25, 47, 0.3)' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                )}
               </div>
-            )}
-            
-            {filteredArticles.map((article, index) => {
-              const catInfo = getCategoryInfo(article.category);
-              return (
-                <button
-                  key={article.id}
-                  className={`w-full card card-interactive ${article.featured ? 'border-[var(--color-gold)]/30' : ''}`}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="flex items-start gap-4">
-                    <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: `${catInfo?.color}15` }}
-                    >
-                      {catInfo && <catInfo.icon className="w-6 h-6" style={{ color: catInfo.color }} />}
-                    </div>
-                    <div className="flex-1 min-w-0 text-start">
-                      <div className="flex items-center gap-2 mb-1">
-                        {article.featured && (
-                          <span className="badge badge-warning text-xs">
-                            <Sparkles className="w-3 h-3" />
-                            {language === 'ar' ? 'مميز' : 'Featured'}
-                          </span>
-                        )}
-                        <span className="text-xs text-[var(--color-text-muted)]">
-                          {language === 'ar' ? catInfo?.nameAr : catInfo?.nameEn}
-                        </span>
-                      </div>
-                      <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">
-                        {language === 'ar' ? article.titleAr : article.titleEn}
-                      </h3>
-                      <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2 mb-2">
-                        {language === 'ar' ? article.descAr : article.descEn}
-                      </p>
-                      <div className="flex items-center gap-1 text-xs text-[var(--color-text-muted)]">
-                        <Clock className="w-3 h-3" />
-                        <span>{article.readTime} {language === 'ar' ? 'دقائق قراءة' : 'min read'}</span>
-                      </div>
-                    </div>
-                    <ChevronIcon className="w-5 h-5 text-[var(--color-text-muted)] flex-shrink-0 self-center" />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* All Content Tab */}
-        {activeTab === 'all' && (
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="card text-center">
-                <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center mx-auto mb-2">
-                  <BookOpen className="w-5 h-5 text-indigo-500" />
-                </div>
-                <p className="text-2xl font-bold text-[var(--color-text-primary)]">{articles.length}</p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {language === 'ar' ? 'مقالات' : 'Articles'}
-                </p>
-              </div>
-              <div className="card text-center">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mx-auto mb-2">
-                  <GraduationCap className="w-5 h-5 text-blue-500" />
-                </div>
-                <p className="text-2xl font-bold text-[var(--color-text-primary)]">{learningPaths.length}</p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {language === 'ar' ? 'مسارات' : 'Paths'}
-                </p>
-              </div>
-              <div className="card text-center">
-                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center mx-auto mb-2">
-                  <Award className="w-5 h-5 text-amber-500" />
-                </div>
-                <p className="text-2xl font-bold text-[var(--color-text-primary)]">2</p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {language === 'ar' ? 'إنجازات' : 'Achievements'}
-                </p>
-              </div>
-              <div className="card text-center">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mx-auto mb-2">
-                  <PlayCircle className="w-5 h-5 text-purple-500" />
-                </div>
-                <p className="text-2xl font-bold text-[var(--color-text-primary)]">0</p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {language === 'ar' ? 'فيديوهات' : 'Videos'}
-                </p>
-              </div>
+              <h4
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'var(--color-brand-navy)',
+                  marginBottom: '4px',
+                }}
+              >
+                {badge.name}
+              </h4>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>{badge.desc}</p>
             </div>
-
-            {/* Coming Soon */}
-            <div className="card card-gradient text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-8 h-8 text-amber-400" />
-              </div>
-              <h3 className="font-bold text-xl mb-2">
-                {language === 'ar' ? 'المزيد قادم قريباً' : 'More Content Coming Soon'}
-              </h3>
-              <p className="text-slate-400 max-w-md mx-auto">
-                {language === 'ar'
-                  ? 'نعمل على إضافة المزيد من المحتوى التعليمي والفيديوهات والدورات التفاعلية'
-                  : 'We are working on adding more educational content, videos, and interactive courses'}
-              </p>
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );

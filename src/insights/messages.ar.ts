@@ -21,3 +21,5 @@ export const insightMessagesAr = {
 } as const;
 
 export type InsightCode = keyof typeof insightMessagesAr;
+
+

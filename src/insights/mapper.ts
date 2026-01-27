@@ -53,3 +53,5 @@ export function mapRuleResultsToInsights(results: RuleResult[]): Insight[] {
     .map(mapRuleResultToInsight)
     .filter((insight): insight is Insight => insight !== null);
 }
+
+

@@ -6,6 +6,7 @@ import { Transaction, AuthUser, LoginCredentials, SignupData } from '@/types';
 import { generateId } from '@/lib/utils';
 import { DEFAULT_CURRENCY } from '@/lib/constants';
 import { Language } from '@/lib/translations';
+import { supabase } from '@/lib/supabaseClient';
 
 export type Theme = 'light' | 'dark';
 
@@ -159,7 +160,7 @@ interface AppState {
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
 
   // Transactions
   transactions: Transaction[];
@@ -220,31 +221,30 @@ export const useStore = create<AppState>()(
 
       login: async (credentials) => {
         try {
-          // Simulate API call - in production, this would call your backend
-          // For now, we'll use localStorage to simulate user accounts
-          if (typeof window === 'undefined') {
+          // Sign in with Supabase Auth
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: credentials.email,
+            password: credentials.password,
+          });
+
+          if (error) {
+            return { success: false, error: error.message };
+          }
+
+          if (!data.user) {
             return { success: false, error: 'Login failed. Please try again.' };
           }
 
-          const storedUsers = JSON.parse(localStorage.getItem('rasmalak-users') || '[]');
-          const user = storedUsers.find(
-            (u: any) => u.email === credentials.email && u.password === credentials.password
-          );
-
-          if (!user) {
-            return { success: false, error: 'Invalid email or password' };
-          }
-
           const authUser: AuthUser = {
-            id: user.id,
-            email: user.email,
-            name: user.name,
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || '',
           };
 
           set({
             user: authUser,
             isAuthenticated: true,
-            userName: user.name,
+            userName: authUser.name,
           });
 
           return { success: true };
@@ -255,44 +255,40 @@ export const useStore = create<AppState>()(
 
       signup: async (data) => {
         try {
-          // Simulate API call
-          if (typeof window === 'undefined') {
-            return { success: false, error: 'Signup failed. Please try again.' };
-          }
-
-          const storedUsers = JSON.parse(localStorage.getItem('rasmalak-users') || '[]');
-          
-          // Check if user already exists
-          if (storedUsers.some((u: any) => u.email === data.email)) {
-            return { success: false, error: 'Email already registered' };
-          }
-
           // Validate password length
           if (data.password.length < 6) {
             return { success: false, error: 'Password must be at least 6 characters' };
           }
 
-          const newUser = {
-            id: generateId(),
+          // Sign up with Supabase Auth
+          const { data: signUpData, error } = await supabase.auth.signUp({
             email: data.email,
-            password: data.password, // In production, this should be hashed
-            name: data.name,
-            createdAt: new Date().toISOString(),
-          };
+            password: data.password,
+            options: {
+              data: {
+                name: data.name,
+              },
+            },
+          });
 
-          storedUsers.push(newUser);
-          localStorage.setItem('rasmalak-users', JSON.stringify(storedUsers));
+          if (error) {
+            return { success: false, error: error.message };
+          }
+
+          if (!signUpData.user) {
+            return { success: false, error: 'Signup failed. Please try again.' };
+          }
 
           const authUser: AuthUser = {
-            id: newUser.id,
-            email: newUser.email,
-            name: newUser.name,
+            id: signUpData.user.id,
+            email: signUpData.user.email || '',
+            name: data.name,
           };
 
           set({
             user: authUser,
             isAuthenticated: true,
-            userName: newUser.name,
+            userName: data.name,
             // Reset onboarding for new users
             hasCompletedOnboarding: false,
             onboardingData: null,
@@ -306,7 +302,10 @@ export const useStore = create<AppState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        // Sign out from Supabase
+        await supabase.auth.signOut();
+        
         set({
           user: null,
           isAuthenticated: false,

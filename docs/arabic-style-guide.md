@@ -95,3 +95,5 @@
 - Numbers: Use Arabic numerals (1, 2, 3) not Arabic-Indic (١، ٢، ٣) for better readability
 - Currency: Always show symbol after amount in Arabic (100 ر.س)
 - Dates: Use locale-appropriate formatting via Intl.DateTimeFormat
+
+

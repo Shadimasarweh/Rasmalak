@@ -306,3 +306,5 @@ if (insights.length === expectedInsights && hasOverspend && hasLowSavings && has
 
 console.log();
 console.log("=".repeat(60));
+
+

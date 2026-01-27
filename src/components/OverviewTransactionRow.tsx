@@ -18,8 +18,8 @@ import {
   Gift,
   Award,
 } from 'lucide-react';
+import { useIntl } from 'react-intl';
 import { useCurrency } from '@/store/useStore';
-import { formatCurrency } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface OverviewTransactionRowProps {
@@ -56,14 +56,15 @@ export default function OverviewTransactionRow({
   amount,
   type,
 }: OverviewTransactionRowProps) {
+  const intl = useIntl();
   const currency = useCurrency();
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
 
   const categoryInfo = categoryIcons[category] || categoryIcons.other;
   const Icon = categoryInfo.icon;
   const categoryName = t.categories[category as keyof typeof t.categories] || category;
 
-  const formatDate = (dateStr: string) => {
+  const formatDateDisplay = (dateStr: string) => {
     const d = new Date(dateStr);
     const today = new Date();
     const yesterday = new Date(today);
@@ -75,11 +76,11 @@ export default function OverviewTransactionRow({
     if (d.toDateString() === yesterday.toDateString()) {
       return t.common.yesterday;
     }
-    return d.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
+    return intl.formatDate(d, { month: 'short', day: 'numeric' });
   };
+
+  // Format amount using intl
+  const formattedAmount = intl.formatNumber(amount, { style: 'currency', currency });
 
   return (
     <div className="transaction-item">
@@ -93,14 +94,14 @@ export default function OverviewTransactionRow({
         <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
           {description || categoryName}
         </p>
-        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{formatDate(date)}</p>
+        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{formatDateDisplay(date)}</p>
       </div>
       <span
         className={`text-sm font-semibold ltr-nums flex-shrink-0 ${
           type === 'income' ? 'text-[var(--color-success)]' : 'text-[var(--color-text-secondary)]'
         }`}
       >
-        {type === 'income' ? '+' : '-'}{formatCurrency(amount, currency)}
+        {type === 'income' ? '+' : '-'}{formattedAmount}
       </span>
     </div>
   );

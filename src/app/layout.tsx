@@ -1,14 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Tajawal } from "next/font/google";
-import { ThemeProvider } from "@/components";
+import { ThemeProvider, IntlProviderWrapper } from "@/components";
+import { AuthProvider } from "@/providers/AuthProvider";
 import "./globals.css";
 
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "700", "800"],
-  display: "swap",
-  variable: "--font-tajawal",
-});
+// Primary Arabic font is "Glass Flowers 3D 2" loaded via @font-face in globals.css
 
 export const metadata: Metadata = {
   title: "Rasmalak - Your Smart Financial Advisor | راسمالك",
@@ -59,6 +54,12 @@ const initScript = `
       // Set theme
       if (state.theme) {
         document.documentElement.setAttribute('data-theme', state.theme);
+        if (state.theme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.body.style.backgroundColor = '#0B0E14';
+        } else {
+          document.body.style.backgroundColor = '#F9FAFB';
+        }
       }
     }
   } catch (e) {}
@@ -77,14 +78,18 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${tajawal.className} antialiased`}>
+      <body className="antialiased">
         {/* Soft mesh gradient background */}
         <div className="mesh-gradient-bg" aria-hidden="true" />
-        <ThemeProvider>
-          <div className="soft-surface">
-            {children}
-          </div>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <IntlProviderWrapper>
+              <div className="soft-surface">
+                {children}
+              </div>
+            </IntlProviderWrapper>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

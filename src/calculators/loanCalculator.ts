@@ -59,3 +59,5 @@ export function calculateLoan(input: LoanInput): LoanResult {
     affordable,
   };
 }
+
+

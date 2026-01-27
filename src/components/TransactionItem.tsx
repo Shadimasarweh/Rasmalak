@@ -18,8 +18,9 @@ import {
   Gift,
   Award,
 } from 'lucide-react';
+import { useIntl } from 'react-intl';
 import { Transaction } from '@/types';
-import { formatCurrency, getRelativeTime, getCategoryById, convertCurrency } from '@/lib/utils';
+import { getRelativeTime, getCategoryById, convertCurrency } from '@/lib/utils';
 import { useCurrency, useBaseCurrency } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -48,6 +49,7 @@ interface TransactionItemProps {
 }
 
 export default function TransactionItem({ transaction, onClick }: TransactionItemProps) {
+  const intl = useIntl();
   const currency = useCurrency();
   const baseCurrency = useBaseCurrency();
   const { language } = useTranslation();
@@ -57,6 +59,10 @@ export default function TransactionItem({ transaction, onClick }: TransactionIte
   const isIncome = transaction.type === 'income';
 
   const categoryName = language === 'ar' ? category?.nameAr : category?.name;
+
+  // Convert and format amount using intl
+  const convertedAmount = convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency);
+  const formattedAmount = intl.formatNumber(convertedAmount, { style: 'currency', currency });
 
   return (
     <button
@@ -85,10 +91,7 @@ export default function TransactionItem({ transaction, onClick }: TransactionIte
             isIncome ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'
           }`}
         >
-          {isIncome ? '+' : '-'}{formatCurrency(
-            convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency),
-            currency
-          )}
+          {isIncome ? '+' : '-'}{formattedAmount}
         </p>
         <p className="text-xs text-[var(--color-text-muted)]">
           {getRelativeTime(transaction.date)}
