@@ -167,7 +167,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
           marginBottom: '8px',
         }}
       >
-        {intl.formatMessage({ id: 'transactions.no_transactions_recorded', defaultMessage: 'No transactions recorded' })}
+        {intl.formatMessage({ id: 'budgets.no_budgets_recorded', defaultMessage: 'No budgets set up yet' })}
       </h3>
       <p
         style={{
@@ -177,7 +177,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
           maxWidth: '300px',
         }}
       >
-        {intl.formatMessage({ id: 'transactions.empty_state_description', defaultMessage: 'This page displays your financial transactions. Add your first transaction to begin tracking.' })}
+        {intl.formatMessage({ id: 'budgets.empty_state_description', defaultMessage: 'This page displays your budget allocations. Set up your first budget to begin tracking.' })}
       </p>
       <Link
         href="/transactions/new"
@@ -185,7 +185,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
         style={{ display: 'inline-flex', alignItems: 'center' }}
       >
         <PlusIcon />
-        {intl.formatMessage({ id: 'transactions.add_transaction', defaultMessage: 'Add Transaction' })}
+        {intl.formatMessage({ id: 'budgets.edit_budget', defaultMessage: 'Edit Budget' })}
       </Link>
     </div>
   );
@@ -317,16 +317,16 @@ export default function TransactionsPage() {
       <div className="section-header">
         <div>
           <h1 className="heading-2">
-            {intl.formatMessage({ id: 'transactions.title', defaultMessage: 'Transactions' })}
+            {intl.formatMessage({ id: 'budgets.title', defaultMessage: 'Budgets' })}
           </h1>
           <p className="small-text">
-            {intl.formatMessage({ id: 'transactions.subtitle', defaultMessage: 'Record and view your financial activity.' })}
+            {intl.formatMessage({ id: 'budgets.subtitle', defaultMessage: 'Manage and track your budget allocations.' })}
           </p>
         </div>
         <div className="flex items-center" style={{ gap: 'var(--spacing-1)' }}>
           <Link href="/transactions/new" className="btn btn-primary">
             <PlusIcon />
-            {intl.formatMessage({ id: 'transactions.add_transaction', defaultMessage: 'Add Transaction' })}
+            {intl.formatMessage({ id: 'budgets.edit_budget', defaultMessage: 'Edit Budget' })}
           </Link>
         </div>
       </div>

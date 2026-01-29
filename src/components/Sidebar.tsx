@@ -28,11 +28,11 @@ const navItems = [
     smeOnly: false,
   },
   { 
-    id: 'transactions', 
+    id: 'budgets', 
     path: '/transactions', 
     icon: Receipt, 
-    labelAr: 'المعاملات', 
-    labelEn: 'Transactions',
+    labelAr: 'الميزانيات', 
+    labelEn: 'Budgets',
     smeOnly: false,
   },
   { 

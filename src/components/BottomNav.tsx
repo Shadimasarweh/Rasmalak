@@ -29,10 +29,10 @@ export default function BottomNav() {
       icon: LayoutDashboard 
     },
     { 
-      id: 'transactions', 
+      id: 'budgets', 
       path: '/transactions', 
-      labelAr: 'المعاملات', 
-      labelEn: 'Transactions',
+      labelAr: 'الميزانيات', 
+      labelEn: 'Budgets',
       icon: Receipt 
     },
     { 

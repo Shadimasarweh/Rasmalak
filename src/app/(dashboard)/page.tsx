@@ -129,12 +129,6 @@ export default function OverviewPage() {
             </svg>
             <span>{intl.formatMessage({ id: 'dashboard.report', defaultMessage: 'Report' })}</span>
           </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingInline: '1rem', paddingBlock: '0.625rem' }} className="text-sm font-medium text-white bg-emerald-500 rounded-xl hover:bg-emerald-600">
-            <svg style={{ width: '1rem', height: '1rem', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            <span>{intl.formatMessage({ id: 'dashboard.add_transaction', defaultMessage: 'Add Transaction' })}</span>
-          </button>
         </div>
       </div>
 
@@ -415,6 +409,201 @@ export default function OverviewPage() {
               {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* ===== LEARNING PROGRESS SECTION ===== */}
+      <div className="grid grid-cols-12 gap-5">
+        {/* Learning Overview */}
+        <div 
+          className="col-span-8 rounded-2xl shadow-sm" 
+          style={{ 
+            padding: '1.25rem',
+            backgroundColor: 'var(--theme-bg-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '1.5rem', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
+              {intl.formatMessage({ id: 'dashboard.learning_progress', defaultMessage: 'Learning Progress' })}
+            </h2>
+            <Link href="/learn" className="text-sm text-emerald-500 font-medium hover:underline" style={{ flexShrink: 0 }}>
+              {intl.formatMessage({ id: 'dashboard.continue_learning', defaultMessage: 'Continue Learning' })}
+            </Link>
+          </div>
+          
+          {/* Learning Stats Row */}
+          <div style={{ display: 'flex', gap: '1.5rem', marginBlockEnd: '1.5rem', flexWrap: 'wrap' }}>
+            {/* Lessons Completed */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1', minWidth: '140px' }}>
+              <div className="rounded-xl" style={{ width: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(99, 102, 241, 0.15)' }}>
+                <svg className="w-5 h-5" style={{ color: '#6366F1' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                  {intl.formatMessage({ id: 'dashboard.lessons_completed', defaultMessage: 'Lessons Completed' })}
+                </p>
+                <p className="text-xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>2</p>
+              </div>
+            </div>
+            
+            {/* Current Streak */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1', minWidth: '140px' }}>
+              <div className="rounded-xl" style={{ width: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(245, 158, 11, 0.15)' }}>
+                <svg className="w-5 h-5" style={{ color: '#F59E0B' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                </svg>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                  {intl.formatMessage({ id: 'dashboard.current_streak', defaultMessage: 'Current Streak' })}
+                </p>
+                <p className="text-xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>
+                  {intl.formatMessage({ id: 'dashboard.days_count', defaultMessage: '{count} days' }, { count: 3 })}
+                </p>
+              </div>
+            </div>
+            
+            {/* Time Spent */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1', minWidth: '140px' }}>
+              <div className="rounded-xl" style={{ width: '2.75rem', height: '2.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
+                <svg className="w-5 h-5" style={{ color: '#10B981' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                  {intl.formatMessage({ id: 'dashboard.time_spent', defaultMessage: 'Time Spent' })}
+                </p>
+                <p className="text-xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>13m</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Current Learning Path Progress */}
+          <div 
+            style={{ 
+              padding: '1rem',
+              borderRadius: 'var(--radius-card)',
+              backgroundColor: 'rgba(99, 102, 241, 0.08)',
+              border: '1px solid rgba(99, 102, 241, 0.15)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '0.75rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.625rem', fontWeight: 600, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {intl.formatMessage({ id: 'dashboard.current_path', defaultMessage: 'Current Path' })}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+                  {intl.formatMessage({ id: 'dashboard.module_progress', defaultMessage: 'Module 1 of 4' })}
+                </span>
+              </div>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6366F1' }}>40%</span>
+            </div>
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--theme-text-primary)', marginBlockEnd: '0.5rem' }}>
+              {intl.formatMessage({ id: 'dashboard.financial_foundations', defaultMessage: 'Financial Foundations' })}
+            </h3>
+            <div style={{ height: '6px', backgroundColor: 'rgba(99, 102, 241, 0.2)', borderRadius: '999px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: '40%', backgroundColor: '#6366F1', borderRadius: '999px' }} />
+            </div>
+            <p className="text-xs mt-2" style={{ color: 'var(--theme-text-muted)' }}>
+              {intl.formatMessage({ id: 'dashboard.next_lesson', defaultMessage: 'Next: Understanding Needs vs. Wants' })}
+            </p>
+          </div>
+        </div>
+
+        {/* Featured & Recommendations */}
+        <div 
+          className="col-span-4 rounded-2xl shadow-sm" 
+          style={{ 
+            padding: '1.25rem',
+            backgroundColor: 'var(--theme-bg-card)',
+            border: '1px solid var(--theme-border)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBlockEnd: '1rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
+              {intl.formatMessage({ id: 'dashboard.for_you', defaultMessage: 'For You' })}
+            </h2>
+          </div>
+          
+          {/* Featured Article */}
+          <div 
+            style={{ 
+              padding: '0.875rem',
+              borderRadius: 'var(--radius-card)',
+              backgroundColor: 'rgba(16, 185, 129, 0.08)',
+              border: '1px solid rgba(16, 185, 129, 0.15)',
+              marginBlockEnd: '0.75rem',
+              cursor: 'pointer',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBlockEnd: '0.5rem' }}>
+              <svg className="w-4 h-4" style={{ color: '#10B981', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <span style={{ fontSize: '0.625rem', fontWeight: 600, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {intl.formatMessage({ id: 'dashboard.featured', defaultMessage: 'Featured' })}
+              </span>
+            </div>
+            <h4 className="text-sm font-medium" style={{ color: 'var(--theme-text-primary)', marginBlockEnd: '0.25rem' }}>
+              {intl.formatMessage({ id: 'dashboard.featured_article_title', defaultMessage: 'The 50/30/20 Budget Rule' })}
+            </h4>
+            <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+              {intl.formatMessage({ id: 'dashboard.min_read', defaultMessage: '{min} min read' }, { min: 5 })}
+            </p>
+          </div>
+          
+          {/* Recommendation based on activity */}
+          <div 
+            style={{ 
+              padding: '0.875rem',
+              borderRadius: 'var(--radius-card)',
+              backgroundColor: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.15)',
+              marginBlockEnd: '0.75rem',
+            }}
+          >
+            <div style={{ display: 'flex', gap: '0.625rem' }}>
+              <svg className="w-4 h-4 mt-0.5" style={{ color: '#F59E0B', flexShrink: 0 }} fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z" />
+              </svg>
+              <div>
+                <p className="text-xs font-semibold" style={{ color: '#F59E0B', marginBlockEnd: '0.25rem' }}>
+                  {intl.formatMessage({ id: 'dashboard.based_on_spending', defaultMessage: 'Based on your spending' })}
+                </p>
+                <p className="text-xs" style={{ color: 'var(--theme-text-secondary)', lineHeight: 1.4 }}>
+                  {intl.formatMessage({ id: 'dashboard.spending_recommendation', defaultMessage: 'Check out our guide on meal prep savings.' })}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Action */}
+          <Link 
+            href="/learn"
+            style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              borderRadius: 'var(--radius-card)',
+              border: '1px solid var(--theme-border)',
+              color: 'var(--theme-text-secondary)',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textDecoration: 'none',
+            }}
+            className="hover:bg-white/5 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            {intl.formatMessage({ id: 'dashboard.explore_all_courses', defaultMessage: 'Explore All Courses' })}
+          </Link>
         </div>
       </div>
 
