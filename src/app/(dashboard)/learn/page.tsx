@@ -168,15 +168,15 @@ function ModeSelector({
         gap: '8px',
         padding: '20px 24px',
         minWidth: '140px',
-        background: isActive ? 'var(--color-brand-emerald)' : 'rgba(255, 255, 255, 0.08)',
-        border: isActive ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+        background: isActive ? 'var(--color-brand-emerald)' : 'rgba(16, 185, 129, 0.1)',
+        border: isActive ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
         borderRadius: 'var(--radius-card)',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
-        color: isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)',
+        color: isActive ? '#FFFFFF' : 'var(--color-brand-emerald)',
       }}
     >
-      <span style={{ opacity: isActive ? 1 : 0.7 }}>{mode.icon}</span>
+      <span style={{ opacity: isActive ? 1 : 0.8 }}>{mode.icon}</span>
       <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>
         {intl.formatMessage({ id: mode.labelKey, defaultMessage: mode.labelDefault })}
       </span>
@@ -1253,10 +1253,8 @@ export default function LearnPage() {
 
   return (
     <div className="page-container">
-      {/* ===== HERO SECTION (Only visible in Home mode) ===== */}
-      {isHomeMode && (
-        <HeroSection intl={intl} hasStartedCourses={hasStartedCourses} />
-      )}
+      {/* ===== HERO SECTION (Always visible) ===== */}
+      <HeroSection intl={intl} hasStartedCourses={hasStartedCourses} />
 
       {/* ===== MODE SELECTORS ===== */}
       <div style={{ marginTop: 'var(--spacing-3)' }}>
