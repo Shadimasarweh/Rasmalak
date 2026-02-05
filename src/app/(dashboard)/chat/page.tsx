@@ -471,105 +471,14 @@ export default function MustasharakPage() {
           minHeight: 0,
         }}
       >
-        {/* ----- Intro Message (only show if no messages) ----- */}
-        {!hasMessages && (
-          <div
-            style={{
-              padding: 'var(--spacing-3)',
-              borderBottom: '1px solid var(--theme-border)',
-            }}
-          >
-            {/* AI Avatar */}
-            <div
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-                marginBottom: 'var(--spacing-2)',
-              }}
-            >
-              <BotIcon />
-            </div>
-
-            {/* Greeting */}
-            <h2
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                color: 'var(--theme-text-primary)',
-                marginBottom: '8px',
-              }}
-            >
-              {intl.formatMessage({ id: 'chat.greeting', defaultMessage: 'Hello, {name}!' }, { name: displayName })} 👋
-            </h2>
-            <p
-              style={{
-                fontSize: '0.9375rem',
-                color: 'var(--theme-text-secondary)',
-                lineHeight: 1.6,
-                marginBottom: 'var(--spacing-2)',
-              }}
-            >
-              {intl.formatMessage({ id: 'chat.intro_message', defaultMessage: "I'm your Mustasharak financial advisor. I've analyzed your recent transactions and I'm ready to help you optimize your budget. What would you like to focus on today?" })}
-            </p>
-
-            {/* Quick Action Cards (2x2 grid) */}
-            <div
-              style={{
-                display: 'grid',
-                gap: 'var(--spacing-1)',
-              }}
-              className="grid-cols-1 sm:grid-cols-2"
-            >
-              <QuickActionCard
-                icon={<ChartIcon />}
-                iconBg="rgba(99, 102, 241, 0.1)"
-                iconColor="#6366F1"
-                title={intl.formatMessage({ id: 'chat.analyze_expenses', defaultMessage: 'Analyze my expenses' })}
-                description={intl.formatMessage({ id: 'chat.analyze_expenses_desc', defaultMessage: 'Breakdown by category' })}
-                onClick={() => handleQuickAction(language === 'ar' ? 'حلل مصاريفي لهذا الشهر' : 'Analyze my expenses this month')}
-              />
-              <QuickActionCard
-                icon={<PiggyIcon />}
-                iconBg="rgba(16, 185, 129, 0.1)"
-                iconColor="#10B981"
-                title={intl.formatMessage({ id: 'chat.how_save_more', defaultMessage: 'How can I save more?' })}
-                description={intl.formatMessage({ id: 'chat.how_save_more_desc', defaultMessage: 'Smart budgeting tips' })}
-                onClick={() => handleQuickAction(language === 'ar' ? 'كيف أوفر أكثر؟' : 'How can I save more money?')}
-              />
-              <QuickActionCard
-                icon={<TrendUpIcon />}
-                iconBg="rgba(245, 158, 11, 0.1)"
-                iconColor="#F59E0B"
-                title={intl.formatMessage({ id: 'chat.investment_options', defaultMessage: 'Investment options' })}
-                description={intl.formatMessage({ id: 'chat.investment_options_desc', defaultMessage: 'Based on your savings' })}
-                onClick={() => handleQuickAction(language === 'ar' ? 'ما هي خيارات الاستثمار المناسبة لي؟' : 'What investment options are suitable for me?')}
-              />
-              <QuickActionCard
-                icon={<RepeatIcon />}
-                iconBg="rgba(239, 68, 68, 0.1)"
-                iconColor="#EF4444"
-                title={intl.formatMessage({ id: 'chat.review_subscriptions', defaultMessage: 'Review subscriptions' })}
-                description={intl.formatMessage({ id: 'chat.review_subscriptions_desc', defaultMessage: 'Detect recurring charges' })}
-                onClick={() => handleQuickAction(language === 'ar' ? 'راجع اشتراكاتي والمصاريف المتكررة' : 'Review my subscriptions and recurring expenses')}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ----- Chat Messages Area ----- */}
+        {/* ----- Chat Messages Area (scrollable, includes intro when empty) ----- */}
         <div
           ref={chatContainerRef}
           style={{
             flex: 1,
-            padding: 'var(--spacing-3)',
+            padding: 'var(--spacing-2)',
             overflowY: 'auto',
-            minHeight: '200px',
+            minHeight: 0,
           }}
         >
           {hasMessages ? (
@@ -592,23 +501,87 @@ export default function MustasharakPage() {
               )}
             </>
           ) : (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-              }}
-            >
+            <div style={{ padding: 'var(--spacing-1)' }}>
+              {/* AI Avatar */}
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#FFFFFF',
+                  marginBottom: 'var(--spacing-2)',
+                }}
+              >
+                <BotIcon />
+              </div>
+
+              {/* Greeting */}
+              <h2
+                style={{
+                  fontSize: '1.125rem',
+                  fontWeight: 600,
+                  color: 'var(--theme-text-primary)',
+                  marginBottom: '8px',
+                }}
+              >
+                {intl.formatMessage({ id: 'chat.greeting', defaultMessage: 'Hello, {name}!' }, { name: displayName })} 👋
+              </h2>
               <p
                 style={{
                   fontSize: '0.875rem',
-                  color: 'var(--theme-text-muted)',
-                  textAlign: 'center',
+                  color: 'var(--theme-text-secondary)',
+                  lineHeight: 1.6,
+                  marginBottom: 'var(--spacing-2)',
                 }}
               >
-                {intl.formatMessage({ id: 'chat.start_conversation', defaultMessage: 'Start a conversation to get insights' })}
+                {intl.formatMessage({ id: 'chat.intro_message', defaultMessage: "I'm your Mustasharak financial advisor. I've analyzed your recent transactions and I'm ready to help you optimize your budget. What would you like to focus on today?" })}
               </p>
+
+              {/* Quick Action Cards (2x2 grid) */}
+              <div
+                style={{
+                  display: 'grid',
+                  gap: 'var(--spacing-1)',
+                }}
+                className="grid-cols-1 sm:grid-cols-2"
+              >
+                <QuickActionCard
+                  icon={<ChartIcon />}
+                  iconBg="rgba(99, 102, 241, 0.1)"
+                  iconColor="#6366F1"
+                  title={intl.formatMessage({ id: 'chat.analyze_expenses', defaultMessage: 'Analyze my expenses' })}
+                  description={intl.formatMessage({ id: 'chat.analyze_expenses_desc', defaultMessage: 'Breakdown by category' })}
+                  onClick={() => handleQuickAction(language === 'ar' ? 'حلل مصاريفي لهذا الشهر' : 'Analyze my expenses this month')}
+                />
+                <QuickActionCard
+                  icon={<PiggyIcon />}
+                  iconBg="rgba(16, 185, 129, 0.1)"
+                  iconColor="#10B981"
+                  title={intl.formatMessage({ id: 'chat.how_save_more', defaultMessage: 'How can I save more?' })}
+                  description={intl.formatMessage({ id: 'chat.how_save_more_desc', defaultMessage: 'Smart budgeting tips' })}
+                  onClick={() => handleQuickAction(language === 'ar' ? 'كيف أوفر أكثر؟' : 'How can I save more money?')}
+                />
+                <QuickActionCard
+                  icon={<TrendUpIcon />}
+                  iconBg="rgba(245, 158, 11, 0.1)"
+                  iconColor="#F59E0B"
+                  title={intl.formatMessage({ id: 'chat.investment_options', defaultMessage: 'Investment options' })}
+                  description={intl.formatMessage({ id: 'chat.investment_options_desc', defaultMessage: 'Based on your savings' })}
+                  onClick={() => handleQuickAction(language === 'ar' ? 'ما هي خيارات الاستثمار المناسبة لي؟' : 'What investment options are suitable for me?')}
+                />
+                <QuickActionCard
+                  icon={<RepeatIcon />}
+                  iconBg="rgba(239, 68, 68, 0.1)"
+                  iconColor="#EF4444"
+                  title={intl.formatMessage({ id: 'chat.review_subscriptions', defaultMessage: 'Review subscriptions' })}
+                  description={intl.formatMessage({ id: 'chat.review_subscriptions_desc', defaultMessage: 'Detect recurring charges' })}
+                  onClick={() => handleQuickAction(language === 'ar' ? 'راجع اشتراكاتي والمصاريف المتكررة' : 'Review my subscriptions and recurring expenses')}
+                />
+              </div>
             </div>
           )}
         </div>
