@@ -15,7 +15,6 @@ import {
   LogOut,
   Users,
   X,
-  Plus,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useStore';
@@ -36,15 +35,6 @@ const navItems = [
     labelAr: 'الميزانيات', 
     labelEn: 'Budgets',
     smeOnly: false,
-  },
-  { 
-    id: 'add', 
-    path: '/transactions/new', 
-    icon: Plus, 
-    labelAr: 'إضافة معاملة', 
-    labelEn: 'Add Transaction',
-    smeOnly: false,
-    isAction: true,
   },
   { 
     id: 'learn', 
@@ -202,28 +192,6 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
           const showLabel = isMobile || isExpanded;
-
-          // Special "Add Transaction" button style
-          if ('isAction' in item && item.isAction) {
-            return (
-              <Link
-                key={item.id}
-                href={item.path}
-                className={`
-                  flex items-center rounded-[var(--radius-input)] min-h-[44px]
-                  transition-colors duration-150
-                  ${showLabel ? 'gap-3 px-3' : 'justify-center px-0'}
-                  bg-[#10B981] text-[#FFFFFF] font-medium
-                `}
-                title={!showLabel ? label : undefined}
-              >
-                <Icon className="w-5 h-5 flex-shrink-0" />
-                {showLabel && (
-                  <span className="text-sm font-medium truncate">{label}</span>
-                )}
-              </Link>
-            );
-          }
 
           return (
             <Link
