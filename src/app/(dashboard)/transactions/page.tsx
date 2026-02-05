@@ -337,9 +337,9 @@ export default function TransactionsPage() {
         <>
           {/* ===== STATS ROW ===== */}
           {/* Per Contract Section 7: Totals computed from visible transactions only */}
-          <div className="dashboard-grid">
+          <div className="responsive-grid-3">
             {/* Total Income */}
-            <div className="card card-standard" style={{ gridColumn: 'span 4' }}>
+            <div className="card card-standard">
               <div>
                 <p className="card-title">
                   {intl.formatMessage({ id: 'transactions.total_income', defaultMessage: 'Total Income' })}
@@ -351,7 +351,7 @@ export default function TransactionsPage() {
             </div>
 
             {/* Total Expenses */}
-            <div className="card card-standard" style={{ gridColumn: 'span 4' }}>
+            <div className="card card-standard">
               <div>
                 <p className="card-title">
                   {intl.formatMessage({ id: 'transactions.total_expenses', defaultMessage: 'Total Expenses' })}
@@ -363,7 +363,7 @@ export default function TransactionsPage() {
             </div>
 
             {/* Net Balance */}
-            <div className="card card-standard" style={{ gridColumn: 'span 4' }}>
+            <div className="card card-standard">
               <div>
                 <p className="card-title">
                   {intl.formatMessage({ id: 'transactions.net_balance', defaultMessage: 'Net Balance' })}
@@ -389,7 +389,8 @@ export default function TransactionsPage() {
               </span>
             </div>
 
-            <table style={{ width: '100%' }}>
+            <div className="overflow-x-auto">
+            <table style={{ width: '100%', minWidth: '600px' }}>
               <thead>
                 <tr className="table-header">
                   <th className="table-cell label-text" style={{ textAlign: 'left' }}>
@@ -423,6 +424,7 @@ export default function TransactionsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </>
       ) : (

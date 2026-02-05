@@ -378,10 +378,10 @@ function FeaturedToolCard({
 }) {
   return (
     <div
-      className="card-standard"
+      className="card-standard featured-tool-grid"
       style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 280px',
+        gridTemplateColumns: '1fr',
         gap: 'var(--spacing-3)',
         alignItems: 'center',
       }}
@@ -455,11 +455,11 @@ function FeaturedToolCard({
 
       {/* Right Visual Placeholder */}
       <div
+        className="hidden md:flex"
         style={{
           height: '180px',
           borderRadius: 'var(--radius-sm)',
           background: 'linear-gradient(135deg, rgba(245, 208, 140, 0.4) 0%, rgba(245, 208, 140, 0.2) 100%)',
-          display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
@@ -638,6 +638,7 @@ function CountryFilter({
         alignItems: 'center',
         gap: 'var(--spacing-1)',
         flexWrap: 'wrap',
+        overflowX: 'auto',
       }}
     >
       <span
@@ -649,6 +650,7 @@ function CountryFilter({
         fontWeight: 500,
         color: 'rgba(255, 255, 255, 0.5)',
         marginRight: '8px',
+        flexShrink: 0,
       }}
     >
       <GlobeIcon />
@@ -787,13 +789,7 @@ export default function FinancialToolsPage() {
                 {intl.formatMessage({ id: 'tools.section.credit_debt', defaultMessage: 'Credit & Debt' })}
               </h2>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 'var(--spacing-2)',
-              }}
-            >
+            <div className="responsive-grid-4">
               {creditTools.map((tool) => (
                 <ToolCard
                   key={tool.id}
@@ -833,13 +829,7 @@ export default function FinancialToolsPage() {
                 {intl.formatMessage({ id: 'tools.section.budgeting_saving', defaultMessage: 'Budgeting & Saving' })}
               </h2>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 'var(--spacing-2)',
-              }}
-            >
+            <div className="responsive-grid-4">
               {budgetingTools.map((tool) => (
                 <ToolCard
                   key={tool.id}
@@ -879,13 +869,7 @@ export default function FinancialToolsPage() {
                 {intl.formatMessage({ id: 'tools.section.auto_loans', defaultMessage: 'Auto Loans' })}
               </h2>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 'var(--spacing-2)',
-              }}
-            >
+            <div className="responsive-grid-4">
               {autoTools.map((tool) => (
                 <ToolCard
                   key={tool.id}
@@ -925,13 +909,7 @@ export default function FinancialToolsPage() {
                 {intl.formatMessage({ id: 'tools.section.tax_zakat', defaultMessage: 'Tax & Zakat' })}
               </h2>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 'var(--spacing-2)',
-              }}
-            >
+            <div className="responsive-grid-4">
               {taxTools.map((tool) => (
                 <ToolCard
                   key={tool.id}
@@ -971,13 +949,7 @@ export default function FinancialToolsPage() {
                 {intl.formatMessage({ id: 'tools.section.social_security', defaultMessage: 'Social Security & Benefits' })}
               </h2>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 'var(--spacing-2)',
-              }}
-            >
+            <div className="responsive-grid-4">
               {socialTools.map((tool) => (
                 <ToolCard
                   key={tool.id}

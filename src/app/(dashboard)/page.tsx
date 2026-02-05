@@ -139,10 +139,10 @@ export default function OverviewPage() {
       </div>
 
       {/* ===== TOP CARDS ROW ===== */}
-      <div className="grid grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         {/* Total Balance Card - HERO */}
         <div 
-          className="col-span-4 rounded-2xl p-5 relative overflow-hidden"
+          className="col-span-1 md:col-span-4 rounded-2xl p-5 relative overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, #065F46 0%, #047857 50%, #10B981 100%)',
             minHeight: '180px'
@@ -152,7 +152,7 @@ export default function OverviewPage() {
             {intl.formatMessage({ id: 'dashboard.total_balance', defaultMessage: 'Total Balance' })}
           </p>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-white text-4xl font-bold tracking-tight">
+            <span className="text-white text-2xl sm:text-4xl font-bold tracking-tight">
               {intl.formatNumber(totalBalance, { style: 'currency', currency })}
             </span>
           </div>
@@ -196,7 +196,7 @@ export default function OverviewPage() {
 
         {/* Cash Flow Card */}
         <div 
-          className="col-span-5 rounded-2xl shadow-sm" 
+          className="col-span-1 md:col-span-5 rounded-2xl shadow-sm" 
           style={{ 
             padding: '1.25rem',
             backgroundColor: 'var(--theme-bg-card)',
@@ -277,7 +277,7 @@ export default function OverviewPage() {
 
         {/* Top Goal Card - Empty State (Goals feature coming soon) */}
         <div 
-          className="col-span-3 rounded-2xl shadow-sm" 
+          className="col-span-1 md:col-span-3 rounded-2xl shadow-sm" 
           style={{ 
             padding: '1.25rem',
             backgroundColor: 'var(--theme-bg-card)',
@@ -313,10 +313,10 @@ export default function OverviewPage() {
       </div>
 
       {/* ===== MIDDLE SECTION: SPENDING + BUDGETS ===== */}
-      <div className="grid grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         {/* Spending Analysis */}
         <div 
-          className="col-span-8 rounded-2xl shadow-sm" 
+          className="col-span-1 md:col-span-8 rounded-2xl shadow-sm" 
           style={{ 
             padding: '1.25rem',
             backgroundColor: 'var(--theme-bg-card)',
@@ -383,7 +383,7 @@ export default function OverviewPage() {
 
         {/* Budgets - Empty State (Budgets feature coming soon) */}
         <div 
-          className="col-span-4 rounded-2xl shadow-sm" 
+          className="col-span-1 md:col-span-4 rounded-2xl shadow-sm" 
           style={{ 
             padding: '1.25rem',
             backgroundColor: 'var(--theme-bg-card)',
@@ -419,10 +419,10 @@ export default function OverviewPage() {
       </div>
 
       {/* ===== LEARNING PROGRESS SECTION ===== */}
-      <div className="grid grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         {/* Learning Overview */}
         <div 
-          className="col-span-8 rounded-2xl shadow-sm" 
+          className="col-span-1 md:col-span-8 rounded-2xl shadow-sm" 
           style={{ 
             padding: '1.25rem',
             backgroundColor: 'var(--theme-bg-card)',
@@ -522,7 +522,7 @@ export default function OverviewPage() {
 
         {/* Featured & Recommendations */}
         <div 
-          className="col-span-4 rounded-2xl shadow-sm" 
+          className="col-span-1 md:col-span-4 rounded-2xl shadow-sm" 
           style={{ 
             padding: '1.25rem',
             backgroundColor: 'var(--theme-bg-card)',
@@ -614,7 +614,8 @@ export default function OverviewPage() {
 
         {/* Table or Empty State */}
         {recentTransactions.length > 0 ? (
-          <table className="w-full">
+          <div className="overflow-x-auto -mx-[1.25rem] px-[1.25rem]">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--theme-border)' }}>
                 <th style={{ textAlign: 'start', paddingBlock: '0.75rem', color: 'var(--theme-text-muted)' }} className="text-xs font-medium uppercase tracking-wider">
@@ -689,6 +690,7 @@ export default function OverviewPage() {
               })}
             </tbody>
           </table>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '3rem', gap: '1rem' }}>
             <div className="rounded-xl" style={{ width: '4rem', height: '4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>

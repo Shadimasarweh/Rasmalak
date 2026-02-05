@@ -166,8 +166,9 @@ function ModeSelector({
         alignItems: 'center',
         justifyContent: 'center',
         gap: '8px',
-        padding: '20px 24px',
-        minWidth: '140px',
+        padding: '12px 16px',
+        minWidth: '100px',
+        flex: '0 0 auto',
         background: isActive ? 'var(--color-brand-emerald)' : 'rgba(16, 185, 129, 0.1)',
         border: isActive ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
         borderRadius: 'var(--radius-card)',
@@ -197,6 +198,7 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 'var(--spacing-3)',
+        flexWrap: 'wrap' as const,
       }}
     >
       <div style={{ flex: 1 }}>
@@ -918,7 +920,7 @@ function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
         <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
           {intl.formatMessage({ id: 'learn.available_paths', defaultMessage: 'Available Paths' })}
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-2)' }}>
+        <div className="responsive-grid-3">
           <PathPreviewCard
             icon={<TrendIcon />}
             iconBg="rgba(59, 130, 246, 0.1)"
@@ -1002,7 +1004,7 @@ function VideosContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.all_videos', defaultMessage: 'All Videos' })}
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-2)' }}>
+      <div className="responsive-grid-4">
         {videos.map((video, index) => (
           <VideoCard key={index} title={video.title} duration={video.duration} color={video.color} />
         ))}
@@ -1018,7 +1020,7 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.explore_topics', defaultMessage: 'Explore Topics' })}
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-2)' }}>
+      <div className="responsive-grid-4">
         <TopicCard
           icon={<BookIcon />}
           iconBg="rgba(99, 102, 241, 0.1)"
@@ -1070,7 +1072,7 @@ function AchievementsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.your_achievements', defaultMessage: 'Your Achievements' })}
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-2)' }}>
+      <div className="responsive-grid-4">
         {badges.map((badge, index) => (
           <AchievementBadge
             key={index}
@@ -1266,7 +1268,7 @@ export default function LearnPage() {
           }}
         >
           {/* Mode Selector Buttons */}
-          <div style={{ display: 'flex', gap: 'var(--spacing-2)', flex: 1 }}>
+          <div style={{ display: 'flex', gap: 'var(--spacing-2)', flex: 1, overflowX: 'auto', paddingBottom: '0.5rem' }}>
             {LEARNING_MODES.map((mode) => (
               <ModeSelector
                 key={mode.id}

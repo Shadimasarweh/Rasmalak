@@ -413,8 +413,106 @@
 /* ----- Grid Layout ----- */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--spacing-2);
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
+
+/* ----- Page Container Mobile ----- */
+@media (max-width: 767px) {
+  .page-container {
+    padding: var(--spacing-2);
+  }
+}
+
+/* ----- Chart Container Mobile ----- */
+@media (max-width: 640px) {
+  .chart-container {
+    height: 8rem;
+  }
+  .chart-bar-fill,
+  .chart-bar-fill-active {
+    width: 1.25rem;
+  }
+}
+
+/* ----- Chat Layout ----- */
+@media (min-width: 1024px) {
+  .chat-layout {
+    display: grid !important;
+    grid-template-columns: 1fr 320px !important;
+    flex-direction: unset !important;
+  }
+}
+
+/* ----- Featured Tool Grid ----- */
+@media (min-width: 768px) {
+  .featured-tool-grid {
+    grid-template-columns: 1fr 280px !important;
+  }
+}
+
+/* ----- Responsive Tool/Card Grids ----- */
+.responsive-grid-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2);
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.responsive-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2);
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2);
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ----- Settings Layout ----- */
+@media (min-width: 1024px) {
+  .settings-layout {
+    display: grid !important;
+    grid-template-columns: 200px 1fr !important;
+    flex-direction: unset !important;
+  }
 }
 
 /* ----- Value Display ----- */

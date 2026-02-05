@@ -30,9 +30,9 @@ export default function Header() {
       }}
     >
 
-      <div className="h-full flex items-center justify-between px-6 gap-4">
+      <div className="h-full flex items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
         {/* Search */}
-        <div className="flex-1 max-w-md">
+        <div className="flex-1 max-w-md hidden sm:block">
           <div className="relative">
             <div 
               className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"

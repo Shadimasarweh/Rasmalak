@@ -391,9 +391,9 @@ export default function AddIncomePage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
                 gap: 'var(--spacing-1)',
               }}
+              className="grid-cols-3 sm:grid-cols-4"
             >
               {INCOME_CATEGORIES.map((cat) => (
                 <CategoryItem

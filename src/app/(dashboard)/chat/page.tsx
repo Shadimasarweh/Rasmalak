@@ -449,9 +449,10 @@ export default function MustasharakPage() {
   
   return (
     <div
+      className="chat-layout"
       style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 320px',
+        display: 'flex',
+        flexDirection: 'column',
         gap: 'var(--spacing-2)',
         height: 'calc(100vh - 80px)',
         padding: 'var(--spacing-2)',
@@ -519,9 +520,9 @@ export default function MustasharakPage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
                 gap: 'var(--spacing-1)',
               }}
+              className="grid-cols-1 sm:grid-cols-2"
             >
               <QuickActionCard
                 icon={<ChartIcon />}
@@ -689,8 +690,8 @@ export default function MustasharakPage() {
 
       {/* ===== RIGHT COLUMN: INSIGHTS PANEL ===== */}
       <div
+        className="hidden lg:flex"
         style={{
-          display: 'flex',
           flexDirection: 'column',
           gap: 'var(--spacing-2)',
           overflowY: 'auto',

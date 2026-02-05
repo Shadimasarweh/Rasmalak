@@ -396,9 +396,9 @@ export default function AddExpensePage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
                 gap: 'var(--spacing-1)',
               }}
+              className="grid-cols-3 sm:grid-cols-4"
             >
               {EXPENSE_CATEGORIES.map((cat) => (
                 <CategoryItem

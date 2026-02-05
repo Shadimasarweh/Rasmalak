@@ -422,9 +422,9 @@ function ProfileContent({ intl, userData }: { intl: ReturnType<typeof useIntl>; 
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '180px 1fr',
             gap: 'var(--spacing-3)',
           }}
+          className="grid-cols-1 sm:grid-cols-[180px_1fr]"
         >
           {/* Avatar Section */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -1115,15 +1115,16 @@ export default function SettingsPage() {
 
       {/* Main Content */}
       <div
+        className="settings-layout"
         style={{
-          display: 'grid',
-          gridTemplateColumns: '200px 1fr',
+          display: 'flex',
+          flexDirection: 'column',
           gap: 'var(--spacing-3)',
           flex: 1,
         }}
       >
         {/* Left Navigation */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '4px', overflowX: 'auto', flexWrap: 'nowrap' }} className="lg:!flex-col">
           <NavTab
             icon={<UserIcon />}
             label={intl.formatMessage({ id: 'settings.profile_information', defaultMessage: 'Profile Information' })}
@@ -1171,10 +1172,12 @@ export default function SettingsPage() {
           paddingTop: 'var(--spacing-2)',
           borderTop: '1px solid var(--theme-border)',
           marginTop: 'var(--spacing-2)',
+          flexWrap: 'wrap',
+          gap: '1rem',
         }}
       >
         {/* User Info */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="hidden sm:flex" style={{ alignItems: 'center', gap: '12px' }}>
           <div
             style={{
               width: '40px',
