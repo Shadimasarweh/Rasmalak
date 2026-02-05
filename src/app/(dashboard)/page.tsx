@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import { useCurrency, useUser, useUserName } from '@/store/useStore';
 import { useTransactions } from '@/store/transactionStore';
 import { useMemo } from 'react';
+import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
 
 export default function OverviewPage() {
   const intl = useIntl();
@@ -102,6 +103,9 @@ export default function OverviewPage() {
 
   return (
     <div style={{ padding: 'var(--spacing-3)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* ===== AI ALERT BANNER ===== */}
+      <AIAlertBanner />
+      
       {/* ===== GREETING SECTION ===== */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ minWidth: 0 }}>
@@ -111,24 +115,26 @@ export default function OverviewPage() {
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-          <button 
+          <Link 
+            href="/transactions/new"
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '0.5rem', 
               paddingInline: '1rem', 
               paddingBlock: '0.625rem',
-              backgroundColor: 'var(--theme-bg-card)',
-              color: 'var(--theme-text-primary)',
-              border: '1px solid var(--theme-border)',
+              backgroundColor: 'var(--color-brand-emerald)',
+              color: '#FFFFFF',
+              border: 'none',
+              textDecoration: 'none',
             }} 
-            className="text-sm font-medium rounded-xl"
+            className="text-sm font-medium rounded-xl hover:opacity-90 transition-opacity"
           >
             <svg style={{ width: '1rem', height: '1rem', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            <span>{intl.formatMessage({ id: 'dashboard.report', defaultMessage: 'Report' })}</span>
-          </button>
+            <span>{intl.formatMessage({ id: 'dashboard.add_transaction', defaultMessage: 'Add Transaction' })}</span>
+          </Link>
         </div>
       </div>
 
@@ -556,30 +562,8 @@ export default function OverviewPage() {
             </p>
           </div>
           
-          {/* Recommendation based on activity */}
-          <div 
-            style={{ 
-              padding: '0.875rem',
-              borderRadius: 'var(--radius-card)',
-              backgroundColor: 'rgba(245, 158, 11, 0.08)',
-              border: '1px solid rgba(245, 158, 11, 0.15)',
-              marginBlockEnd: '0.75rem',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '0.625rem' }}>
-              <svg className="w-4 h-4 mt-0.5" style={{ color: '#F59E0B', flexShrink: 0 }} fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z" />
-              </svg>
-              <div>
-                <p className="text-xs font-semibold" style={{ color: '#F59E0B', marginBlockEnd: '0.25rem' }}>
-                  {intl.formatMessage({ id: 'dashboard.based_on_spending', defaultMessage: 'Based on your spending' })}
-                </p>
-                <p className="text-xs" style={{ color: 'var(--theme-text-secondary)', lineHeight: 1.4 }}>
-                  {intl.formatMessage({ id: 'dashboard.spending_recommendation', defaultMessage: 'Check out our guide on meal prep savings.' })}
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* AI Goal Suggestions */}
+          <AIGoalSuggestions />
           
           {/* Quick Action */}
           <Link 

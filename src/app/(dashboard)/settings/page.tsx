@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useStore } from '@/store/useStore';
+import { useStore, useUser, useUserName } from '@/store/useStore';
 import { SUPPORTED_CURRENCY_CODES, getCurrencyDisplayName } from '@/lib/currencies';
 
 /* ============================================
@@ -395,7 +395,15 @@ function SettingRow({
 }
 
 /* ===== PROFILE TAB CONTENT ===== */
-function ProfileContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
+function ProfileContent({ intl, userData }: { intl: ReturnType<typeof useIntl>; userData: { name: string; email: string } }) {
+  // Split name into first and last
+  const nameParts = userData.name.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+  
+  // Get initials for avatar
+  const initials = (firstName[0] || '') + (lastName[0] || '');
+  
   return (
     <>
       {/* Profile Information Card */}
@@ -445,10 +453,16 @@ function ProfileContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                   overflow: 'hidden',
                 }}
               >
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                  <ellipse cx="40" cy="70" rx="25" ry="15" fill="#D4A853" />
-                  <circle cx="40" cy="32" r="20" fill="#D4A853" />
-                </svg>
+                {initials ? (
+                  <span style={{ fontSize: '2.5rem', fontWeight: 700, color: '#D4A853' }}>
+                    {initials.toUpperCase()}
+                  </span>
+                ) : (
+                  <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <ellipse cx="40" cy="70" rx="25" ry="15" fill="#D4A853" />
+                    <circle cx="40" cy="32" r="20" fill="#D4A853" />
+                  </svg>
+                )}
               </div>
               <div
                 style={{
@@ -481,11 +495,11 @@ function ProfileContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           {/* Form Fields */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-2)' }}>
-              <InputField label={intl.formatMessage({ id: 'settings.first_name', defaultMessage: 'First Name' })} value="Ahmed" />
-              <InputField label={intl.formatMessage({ id: 'settings.last_name', defaultMessage: 'Last Name' })} value="Al-Farsi" />
+              <InputField label={intl.formatMessage({ id: 'settings.first_name', defaultMessage: 'First Name' })} value={firstName || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} />
+              <InputField label={intl.formatMessage({ id: 'settings.last_name', defaultMessage: 'Last Name' })} value={lastName || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} />
             </div>
-            <InputField label={intl.formatMessage({ id: 'settings.email_address', defaultMessage: 'Email Address' })} value="ahmed@rasmalak.ai" icon={<MailIcon />} />
-            <InputField label={intl.formatMessage({ id: 'settings.phone_number', defaultMessage: 'Phone Number' })} value="+966 50 123 4567" icon={<SmartphoneIcon />} />
+            <InputField label={intl.formatMessage({ id: 'settings.email_address', defaultMessage: 'Email Address' })} value={userData.email || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} icon={<MailIcon />} />
+            <InputField label={intl.formatMessage({ id: 'settings.phone_number', defaultMessage: 'Phone Number' })} value={intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} icon={<SmartphoneIcon />} />
           </div>
         </div>
       </div>
@@ -848,24 +862,48 @@ function PreferencesContent({
           {intl.formatMessage({ id: 'settings.currency_description', defaultMessage: 'Default currency for displaying amounts.' })}
         </p>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 'var(--spacing-1)',
-            maxHeight: '300px',
-            overflowY: 'auto',
-          }}
-        >
-          {SUPPORTED_CURRENCY_CODES.map((code) => (
-            <CurrencyOption
-              key={code}
-              code={code}
-              name={getCurrencyDisplayName(code, selectedLanguage)}
-              selected={selectedCurrency === code}
-              onClick={() => onCurrencyChange(code)}
-            />
-          ))}
+        {/* Currency Dropdown */}
+        <div style={{ position: 'relative' }}>
+          <select
+            value={selectedCurrency}
+            onChange={(e) => onCurrencyChange(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              paddingRight: '40px',
+              fontSize: '0.9375rem',
+              fontWeight: 500,
+              color: 'var(--theme-text-primary)',
+              background: 'var(--theme-bg-input)',
+              border: '2px solid var(--color-brand-emerald)',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+            }}
+          >
+            {SUPPORTED_CURRENCY_CODES.map((code) => (
+              <option key={code} value={code}>
+                {getCurrencyDisplayName(code, selectedLanguage)}
+              </option>
+            ))}
+          </select>
+          {/* Dropdown Arrow */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '14px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none',
+              color: 'var(--color-brand-emerald)',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
         </div>
       </div>
 
@@ -996,6 +1034,18 @@ export default function SettingsPage() {
   const intl = useIntl();
   const [activeTab, setActiveTab] = useState<TabId>('profile');
   
+  // Get user data from store
+  const user = useUser();
+  const userName = useUserName();
+  
+  // Compute display values
+  const displayName = user?.name || userName || intl.formatMessage({ id: 'settings.guest_user', defaultMessage: 'Guest User' });
+  const displayEmail = user?.email || intl.formatMessage({ id: 'settings.no_email', defaultMessage: 'No email set' });
+  
+  // Get initials for avatar
+  const nameParts = displayName.trim().split(' ');
+  const initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
+  
   // Get global language from store
   const globalLanguage = useStore((state) => state.language);
   const setGlobalLanguage = useStore((state) => state.setLanguage);
@@ -1096,7 +1146,7 @@ export default function SettingsPage() {
 
         {/* Right Content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-          {activeTab === 'profile' && <ProfileContent intl={intl} />}
+          {activeTab === 'profile' && <ProfileContent intl={intl} userData={{ name: displayName, email: displayEmail }} />}
           {activeTab === 'security' && <SecurityContent intl={intl} />}
           {activeTab === 'preferences' && (
             <PreferencesContent 
@@ -1136,10 +1186,16 @@ export default function SettingsPage() {
               justifyContent: 'center',
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <ellipse cx="12" cy="18" rx="6" ry="4" fill="#D4A853" />
-              <circle cx="12" cy="8" r="5" fill="#D4A853" />
-            </svg>
+            {initials ? (
+              <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#D4A853' }}>
+                {initials.toUpperCase()}
+              </span>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <ellipse cx="12" cy="18" rx="6" ry="4" fill="#D4A853" />
+                <circle cx="12" cy="8" r="5" fill="#D4A853" />
+              </svg>
+            )}
           </div>
           <div>
             <p
@@ -1149,10 +1205,10 @@ export default function SettingsPage() {
                 color: 'var(--theme-text-primary)',
               }}
             >
-              Ahmed Al-Farsi
+              {displayName}
             </p>
             <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
-              ahmed@rasmalak.ai
+              {displayEmail}
             </p>
           </div>
         </div>
