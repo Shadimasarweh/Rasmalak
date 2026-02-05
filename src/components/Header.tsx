@@ -1,12 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, Settings, Search, LogOut } from 'lucide-react';
+import { Bell, Settings, Search, LogOut, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserName, useUser, useLogout } from '@/store/useStore';
 
-export default function Header() {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export default function Header({ onMenuToggle }: HeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const userName = useUserName();
@@ -31,6 +35,15 @@ export default function Header() {
     >
 
       <div className="h-full flex items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
+        {/* Mobile menu button */}
+        <button
+          onClick={onMenuToggle}
+          className="p-2 rounded-[var(--radius-input)] lg:hidden"
+          style={{ color: 'var(--theme-text-secondary)' }}
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
         {/* Search */}
         <div className="flex-1 max-w-md hidden sm:block">
           <div className="relative">
@@ -55,6 +68,9 @@ export default function Header() {
             />
           </div>
         </div>
+
+        {/* Spacer on mobile when search is hidden */}
+        <div className="flex-1 sm:hidden" />
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">

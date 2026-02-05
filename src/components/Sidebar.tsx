@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -14,6 +14,8 @@ import {
   ChevronRight,
   LogOut,
   Users,
+  X,
+  Plus,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useStore';
@@ -34,6 +36,15 @@ const navItems = [
     labelAr: 'الميزانيات', 
     labelEn: 'Budgets',
     smeOnly: false,
+  },
+  { 
+    id: 'add', 
+    path: '/transactions/new', 
+    icon: Plus, 
+    labelAr: 'إضافة معاملة', 
+    labelEn: 'Add Transaction',
+    smeOnly: false,
+    isAction: true,
   },
   { 
     id: 'learn', 
@@ -79,7 +90,12 @@ const bottomNavItems = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const { language, isRTL } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -91,6 +107,24 @@ export default function Sidebar() {
   
   const isSmeUser = onboardingData?.segment === 'sme' || onboardingData?.segment === 'self_employed';
   const visibleNavItems = navItems.filter(item => !item.smeOnly || isSmeUser);
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (mobileOpen && onMobileClose) {
+      onMobileClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
   const ToggleIcon = isRTL
     ? (isExpanded ? ChevronRight : ChevronLeft)
@@ -110,42 +144,41 @@ export default function Sidebar() {
     return pathname.startsWith(path);
   };
 
-  return (
-    <aside
-      className={`
-        sticky top-0 h-screen flex-shrink-0
-        flex flex-col
-        transition-all duration-300 ease-out
-        hidden lg:flex
-        ${isExpanded ? 'w-60' : 'w-[72px]'}
-      `}
-      style={{ backgroundColor: 'var(--theme-bg-sidebar)' }}
-    >
+  const sidebarContent = (isMobile: boolean) => (
+    <>
       {/* Logo */}
       <div 
-        className={`h-16 flex items-center ${isExpanded ? 'px-5 gap-3' : 'justify-center'}`}
+        className={`h-16 flex items-center ${(!isMobile && !isExpanded) ? 'justify-center' : 'px-5 gap-3'}`}
         style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
       >
         <div className="w-8 h-8 rounded-[var(--radius-input)] bg-[#10B981] flex items-center justify-center flex-shrink-0">
           <span className="text-[#FFFFFF] font-bold text-sm">R</span>
         </div>
-        {isExpanded && (
-          <span className="text-[#FFFFFF] font-semibold">
+        {(isMobile || isExpanded) && (
+          <span className="text-[#FFFFFF] font-semibold flex-1">
             Rasmalak <span className="text-[#10B981]">AI</span>
           </span>
+        )}
+        {isMobile && (
+          <button
+            onClick={onMobileClose}
+            className="p-1.5 rounded-lg text-[#FFFFFF]/60 hover:text-[#FFFFFF] hover:bg-[#FFFFFF]/10 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         )}
       </div>
 
       {/* User Profile Section */}
       <div 
-        className={`${isExpanded ? 'px-4 py-4' : 'p-2'}`}
+        className={`${(!isMobile && !isExpanded) ? 'p-2' : 'px-4 py-4'}`}
         style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
       >
-        <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'}`}>
+        <div className={`flex items-center ${(!isMobile && !isExpanded) ? 'justify-center' : 'gap-3'}`}>
           <div className="w-10 h-10 rounded-[var(--radius-input)] bg-[#10B981]/20 flex items-center justify-center text-[#10B981] font-semibold text-sm flex-shrink-0">
             {getInitials(displayName)}
           </div>
-          {isExpanded && (
+          {(isMobile || isExpanded) && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-[#FFFFFF] truncate">{displayName}</p>
               <p className="text-xs text-[#FFFFFF]/50 truncate">
@@ -157,8 +190,8 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isExpanded ? 'px-3' : 'px-2'}`}>
-        {isExpanded && (
+      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${(!isMobile && !isExpanded) ? 'px-2' : 'px-3'}`}>
+        {(isMobile || isExpanded) && (
           <p className="px-3 py-2 text-[10px] font-semibold text-[#FFFFFF]/40 uppercase tracking-wider">
             {language === 'ar' ? 'القائمة الرئيسية' : 'Main Menu'}
           </p>
@@ -168,6 +201,29 @@ export default function Sidebar() {
           const active = isActive(item.path);
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
+          const showLabel = isMobile || isExpanded;
+
+          // Special "Add Transaction" button style
+          if ('isAction' in item && item.isAction) {
+            return (
+              <Link
+                key={item.id}
+                href={item.path}
+                className={`
+                  flex items-center rounded-[var(--radius-input)] min-h-[44px]
+                  transition-colors duration-150
+                  ${showLabel ? 'gap-3 px-3' : 'justify-center px-0'}
+                  bg-[#10B981] text-[#FFFFFF] font-medium
+                `}
+                title={!showLabel ? label : undefined}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {showLabel && (
+                  <span className="text-sm font-medium truncate">{label}</span>
+                )}
+              </Link>
+            );
+          }
 
           return (
             <Link
@@ -176,16 +232,16 @@ export default function Sidebar() {
               className={`
                 flex items-center rounded-[var(--radius-input)] min-h-[44px]
                 transition-colors duration-150
-                ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
+                ${showLabel ? 'gap-3 px-3' : 'justify-center px-0'}
                 ${active
                   ? 'bg-[#10B981] text-[#FFFFFF]'
                   : 'text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]'
                 }
               `}
-              title={!isExpanded ? label : undefined}
+              title={!showLabel ? label : undefined}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              {isExpanded && (
+              {showLabel && (
                 <span className="text-sm font-medium truncate">{label}</span>
               )}
             </Link>
@@ -195,13 +251,14 @@ export default function Sidebar() {
 
       {/* Bottom Section */}
       <div 
-        className={`py-3 space-y-1 ${isExpanded ? 'px-3' : 'px-2'}`}
+        className={`py-3 space-y-1 ${(!isMobile && !isExpanded) ? 'px-2' : 'px-3'}`}
         style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
       >
         {bottomNavItems.map((item) => {
           const active = isActive(item.path);
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
+          const showLabel = isMobile || isExpanded;
 
           return (
             <Link
@@ -210,16 +267,16 @@ export default function Sidebar() {
               className={`
                 flex items-center rounded-[var(--radius-input)] min-h-[44px]
                 transition-colors duration-150
-                ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
+                ${showLabel ? 'gap-3 px-3' : 'justify-center px-0'}
                 ${active
                   ? 'bg-[#10B981] text-[#FFFFFF]'
                   : 'text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]'
                 }
               `}
-              title={!isExpanded ? label : undefined}
+              title={!showLabel ? label : undefined}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              {isExpanded && (
+              {showLabel && (
                 <span className="text-sm font-medium truncate">{label}</span>
               )}
             </Link>
@@ -233,18 +290,57 @@ export default function Sidebar() {
             w-full flex items-center rounded-[var(--radius-input)] min-h-[44px]
             transition-colors duration-150
             text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]
-            ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'}
+            ${(!isMobile && !isExpanded) ? 'justify-center px-0' : 'gap-3 px-3'}
           `}
-          title={!isExpanded ? (language === 'ar' ? 'تسجيل الخروج' : 'Logout') : undefined}
+          title={(!isMobile && !isExpanded) ? (language === 'ar' ? 'تسجيل الخروج' : 'Logout') : undefined}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {isExpanded && (
+          {(isMobile || isExpanded) && (
             <span className="text-sm font-medium truncate">
               {language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
             </span>
           )}
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar - always visible on lg+ */}
+      <aside
+        className={`
+          sticky top-0 h-screen flex-shrink-0
+          flex flex-col
+          transition-all duration-300 ease-out
+          hidden lg:flex
+          ${isExpanded ? 'w-60' : 'w-[72px]'}
+        `}
+        style={{ backgroundColor: 'var(--theme-bg-sidebar)' }}
+      >
+        {sidebarContent(false)}
+      </aside>
+
+      {/* Mobile Sidebar Drawer - overlay on small screens */}
+      {mobileOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
+            onClick={onMobileClose}
+          />
+          {/* Drawer */}
+          <aside
+            className="fixed inset-y-0 z-[70] w-72 flex flex-col lg:hidden"
+            style={{
+              backgroundColor: 'var(--theme-bg-sidebar)',
+              [isRTL ? 'right' : 'left']: 0,
+            }}
+          >
+            {sidebarContent(true)}
+          </aside>
+        </>
+      )}
+    </>
   );
 }

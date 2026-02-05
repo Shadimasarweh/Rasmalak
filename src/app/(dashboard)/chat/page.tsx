@@ -454,8 +454,8 @@ export default function MustasharakPage() {
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--spacing-2)',
-        height: 'calc(100vh - 80px)',
-        padding: 'var(--spacing-2)',
+        height: 'calc(100vh - 4rem - 1.5rem)',
+        minHeight: 0,
       }}
     >
       {/* ===== LEFT COLUMN: CHAT AREA ===== */}
@@ -467,6 +467,8 @@ export default function MustasharakPage() {
           borderRadius: 'var(--radius-card)',
           border: '1px solid var(--theme-border)',
           overflow: 'hidden',
+          flex: 1,
+          minHeight: 0,
         }}
       >
         {/* ----- Intro Message (only show if no messages) ----- */}
