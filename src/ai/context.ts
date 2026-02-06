@@ -436,3 +436,4 @@ export function getContextSummary(context: UserFinancialContext): string {
   return `[Context] Income: ${context.totalIncome}, Expenses: ${context.totalExpenses}, Balance: ${context.netBalance}, Categories: ${context.spendingByCategory.length}, Goals: ${context.goals.length}`;
 }
 
+
