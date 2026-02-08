@@ -161,6 +161,7 @@ interface AppState {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
   signup: (data: SignupData) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  updateUserProfile: (data: { name?: string; phone?: string }) => Promise<{ success: boolean; error?: string }>;
 
   // Transactions
   transactions: Transaction[];
@@ -239,6 +240,7 @@ export const useStore = create<AppState>()(
             id: data.user.id,
             email: data.user.email || '',
             name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || '',
+            phone: data.user.user_metadata?.phone || '',
           };
 
           set({
@@ -314,6 +316,43 @@ export const useStore = create<AppState>()(
           hasCompletedOnboarding: false, // Reset onboarding for next user
           onboardingData: null,
         });
+      },
+
+      updateUserProfile: async (data) => {
+        try {
+          const currentUser = get().user;
+          if (!currentUser) {
+            return { success: false, error: 'Not authenticated' };
+          }
+
+          // Update Supabase user metadata
+          const { error } = await supabase.auth.updateUser({
+            data: {
+              name: data.name ?? currentUser.name,
+              phone: data.phone ?? currentUser.phone,
+            },
+          });
+
+          if (error) {
+            return { success: false, error: error.message };
+          }
+
+          // Update local state
+          const updatedUser: AuthUser = {
+            ...currentUser,
+            name: data.name ?? currentUser.name,
+            phone: data.phone ?? currentUser.phone,
+          };
+
+          set({
+            user: updatedUser,
+            userName: updatedUser.name,
+          });
+
+          return { success: true };
+        } catch (error) {
+          return { success: false, error: 'Failed to update profile' };
+        }
       },
 
       // Transactions
@@ -481,6 +520,7 @@ export const useIsAuthenticated = () => useStore((state) => state.isAuthenticate
 export const useLogin = () => useStore((state) => state.login);
 export const useSignup = () => useStore((state) => state.signup);
 export const useLogout = () => useStore((state) => state.logout);
+export const useUpdateUserProfile = () => useStore((state) => state.updateUserProfile);
 
 // Onboarding selectors
 export const useHasCompletedOnboarding = () => useStore((state) => state.hasCompletedOnboarding);

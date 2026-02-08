@@ -17,9 +17,10 @@ import {
   AIIntent,
   SuggestedAction,
   InsightCard,
+  MessageAttachment,
 } from './types';
 import { AI_CONFIG, AI_SAFETY, AI_FEATURES } from './config';
-import { sendChatCompletionWithRetry, formatMessagesForOpenAI } from './providers/openai';
+import { sendChatCompletionWithRetry, formatMessagesForOpenAI, getModelForAttachments } from './providers/openai';
 import { getSystemPrompt, getInsightPrompt } from './prompts';
 
 // ============================================
@@ -31,17 +32,20 @@ class RasmalakAIService {
 
   /**
    * Send a chat message and get AI response
+   * @param attachments - Optional file attachments (images, documents)
    */
   async chat(
     message: string,
     context: UserFinancialContext,
     conversationId: string,
-    language: 'ar' | 'en' = 'ar'
+    language: 'ar' | 'en' = 'ar',
+    attachments?: MessageAttachment[]
   ): Promise<AIResponse> {
     const startTime = Date.now();
 
-    // Validate input
-    if (!message || message.trim().length === 0) {
+    // Validate input - allow empty message if there are attachments
+    const hasAttachments = attachments && attachments.length > 0;
+    if ((!message || message.trim().length === 0) && !hasAttachments) {
       return this.createErrorResponse('الرجاء إدخال رسالة', startTime);
     }
 
@@ -56,7 +60,14 @@ class RasmalakAIService {
     const history = this.getConversationHistory(conversationId);
 
     // Build the system prompt with user context
-    const systemPrompt = getSystemPrompt(context, language);
+    // Add attachment handling instructions if files are present
+    let systemPrompt = getSystemPrompt(context, language);
+    if (hasAttachments) {
+      const attachmentInstructions = language === 'ar'
+        ? '\n\nالمستخدم أرفق ملف/صورة. قم بتحليل المحتوى المرفق ونفذ طلب المستخدم (ترجمة، شرح، تحليل، استخراج بيانات مالية، إلخ). إذا كان هناك نص عربي، احترم اللغة.'
+        : '\n\nThe user has attached a file/image. Analyze the attached content and perform the requested task (translation, explanation, analysis, extract financial data, etc.). Respect the language used.';
+      systemPrompt += attachmentInstructions;
+    }
 
     // Format for OpenAI
     const formattedHistory = history.map(msg => ({
@@ -67,11 +78,18 @@ class RasmalakAIService {
     const messages = formatMessagesForOpenAI(
       systemPrompt,
       formattedHistory,
-      message
+      message,
+      attachments
     );
 
-    // Call AI provider
-    const result = await sendChatCompletionWithRetry(messages);
+    // Get appropriate model (GPT-4 Vision for images)
+    const model = getModelForAttachments(attachments);
+
+    // Call AI provider with potentially different model
+    const result = await sendChatCompletionWithRetry(messages, {
+      // Override model if needed for vision
+      ...(model !== AI_CONFIG.model && { model }),
+    });
 
     if (!result.success) {
       return this.createErrorResponse(result.error, startTime);
@@ -81,7 +99,10 @@ class RasmalakAIService {
     const aiResponse = this.parseAIResponse(result.content, startTime, language);
 
     // Save to conversation history
-    this.addToHistory(conversationId, 'user', message);
+    const messageContent = hasAttachments 
+      ? `${message} [+${attachments!.length} ${language === 'ar' ? 'مرفق' : 'attachment(s)'}]`
+      : message;
+    this.addToHistory(conversationId, 'user', messageContent);
     this.addToHistory(conversationId, 'assistant', aiResponse.message);
 
     return aiResponse;

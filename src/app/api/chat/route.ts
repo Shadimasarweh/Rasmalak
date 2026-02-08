@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { aiService } from '@/ai/service';
-import { ChatRequest, ChatResponse, UserFinancialContext } from '@/ai/types';
+import { ChatRequest, ChatResponse, UserFinancialContext, MessageAttachment } from '@/ai/types';
 import { AI_SAFETY, AI_FEATURES } from '@/ai/config';
 import { buildEmptyContext } from '@/ai/context';
 
@@ -47,6 +47,7 @@ function checkRateLimit(userId: string): boolean {
 interface ChatRequestBody extends ChatRequest {
   context?: UserFinancialContext;
   userId?: string;
+  attachments?: MessageAttachment[];
 }
 
 function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } | { valid: false; error: string } {
@@ -55,18 +56,43 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
   }
   
   const data = body as Record<string, unknown>;
+  const attachments = data.attachments as MessageAttachment[] | undefined;
+  const hasAttachments = attachments && attachments.length > 0;
   
-  // Check message
+  // Check message - allow empty if attachments exist
   if (!data.message || typeof data.message !== 'string') {
-    return { valid: false, error: 'Message is required' };
+    if (!hasAttachments) {
+      return { valid: false, error: 'Message is required' };
+    }
   }
   
-  if (data.message.length === 0) {
+  const message = (data.message as string) || '';
+  
+  if (message.length === 0 && !hasAttachments) {
     return { valid: false, error: 'Message cannot be empty' };
   }
   
-  if (data.message.length > AI_SAFETY.maxInputLength) {
+  if (message.length > AI_SAFETY.maxInputLength) {
     return { valid: false, error: `Message too long. Maximum ${AI_SAFETY.maxInputLength} characters.` };
+  }
+  
+  // Validate attachments if present
+  if (hasAttachments) {
+    // Limit number of attachments
+    if (attachments.length > 5) {
+      return { valid: false, error: 'Maximum 5 attachments allowed' };
+    }
+    
+    // Validate each attachment
+    for (const att of attachments) {
+      if (!att.type || !att.content || !att.filename) {
+        return { valid: false, error: 'Invalid attachment format' };
+      }
+      // Limit attachment size (base64 content)
+      if (att.content.length > 10 * 1024 * 1024) { // ~10MB
+        return { valid: false, error: 'Attachment too large. Maximum 10MB' };
+      }
+    }
   }
   
   // Check language
@@ -78,11 +104,12 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
   return {
     valid: true,
     data: {
-      message: data.message as string,
+      message: message,
       conversationId: data.conversationId as string | undefined,
       language: language as 'ar' | 'en',
       context: data.context as UserFinancialContext | undefined,
       userId: data.userId as string | undefined,
+      attachments: attachments,
     },
   };
 }
@@ -115,7 +142,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       }, { status: 400 });
     }
     
-    const { message, conversationId, language, context, userId } = validation.data;
+    const { message, conversationId, language, context, userId, attachments } = validation.data;
     
     // Rate limiting
     const userKey = userId || request.headers.get('x-forwarded-for') || 'anonymous';
@@ -143,11 +170,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
         messageLength: message.length,
         language,
         hasContext: !!context,
+        attachmentCount: attachments?.length || 0,
       });
     }
     
-    // Call AI service
-    const response = await aiService.chat(message, userContext, convId, language);
+    // Call AI service with attachments
+    const response = await aiService.chat(message, userContext, convId, language, attachments);
     
     // Log response (if enabled)
     if (AI_SAFETY.enableLogging) {

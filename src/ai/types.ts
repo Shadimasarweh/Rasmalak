@@ -84,6 +84,26 @@ export interface IntentClassification {
 }
 
 // ============================================
+// ATTACHMENT TYPES
+// ============================================
+// Files and images that users can attach to messages.
+
+export type AttachmentType = 'image' | 'document' | 'pdf';
+
+export interface MessageAttachment {
+  id: string;
+  type: AttachmentType;
+  filename: string;
+  mimeType: string;
+  size: number;               // bytes
+  // For images: base64 data URL or uploaded URL
+  // For documents: text content after parsing
+  content: string;
+  // Preview URL for UI display
+  previewUrl?: string;
+}
+
+// ============================================
 // MESSAGE TYPES
 // ============================================
 // Represents a single message in the conversation.
@@ -95,6 +115,8 @@ export interface AIMessage {
   role: MessageRole;
   content: string;
   timestamp: string;          // ISO 8601
+  // File attachments
+  attachments?: MessageAttachment[];
   // Metadata (only for assistant messages)
   intent?: AIIntent;
   confidence?: ConfidenceLevel;
@@ -269,6 +291,7 @@ export interface ChatRequest {
   message: string;
   conversationId?: string;    // For continuing a conversation
   language: 'ar' | 'en';
+  attachments?: MessageAttachment[];  // File attachments
 }
 
 export interface ChatResponse {

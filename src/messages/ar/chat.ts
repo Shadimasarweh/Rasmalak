@@ -25,4 +25,26 @@ export default {
   total: 'الإجمالي',
   essentials: 'الأساسيات',
   lifestyle: 'نمط الحياة',
+  
+  // مرفقات الملفات
+  attach_file: 'إرفاق ملف أو صورة',
+  max_attachments: 'الحد الأقصى 5 ملفات',
+  file_too_large: 'الملف كبير جداً. الحد الأقصى 10 ميجابايت.',
+  unsupported_file_type: 'نوع ملف غير مدعوم. المسموح: صور، PDF، ملفات نصية.',
+  supported_formats: 'يدعم: صور (JPG، PNG، GIF)، PDF، ملفات نصية',
+  attachments_label: 'المرفقات',
+  translate_this: 'ترجم هذا',
+  explain_this: 'اشرح هذا',
+  extract_data: 'استخرج البيانات المالية',
+  
+  // نصائح للمرفقات
+  tips_title: 'نصائح سريعة',
+  tip_1: 'اسأل عن أنماط إنفاقك',
+  tip_2: 'احصل على نصائح توفير مخصصة',
+  tip_3: 'تتبع تقدم ميزانيتك',
+  tip_4: 'ارفع الإيصالات للتحليل',
+  tip_5: 'شارك مستندات للترجمة',
+  
+  transactions_count: 'لديك {count} معاملة مسجلة.',
+  no_transactions: 'أضف معاملات لرؤية التحليلات',
 };

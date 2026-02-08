@@ -13,7 +13,7 @@ import {
   useUserName,
 } from '@/store/useStore';
 import { buildUserContext } from '@/ai/context';
-import { AIMessage, AIResponse, SuggestedAction } from '@/ai/types';
+import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType } from '@/ai/types';
 
 /* ============================================
    MUSTASHARAK AI ADVISOR PAGE
@@ -63,6 +63,37 @@ const SendIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="22" y1="2" x2="11" y2="13" />
     <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const AttachmentIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+  </svg>
+);
+
+const ImageIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
+
+const FileIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
@@ -179,6 +210,137 @@ function QuickActionCard({
   );
 }
 
+/* ===== ATTACHMENT PREVIEW (for input area) ===== */
+function AttachmentPreview({
+  attachment,
+  onRemove,
+}: {
+  attachment: MessageAttachment;
+  onRemove: () => void;
+}) {
+  const isImage = attachment.type === 'image';
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: isImage ? '4px' : '8px 12px',
+        background: 'var(--theme-bg-tertiary)',
+        borderRadius: 'var(--radius-sm)',
+        border: '1px solid var(--theme-border)',
+        maxWidth: '150px',
+      }}
+    >
+      {isImage && attachment.previewUrl ? (
+        <img
+          src={attachment.previewUrl}
+          alt={attachment.filename}
+          style={{
+            width: '60px',
+            height: '60px',
+            objectFit: 'cover',
+            borderRadius: '4px',
+          }}
+        />
+      ) : (
+        <>
+          <span style={{ color: 'var(--theme-text-muted)' }}>
+            <FileIcon />
+          </span>
+          <span
+            style={{
+              fontSize: '0.75rem',
+              color: 'var(--theme-text-secondary)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {attachment.filename}
+          </span>
+        </>
+      )}
+      
+      {/* Remove button */}
+      <button
+        type="button"
+        onClick={onRemove}
+        style={{
+          position: 'absolute',
+          top: '-6px',
+          right: '-6px',
+          insetInlineEnd: '-6px',
+          insetInlineStart: 'auto',
+          width: '18px',
+          height: '18px',
+          borderRadius: '50%',
+          background: 'var(--color-error)',
+          border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#FFFFFF',
+          cursor: 'pointer',
+          padding: 0,
+        }}
+      >
+        <CloseIcon />
+      </button>
+    </div>
+  );
+}
+
+/* ===== ATTACHMENT DISPLAY IN MESSAGE ===== */
+function MessageAttachments({ attachments }: { attachments: MessageAttachment[] }) {
+  if (!attachments || attachments.length === 0) return null;
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        marginBottom: '8px',
+      }}
+    >
+      {attachments.map((att) => (
+        <div
+          key={att.id}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: att.type === 'image' ? '4px' : '6px 10px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '6px',
+          }}
+        >
+          {att.type === 'image' && att.previewUrl ? (
+            <img
+              src={att.previewUrl}
+              alt={att.filename}
+              style={{
+                width: '80px',
+                height: '80px',
+                objectFit: 'cover',
+                borderRadius: '4px',
+              }}
+            />
+          ) : (
+            <>
+              <FileIcon />
+              <span style={{ fontSize: '0.75rem' }}>{att.filename}</span>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ===== CHAT MESSAGE BUBBLE ===== */
 function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolean }) {
   return (
@@ -210,6 +372,11 @@ function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolea
           whiteSpace: 'pre-wrap',
         }}
       >
+        {/* Show attachments if present */}
+        {message.attachments && message.attachments.length > 0 && (
+          <MessageAttachments attachments={message.attachments} />
+        )}
+        
         {message.isLoading ? (
           <LoadingDots />
         ) : message.isError ? (
@@ -299,9 +466,13 @@ export default function MustasharakPage() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [lastResponse, setLastResponse] = useState<AIResponse | null>(null);
   
+  // File attachment state
+  const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
+  
   // Refs
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -323,15 +494,95 @@ export default function MustasharakPage() {
     });
   }, [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData]);
   
+  // Get attachment type from MIME type
+  const getAttachmentType = (mimeType: string): AttachmentType => {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType === 'application/pdf') return 'pdf';
+    return 'document';
+  };
+  
+  // Convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+  
+  // Handle file selection
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Limit total attachments
+    if (attachments.length + files.length > 5) {
+      alert(intl.formatMessage({ id: 'chat.max_attachments', defaultMessage: 'Maximum 5 files allowed' }));
+      return;
+    }
+    
+    const newAttachments: MessageAttachment[] = [];
+    
+    for (const file of Array.from(files)) {
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert(intl.formatMessage({ id: 'chat.file_too_large', defaultMessage: 'File too large. Maximum 10MB.' }));
+        continue;
+      }
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain'];
+      if (!allowedTypes.includes(file.type)) {
+        alert(intl.formatMessage({ id: 'chat.unsupported_file_type', defaultMessage: 'Unsupported file type' }));
+        continue;
+      }
+      
+      try {
+        const base64 = await fileToBase64(file);
+        const attachmentType = getAttachmentType(file.type);
+        
+        const attachment: MessageAttachment = {
+          id: `att_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: attachmentType,
+          filename: file.name,
+          mimeType: file.type,
+          size: file.size,
+          content: base64,
+          previewUrl: attachmentType === 'image' ? base64 : undefined,
+        };
+        
+        newAttachments.push(attachment);
+      } catch (error) {
+        console.error('Error reading file:', error);
+      }
+    }
+    
+    setAttachments(prev => [...prev, ...newAttachments]);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  
+  // Remove an attachment
+  const removeAttachment = (attachmentId: string) => {
+    setAttachments(prev => prev.filter(a => a.id !== attachmentId));
+  };
+  
   // Send message to AI
-  const sendMessage = useCallback(async (messageText: string) => {
-    if (!messageText.trim() || isLoading) return;
+  const sendMessage = useCallback(async (messageText: string, messageAttachments?: MessageAttachment[]) => {
+    const hasAttachments = messageAttachments && messageAttachments.length > 0;
+    if (!messageText.trim() && !hasAttachments) return;
+    if (isLoading) return;
     
     const userMessage: AIMessage = {
       id: `msg_${Date.now()}_user`,
       role: 'user',
-      content: messageText.trim(),
+      content: messageText.trim() || (language === 'ar' ? '[مرفقات]' : '[Attachments]'),
       timestamp: new Date().toISOString(),
+      attachments: messageAttachments,
     };
     
     const loadingMessage: AIMessage = {
@@ -344,6 +595,7 @@ export default function MustasharakPage() {
     
     setMessages(prev => [...prev, userMessage, loadingMessage]);
     setInputValue('');
+    setAttachments([]); // Clear attachments after sending
     setIsLoading(true);
     
     try {
@@ -357,6 +609,7 @@ export default function MustasharakPage() {
           conversationId,
           language,
           context,
+          attachments: messageAttachments,
         }),
       });
       
@@ -424,7 +677,7 @@ export default function MustasharakPage() {
   // Handle form submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage(inputValue);
+    sendMessage(inputValue, attachments.length > 0 ? attachments : undefined);
   };
   
   // Handle quick action click
@@ -594,17 +847,84 @@ export default function MustasharakPage() {
             borderTop: '1px solid var(--theme-border)',
           }}
         >
+          {/* Attachment Previews */}
+          {attachments.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                marginBottom: '12px',
+                padding: '8px',
+                background: 'var(--theme-bg-secondary)',
+                borderRadius: 'var(--radius-sm)',
+              }}
+            >
+              {attachments.map((att) => (
+                <AttachmentPreview
+                  key={att.id}
+                  attachment={att}
+                  onRemove={() => removeAttachment(att.id)}
+                />
+              ))}
+            </div>
+          )}
+          
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
+              gap: '8px',
               padding: '8px 12px',
               background: 'var(--theme-bg-secondary)',
               borderRadius: 'var(--radius-pill)',
               border: '1px solid var(--theme-border)',
             }}
           >
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,text/plain"
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
+            
+            {/* Attachment Button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+              title={intl.formatMessage({ id: 'chat.attach_file', defaultMessage: 'Attach file or image' })}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: 'transparent',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--theme-text-muted)',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                opacity: isLoading ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.color = 'var(--color-brand-emerald)';
+                  e.currentTarget.style.background = 'var(--theme-bg-tertiary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--theme-text-muted)';
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <AttachmentIcon />
+            </button>
+            
             {/* Text Input */}
             <input
               ref={inputRef}
@@ -627,12 +947,12 @@ export default function MustasharakPage() {
             {/* Send Button */}
             <button
               type="submit"
-              disabled={!inputValue.trim() || isLoading}
+              disabled={(!inputValue.trim() && attachments.length === 0) || isLoading}
               style={{
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: inputValue.trim() && !isLoading
+                background: (inputValue.trim() || attachments.length > 0) && !isLoading
                   ? 'var(--color-brand-emerald)'
                   : 'var(--theme-border)',
                 border: 'none',
@@ -640,8 +960,8 @@ export default function MustasharakPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#FFFFFF',
-                cursor: inputValue.trim() && !isLoading ? 'pointer' : 'not-allowed',
-                opacity: inputValue.trim() && !isLoading ? 1 : 0.6,
+                cursor: (inputValue.trim() || attachments.length > 0) && !isLoading ? 'pointer' : 'not-allowed',
+                opacity: (inputValue.trim() || attachments.length > 0) && !isLoading ? 1 : 0.6,
                 transition: 'all 0.2s ease',
               }}
             >
@@ -649,13 +969,25 @@ export default function MustasharakPage() {
             </button>
           </div>
 
-          {/* Disclaimer */}
+          {/* Supported formats hint */}
           <p
             style={{
               fontSize: '0.6875rem',
               color: 'var(--theme-text-muted)',
               textAlign: 'center',
               marginTop: '8px',
+            }}
+          >
+            {intl.formatMessage({ id: 'chat.supported_formats', defaultMessage: 'Supports: Images (JPG, PNG, GIF), PDF, Text files' })}
+          </p>
+          
+          {/* Disclaimer */}
+          <p
+            style={{
+              fontSize: '0.6875rem',
+              color: 'var(--theme-text-muted)',
+              textAlign: 'center',
+              marginTop: '4px',
             }}
           >
             {intl.formatMessage({ id: 'chat.ai_disclaimer', defaultMessage: 'AI can make mistakes. Please verify important financial information.' })}

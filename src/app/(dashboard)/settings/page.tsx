@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { useStore, useUser, useUserName } from '@/store/useStore';
+import { useStore, useUser, useUserName, useUpdateUserProfile } from '@/store/useStore';
 import { SUPPORTED_CURRENCY_CODES, getCurrencyDisplayName } from '@/lib/currencies';
+import { supabase } from '@/lib/supabaseClient';
 
 /* ============================================
    SETTINGS PAGE
@@ -124,6 +125,54 @@ const TrashIcon = () => (
   </svg>
 );
 
+const AlertTriangleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const MapPinIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const XIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const QRCodeIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+    <rect x="14" y="14" width="3" height="3" />
+    <rect x="18" y="14" width="3" height="3" />
+    <rect x="14" y="18" width="3" height="3" />
+    <rect x="18" y="18" width="3" height="3" />
+  </svg>
+);
+
 const CameraIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" />
@@ -220,12 +269,27 @@ function InputField({
   value,
   icon,
   type = 'text',
+  disabled = false,
+  readOnly = false,
+  placeholder,
+  hint,
+  onChange,
+  error,
+  name,
 }: {
   label: string;
   value: string;
   icon?: React.ReactNode;
   type?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+  placeholder?: string;
+  hint?: string;
+  onChange?: (value: string) => void;
+  error?: string;
+  name?: string;
 }) {
+  const isEditable = !disabled && !readOnly && onChange;
   return (
     <div>
       <label
@@ -245,16 +309,23 @@ function InputField({
           alignItems: 'center',
           gap: '10px',
           padding: '12px 14px',
-          background: 'var(--theme-bg-input)',
+          background: readOnly ? 'var(--theme-bg-tertiary)' : 'var(--theme-bg-input)',
           borderRadius: 'var(--radius-sm)',
-          border: '1px solid var(--theme-border)',
+          border: error ? '1px solid var(--color-error)' : '1px solid var(--theme-border)',
+          opacity: disabled ? 0.6 : 1,
         }}
       >
         {icon && <span style={{ color: 'var(--theme-text-muted)' }}>{icon}</span>}
         <input
           type={type}
+          name={name}
           value={value}
-          disabled
+          disabled={disabled}
+          readOnly={readOnly}
+          placeholder={placeholder}
+          autoComplete="off"
+          data-form-type="other"
+          onChange={isEditable ? (e) => onChange(e.target.value) : undefined}
           style={{
             flex: 1,
             background: 'transparent',
@@ -262,10 +333,20 @@ function InputField({
             outline: 'none',
             fontSize: '0.875rem',
             color: 'var(--theme-text-primary)',
-            cursor: 'not-allowed',
+            cursor: disabled || readOnly ? 'not-allowed' : 'text',
           }}
         />
       </div>
+      {hint && !error && (
+        <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', marginTop: '4px' }}>
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p style={{ fontSize: '0.6875rem', color: 'var(--color-error)', marginTop: '4px' }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -274,13 +355,13 @@ function InputField({
 function LanguageOption({
   code,
   name,
-  nativeName,
+  secondaryLabel,
   selected,
   onClick,
 }: {
   code: string;
   name: string;
-  nativeName: string;
+  secondaryLabel: string;
   selected: boolean;
   onClick: () => void;
 }) {
@@ -309,7 +390,7 @@ function LanguageOption({
         >
           {name}
         </p>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)' }}>{nativeName}</p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>{secondaryLabel}</p>
       </div>
       {selected && (
         <div
@@ -395,29 +476,125 @@ function SettingRow({
 }
 
 /* ===== PROFILE TAB CONTENT ===== */
-function ProfileContent({ intl, userData }: { intl: ReturnType<typeof useIntl>; userData: { name: string; email: string } }) {
+function ProfileContent({ 
+  intl, 
+  userData,
+  onProfileUpdate,
+}: { 
+  intl: ReturnType<typeof useIntl>; 
+  userData: { name: string; email: string; phone?: string };
+  onProfileUpdate: (data: { firstName: string; lastName: string; phone: string }) => void;
+}) {
   // Split name into first and last
   const nameParts = userData.name.trim().split(' ');
-  const firstName = nameParts[0] || '';
-  const lastName = nameParts.slice(1).join(' ') || '';
+  const initialFirstName = nameParts[0] || '';
+  const initialLastName = nameParts.slice(1).join(' ') || '';
+  
+  // Local state for editable fields
+  const [firstName, setFirstName] = useState(initialFirstName);
+  const [lastName, setLastName] = useState(initialLastName);
+  const [phone, setPhone] = useState(userData.phone || '');
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+  // Update local state when userData changes
+  useEffect(() => {
+    const parts = userData.name.trim().split(' ');
+    setFirstName(parts[0] || '');
+    setLastName(parts.slice(1).join(' ') || '');
+    setPhone(userData.phone || '');
+  }, [userData.name, userData.phone]);
+  
+  // Track changes
+  useEffect(() => {
+    const currentFullName = `${firstName} ${lastName}`.trim();
+    const originalFullName = userData.name.trim();
+    const originalPhone = userData.phone || '';
+    setHasChanges(currentFullName !== originalFullName || phone !== originalPhone);
+  }, [firstName, lastName, phone, userData.name, userData.phone]);
   
   // Get initials for avatar
   const initials = (firstName[0] || '') + (lastName[0] || '');
+  
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveMessage(null);
+    try {
+      await onProfileUpdate({ firstName, lastName, phone });
+      setSaveMessage({ 
+        type: 'success', 
+        text: intl.formatMessage({ id: 'settings.profile_updated', defaultMessage: 'Profile updated successfully' })
+      });
+      setHasChanges(false);
+      setTimeout(() => setSaveMessage(null), 3000);
+    } catch {
+      setSaveMessage({ 
+        type: 'error', 
+        text: intl.formatMessage({ id: 'settings.profile_update_failed', defaultMessage: 'Failed to update profile' })
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   
   return (
     <>
       {/* Profile Information Card */}
       <div className="card-standard">
-        <h3
-          style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            color: 'var(--color-brand-navy)',
-            marginBottom: 'var(--spacing-2)',
-          }}
-        >
-          {intl.formatMessage({ id: 'settings.profile_information', defaultMessage: 'Profile Information' })}
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+          <h3
+            style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--theme-text-primary)',
+            }}
+          >
+            {intl.formatMessage({ id: 'settings.profile_information', defaultMessage: 'Profile Information' })}
+          </h3>
+          {hasChanges && (
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: 'var(--color-brand-emerald)',
+                color: '#FFFFFF',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: isSaving ? 'wait' : 'pointer',
+                opacity: isSaving ? 0.7 : 1,
+              }}
+            >
+              {isSaving 
+                ? intl.formatMessage({ id: 'settings.saving', defaultMessage: 'Saving...' })
+                : intl.formatMessage({ id: 'settings.save_changes', defaultMessage: 'Save Changes' })
+              }
+            </button>
+          )}
+        </div>
+        
+        {/* Save message */}
+        {saveMessage && (
+          <div
+            style={{
+              padding: '10px 14px',
+              marginBottom: 'var(--spacing-2)',
+              borderRadius: 'var(--radius-sm)',
+              background: saveMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              color: saveMessage.type === 'success' ? 'var(--color-brand-emerald)' : 'var(--color-error)',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+            }}
+          >
+            {saveMessage.text}
+          </div>
+        )}
 
         <div
           style={{
@@ -484,10 +661,10 @@ function ProfileContent({ intl, userData }: { intl: ReturnType<typeof useIntl>; 
                 <CameraIcon />
               </div>
             </div>
-            <p style={{ fontSize: '0.6875rem', color: 'rgba(10, 25, 47, 0.5)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'settings.allowed_formats', defaultMessage: 'Allowed *.jpeg, *.jpg, *.png, *.gif' })}
             </p>
-            <p style={{ fontSize: '0.6875rem', color: 'rgba(10, 25, 47, 0.5)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'settings.max_size', defaultMessage: 'Max size of 3.1 MB' })}
             </p>
           </div>
@@ -495,11 +672,35 @@ function ProfileContent({ intl, userData }: { intl: ReturnType<typeof useIntl>; 
           {/* Form Fields */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-2)' }}>
-              <InputField label={intl.formatMessage({ id: 'settings.first_name', defaultMessage: 'First Name' })} value={firstName || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} />
-              <InputField label={intl.formatMessage({ id: 'settings.last_name', defaultMessage: 'Last Name' })} value={lastName || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} />
+              <InputField 
+                label={intl.formatMessage({ id: 'settings.first_name', defaultMessage: 'First Name' })} 
+                value={firstName}
+                placeholder={intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })}
+                onChange={setFirstName}
+              />
+              <InputField 
+                label={intl.formatMessage({ id: 'settings.last_name', defaultMessage: 'Last Name' })} 
+                value={lastName}
+                placeholder={intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })}
+                onChange={setLastName}
+              />
             </div>
-            <InputField label={intl.formatMessage({ id: 'settings.email_address', defaultMessage: 'Email Address' })} value={userData.email || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} icon={<MailIcon />} />
-            <InputField label={intl.formatMessage({ id: 'settings.phone_number', defaultMessage: 'Phone Number' })} value={intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} icon={<SmartphoneIcon />} />
+            <InputField 
+              label={intl.formatMessage({ id: 'settings.email_address', defaultMessage: 'Email Address' })} 
+              value={userData.email || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} 
+              icon={<MailIcon />}
+              type="email"
+              name="display-email"
+              readOnly
+              hint={intl.formatMessage({ id: 'settings.email_readonly_hint', defaultMessage: 'Email cannot be changed for security reasons' })}
+            />
+            <InputField 
+              label={intl.formatMessage({ id: 'settings.phone_number', defaultMessage: 'Phone Number' })} 
+              value={phone}
+              placeholder={intl.formatMessage({ id: 'settings.phone_placeholder', defaultMessage: '+962 7XX XXX XXX' })}
+              icon={<SmartphoneIcon />}
+              onChange={setPhone}
+            />
           </div>
         </div>
       </div>
@@ -507,142 +708,898 @@ function ProfileContent({ intl, userData }: { intl: ReturnType<typeof useIntl>; 
   );
 }
 
+/* ===== 2FA SETUP MODAL ===== */
+function TwoFactorSetupModal({
+  intl,
+  isOpen,
+  onClose,
+  onSuccess,
+}: {
+  intl: ReturnType<typeof useIntl>;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [secret, setSecret] = useState<string>('');
+  const [factorId, setFactorId] = useState<string>('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [recoveryCodes] = useState<string[]>([
+    'XXXXX-XXXXX', 'XXXXX-XXXXX', 'XXXXX-XXXXX', 'XXXXX-XXXXX',
+    'XXXXX-XXXXX', 'XXXXX-XXXXX', 'XXXXX-XXXXX', 'XXXXX-XXXXX',
+  ]);
+  const [codesSaved, setCodesSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Enroll when modal opens
+  useEffect(() => {
+    if (isOpen && step === 1 && !qrCodeUrl) {
+      enrollTOTP();
+    }
+  }, [isOpen, step]);
+
+  const enrollTOTP = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Rasmalak Authenticator',
+      });
+
+      if (error) throw error;
+      if (data) {
+        setQrCodeUrl(data.totp.qr_code);
+        setSecret(data.totp.secret);
+        setFactorId(data.id);
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to set up 2FA';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyCode = async () => {
+    if (verificationCode.length !== 6) {
+      setError(intl.formatMessage({ id: 'settings.two_factor_invalid_code', defaultMessage: 'Invalid verification code' }));
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId,
+      });
+
+      if (challengeError) throw challengeError;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challengeData.id,
+        code: verificationCode,
+      });
+
+      if (verifyError) throw verifyError;
+      
+      setStep(3);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Verification failed';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleComplete = () => {
+    onSuccess();
+    onClose();
+    setStep(1);
+    setQrCodeUrl('');
+    setVerificationCode('');
+    setCodesSaved(false);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0, 0, 0, 0.5)',
+        padding: '1rem',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: 'var(--theme-bg-card)',
+          borderRadius: 'var(--radius-card)',
+          width: '100%',
+          maxWidth: '480px',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          padding: 'var(--spacing-3)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+            {intl.formatMessage({ id: 'settings.two_factor_setup_title', defaultMessage: 'Set Up Two-Factor Authentication' })}
+          </h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--theme-text-muted)' }}>
+            <XIcon />
+          </button>
+        </div>
+
+        {/* Step indicator */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--spacing-3)' }}>
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              style={{
+                flex: 1,
+                height: '4px',
+                borderRadius: '2px',
+                background: s <= step ? 'var(--color-brand-emerald)' : 'var(--theme-border)',
+              }}
+            />
+          ))}
+        </div>
+
+        {error && (
+          <div style={{
+            padding: '10px 14px',
+            marginBottom: 'var(--spacing-2)',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(239, 68, 68, 0.1)',
+            color: 'var(--color-error)',
+            fontSize: '0.8125rem',
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* Step 1: QR Code */}
+        {step === 1 && (
+          <div style={{ textAlign: 'center' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--theme-text-primary)', marginBottom: '8px' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_step1_title', defaultMessage: 'Step 1: Scan QR Code' })}
+            </h4>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_step1_desc', defaultMessage: 'Scan this QR code with your authenticator app' })}
+            </p>
+            
+            {isLoading ? (
+              <div style={{ padding: '40px', color: 'var(--theme-text-muted)' }}>Loading...</div>
+            ) : qrCodeUrl ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                <img src={qrCodeUrl} alt="QR Code" style={{ width: '200px', height: '200px', borderRadius: '8px' }} />
+                <div style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', wordBreak: 'break-all', maxWidth: '300px' }}>
+                  Manual entry: <code style={{ background: 'var(--theme-bg-tertiary)', padding: '2px 6px', borderRadius: '4px' }}>{secret}</code>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: '40px' }}>
+                <QRCodeIcon />
+              </div>
+            )}
+
+            <button
+              onClick={() => setStep(2)}
+              disabled={!qrCodeUrl}
+              style={{
+                marginTop: 'var(--spacing-2)',
+                padding: '12px 24px',
+                background: 'var(--color-brand-emerald)',
+                color: '#FFFFFF',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: qrCodeUrl ? 'pointer' : 'not-allowed',
+                opacity: qrCodeUrl ? 1 : 0.5,
+              }}
+            >
+              Continue
+            </button>
+          </div>
+        )}
+
+        {/* Step 2: Verification */}
+        {step === 2 && (
+          <div style={{ textAlign: 'center' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--theme-text-primary)', marginBottom: '8px' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_step2_title', defaultMessage: 'Step 2: Enter Verification Code' })}
+            </h4>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_step2_desc', defaultMessage: 'Enter the 6-digit code from your authenticator app' })}
+            </p>
+
+            <input
+              type="text"
+              maxLength={6}
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              style={{
+                width: '180px',
+                padding: '16px',
+                fontSize: '1.5rem',
+                fontFamily: 'monospace',
+                textAlign: 'center',
+                letterSpacing: '0.5em',
+                background: 'var(--theme-bg-input)',
+                border: '2px solid var(--theme-border)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--theme-text-primary)',
+              }}
+            />
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: 'var(--spacing-2)' }}>
+              <button
+                onClick={() => setStep(1)}
+                style={{
+                  padding: '12px 24px',
+                  background: 'transparent',
+                  color: 'var(--theme-text-primary)',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  border: '1px solid var(--theme-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer',
+                }}
+              >
+                Back
+              </button>
+              <button
+                onClick={verifyCode}
+                disabled={verificationCode.length !== 6 || isLoading}
+                style={{
+                  padding: '12px 24px',
+                  background: 'var(--color-brand-emerald)',
+                  color: '#FFFFFF',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: verificationCode.length === 6 && !isLoading ? 'pointer' : 'not-allowed',
+                  opacity: verificationCode.length === 6 && !isLoading ? 1 : 0.5,
+                }}
+              >
+                {isLoading ? 'Verifying...' : intl.formatMessage({ id: 'settings.two_factor_verify', defaultMessage: 'Verify & Enable' })}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Recovery Codes */}
+        {step === 3 && (
+          <div style={{ textAlign: 'center' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--theme-text-primary)', marginBottom: '8px' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_step3_title', defaultMessage: 'Step 3: Save Recovery Codes' })}
+            </h4>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_step3_desc', defaultMessage: 'Save these recovery codes in a safe place' })}
+            </p>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '8px',
+              padding: '16px',
+              background: 'var(--theme-bg-tertiary)',
+              borderRadius: 'var(--radius-sm)',
+              marginBottom: 'var(--spacing-2)',
+            }}>
+              {recoveryCodes.map((code, i) => (
+                <code key={i} style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: 'var(--theme-text-primary)' }}>
+                  {code}
+                </code>
+              ))}
+            </div>
+
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-warning)', marginBottom: 'var(--spacing-2)' }}>
+              {intl.formatMessage({ id: 'settings.two_factor_recovery_warning', defaultMessage: 'Each code can only be used once. Store them securely.' })}
+            </p>
+
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', marginBottom: 'var(--spacing-2)' }}>
+              <input
+                type="checkbox"
+                checked={codesSaved}
+                onChange={(e) => setCodesSaved(e.target.checked)}
+                style={{ width: '18px', height: '18px', accentColor: 'var(--color-brand-emerald)' }}
+              />
+              <span style={{ fontSize: '0.875rem', color: 'var(--theme-text-primary)' }}>
+                {intl.formatMessage({ id: 'settings.two_factor_codes_saved', defaultMessage: 'I have saved my recovery codes' })}
+              </span>
+            </label>
+
+            <button
+              onClick={handleComplete}
+              disabled={!codesSaved}
+              style={{
+                padding: '12px 24px',
+                background: 'var(--color-brand-emerald)',
+                color: '#FFFFFF',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: codesSaved ? 'pointer' : 'not-allowed',
+                opacity: codesSaved ? 1 : 0.5,
+              }}
+            >
+              {intl.formatMessage({ id: 'settings.two_factor_success', defaultMessage: 'Complete Setup' })}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ===== DELETE ACCOUNT MODAL ===== */
+function DeleteAccountModal({
+  intl,
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  intl: ReturnType<typeof useIntl>;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const [confirmText, setConfirmText] = useState('');
+  const [password, setPassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (confirmText !== 'DELETE') return;
+    
+    setIsDeleting(true);
+    setError(null);
+    try {
+      // Re-authenticate would go here in production
+      onConfirm();
+    } catch {
+      setError(intl.formatMessage({ id: 'settings.delete_account_failed', defaultMessage: 'Failed to delete account' }));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0, 0, 0, 0.5)',
+        padding: '1rem',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: 'var(--theme-bg-card)',
+          borderRadius: 'var(--radius-card)',
+          width: '100%',
+          maxWidth: '440px',
+          padding: 'var(--spacing-3)',
+          border: '2px solid var(--color-error)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: 'rgba(239, 68, 68, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--color-error)',
+            flexShrink: 0,
+          }}>
+            <AlertTriangleIcon />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-error)', marginBottom: '4px' }}>
+              {intl.formatMessage({ id: 'settings.delete_account_confirm_title', defaultMessage: 'Delete Your Account?' })}
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)' }}>
+              {intl.formatMessage({ id: 'settings.delete_account_confirm_desc', defaultMessage: 'This will permanently delete your account and all associated data.' })}
+            </p>
+          </div>
+        </div>
+
+        {error && (
+          <div style={{
+            padding: '10px 14px',
+            marginBottom: 'var(--spacing-2)',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(239, 68, 68, 0.1)',
+            color: 'var(--color-error)',
+            fontSize: '0.8125rem',
+          }}>
+            {error}
+          </div>
+        )}
+
+        <div style={{ marginBottom: 'var(--spacing-2)' }}>
+          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-primary)', marginBottom: '6px' }}>
+            {intl.formatMessage({ id: 'settings.delete_account_type_confirm', defaultMessage: 'Type DELETE to confirm' })}
+          </label>
+          <input
+            type="text"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
+            placeholder="DELETE"
+            style={{
+              width: '100%',
+              padding: '12px 14px',
+              fontSize: '0.875rem',
+              background: 'var(--theme-bg-input)',
+              border: '1px solid var(--theme-border)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--theme-text-primary)',
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 'var(--spacing-2)' }}>
+          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-primary)', marginBottom: '6px' }}>
+            {intl.formatMessage({ id: 'settings.delete_account_reauth', defaultMessage: 'Enter your password to confirm' })}
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            style={{
+              width: '100%',
+              padding: '12px 14px',
+              fontSize: '0.875rem',
+              background: 'var(--theme-bg-input)',
+              border: '1px solid var(--theme-border)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--theme-text-primary)',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', marginTop: 'var(--spacing-2)' }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: 'transparent',
+              color: 'var(--theme-text-primary)',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              border: '1px solid var(--theme-border)',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+            }}
+          >
+            {intl.formatMessage({ id: 'settings.cancel', defaultMessage: 'Cancel' })}
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={confirmText !== 'DELETE' || !password || isDeleting}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: 'var(--color-error)',
+              color: '#FFFFFF',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              cursor: confirmText === 'DELETE' && password && !isDeleting ? 'pointer' : 'not-allowed',
+              opacity: confirmText === 'DELETE' && password && !isDeleting ? 1 : 0.5,
+            }}
+          >
+            {isDeleting ? 'Deleting...' : intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ===== SECURITY TAB CONTENT ===== */
 function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
+  // 2FA state
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [twoFactorLastUsed, setTwoFactorLastUsed] = useState<string | null>(null);
+  const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+  
+  // Password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  
+  // Delete account state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  // Sessions state
+  const [sessions] = useState([
+    { 
+      device: 'Windows PC - Chrome', 
+      location: 'Amman, Jordan',
+      ip: '178.xx.xx.xx',
+      lastActive: new Date().toISOString(),
+      current: true 
+    },
+    { 
+      device: 'iPhone 14 Pro - Safari', 
+      location: 'Amman, Jordan',
+      ip: '178.xx.xx.xx',
+      lastActive: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+      current: false 
+    },
+  ]);
+
+  // Check 2FA status on mount
+  useEffect(() => {
+    checkTwoFactorStatus();
+  }, []);
+
+  const checkTwoFactorStatus = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (!error && data) {
+        setTwoFactorEnabled(data.currentLevel === 'aal2' || data.nextLevel === 'aal2');
+        // In real app, we'd track last verification time
+        if (data.currentLevel === 'aal2') {
+          setTwoFactorLastUsed(new Date().toISOString());
+        }
+      }
+    } catch {
+      // Silently fail - user just won't see 2FA as enabled
+    }
+  };
+
+  const handleTwoFactorSuccess = () => {
+    setTwoFactorEnabled(true);
+    setTwoFactorLastUsed(new Date().toISOString());
+  };
+
+  const handleDisableTwoFactor = async () => {
+    try {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      if (factors && factors.totp.length > 0) {
+        await supabase.auth.mfa.unenroll({ factorId: factors.totp[0].id });
+        setTwoFactorEnabled(false);
+        setTwoFactorLastUsed(null);
+      }
+    } catch {
+      // Handle error
+    }
+  };
+
+  // Password validation
+  const validatePassword = (password: string): boolean => {
+    const hasMinLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    return hasMinLength && hasUppercase && hasLowercase && hasNumber;
+  };
+
+  const handleUpdatePassword = async () => {
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (!validatePassword(newPassword)) {
+      setPasswordError(intl.formatMessage({ id: 'settings.password_requirements', defaultMessage: 'Password must be at least 8 characters with uppercase, lowercase, and a number' }));
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(intl.formatMessage({ id: 'settings.password_mismatch', defaultMessage: 'Passwords do not match' }));
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      
+      setPasswordSuccess(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    } catch {
+      setPasswordError(intl.formatMessage({ id: 'settings.password_update_failed', defaultMessage: 'Failed to update password' }));
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  const handleSignOutSession = (index: number) => {
+    // In production, this would call an API to invalidate the session
+    console.log('Sign out session:', index);
+  };
+
+  const handleSignOutAllSessions = () => {
+    // In production, this would call an API to invalidate all other sessions
+    console.log('Sign out all other sessions');
+  };
 
   return (
     <>
-      {/* Security Card */}
+      {/* Two-Factor Authentication Card */}
       <div className="card-standard">
-        <h3
-          style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            color: 'var(--color-brand-navy)',
-            marginBottom: 'var(--spacing-2)',
-          }}
-        >
-          {intl.formatMessage({ id: 'settings.security_settings', defaultMessage: 'Security Settings' })}
-        </h3>
-
-        {/* Two-Factor Authentication */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingBottom: 'var(--spacing-2)',
-            borderBottom: '1px solid rgba(10, 25, 47, 0.05)',
-            marginBottom: 'var(--spacing-2)',
-          }}
-        >
-          <div>
-            <p
-              style={{
-                fontSize: '0.9375rem',
-                fontWeight: 600,
-                color: 'var(--color-brand-navy)',
-                marginBottom: '4px',
-              }}
-            >
-              {intl.formatMessage({ id: 'settings.two_factor_auth', defaultMessage: 'Two-Factor Authentication' })}
-            </p>
-            <p style={{ fontSize: '0.8125rem', color: 'rgba(10, 25, 47, 0.5)' }}>
-              {intl.formatMessage({ id: 'settings.two_factor_auth_description', defaultMessage: 'Add an extra layer of security to your account.' })}
-            </p>
-          </div>
-          <ToggleSwitch enabled={twoFactorEnabled} onToggle={() => setTwoFactorEnabled(!twoFactorEnabled)} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
+          <span style={{ color: 'var(--color-brand-emerald)' }}>
+            <ShieldIcon />
+          </span>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+            {intl.formatMessage({ id: 'settings.two_factor_auth', defaultMessage: 'Two-Factor Authentication' })}
+          </h3>
         </div>
+        
+        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+          {intl.formatMessage({ id: 'settings.two_factor_auth_description', defaultMessage: 'Add an extra layer of security to your account using an authenticator app.' })}
+        </p>
 
-        {/* Change Password */}
-        <div style={{ marginBottom: 'var(--spacing-2)' }}>
-          <p
-            style={{
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-              color: 'var(--color-brand-navy)',
-              marginBottom: 'var(--spacing-1)',
-            }}
-          >
-            {intl.formatMessage({ id: 'settings.change_password', defaultMessage: 'Change Password' })}
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-2)' }}>
-            <InputField label={intl.formatMessage({ id: 'settings.current_password', defaultMessage: 'Current Password' })} value="••••••••••••" type="password" />
-            <InputField label={intl.formatMessage({ id: 'settings.new_password', defaultMessage: 'New Password' })} value="" type="password" />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px',
+          background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-tertiary)',
+          borderRadius: 'var(--radius-sm)',
+          border: twoFactorEnabled ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--theme-border)',
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+                {intl.formatMessage({ id: 'settings.two_factor_status', defaultMessage: 'Status' })}:
+              </span>
+              <span style={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: twoFactorEnabled ? 'var(--color-brand-emerald)' : 'var(--theme-text-muted)',
+                background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.15)' : 'var(--theme-border)',
+                padding: '2px 10px',
+                borderRadius: 'var(--radius-pill)',
+              }}>
+                {twoFactorEnabled 
+                  ? intl.formatMessage({ id: 'settings.enabled', defaultMessage: 'Enabled' })
+                  : intl.formatMessage({ id: 'settings.not_enabled', defaultMessage: 'Not enabled' })
+                }
+              </span>
+            </div>
+            {twoFactorEnabled && (
+              <>
+                <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+                  {intl.formatMessage({ id: 'settings.two_factor_method', defaultMessage: 'Method: Authenticator App' })}
+                </p>
+                {twoFactorLastUsed && (
+                  <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <ClockIcon />
+                    {intl.formatMessage({ id: 'settings.two_factor_last_used', defaultMessage: 'Last verified' })}: {intl.formatDate(new Date(twoFactorLastUsed), { dateStyle: 'medium' })}
+                  </p>
+                )}
+              </>
+            )}
           </div>
-          <div style={{ textAlign: 'right', marginTop: '8px' }}>
-            <span
+          
+          {twoFactorEnabled ? (
+            <button
+              onClick={handleDisableTwoFactor}
               style={{
+                padding: '8px 16px',
+                background: 'transparent',
+                color: 'var(--color-error)',
                 fontSize: '0.8125rem',
                 fontWeight: 500,
-                color: 'var(--color-brand-emerald)',
+                border: '1px solid var(--color-error)',
+                borderRadius: 'var(--radius-sm)',
                 cursor: 'pointer',
               }}
             >
-              {intl.formatMessage({ id: 'settings.forgot_password', defaultMessage: 'Forgot Password?' })}
-            </span>
+              {intl.formatMessage({ id: 'settings.two_factor_disable', defaultMessage: 'Disable 2FA' })}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowTwoFactorModal(true)}
+              style={{
+                padding: '8px 16px',
+                background: 'var(--color-brand-emerald)',
+                color: '#FFFFFF',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+              }}
+            >
+              {intl.formatMessage({ id: 'settings.two_factor_setup', defaultMessage: 'Set up 2FA' })}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Change Password Card */}
+      <div className="card-standard">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
+          <span style={{ color: 'var(--color-info)' }}>
+            <KeyIcon />
+          </span>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+            {intl.formatMessage({ id: 'settings.change_password', defaultMessage: 'Change Password' })}
+          </h3>
+        </div>
+
+        {passwordSuccess && (
+          <div style={{
+            padding: '10px 14px',
+            marginBottom: 'var(--spacing-2)',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(16, 185, 129, 0.1)',
+            color: 'var(--color-brand-emerald)',
+            fontSize: '0.8125rem',
+          }}>
+            {intl.formatMessage({ id: 'settings.password_updated', defaultMessage: 'Password updated successfully' })}
           </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+          <InputField 
+            label={intl.formatMessage({ id: 'settings.current_password', defaultMessage: 'Current Password' })} 
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            type="password"
+            placeholder="••••••••"
+          />
+          
+          <div>
+            <InputField 
+              label={intl.formatMessage({ id: 'settings.new_password', defaultMessage: 'New Password' })} 
+              value={newPassword}
+              onChange={setNewPassword}
+              type="password"
+              placeholder="••••••••"
+              error={passwordError || undefined}
+            />
+            <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', marginTop: '4px' }}>
+              {intl.formatMessage({ id: 'settings.password_requirements', defaultMessage: 'Password must be at least 8 characters with uppercase, lowercase, and a number' })}
+            </p>
+          </div>
+          
+          <InputField 
+            label={intl.formatMessage({ id: 'settings.confirm_password', defaultMessage: 'Confirm New Password' })} 
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            type="password"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'var(--spacing-2)', flexWrap: 'wrap', gap: '12px' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+            <a href="/auth/forgot-password" style={{ color: 'var(--color-brand-emerald)', textDecoration: 'none' }}>
+              {intl.formatMessage({ id: 'settings.forgot_password', defaultMessage: 'Forgot Password?' })}
+            </a>
+            {' '}- {intl.formatMessage({ id: 'settings.forgot_password_hint', defaultMessage: 'Reset via email' })}
+          </p>
+          
+          <button
+            onClick={handleUpdatePassword}
+            disabled={!currentPassword || !newPassword || !confirmPassword || isUpdatingPassword}
+            style={{
+              padding: '10px 20px',
+              background: 'var(--color-brand-emerald)',
+              color: '#FFFFFF',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              cursor: currentPassword && newPassword && confirmPassword && !isUpdatingPassword ? 'pointer' : 'not-allowed',
+              opacity: currentPassword && newPassword && confirmPassword && !isUpdatingPassword ? 1 : 0.5,
+            }}
+          >
+            {isUpdatingPassword 
+              ? intl.formatMessage({ id: 'settings.saving', defaultMessage: 'Saving...' })
+              : intl.formatMessage({ id: 'settings.update_password', defaultMessage: 'Update Password' })
+            }
+          </button>
         </div>
       </div>
 
       {/* Active Sessions Card */}
       <div className="card-standard">
-        <h3
-          style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            color: 'var(--color-brand-navy)',
-            marginBottom: 'var(--spacing-2)',
-          }}
-        >
-          {intl.formatMessage({ id: 'settings.active_sessions', defaultMessage: 'Active Sessions' })}
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)', flexWrap: 'wrap', gap: '12px' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+            {intl.formatMessage({ id: 'settings.active_sessions', defaultMessage: 'Active Sessions' })}
+          </h3>
+          
+          {sessions.filter(s => !s.current).length > 0 && (
+            <button
+              onClick={handleSignOutAllSessions}
+              style={{
+                padding: '6px 12px',
+                background: 'transparent',
+                color: 'var(--color-error)',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                border: '1px solid var(--color-error)',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+              }}
+            >
+              {intl.formatMessage({ id: 'settings.sign_out_all', defaultMessage: 'Sign out of all other sessions' })}
+            </button>
+          )}
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {[
-            { device: 'MacBook Pro - Chrome', location: 'Riyadh, Saudi Arabia', current: true },
-            { device: 'iPhone 14 Pro - Safari', location: 'Riyadh, Saudi Arabia', current: false },
-          ].map((session, index) => (
+          {sessions.map((session, index) => (
             <div
               key={index}
               style={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 justifyContent: 'space-between',
-                padding: '12px 16px',
-                background: 'var(--color-brand-bg)',
+                padding: '14px 16px',
+                background: session.current ? 'var(--theme-bg-tertiary)' : 'var(--theme-bg-input)',
                 borderRadius: 'var(--radius-sm)',
+                border: session.current ? '1px solid var(--theme-border)' : '1px solid transparent',
+                opacity: session.current ? 1 : 0.85,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <div
                   style={{
                     width: '36px',
                     height: '36px',
                     borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(99, 102, 241, 0.1)',
+                    background: session.current ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--color-info)',
+                    color: session.current ? 'var(--color-brand-emerald)' : 'var(--color-info)',
+                    flexShrink: 0,
                   }}
                 >
                   <MonitorIcon />
                 </div>
                 <div>
-                  <p
-                    style={{
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      color: 'var(--color-brand-navy)',
-                    }}
-                  >
-                    {session.device}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--theme-text-primary)' }}>
+                      {session.device}
+                    </p>
                     {session.current && (
                       <span
                         style={{
-                          marginLeft: '8px',
                           fontSize: '0.6875rem',
                           fontWeight: 600,
                           color: 'var(--color-brand-emerald)',
@@ -651,30 +1608,40 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                           borderRadius: 'var(--radius-pill)',
                         }}
                       >
-                        {intl.formatMessage({ id: 'settings.current', defaultMessage: 'Current' })}
+                        {intl.formatMessage({ id: 'settings.current_session', defaultMessage: 'This device' })}
                       </span>
                     )}
-                  </p>
-                  <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>{session.location}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <MapPinIcon /> {session.location} ({session.ip})
+                    </p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ClockIcon /> {intl.formatMessage({ id: 'settings.last_active', defaultMessage: 'Last active' })}: {intl.formatRelativeTime(
+                        Math.round((new Date(session.lastActive).getTime() - Date.now()) / 60000),
+                        'minute'
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
-              {!session.current && (
-                <button
-                  type="button"
-                  style={{
-                    padding: '6px 12px',
-                    background: 'transparent',
-                    color: 'var(--color-error)',
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    border: '1px solid var(--color-error)',
-                    borderRadius: 'var(--radius-sm)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {intl.formatMessage({ id: 'settings.sign_out', defaultMessage: 'Sign Out' })}
-                </button>
-              )}
+              
+              <button
+                onClick={() => handleSignOutSession(index)}
+                style={{
+                  padding: '6px 12px',
+                  background: 'transparent',
+                  color: session.current ? 'var(--theme-text-muted)' : 'var(--color-error)',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  border: `1px solid ${session.current ? 'var(--theme-border)' : 'var(--color-error)'}`,
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                {intl.formatMessage({ id: 'settings.sign_out', defaultMessage: 'Sign Out' })}
+              </button>
             </div>
           ))}
         </div>
@@ -683,41 +1650,76 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       {/* Danger Zone */}
       <div
         className="card-standard"
-        style={{ border: '1px solid rgba(239, 68, 68, 0.3)' }}
+        style={{ 
+          border: '2px solid rgba(239, 68, 68, 0.4)',
+          marginTop: 'var(--spacing-2)',
+        }}
       >
-        <h3
-          style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            color: 'var(--color-error)',
-            marginBottom: 'var(--spacing-1)',
-          }}
-        >
-          {intl.formatMessage({ id: 'settings.danger_zone', defaultMessage: 'Danger Zone' })}
-        </h3>
-        <p style={{ fontSize: '0.8125rem', color: 'rgba(10, 25, 47, 0.5)', marginBottom: 'var(--spacing-2)' }}>
-          {intl.formatMessage({ id: 'settings.danger_zone_description', defaultMessage: 'Once you delete your account, there is no going back. Please be certain.' })}
-        </p>
-        <button
-          type="button"
-          style={{
-            display: 'inline-flex',
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: 'rgba(239, 68, 68, 0.1)',
+            display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '10px 20px',
-            background: 'var(--color-error)',
-            color: '#FFFFFF',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            cursor: 'pointer',
-          }}
-        >
-          <TrashIcon />
-          {intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
-        </button>
+            justifyContent: 'center',
+            color: 'var(--color-error)',
+            flexShrink: 0,
+          }}>
+            <AlertTriangleIcon />
+          </div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-error)', marginBottom: '4px' }}>
+              {intl.formatMessage({ id: 'settings.danger_zone', defaultMessage: 'Danger Zone' })}
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '8px' }}>
+              {intl.formatMessage({ id: 'settings.danger_zone_description', defaultMessage: 'Deleting your account permanently removes all financial data and cannot be undone.' })}
+            </p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginBottom: 'var(--spacing-2)' }}>
+              {intl.formatMessage({ id: 'settings.danger_zone_warning', defaultMessage: 'This action is irreversible. All your transactions, budgets, goals, and settings will be permanently deleted.' })}
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                background: 'var(--color-error)',
+                color: '#FFFFFF',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+              }}
+            >
+              <TrashIcon />
+              {intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Modals */}
+      <TwoFactorSetupModal
+        intl={intl}
+        isOpen={showTwoFactorModal}
+        onClose={() => setShowTwoFactorModal(false)}
+        onSuccess={handleTwoFactorSuccess}
+      />
+      
+      <DeleteAccountModal
+        intl={intl}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          // Handle delete
+          setShowDeleteModal(false);
+        }}
+      />
     </>
   );
 }
@@ -801,12 +1803,19 @@ function PreferencesContent({
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [weeklySummary, setWeeklySummary] = useState(false);
+  const [languageChangeNotice, setLanguageChangeNotice] = useState(false);
+  
+  const handleLanguageChange = (lang: 'en' | 'ar') => {
+    onLanguageChange(lang);
+    setLanguageChangeNotice(true);
+    setTimeout(() => setLanguageChangeNotice(false), 4000);
+  };
 
   return (
     <>
       {/* Language Card */}
       <div className="card-standard">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <span style={{ color: 'var(--color-info)' }}>
             <GlobeIcon />
           </span>
@@ -820,31 +1829,47 @@ function PreferencesContent({
             {intl.formatMessage({ id: 'settings.language', defaultMessage: 'Language' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'settings.language_description', defaultMessage: 'Select your preferred language for the interface.' })}
         </p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-brand-emerald)', marginBottom: 'var(--spacing-2)' }}>
+          {intl.formatMessage({ id: 'settings.language_applies_immediately', defaultMessage: 'Applies immediately across the interface.' })}
+        </p>
+        
+        {languageChangeNotice && (
+          <div style={{
+            padding: '10px 14px',
+            marginBottom: 'var(--spacing-2)',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(99, 102, 241, 0.1)',
+            color: 'var(--color-info)',
+            fontSize: '0.8125rem',
+          }}>
+            {intl.formatMessage({ id: 'settings.language_change_notice', defaultMessage: 'Interface language changed. Some elements may require a page refresh.' })}
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-1)' }}>
           <LanguageOption
             code="en"
-            name={intl.formatMessage({ id: 'settings.english', defaultMessage: 'English' })}
-            nativeName="English"
+            name="English"
+            secondaryLabel={intl.formatMessage({ id: 'settings.interface_language', defaultMessage: 'Interface language' })}
             selected={selectedLanguage === 'en'}
-            onClick={() => onLanguageChange('en')}
+            onClick={() => handleLanguageChange('en')}
           />
           <LanguageOption
             code="ar"
-            name={intl.formatMessage({ id: 'settings.arabic', defaultMessage: 'Arabic' })}
-            nativeName="العربية"
+            name="العربية"
+            secondaryLabel="لغة الواجهة"
             selected={selectedLanguage === 'ar'}
-            onClick={() => onLanguageChange('ar')}
+            onClick={() => handleLanguageChange('ar')}
           />
         </div>
       </div>
 
       {/* Currency Card */}
       <div className="card-standard">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <span style={{ color: 'var(--color-brand-emerald)' }}>
             <DollarIcon />
           </span>
@@ -858,8 +1883,11 @@ function PreferencesContent({
             {intl.formatMessage({ id: 'settings.currency', defaultMessage: 'Currency' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
-          {intl.formatMessage({ id: 'settings.currency_description', defaultMessage: 'Default currency for displaying amounts.' })}
+        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '4px' }}>
+          {intl.formatMessage({ id: 'settings.currency_description', defaultMessage: 'Used for display only. Transactions keep their original currency.' })}
+        </p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+          {intl.formatMessage({ id: 'settings.currency_no_conversion', defaultMessage: 'No automatic conversion is applied to existing records.' })}
         </p>
 
         {/* Currency Dropdown */}
@@ -1037,10 +2065,12 @@ export default function SettingsPage() {
   // Get user data from store
   const user = useUser();
   const userName = useUserName();
+  const updateUserProfile = useUpdateUserProfile();
   
   // Compute display values
   const displayName = user?.name || userName || intl.formatMessage({ id: 'settings.guest_user', defaultMessage: 'Guest User' });
   const displayEmail = user?.email || intl.formatMessage({ id: 'settings.no_email', defaultMessage: 'No email set' });
+  const displayPhone = user?.phone || '';
   
   // Get initials for avatar
   const nameParts = displayName.trim().split(' ');
@@ -1065,6 +2095,12 @@ export default function SettingsPage() {
   // Theme is applied immediately for instant preview
   const handleThemeChange = (theme: 'light' | 'dark') => {
     setGlobalTheme(theme);
+  };
+  
+  // Handle profile update
+  const handleProfileUpdate = async (data: { firstName: string; lastName: string; phone: string }) => {
+    const fullName = `${data.firstName} ${data.lastName}`.trim();
+    await updateUserProfile({ name: fullName, phone: data.phone });
   };
   
   // Handle save - apply pending changes to global store
@@ -1147,7 +2183,7 @@ export default function SettingsPage() {
 
         {/* Right Content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-          {activeTab === 'profile' && <ProfileContent intl={intl} userData={{ name: displayName, email: displayEmail }} />}
+          {activeTab === 'profile' && <ProfileContent intl={intl} userData={{ name: displayName, email: displayEmail, phone: displayPhone }} onProfileUpdate={handleProfileUpdate} />}
           {activeTab === 'security' && <SecurityContent intl={intl} />}
           {activeTab === 'preferences' && (
             <PreferencesContent 

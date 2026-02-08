@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useIntl } from 'react-intl';
+import Link from 'next/link';
 
 /* ============================================
    FINANCIAL TOOLS PAGE
@@ -23,6 +24,7 @@ interface Tool {
   iconColor: string;
   category: Category;
   countries: Country[];
+  href?: string;
 }
 
 /* ===== ICONS ===== */
@@ -211,6 +213,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: 'var(--color-brand-emerald)',
     category: 'budgeting',
     countries: ['all'],
+    href: '/calculators/mortgage-payoff',
   },
   {
     id: 'retirement-planner',
@@ -536,6 +539,7 @@ function ToolCard({
   title,
   description,
   launchLabel,
+  href,
 }: {
   icon: React.ReactNode;
   iconBg: string;
@@ -543,7 +547,53 @@ function ToolCard({
   title: string;
   description: string;
   launchLabel: string;
+  href?: string;
 }) {
+  const actionButton = href ? (
+    <Link
+      href={href}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        padding: '10px 20px',
+        background: 'transparent',
+        color: 'var(--color-brand-emerald)',
+        fontSize: '0.8125rem',
+        fontWeight: 600,
+        border: '1.5px solid var(--color-brand-emerald)',
+        borderRadius: 'var(--radius-sm)',
+        cursor: 'pointer',
+        textDecoration: 'none',
+      }}
+    >
+      {launchLabel}
+      <ArrowRightIcon />
+    </Link>
+  ) : (
+    <button
+      type="button"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        padding: '10px 20px',
+        background: 'transparent',
+        color: 'var(--color-brand-emerald)',
+        fontSize: '0.8125rem',
+        fontWeight: 600,
+        border: '1.5px solid var(--color-brand-emerald)',
+        borderRadius: 'var(--radius-sm)',
+        cursor: 'pointer',
+      }}
+    >
+      {launchLabel}
+      <ArrowRightIcon />
+    </button>
+  );
+
   return (
     <div
       className="card-standard"
@@ -596,27 +646,8 @@ function ToolCard({
         {description}
       </p>
 
-      {/* Secondary Action */}
-      <button
-        type="button"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '6px',
-          padding: '10px 20px',
-          background: 'transparent',
-          color: 'var(--color-brand-emerald)',
-          fontSize: '0.8125rem',
-          fontWeight: 600,
-          border: '1.5px solid var(--color-brand-emerald)',
-          borderRadius: 'var(--radius-sm)',
-          cursor: 'pointer',
-        }}
-      >
-        {launchLabel}
-        <ArrowRightIcon />
-      </button>
+      {/* Action */}
+      {actionButton}
     </div>
   );
 }
@@ -799,6 +830,7 @@ export default function FinancialToolsPage() {
                   title={intl.formatMessage({ id: tool.titleKey, defaultMessage: tool.titleDefault })}
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
+                  href={tool.href}
                 />
               ))}
             </div>
@@ -839,6 +871,7 @@ export default function FinancialToolsPage() {
                   title={intl.formatMessage({ id: tool.titleKey, defaultMessage: tool.titleDefault })}
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
+                  href={tool.href}
                 />
               ))}
             </div>
@@ -879,6 +912,7 @@ export default function FinancialToolsPage() {
                   title={intl.formatMessage({ id: tool.titleKey, defaultMessage: tool.titleDefault })}
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
+                  href={tool.href}
                 />
               ))}
             </div>
@@ -919,6 +953,7 @@ export default function FinancialToolsPage() {
                   title={intl.formatMessage({ id: tool.titleKey, defaultMessage: tool.titleDefault })}
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
+                  href={tool.href}
                 />
               ))}
             </div>
@@ -959,6 +994,7 @@ export default function FinancialToolsPage() {
                   title={intl.formatMessage({ id: tool.titleKey, defaultMessage: tool.titleDefault })}
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
+                  href={tool.href}
                 />
               ))}
             </div>

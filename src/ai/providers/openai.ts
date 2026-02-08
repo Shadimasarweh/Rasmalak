@@ -8,14 +8,20 @@
  */
 
 import { AI_CONFIG, getProviderApiKey, API_CONFIG } from '../config';
+import { MessageAttachment } from '../types';
 
 // ============================================
 // TYPES
 // ============================================
 
+// Content can be text or multi-part (for vision)
+type OpenAIContentPart = 
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' | 'auto' } };
+
 interface OpenAIMessage {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content: string | OpenAIContentPart[];
 }
 
 interface OpenAIRequest {
@@ -65,7 +71,7 @@ const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
  */
 export async function sendChatCompletion(
   messages: OpenAIMessage[],
-  options?: Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>>
+  options?: Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>> & { model?: string }
 ): Promise<{ success: true; content: string; usage: OpenAIResponse['usage'] } | { success: false; error: string }> {
   const apiKey = getProviderApiKey();
   
@@ -77,7 +83,7 @@ export async function sendChatCompletion(
   }
 
   const requestBody: OpenAIRequest = {
-    model: AI_CONFIG.model,
+    model: options?.model ?? AI_CONFIG.model,
     messages,
     max_tokens: options?.max_tokens ?? AI_CONFIG.maxTokens,
     temperature: options?.temperature ?? AI_CONFIG.temperature,
@@ -146,7 +152,7 @@ export async function sendChatCompletion(
  */
 export async function sendChatCompletionWithRetry(
   messages: OpenAIMessage[],
-  options?: Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>>
+  options?: Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>> & { model?: string }
 ): Promise<{ success: true; content: string; usage: OpenAIResponse['usage'] } | { success: false; error: string }> {
   let lastError = '';
   
@@ -186,7 +192,8 @@ export async function sendChatCompletionWithRetry(
 export function formatMessagesForOpenAI(
   systemPrompt: string,
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>,
-  newMessage: string
+  newMessage: string,
+  attachments?: MessageAttachment[]
 ): OpenAIMessage[] {
   const messages: OpenAIMessage[] = [
     { role: 'system', content: systemPrompt },
@@ -200,13 +207,61 @@ export function formatMessagesForOpenAI(
     });
   }
   
-  // Add new user message
-  messages.push({
-    role: 'user',
-    content: newMessage,
-  });
+  // Build user message content
+  if (attachments && attachments.length > 0) {
+    // Multi-part message with text and attachments
+    const contentParts: OpenAIContentPart[] = [];
+    
+    // Add text first
+    if (newMessage.trim()) {
+      contentParts.push({ type: 'text', text: newMessage });
+    }
+    
+    // Add images
+    for (const attachment of attachments) {
+      if (attachment.type === 'image') {
+        contentParts.push({
+          type: 'image_url',
+          image_url: {
+            url: attachment.content, // base64 data URL
+            detail: 'auto',
+          },
+        });
+      } else if (attachment.type === 'document' || attachment.type === 'pdf') {
+        // For documents/PDFs, include the extracted text content
+        contentParts.push({
+          type: 'text',
+          text: `\n\n--- Document: ${attachment.filename} ---\n${attachment.content}\n--- End Document ---`,
+        });
+      }
+    }
+    
+    messages.push({
+      role: 'user',
+      content: contentParts,
+    });
+  } else {
+    // Simple text message
+    messages.push({
+      role: 'user',
+      content: newMessage,
+    });
+  }
   
   return messages;
+}
+
+/**
+ * Get the appropriate model for messages with attachments
+ * GPT-4 Vision is needed for image analysis
+ */
+export function getModelForAttachments(attachments?: MessageAttachment[]): string {
+  const hasImages = attachments?.some(a => a.type === 'image');
+  // Use GPT-4 Vision for images, otherwise use configured model
+  if (hasImages) {
+    return 'gpt-4o'; // GPT-4o supports vision
+  }
+  return AI_CONFIG.model;
 }
 
 /**

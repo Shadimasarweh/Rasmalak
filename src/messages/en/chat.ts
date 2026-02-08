@@ -25,4 +25,26 @@ export default {
   total: 'Total',
   essentials: 'Essentials',
   lifestyle: 'Lifestyle',
+  
+  // File attachments
+  attach_file: 'Attach file or image',
+  max_attachments: 'Maximum 5 files allowed',
+  file_too_large: 'File too large. Maximum 10MB.',
+  unsupported_file_type: 'Unsupported file type. Allowed: Images, PDF, Text files.',
+  supported_formats: 'Supports: Images (JPG, PNG, GIF), PDF, Text files',
+  attachments_label: 'Attachments',
+  translate_this: 'Translate this',
+  explain_this: 'Explain this',
+  extract_data: 'Extract financial data',
+  
+  // Tips for attachments
+  tips_title: 'Quick Tips',
+  tip_1: 'Ask about your spending patterns',
+  tip_2: 'Get personalized saving tips',
+  tip_3: 'Track your budget progress',
+  tip_4: 'Upload receipts for analysis',
+  tip_5: 'Share documents for translation',
+  
+  transactions_count: 'You have {count} transactions recorded.',
+  no_transactions: 'Add transactions to see insights',
 };

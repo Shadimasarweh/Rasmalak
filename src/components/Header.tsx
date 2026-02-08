@@ -54,10 +54,12 @@ export default function Header({ onMenuToggle }: HeaderProps) {
               <Search className="w-5 h-5" />
             </div>
             <input
-              type="text"
+              type="search"
               placeholder="Search transactions, tools..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
+              name="dashboard-search"
               className="w-full pl-10 pr-4 py-2 text-sm rounded-[var(--radius-input)] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20"
               style={{
                 backgroundColor: 'var(--theme-bg-input)',
