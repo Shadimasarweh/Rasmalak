@@ -8,14 +8,18 @@ declare module 'pdfmake/build/pdfmake' {
     };
   }
 
+  interface VirtualFileSystem {
+    existsSync(filename: string): boolean;
+    readFileSync(filename: string, encoding?: string): string;
+    writeFileSync(filename: string, content: string, encoding?: string): void;
+  }
+
   interface PdfMakeStatic {
-    vfs: Record<string, string>;
+    virtualfs: VirtualFileSystem;
     fonts: TFontDictionary;
     createPdf(
       docDefinition: unknown,
-      tableLayouts?: unknown,
-      fonts?: TFontDictionary,
-      vfs?: Record<string, string>,
+      options?: Record<string, unknown>,
     ): {
       download(filename?: string): void;
       open(): void;
@@ -29,11 +33,6 @@ declare module 'pdfmake/build/pdfmake' {
 }
 
 declare module 'pdfmake/build/vfs_fonts' {
-  const vfsFonts: {
-    pdfMake: {
-      vfs: Record<string, string>;
-    };
-  };
+  const vfsFonts: Record<string, string>;
   export default vfsFonts;
 }
-

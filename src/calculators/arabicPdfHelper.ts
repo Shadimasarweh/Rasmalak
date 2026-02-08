@@ -41,13 +41,13 @@ export function formatNumberArabic(value: number, decimals: number = 2): string 
 }
 
 /**
- * Format a date as YYYY/MM/DD.
+ * Format a date as DD/MM/YYYY.
  */
 export function formatDate(date: Date): string {
   const yyyy = date.getFullYear().toString();
   const mm = (date.getMonth() + 1).toString().padStart(2, '0');
   const dd = date.getDate().toString().padStart(2, '0');
-  return `${yyyy}/${mm}/${dd}`;
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 /**

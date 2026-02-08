@@ -177,32 +177,22 @@ export async function generateMortgagePayoffPDF(
   const pdfMakeModule = await import('pdfmake/build/pdfmake');
   const pdfMake = pdfMakeModule.default || pdfMakeModule;
 
-  // Build VFS (virtual file system) with all needed fonts
-  let vfs: Record<string, string> = {};
-
-  // Always load default VFS (contains Roboto - needed for brand name in both languages)
-  const vfsModule = await import('pdfmake/build/vfs_fonts');
-  const vfsFonts = vfsModule.default || vfsModule;
-  if (vfsFonts?.pdfMake?.vfs) {
-    vfs = { ...vfs, ...vfsFonts.pdfMake.vfs };
+  // Load default VFS fonts (Roboto) into pdfmake's virtual file system
+  const vfsFonts = await import('pdfmake/build/vfs_fonts');
+  const vfsData = vfsFonts.default || vfsFonts;
+  // pdfmake 0.3.x: vfs_fonts exports font files directly as { "Roboto-Regular.ttf": "...", ... }
+  for (const [fileName, data] of Object.entries(vfsData)) {
+    if (typeof data === 'string') {
+      pdfMake.virtualfs.writeFileSync(fileName, data, 'base64');
+    }
   }
-
-  // Build fonts dictionary
-  const fonts: Record<string, { normal: string; bold: string; italics: string; bolditalics: string }> = {
-    Roboto: {
-      normal: 'Roboto-Regular.ttf',
-      bold: 'Roboto-Medium.ttf',
-      italics: 'Roboto-Italic.ttf',
-      bolditalics: 'Roboto-MediumItalic.ttf',
-    },
-  };
 
   // Load Arabic fonts if needed
   if (isArabic) {
     const arabicFonts = await loadArabicFonts();
-    vfs['Amiri-Regular.ttf'] = arabicFonts.regular;
-    vfs['Amiri-Bold.ttf'] = arabicFonts.bold;
-    fonts.Amiri = {
+    pdfMake.virtualfs.writeFileSync('Amiri-Regular.ttf', arabicFonts.regular, 'base64');
+    pdfMake.virtualfs.writeFileSync('Amiri-Bold.ttf', arabicFonts.bold, 'base64');
+    pdfMake.fonts.Amiri = {
       normal: 'Amiri-Regular.ttf',
       bold: 'Amiri-Bold.ttf',
       italics: 'Amiri-Regular.ttf',
@@ -462,5 +452,5 @@ export async function generateMortgagePayoffPDF(
     ? 'تقرير_سداد_القرض_السكني.pdf'
     : 'Mortgage_Payoff_Report.pdf';
 
-  pdfMake.createPdf(docDefinition, null, fonts, vfs).download(fileName);
+  pdfMake.createPdf(docDefinition).download(fileName);
 }
