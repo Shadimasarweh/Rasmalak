@@ -177,38 +177,38 @@ export async function generateMortgagePayoffPDF(
   const pdfMakeModule = await import('pdfmake/build/pdfmake');
   const pdfMake = pdfMakeModule.default || pdfMakeModule;
 
-  // Always load the default VFS (contains Roboto - needed for brand name in both languages)
+  // Build VFS (virtual file system) with all needed fonts
+  let vfs: Record<string, string> = {};
+
+  // Always load default VFS (contains Roboto - needed for brand name in both languages)
   const vfsModule = await import('pdfmake/build/vfs_fonts');
   const vfsFonts = vfsModule.default || vfsModule;
   if (vfsFonts?.pdfMake?.vfs) {
-    pdfMake.vfs = { ...pdfMake.vfs, ...vfsFonts.pdfMake.vfs };
+    vfs = { ...vfs, ...vfsFonts.pdfMake.vfs };
   }
 
-  // Set up Arabic fonts if needed
-  if (isArabic) {
-    const arabicFonts = await loadArabicFonts();
-    pdfMake.vfs = pdfMake.vfs || {};
-    pdfMake.vfs['Amiri-Regular.ttf'] = arabicFonts.regular;
-    pdfMake.vfs['Amiri-Bold.ttf'] = arabicFonts.bold;
-  }
-
-  // Register all fonts
-  pdfMake.fonts = {
+  // Build fonts dictionary
+  const fonts: Record<string, { normal: string; bold: string; italics: string; bolditalics: string }> = {
     Roboto: {
       normal: 'Roboto-Regular.ttf',
       bold: 'Roboto-Medium.ttf',
       italics: 'Roboto-Italic.ttf',
       bolditalics: 'Roboto-MediumItalic.ttf',
     },
-    ...(isArabic ? {
-      Amiri: {
-        normal: 'Amiri-Regular.ttf',
-        bold: 'Amiri-Bold.ttf',
-        italics: 'Amiri-Regular.ttf',
-        bolditalics: 'Amiri-Bold.ttf',
-      },
-    } : {}),
   };
+
+  // Load Arabic fonts if needed
+  if (isArabic) {
+    const arabicFonts = await loadArabicFonts();
+    vfs['Amiri-Regular.ttf'] = arabicFonts.regular;
+    vfs['Amiri-Bold.ttf'] = arabicFonts.bold;
+    fonts.Amiri = {
+      normal: 'Amiri-Regular.ttf',
+      bold: 'Amiri-Bold.ttf',
+      italics: 'Amiri-Regular.ttf',
+      bolditalics: 'Amiri-Bold.ttf',
+    };
+  }
 
   const yearsLabel = labels.years;
   const now = new Date();
@@ -462,5 +462,5 @@ export async function generateMortgagePayoffPDF(
     ? 'تقرير_سداد_القرض_السكني.pdf'
     : 'Mortgage_Payoff_Report.pdf';
 
-  pdfMake.createPdf(docDefinition).download(fileName);
+  pdfMake.createPdf(docDefinition, null, fonts, vfs).download(fileName);
 }
