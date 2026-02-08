@@ -4,19 +4,21 @@
  * Generates a professional PDF report with loan summary and amortization schedule.
  * Supports both English (LTR) and Arabic (RTL) layouts.
  * 
- * Arabic support uses the Amiri font with text reshaping for proper rendering.
+ * Uses pdfmake which internally uses fontkit for proper OpenType text shaping.
+ * Arabic text shaping (letter joining, ligatures) is handled automatically.
  */
 
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import type { MortgagePayoffInput, MortgagePayoffResult } from './mortgagePayoffCalculator';
 import {
-  processArabicText,
+  formatNumber,
   formatNumberArabic,
+  formatDate,
   formatDateArabic,
   toArabicNumerals,
-  registerArabicFont,
+  loadArabicFonts,
 } from './arabicPdfHelper';
+
+// ===== TYPES =====
 
 interface ReportLabels {
   title: string;
@@ -53,8 +55,9 @@ interface ReportLabels {
   of: string;
   years: string;
   inputParameters: string;
-  currency: string;
 }
+
+// ===== LABELS =====
 
 const EN_LABELS: ReportLabels = {
   title: 'Mortgage Amortization Schedule',
@@ -91,7 +94,6 @@ const EN_LABELS: ReportLabels = {
   of: 'of',
   years: 'years',
   inputParameters: 'Input Parameters',
-  currency: '',
 };
 
 const AR_LABELS: ReportLabels = {
@@ -129,52 +131,33 @@ const AR_LABELS: ReportLabels = {
   of: 'من',
   years: 'سنة',
   inputParameters: 'بيانات المدخلات',
-  currency: '',
 };
 
-// ===== FORMATTERS =====
+// ===== COLOR CONSTANTS =====
+const NAVY = '#0A192F';
+const EMERALD = '#10B981';
+const WHITE = '#FFFFFF';
+const LIGHT_GRAY = '#F8FAFC';
+const ALT_ROW_GREEN = '#F5FAF8';
+const ALT_ROW_BLUE = '#F0F4FF';
 
-function formatNumber(value: number, decimals: number = 2): string {
-  return value.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-}
+// ===== HELPERS =====
 
-function formatDate(date: Date): string {
-  const yyyy = date.getFullYear().toString();
-  const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-  const dd = date.getDate().toString().padStart(2, '0');
-  return `${yyyy}/${mm}/${dd}`;
-}
-
-// ===== ARABIC TEXT WRAPPER =====
-// Wraps text processing for Arabic: reshapes + converts numerals
-
-function arText(text: string, isArabic: boolean): string {
-  if (!isArabic) return text;
-  return processArabicText(text);
-}
-
-function arNum(value: number, isArabic: boolean, decimals: number = 2): string {
-  if (!isArabic) return formatNumber(value, decimals);
-  return formatNumberArabic(value, decimals);
-}
-
-function arDate(date: Date, isArabic: boolean): string {
-  if (!isArabic) return formatDate(date);
-  return formatDateArabic(date);
-}
-
-function arCurrencyValue(value: number, currencySymbol: string, isArabic: boolean): string {
-  if (!isArabic) {
-    return `${currencySymbol} ${formatNumber(value)}`;
+function fmtCurrency(value: number, currencySymbol: string, isArabic: boolean): string {
+  if (isArabic) {
+    return `${formatNumberArabic(value)} ${currencySymbol}`;
   }
-  // For Arabic: number in Arabic-Indic + currency symbol
-  // Process currency symbol through Arabic reshaper if it contains Arabic chars
-  const numStr = formatNumberArabic(value);
-  const processedCurrency = processArabicText(currencySymbol);
-  return `${processedCurrency} ${numStr}`;
+  return `${currencySymbol} ${formatNumber(value)}`;
+}
+
+function fmtNum(value: number, isArabic: boolean, decimals: number = 2): string {
+  if (isArabic) return formatNumberArabic(value, decimals);
+  return formatNumber(value, decimals);
+}
+
+function fmtDate(date: Date, isArabic: boolean): string {
+  if (isArabic) return formatDateArabic(date);
+  return formatDate(date);
 }
 
 // ===== MAIN PDF GENERATOR =====
@@ -187,268 +170,297 @@ export async function generateMortgagePayoffPDF(
 ): Promise<void> {
   const isArabic = locale === 'ar';
   const labels = isArabic ? AR_LABELS : EN_LABELS;
-  const fontFamily = isArabic ? 'Amiri' : 'helvetica';
+  const align = isArabic ? 'right' as const : 'left' as const;
+  const fontFamily = isArabic ? 'Amiri' : 'Roboto';
 
-  // Create PDF (landscape for the wide table)
-  const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4',
-  });
+  // Dynamically import pdfmake (client-side only)
+  const pdfMakeModule = await import('pdfmake/build/pdfmake');
+  const pdfMake = pdfMakeModule.default || pdfMakeModule;
 
-  // Load and register Arabic font if needed
-  if (isArabic) {
-    await registerArabicFont(doc);
+  // Always load the default VFS (contains Roboto - needed for brand name in both languages)
+  const vfsModule = await import('pdfmake/build/vfs_fonts');
+  const vfsFonts = vfsModule.default || vfsModule;
+  if (vfsFonts?.pdfMake?.vfs) {
+    pdfMake.vfs = { ...pdfMake.vfs, ...vfsFonts.pdfMake.vfs };
   }
 
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 15;
+  // Set up Arabic fonts if needed
+  if (isArabic) {
+    const arabicFonts = await loadArabicFonts();
+    pdfMake.vfs = pdfMake.vfs || {};
+    pdfMake.vfs['Amiri-Regular.ttf'] = arabicFonts.regular;
+    pdfMake.vfs['Amiri-Bold.ttf'] = arabicFonts.bold;
+  }
 
-  // ===== HEADER =====
-  // Brand bar
-  doc.setFillColor(10, 25, 47); // Navy
-  doc.rect(0, 0, pageWidth, 28, 'F');
+  // Register all fonts
+  pdfMake.fonts = {
+    Roboto: {
+      normal: 'Roboto-Regular.ttf',
+      bold: 'Roboto-Medium.ttf',
+      italics: 'Roboto-Italic.ttf',
+      bolditalics: 'Roboto-MediumItalic.ttf',
+    },
+    ...(isArabic ? {
+      Amiri: {
+        normal: 'Amiri-Regular.ttf',
+        bold: 'Amiri-Bold.ttf',
+        italics: 'Amiri-Regular.ttf',
+        bolditalics: 'Amiri-Bold.ttf',
+      },
+    } : {}),
+  };
 
-  // Emerald accent line
-  doc.setFillColor(16, 185, 129); // Emerald
-  doc.rect(0, 28, pageWidth, 2, 'F');
+  const yearsLabel = labels.years;
+  const now = new Date();
+  const generatedDateStr = isArabic
+    ? `${labels.generatedOn}: ${formatDateArabic(now)}`
+    : `${labels.generatedOn}: ${formatDate(now)}`;
 
-  // Title text
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18);
-  doc.setFont(fontFamily, 'bold');
-  const titleX = isArabic ? pageWidth - margin : margin;
-  doc.text(arText(labels.title, isArabic), titleX, 14, { align: isArabic ? 'right' : 'left' });
-
-  doc.setFontSize(10);
-  doc.setFont(fontFamily, 'normal');
-  doc.text(arText(labels.subtitle, isArabic), titleX, 22, { align: isArabic ? 'right' : 'left' });
-
-  // Rasmalak branding on opposite side
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold'); // Brand name always in Latin font
-  const brandX = isArabic ? margin : pageWidth - margin;
-  doc.text('Rasmalak AI', brandX, 14, { align: isArabic ? 'left' : 'right' });
-  doc.setFontSize(8);
-  doc.setFont(fontFamily, 'normal');
-  const dateNow = new Date();
-  const dateStr = isArabic
-    ? `${arText(labels.generatedOn, true)}: ${formatDateArabic(dateNow)}`
-    : `${labels.generatedOn}: ${formatDate(dateNow)}`;
-  doc.text(dateStr, brandX, 22, { align: isArabic ? 'left' : 'right' });
-
-  let currentY = 38;
-
-  // ===== INPUT PARAMETERS SECTION =====
-  doc.setTextColor(10, 25, 47);
-  doc.setFontSize(13);
-  doc.setFont(fontFamily, 'bold');
-  doc.text(arText(labels.inputParameters, isArabic), isArabic ? pageWidth - margin : margin, currentY, {
-    align: isArabic ? 'right' : 'left',
-  });
-  currentY += 3;
-
-  const yearsLabel = arText(labels.years, isArabic);
-
-  const inputData = [
-    [arText(labels.loanAmount, isArabic), arCurrencyValue(input.loanAmount, currencySymbol, isArabic)],
-    [arText(labels.interestRate, isArabic), isArabic ? `%${toArabicNumerals(String(input.annualInterestRate))}` : `${input.annualInterestRate}%`],
-    [arText(labels.loanTerm, isArabic), `${arNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
-    [arText(labels.paymentsPerYear, isArabic), arNum(input.paymentsPerYear, isArabic, 0)],
-    [arText(labels.startDate, isArabic), arDate(new Date(input.startDate), isArabic)],
-    [arText(labels.extraPayment, isArabic), arCurrencyValue(input.extraPayment, currencySymbol, isArabic)],
-    [arText(labels.lenderName, isArabic), input.lenderName || '-'], // Keep bank name as entered
+  // ===== BUILD INPUT PARAMETERS TABLE =====
+  const inputRows = [
+    [labels.loanAmount, fmtCurrency(input.loanAmount, currencySymbol, isArabic)],
+    [labels.interestRate, isArabic ? `%${toArabicNumerals(String(input.annualInterestRate))}` : `${input.annualInterestRate}%`],
+    [labels.loanTerm, `${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
+    [labels.paymentsPerYear, fmtNum(input.paymentsPerYear, isArabic, 0)],
+    [labels.startDate, fmtDate(new Date(input.startDate), isArabic)],
+    [labels.extraPayment, fmtCurrency(input.extraPayment, currencySymbol, isArabic)],
+    [labels.lenderName, input.lenderName || '-'],
   ];
 
-  // ===== LOAN SUMMARY SECTION =====
-  const summaryData = [
-    [arText(labels.scheduledPayment, isArabic), arCurrencyValue(result.summary.scheduledPayment, currencySymbol, isArabic)],
-    [arText(labels.scheduledPayments, isArabic), arNum(result.summary.scheduledNumberOfPayments, isArabic, 0)],
-    [arText(labels.actualPayments, isArabic), arNum(result.summary.actualNumberOfPayments, isArabic, 0)],
-    [arText(labels.yearsSaved, isArabic), `${arNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`],
-    [arText(labels.totalEarlyPayments, isArabic), arCurrencyValue(result.summary.totalEarlyPayments, currencySymbol, isArabic)],
-    [arText(labels.totalInterest, isArabic), arCurrencyValue(result.summary.totalInterest, currencySymbol, isArabic)],
-    [arText(labels.totalPaid, isArabic), arCurrencyValue(result.summary.totalPaid, currencySymbol, isArabic)],
+  // ===== BUILD SUMMARY TABLE =====
+  const summaryRows = [
+    [labels.scheduledPayment, fmtCurrency(result.summary.scheduledPayment, currencySymbol, isArabic)],
+    [labels.scheduledPayments, fmtNum(result.summary.scheduledNumberOfPayments, isArabic, 0)],
+    [labels.actualPayments, fmtNum(result.summary.actualNumberOfPayments, isArabic, 0)],
+    [labels.yearsSaved, `${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`],
+    [labels.totalEarlyPayments, fmtCurrency(result.summary.totalEarlyPayments, currencySymbol, isArabic)],
+    [labels.totalInterest, fmtCurrency(result.summary.totalInterest, currencySymbol, isArabic)],
+    [labels.totalPaid, fmtCurrency(result.summary.totalPaid, currencySymbol, isArabic)],
   ];
 
-  // Side by side summary tables
-  const halfWidth = (pageWidth - margin * 3) / 2;
-  const halign = isArabic ? 'right' as const : 'left' as const;
-
-  // Input Parameters Table
-  autoTable(doc, {
-    startY: currentY,
-    margin: { left: isArabic ? pageWidth / 2 + margin / 2 : margin, right: isArabic ? margin : pageWidth / 2 + margin / 2 },
-    head: [[arText(labels.inputParameters, isArabic), '']],
-    body: inputData,
-    theme: 'grid',
-    styles: {
-      font: fontFamily,
-    },
-    headStyles: {
-      fillColor: [16, 185, 129],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 9,
-      halign,
-    },
-    bodyStyles: {
-      fontSize: 8,
-      halign,
-      cellPadding: 2,
-    },
-    columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: halfWidth * 0.55 },
-      1: { cellWidth: halfWidth * 0.45 },
-    },
-    alternateRowStyles: {
-      fillColor: [245, 250, 248],
-    },
-  });
-
-  // Loan Summary Table
-  autoTable(doc, {
-    startY: currentY,
-    margin: { left: isArabic ? margin : pageWidth / 2 + margin / 2, right: isArabic ? pageWidth / 2 + margin / 2 : margin },
-    head: [[arText(labels.loanSummary, isArabic), '']],
-    body: summaryData,
-    theme: 'grid',
-    styles: {
-      font: fontFamily,
-    },
-    headStyles: {
-      fillColor: [10, 25, 47],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 9,
-      halign,
-    },
-    bodyStyles: {
-      fontSize: 8,
-      halign,
-      cellPadding: 2,
-    },
-    columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: halfWidth * 0.55 },
-      1: { cellWidth: halfWidth * 0.45 },
-    },
-    alternateRowStyles: {
-      fillColor: [240, 244, 255],
-    },
-  });
-
-  // Get the Y position after both tables
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const finalY = (doc as any).lastAutoTable?.finalY || currentY + 60;
-  currentY = finalY + 10;
-
-  // ===== AMORTIZATION SCHEDULE =====
-  doc.setFontSize(13);
-  doc.setFont(fontFamily, 'bold');
-  doc.setTextColor(10, 25, 47);
-  doc.text(arText(labels.amortizationSchedule, isArabic), isArabic ? pageWidth - margin : margin, currentY, {
-    align: isArabic ? 'right' : 'left',
-  });
-  currentY += 3;
-
-  // Table headers
-  const tableHeaders = [
-    arText(labels.pmtNo, isArabic),
-    arText(labels.paymentDate, isArabic),
-    arText(labels.beginningBalance, isArabic),
-    arText(labels.scheduledPmt, isArabic),
-    arText(labels.extraPmt, isArabic),
-    arText(labels.totalPayment, isArabic),
-    arText(labels.principal, isArabic),
-    arText(labels.interest, isArabic),
-    arText(labels.endingBalance, isArabic),
-    arText(labels.cumulativeInterest, isArabic),
-  ];
-
-  // If RTL, reverse the columns order
-  const headers = isArabic ? [...tableHeaders].reverse() : tableHeaders;
-
-  // Table body
-  const tableBody = result.schedule.map((row) => {
-    const rowData = [
-      arNum(row.paymentNumber, isArabic, 0),
-      arDate(row.paymentDate, isArabic),
-      arCurrencyValue(row.beginningBalance, currencySymbol, isArabic),
-      arCurrencyValue(row.scheduledPayment, currencySymbol, isArabic),
-      arCurrencyValue(row.extraPayment, currencySymbol, isArabic),
-      arCurrencyValue(row.totalPayment, currencySymbol, isArabic),
-      arCurrencyValue(row.principal, currencySymbol, isArabic),
-      arCurrencyValue(row.interest, currencySymbol, isArabic),
-      arCurrencyValue(row.endingBalance, currencySymbol, isArabic),
-      arCurrencyValue(row.cumulativeInterest, currencySymbol, isArabic),
+  // Build table bodies with alternating row colors
+  const inputTableBody = inputRows.map((row, idx) => {
+    const fill = idx % 2 === 1 ? ALT_ROW_GREEN : undefined;
+    const cells = [
+      { text: row[0], bold: true, alignment: align, fillColor: fill },
+      { text: row[1], alignment: align, fillColor: fill },
     ];
-    return isArabic ? [...rowData].reverse() : rowData;
+    return isArabic ? cells.reverse() : cells;
   });
 
-  autoTable(doc, {
-    startY: currentY,
-    margin: { left: margin, right: margin },
-    head: [headers],
-    body: tableBody,
-    theme: 'grid',
-    styles: {
+  const summaryTableBody = summaryRows.map((row, idx) => {
+    const fill = idx % 2 === 1 ? ALT_ROW_BLUE : undefined;
+    const cells = [
+      { text: row[0], bold: true, alignment: align, fillColor: fill },
+      { text: row[1], alignment: align, fillColor: fill },
+    ];
+    return isArabic ? cells.reverse() : cells;
+  });
+
+  // ===== BUILD AMORTIZATION TABLE =====
+  const amortHeaders = [
+    labels.pmtNo,
+    labels.paymentDate,
+    labels.beginningBalance,
+    labels.scheduledPmt,
+    labels.extraPmt,
+    labels.totalPayment,
+    labels.principal,
+    labels.interest,
+    labels.endingBalance,
+    labels.cumulativeInterest,
+  ];
+
+  const amortHeaderRow = (isArabic ? [...amortHeaders].reverse() : amortHeaders).map(h => ({
+    text: h,
+    bold: true,
+    fontSize: 7,
+    color: WHITE,
+    fillColor: NAVY,
+    alignment: 'center' as const,
+  }));
+
+  const amortBody = result.schedule.map((row, idx) => {
+    const fillColor = idx % 2 === 1 ? LIGHT_GRAY : undefined;
+    const cells = [
+      { text: fmtNum(row.paymentNumber, isArabic, 0), alignment: 'center' as const, fillColor },
+      { text: fmtDate(row.paymentDate, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.beginningBalance, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.scheduledPayment, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.extraPayment, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.totalPayment, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.principal, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.interest, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.endingBalance, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+      { text: fmtCurrency(row.cumulativeInterest, currencySymbol, isArabic), alignment: 'center' as const, fillColor },
+    ];
+    return isArabic ? cells.reverse() : cells;
+  });
+
+  // ===== TABLE LAYOUT HELPERS =====
+  const thinGridLayout = {
+    hLineColor: () => '#E5E7EB',
+    vLineColor: () => '#E5E7EB',
+    hLineWidth: () => 0.5,
+    vLineWidth: () => 0.5,
+    paddingLeft: () => 4,
+    paddingRight: () => 4,
+    paddingTop: () => 3,
+    paddingBottom: () => 3,
+  };
+
+  const amortGridLayout = {
+    hLineColor: () => '#D1D5DB',
+    vLineColor: () => '#D1D5DB',
+    hLineWidth: () => 0.3,
+    vLineWidth: () => 0.3,
+    paddingLeft: () => 2,
+    paddingRight: () => 2,
+    paddingTop: () => 1.5,
+    paddingBottom: () => 1.5,
+  };
+
+  // ===== BUILD CONTENT =====
+  // Header section (part of content, not the repeating header)
+  const headerContent = {
+    stack: [
+      // Navy background + emerald line are drawn via background function
+      {
+        columns: [
+          {
+            stack: [
+              { text: labels.title, fontSize: 16, bold: true, color: WHITE, alignment: isArabic ? 'right' : 'left' },
+              { text: labels.subtitle, fontSize: 9, color: '#CCCCCC', alignment: isArabic ? 'right' : 'left', marginTop: 2 },
+            ],
+            width: '*',
+          },
+          {
+            stack: [
+              { text: 'Rasmalak AI', fontSize: 11, bold: true, color: WHITE, alignment: isArabic ? 'left' : 'right', font: 'Roboto' },
+              { text: generatedDateStr, fontSize: 7, color: '#CCCCCC', alignment: isArabic ? 'left' : 'right', marginTop: 2 },
+            ],
+            width: 'auto',
+          },
+        ],
+      },
+    ],
+    marginBottom: 15,
+  };
+
+  // Input + Summary side by side
+  const leftTable = {
+    width: '50%',
+    stack: [
+      { text: isArabic ? labels.loanSummary : labels.inputParameters, fontSize: 11, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
+      {
+        table: {
+          headerRows: 0,
+          widths: ['50%', '50%'],
+          body: isArabic ? summaryTableBody : inputTableBody,
+        },
+        layout: thinGridLayout,
+      },
+    ],
+  };
+
+  const rightTable = {
+    width: '50%',
+    stack: [
+      { text: isArabic ? labels.inputParameters : labels.loanSummary, fontSize: 11, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
+      {
+        table: {
+          headerRows: 0,
+          widths: ['50%', '50%'],
+          body: isArabic ? inputTableBody : summaryTableBody,
+        },
+        layout: thinGridLayout,
+      },
+    ],
+  };
+
+  // ===== DOCUMENT DEFINITION =====
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const docDefinition: any = {
+    pageOrientation: 'landscape',
+    pageSize: 'A4',
+    pageMargins: [15, 15, 15, 25],
+
+    defaultStyle: {
       font: fontFamily,
-      lineColor: [200, 200, 200],
-      lineWidth: 0.1,
+      fontSize: 8,
     },
-    headStyles: {
-      fillColor: [10, 25, 47],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 7,
-      halign: 'center',
-      cellPadding: 1.5,
-    },
-    bodyStyles: {
-      fontSize: 6.5,
-      halign: 'center',
-      cellPadding: 1.2,
-    },
-    alternateRowStyles: {
-      fillColor: [248, 250, 252],
-    },
-    // Add page footer
-    didDrawPage: (data) => {
-      // Footer with page numbers
-      const pageCount = doc.getNumberOfPages();
-      doc.setFontSize(7);
-      doc.setTextColor(128, 128, 128);
-      doc.setFont(fontFamily, 'normal');
 
-      // Footer line
-      doc.setDrawColor(200, 200, 200);
-      doc.line(margin, pageHeight - 12, pageWidth - margin, pageHeight - 12);
+    // Background: draw navy bar + emerald line on first page
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    background: (currentPage: number): any[] => {
+      if (currentPage === 1) {
+        return [
+          { canvas: [{ type: 'rect', x: 0, y: 0, w: 842, h: 32, color: NAVY }] },
+          { canvas: [{ type: 'rect', x: 0, y: 32, w: 842, h: 2, color: EMERALD }] },
+        ];
+      }
+      return [];
+    },
 
-      // Left: branding
-      const footerBrand = isArabic
-        ? arText(labels.generatedBy, true)
-        : labels.generatedBy;
-      doc.text(footerBrand, isArabic ? pageWidth - margin : margin, pageHeight - 7, {
-        align: isArabic ? 'right' : 'left',
-      });
+    content: [
+      // Header block
+      headerContent,
 
-      // Right: page number
-      const pageLabel = arText(labels.page, isArabic);
-      const ofLabel = arText(labels.of, isArabic);
-      const pageNum = isArabic ? toArabicNumerals(String(data.pageNumber)) : String(data.pageNumber);
+      // Side-by-side summary tables
+      {
+        columns: [leftTable, { width: 15, text: '' }, rightTable],
+        marginBottom: 15,
+      },
+
+      // Amortization Schedule title
+      { text: labels.amortizationSchedule, fontSize: 12, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
+
+      // Amortization table
+      {
+        table: {
+          headerRows: 1,
+          widths: Array(10).fill('*'),
+          body: [amortHeaderRow, ...amortBody],
+        },
+        layout: amortGridLayout,
+        fontSize: 6.5,
+      },
+    ],
+
+    // Footer with page numbers
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    footer: (currentPage: number, pageCount: number): any => {
+      const pageNum = isArabic ? toArabicNumerals(String(currentPage)) : String(currentPage);
       const totalPages = isArabic ? toArabicNumerals(String(pageCount)) : String(pageCount);
-      const pageText = `${pageLabel} ${pageNum} ${ofLabel} ${totalPages}`;
-      doc.text(pageText, isArabic ? margin : pageWidth - margin, pageHeight - 7, {
-        align: isArabic ? 'left' : 'right',
-      });
-    },
-  });
+      const pageText = `${labels.page} ${pageNum} ${labels.of} ${totalPages}`;
 
-  // Save the PDF
+      return {
+        columns: [
+          {
+            text: labels.generatedBy,
+            alignment: isArabic ? 'right' : 'left',
+            fontSize: 7,
+            color: '#808080',
+            margin: isArabic ? [0, 5, 15, 0] : [15, 5, 0, 0],
+            font: fontFamily,
+          },
+          {
+            text: pageText,
+            alignment: isArabic ? 'left' : 'right',
+            fontSize: 7,
+            color: '#808080',
+            margin: isArabic ? [15, 5, 0, 0] : [0, 5, 15, 0],
+            font: fontFamily,
+          },
+        ],
+      };
+    },
+  };
+
+  // ===== GENERATE & DOWNLOAD PDF =====
   const fileName = isArabic
     ? 'تقرير_سداد_القرض_السكني.pdf'
     : 'Mortgage_Payoff_Report.pdf';
 
-  doc.save(fileName);
+  pdfMake.createPdf(docDefinition).download(fileName);
 }
