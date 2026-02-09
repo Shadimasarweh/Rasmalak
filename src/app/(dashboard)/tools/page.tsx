@@ -152,6 +152,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: 'var(--color-error)',
     category: 'credit',
     countries: ['all'],
+    href: '/calculators/simple-loan',
   },
   {
     id: 'credit-card-payoff',
@@ -164,6 +165,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: 'var(--color-error)',
     category: 'credit',
     countries: ['all'],
+    href: '/calculators/credit-card',
   },
   // Budgeting & Saving Tools (All Countries)
   {
@@ -201,6 +203,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: 'var(--color-brand-emerald)',
     category: 'budgeting',
     countries: ['all'],
+    href: '/calculators/home-affordability',
   },
   {
     id: 'mortgage-payoff',

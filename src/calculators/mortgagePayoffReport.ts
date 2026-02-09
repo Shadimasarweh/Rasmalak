@@ -16,6 +16,7 @@ import {
   formatDateArabic,
   toArabicNumerals,
   loadArabicFonts,
+  rtl,
 } from './arabicPdfHelper';
 
 // ===== TYPES =====
@@ -145,7 +146,7 @@ const ALT_ROW_BLUE = '#F0F4FF';
 
 function fmtCurrency(value: number, currencySymbol: string, isArabic: boolean): string {
   if (isArabic) {
-    return `${formatNumberArabic(value)} ${currencySymbol}`;
+    return rtl(`${formatNumberArabic(value)} ${currencySymbol}`);
   }
   return `${currencySymbol} ${formatNumber(value)}`;
 }
@@ -158,6 +159,11 @@ function fmtNum(value: number, isArabic: boolean, decimals: number = 2): string 
 function fmtDate(date: Date, isArabic: boolean): string {
   if (isArabic) return formatDateArabic(date);
   return formatDate(date);
+}
+
+/** Wrap label text with RTL marker when Arabic */
+function lbl(text: string, isArabic: boolean): string {
+  return isArabic ? rtl(text) : text;
 }
 
 // ===== MAIN PDF GENERATOR =====
@@ -203,29 +209,29 @@ export async function generateMortgagePayoffPDF(
   const yearsLabel = labels.years;
   const now = new Date();
   const generatedDateStr = isArabic
-    ? `${labels.generatedOn}: ${formatDateArabic(now)}`
+    ? rtl(`${labels.generatedOn}: ${formatDateArabic(now)}`)
     : `${labels.generatedOn}: ${formatDate(now)}`;
 
   // ===== BUILD INPUT PARAMETERS TABLE =====
   const inputRows = [
-    [labels.loanAmount, fmtCurrency(input.loanAmount, currencySymbol, isArabic)],
-    [labels.interestRate, isArabic ? `%${toArabicNumerals(String(input.annualInterestRate))}` : `${input.annualInterestRate}%`],
-    [labels.loanTerm, `${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
-    [labels.paymentsPerYear, fmtNum(input.paymentsPerYear, isArabic, 0)],
-    [labels.startDate, fmtDate(new Date(input.startDate), isArabic)],
-    [labels.extraPayment, fmtCurrency(input.extraPayment, currencySymbol, isArabic)],
-    [labels.lenderName, input.lenderName || '-'],
+    [lbl(labels.loanAmount, isArabic), fmtCurrency(input.loanAmount, currencySymbol, isArabic)],
+    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.annualInterestRate))}%`) : `${input.annualInterestRate}%`],
+    [lbl(labels.loanTerm, isArabic), isArabic ? rtl(`${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`) : `${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
+    [lbl(labels.paymentsPerYear, isArabic), fmtNum(input.paymentsPerYear, isArabic, 0)],
+    [lbl(labels.startDate, isArabic), fmtDate(new Date(input.startDate), isArabic)],
+    [lbl(labels.extraPayment, isArabic), fmtCurrency(input.extraPayment, currencySymbol, isArabic)],
+    [lbl(labels.lenderName, isArabic), input.lenderName || '-'],
   ];
 
   // ===== BUILD SUMMARY TABLE =====
   const summaryRows = [
-    [labels.scheduledPayment, fmtCurrency(result.summary.scheduledPayment, currencySymbol, isArabic)],
-    [labels.scheduledPayments, fmtNum(result.summary.scheduledNumberOfPayments, isArabic, 0)],
-    [labels.actualPayments, fmtNum(result.summary.actualNumberOfPayments, isArabic, 0)],
-    [labels.yearsSaved, `${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`],
-    [labels.totalEarlyPayments, fmtCurrency(result.summary.totalEarlyPayments, currencySymbol, isArabic)],
-    [labels.totalInterest, fmtCurrency(result.summary.totalInterest, currencySymbol, isArabic)],
-    [labels.totalPaid, fmtCurrency(result.summary.totalPaid, currencySymbol, isArabic)],
+    [lbl(labels.scheduledPayment, isArabic), fmtCurrency(result.summary.scheduledPayment, currencySymbol, isArabic)],
+    [lbl(labels.scheduledPayments, isArabic), fmtNum(result.summary.scheduledNumberOfPayments, isArabic, 0)],
+    [lbl(labels.actualPayments, isArabic), fmtNum(result.summary.actualNumberOfPayments, isArabic, 0)],
+    [lbl(labels.yearsSaved, isArabic), isArabic ? rtl(`${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`) : `${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`],
+    [lbl(labels.totalEarlyPayments, isArabic), fmtCurrency(result.summary.totalEarlyPayments, currencySymbol, isArabic)],
+    [lbl(labels.totalInterest, isArabic), fmtCurrency(result.summary.totalInterest, currencySymbol, isArabic)],
+    [lbl(labels.totalPaid, isArabic), fmtCurrency(result.summary.totalPaid, currencySymbol, isArabic)],
   ];
 
   // Build table bodies with alternating row colors
@@ -249,16 +255,16 @@ export async function generateMortgagePayoffPDF(
 
   // ===== BUILD AMORTIZATION TABLE =====
   const amortHeaders = [
-    labels.pmtNo,
-    labels.paymentDate,
-    labels.beginningBalance,
-    labels.scheduledPmt,
-    labels.extraPmt,
-    labels.totalPayment,
-    labels.principal,
-    labels.interest,
-    labels.endingBalance,
-    labels.cumulativeInterest,
+    lbl(labels.pmtNo, isArabic),
+    lbl(labels.paymentDate, isArabic),
+    lbl(labels.beginningBalance, isArabic),
+    lbl(labels.scheduledPmt, isArabic),
+    lbl(labels.extraPmt, isArabic),
+    lbl(labels.totalPayment, isArabic),
+    lbl(labels.principal, isArabic),
+    lbl(labels.interest, isArabic),
+    lbl(labels.endingBalance, isArabic),
+    lbl(labels.cumulativeInterest, isArabic),
   ];
 
   const amortHeaderRow = (isArabic ? [...amortHeaders].reverse() : amortHeaders).map(h => ({
@@ -319,8 +325,8 @@ export async function generateMortgagePayoffPDF(
         columns: [
           {
             stack: [
-              { text: labels.title, fontSize: 16, bold: true, color: WHITE, alignment: isArabic ? 'right' : 'left' },
-              { text: labels.subtitle, fontSize: 9, color: '#CCCCCC', alignment: isArabic ? 'right' : 'left', marginTop: 2 },
+              { text: lbl(labels.title, isArabic), fontSize: 16, bold: true, color: WHITE, alignment: isArabic ? 'right' : 'left' },
+              { text: lbl(labels.subtitle, isArabic), fontSize: 9, color: '#CCCCCC', alignment: isArabic ? 'right' : 'left', marginTop: 2 },
             ],
             width: '*',
           },
@@ -341,7 +347,7 @@ export async function generateMortgagePayoffPDF(
   const leftTable = {
     width: '50%',
     stack: [
-      { text: isArabic ? labels.loanSummary : labels.inputParameters, fontSize: 11, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
+      { text: lbl(isArabic ? labels.loanSummary : labels.inputParameters, isArabic), fontSize: 11, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
       {
         table: {
           headerRows: 0,
@@ -356,7 +362,7 @@ export async function generateMortgagePayoffPDF(
   const rightTable = {
     width: '50%',
     stack: [
-      { text: isArabic ? labels.inputParameters : labels.loanSummary, fontSize: 11, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
+      { text: lbl(isArabic ? labels.inputParameters : labels.loanSummary, isArabic), fontSize: 11, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
       {
         table: {
           headerRows: 0,
@@ -403,7 +409,7 @@ export async function generateMortgagePayoffPDF(
       },
 
       // Amortization Schedule title
-      { text: labels.amortizationSchedule, fontSize: 12, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
+      { text: lbl(labels.amortizationSchedule, isArabic), fontSize: 12, bold: true, color: NAVY, alignment: align, marginBottom: 4 },
 
       // Amortization table
       {
@@ -422,12 +428,14 @@ export async function generateMortgagePayoffPDF(
     footer: (currentPage: number, pageCount: number): any => {
       const pageNum = isArabic ? toArabicNumerals(String(currentPage)) : String(currentPage);
       const totalPages = isArabic ? toArabicNumerals(String(pageCount)) : String(pageCount);
-      const pageText = `${labels.page} ${pageNum} ${labels.of} ${totalPages}`;
+      const pageText = isArabic
+        ? rtl(`${labels.page} ${pageNum} ${labels.of} ${totalPages}`)
+        : `${labels.page} ${pageNum} ${labels.of} ${totalPages}`;
 
       return {
         columns: [
           {
-            text: labels.generatedBy,
+            text: lbl(labels.generatedBy, isArabic),
             alignment: isArabic ? 'right' : 'left',
             fontSize: 7,
             color: '#808080',

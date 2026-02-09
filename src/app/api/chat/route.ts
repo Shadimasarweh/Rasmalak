@@ -174,8 +174,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       });
     }
     
-    // Call AI service with attachments
-    const response = await aiService.chat(message, userContext, convId, language, attachments);
+    // Call AI service with attachments.
+    // userId is forwarded so the service can log actionable advice.
+    const response = await aiService.chat(message, userContext, convId, language, attachments, userId);
     
     // Log response (if enabled)
     if (AI_SAFETY.enableLogging) {

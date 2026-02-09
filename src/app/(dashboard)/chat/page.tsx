@@ -12,6 +12,7 @@ import {
   useOnboardingData,
   useUserName,
 } from '@/store/useStore';
+import { useUser as useAuthUser } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
 import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType } from '@/ai/types';
 
@@ -450,6 +451,7 @@ export default function MustasharakPage() {
   const intl = useIntl();
   const language = useLanguage();
   const userName = useUserName();
+  const authUser = useAuthUser();
   
   // Get user data for context
   const { transactions } = useTransactions();
@@ -609,6 +611,7 @@ export default function MustasharakPage() {
           conversationId,
           language,
           context,
+          userId: authUser?.id,
           attachments: messageAttachments,
         }),
       });

@@ -8,6 +8,20 @@
  * We only need to handle numeral conversion and font loading.
  */
 
+// ===== RTL TEXT DIRECTION =====
+
+// Unicode BiDi control characters
+const RLE = '\u202B'; // RIGHT-TO-LEFT EMBEDDING
+const PDF = '\u202C'; // POP DIRECTIONAL FORMATTING
+
+/**
+ * Wrap a string with RTL embedding markers so pdfmake renders it right-to-left.
+ * This fixes word order and numeral direction for Arabic text in PDF.
+ */
+export function rtl(text: string): string {
+  return `${RLE}${text}${PDF}`;
+}
+
 // ===== NUMERAL CONVERSION =====
 
 const WESTERN_TO_ARABIC_DIGITS: Record<string, string> = {
@@ -33,11 +47,11 @@ export function formatNumber(value: number, decimals: number = 2): string {
 }
 
 /**
- * Format a number with Arabic-Indic numerals.
+ * Format a number with Arabic-Indic numerals, wrapped in RTL.
  */
 export function formatNumberArabic(value: number, decimals: number = 2): string {
   const formatted = formatNumber(value, decimals);
-  return toArabicNumerals(formatted);
+  return rtl(toArabicNumerals(formatted));
 }
 
 /**
@@ -51,10 +65,10 @@ export function formatDate(date: Date): string {
 }
 
 /**
- * Format a date with Arabic-Indic numerals.
+ * Format a date with Arabic-Indic numerals, wrapped in RTL.
  */
 export function formatDateArabic(date: Date): string {
-  return toArabicNumerals(formatDate(date));
+  return rtl(toArabicNumerals(formatDate(date)));
 }
 
 // ===== FONT LOADING =====

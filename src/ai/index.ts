@@ -41,6 +41,13 @@ export { AI_CONFIG, AI_FEATURES, AI_SAFETY } from './config';
 // Context Builder
 export { buildUserContext, buildEmptyContext, getContextSummary } from './context';
 
+// Context Hashing (single source of truth — no other module may duplicate this)
+export { computeContextHash } from './contextHash';
+
+// Advice Logger
+export { logFinancialAdvice } from './adviceLogger';
+export type { FinancialAdviceRow } from './adviceLogger';
+
 // Alerts & Suggestions
 export { 
   detectSpendingAlerts, 

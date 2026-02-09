@@ -22,6 +22,53 @@ import {
 import { AI_CONFIG, AI_SAFETY, AI_FEATURES } from './config';
 import { sendChatCompletionWithRetry, formatMessagesForOpenAI, getModelForAttachments } from './providers/openai';
 import { getSystemPrompt, getInsightPrompt } from './prompts';
+import { computeContextHash } from './contextHash';
+import { logFinancialAdvice } from './adviceLogger';
+
+// ============================================
+// ACTIONABLE INTENT CLASSIFICATION
+// ============================================
+// Intents that constitute financial advice requiring an audit trail.
+// Greetings, gratitude, explanations, and unclear/out-of-scope are excluded.
+
+const ACTIONABLE_INTENTS = new Set<AIIntent>([
+  'analyze_spending',
+  'category_breakdown',
+  'compare_periods',
+  'savings_advice',
+  'goal_progress',
+  'goal_planning',
+  'budget_status',
+  'budget_advice',
+  'overspending_alert',
+  'predict_end_of_month',
+  'simulate_scenario',
+  'forecast_savings',
+]);
+
+/** Map an actionable intent to the financial metric it addresses. */
+function intentToMetric(intent: AIIntent): string {
+  switch (intent) {
+    case 'analyze_spending':
+    case 'category_breakdown':
+    case 'compare_periods':
+      return 'spending';
+    case 'savings_advice':
+    case 'goal_progress':
+    case 'goal_planning':
+    case 'forecast_savings':
+      return 'savings';
+    case 'budget_status':
+    case 'budget_advice':
+    case 'overspending_alert':
+      return 'budget';
+    case 'predict_end_of_month':
+    case 'simulate_scenario':
+      return 'cashflow';
+    default:
+      return 'general';
+  }
+}
 
 // ============================================
 // AI SERVICE CLASS
@@ -31,7 +78,11 @@ class RasmalakAIService {
   private conversationHistories: Map<string, AIMessage[]> = new Map();
 
   /**
-   * Send a chat message and get AI response
+   * Send a chat message and get AI response.
+   * When the response constitutes actionable financial advice, a row is
+   * inserted into the financial_advice table before the response is returned.
+   *
+   * @param userId - Authenticated Supabase user ID. Required for advice logging.
    * @param attachments - Optional file attachments (images, documents)
    */
   async chat(
@@ -39,7 +90,8 @@ class RasmalakAIService {
     context: UserFinancialContext,
     conversationId: string,
     language: 'ar' | 'en' = 'ar',
-    attachments?: MessageAttachment[]
+    attachments?: MessageAttachment[],
+    userId?: string
   ): Promise<AIResponse> {
     const startTime = Date.now();
 
@@ -104,6 +156,25 @@ class RasmalakAIService {
       : message;
     this.addToHistory(conversationId, 'user', messageContent);
     this.addToHistory(conversationId, 'assistant', aiResponse.message);
+
+    // Log actionable financial advice before returning to the UI.
+    // Greetings, explanations, and unclear intents are not logged.
+    if (userId && ACTIONABLE_INTENTS.has(aiResponse.intent)) {
+      try {
+        const contextHash = await computeContextHash(context);
+        await logFinancialAdvice({
+          user_id: userId,
+          source: 'ai',
+          advice_text: aiResponse.message,
+          target_metric: intentToMetric(aiResponse.intent),
+          confidence: aiResponse.confidence,
+          conversation_id: conversationId,
+          context_hash: contextHash,
+        });
+      } catch (err) {
+        console.error('[AI Service] Failed to log advice:', err);
+      }
+    }
 
     return aiResponse;
   }
