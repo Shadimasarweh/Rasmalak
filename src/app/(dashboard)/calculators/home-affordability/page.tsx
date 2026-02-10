@@ -172,40 +172,10 @@ export default function HomeAffordabilityCalculatorPage() {
   const formatCurrencyValue = (value: number) =>
     intl.formatNumber(value, { style: 'currency', currency });
 
-  const inputFieldStyle = (hasError: boolean): React.CSSProperties => ({
-    width: '100%',
-    padding: '10px 14px',
-    fontSize: '0.9375rem',
-    border: `1.5px solid ${hasError ? 'var(--color-error)' : 'var(--theme-border-input)'}`,
-    borderRadius: 'var(--radius-input)',
-    backgroundColor: 'var(--theme-bg-input)',
-    color: 'var(--theme-text-primary)',
-    outline: 'none',
-    direction: 'ltr',
-    textAlign: isRTL ? 'right' : 'left',
-  });
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: '0.8125rem',
-    fontWeight: 500,
-    color: 'var(--theme-text-secondary)',
-    marginBottom: '6px',
-  };
-
   const sectionTitle = (text: string) => (
     <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)', marginTop: '8px', marginBottom: '4px', paddingTop: '8px', borderTop: '1px solid var(--theme-border)' }}>
       {text}
     </h3>
-  );
-
-  const NumField = ({ label, value, onChange, placeholder, error, suffix }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; error?: string; suffix?: string }) => (
-    <div>
-      <label style={labelStyle}>{label}{suffix ? ` ${suffix}` : ''}</label>
-      <input type="number" step="any" value={value} onChange={e => onChange(e.target.value)}
-        placeholder={placeholder} style={inputFieldStyle(!!error)} />
-      {error && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{error}</p>}
-    </div>
   );
 
   return (
@@ -247,45 +217,45 @@ export default function HomeAffordabilityCalculatorPage() {
 
             {/* ===== INCOME ===== */}
             {sectionTitle(t('home_afford_income_section', 'Income'))}
-            <NumField label={t('home_afford_gross_income', 'Gross Annual Income (before tax)')} value={grossIncome} onChange={setGrossIncome} placeholder={t('home_afford_income_placeholder', 'e.g. 65000')} error={errors.income} suffix={`(${currencySymbol})`} />
-            <NumField label={t('home_afford_max_housing_pct', 'Maximum Housing Expense %')} value={maxHousingPct} onChange={setMaxHousingPct} placeholder="28" error={errors.housingPct} />
+            <NumField isRTL={isRTL} label={t('home_afford_gross_income', 'Gross Annual Income (before tax)')} value={grossIncome} onChange={setGrossIncome} placeholder={t('home_afford_income_placeholder', 'e.g. 65000')} error={errors.income} suffix={`(${currencySymbol})`} />
+            <NumField isRTL={isRTL} label={t('home_afford_max_housing_pct', 'Maximum Housing Expense %')} value={maxHousingPct} onChange={setMaxHousingPct} placeholder="28" error={errors.housingPct} />
 
             {/* ===== DEBTS ===== */}
             {sectionTitle(t('home_afford_debts_section', 'Monthly Debts'))}
             <div className="grid grid-cols-2 gap-3">
-              <NumField label={t('home_afford_car_loans', 'Car Loans')} value={carLoans} onChange={setCarLoans} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_credit_cards', 'Credit Card Minimums')} value={creditCards} onChange={setCreditCards} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_student_loans', 'Student Loans')} value={studentLoans} onChange={setStudentLoans} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_child_support', 'Child Support & Other')} value={childSupport} onChange={setChildSupport} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_other_mortgages', 'Other Mortgages')} value={otherMortgages} onChange={setOtherMortgages} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_other_loans', 'Other Loans')} value={otherLoans} onChange={setOtherLoans} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_car_loans', 'Car Loans')} value={carLoans} onChange={setCarLoans} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_credit_cards', 'Credit Card Minimums')} value={creditCards} onChange={setCreditCards} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_student_loans', 'Student Loans')} value={studentLoans} onChange={setStudentLoans} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_child_support', 'Child Support & Other')} value={childSupport} onChange={setChildSupport} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_other_mortgages', 'Other Mortgages')} value={otherMortgages} onChange={setOtherMortgages} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_other_loans', 'Other Loans')} value={otherLoans} onChange={setOtherLoans} placeholder="0" suffix={`(${currencySymbol})`} />
             </div>
-            <NumField label={t('home_afford_max_dti', 'Maximum Debt-to-Income Ratio %')} value={maxDTI} onChange={setMaxDTI} placeholder="36" error={errors.dtiRatio} />
+            <NumField isRTL={isRTL} label={t('home_afford_max_dti', 'Maximum Debt-to-Income Ratio %')} value={maxDTI} onChange={setMaxDTI} placeholder="36" error={errors.dtiRatio} />
 
             {/* ===== HOUSING EXPENSES ===== */}
             {sectionTitle(t('home_afford_housing_section', 'Monthly Housing Expenses'))}
             <div className="grid grid-cols-2 gap-3">
-              <NumField label={t('home_afford_property_tax', 'Property Tax')} value={propertyTax} onChange={setPropertyTax} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_insurance', 'Home Insurance')} value={insurance} onChange={setInsurance} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_pmi', 'PMI')} value={pmi} onChange={setPmi} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_hoa', 'HOA Fees')} value={hoa} onChange={setHoa} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_property_tax', 'Property Tax')} value={propertyTax} onChange={setPropertyTax} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_insurance', 'Home Insurance')} value={insurance} onChange={setInsurance} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_pmi', 'PMI')} value={pmi} onChange={setPmi} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_hoa', 'HOA Fees')} value={hoa} onChange={setHoa} placeholder="0" suffix={`(${currencySymbol})`} />
             </div>
-            <NumField label={t('home_afford_other_expenses', 'Other (Utilities, Repairs, etc.)')} value={otherExpenses} onChange={setOtherExpenses} placeholder="0" suffix={`(${currencySymbol})`} />
+            <NumField isRTL={isRTL} label={t('home_afford_other_expenses', 'Other (Utilities, Repairs, etc.)')} value={otherExpenses} onChange={setOtherExpenses} placeholder="0" suffix={`(${currencySymbol})`} />
 
             {/* ===== AVAILABLE FUNDS ===== */}
             {sectionTitle(t('home_afford_funds_section', 'Available Funds'))}
-            <NumField label={t('home_afford_available_funds', 'Available Funds')} value={availableFunds} onChange={setAvailableFunds} placeholder="0" suffix={`(${currencySymbol})`} />
+            <NumField isRTL={isRTL} label={t('home_afford_available_funds', 'Available Funds')} value={availableFunds} onChange={setAvailableFunds} placeholder="0" suffix={`(${currencySymbol})`} />
             <div className="grid grid-cols-2 gap-3">
-              <NumField label={t('home_afford_fixed_closing', 'Fixed Closing Costs')} value={fixedClosing} onChange={setFixedClosing} placeholder="0" suffix={`(${currencySymbol})`} />
-              <NumField label={t('home_afford_variable_closing', 'Variable Closing %')} value={variableClosing} onChange={setVariableClosing} placeholder="4" />
+              <NumField isRTL={isRTL} label={t('home_afford_fixed_closing', 'Fixed Closing Costs')} value={fixedClosing} onChange={setFixedClosing} placeholder="0" suffix={`(${currencySymbol})`} />
+              <NumField isRTL={isRTL} label={t('home_afford_variable_closing', 'Variable Closing %')} value={variableClosing} onChange={setVariableClosing} placeholder="4" />
             </div>
-            <NumField label={t('home_afford_min_down', 'Minimum Down Payment %')} value={minDown} onChange={setMinDown} placeholder="20" error={errors.downPct} />
+            <NumField isRTL={isRTL} label={t('home_afford_min_down', 'Minimum Down Payment %')} value={minDown} onChange={setMinDown} placeholder="20" error={errors.downPct} />
 
             {/* ===== FINANCING ===== */}
             {sectionTitle(t('home_afford_financing_section', 'Financing'))}
             <div className="grid grid-cols-2 gap-3">
-              <NumField label={t('home_afford_mortgage_term', 'Term (years)')} value={mortgageTerm} onChange={setMortgageTerm} placeholder="30" error={errors.term} />
-              <NumField label={t('home_afford_interest_rate', 'Interest Rate (%)')} value={interestRate} onChange={setInterestRate} placeholder="4" error={errors.rate} />
+              <NumField isRTL={isRTL} label={t('home_afford_mortgage_term', 'Term (years)')} value={mortgageTerm} onChange={setMortgageTerm} placeholder="30" error={errors.term} />
+              <NumField isRTL={isRTL} label={t('home_afford_interest_rate', 'Interest Rate (%)')} value={interestRate} onChange={setInterestRate} placeholder="4" error={errors.rate} />
             </div>
 
             {/* Buttons */}
@@ -359,6 +329,31 @@ export default function HomeAffordabilityCalculatorPage() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ===== STABLE SUB-COMPONENTS (outside page fn to prevent remount on re-render) ===== */
+
+function NumField({ label, value, onChange, placeholder, error, suffix, isRTL }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder: string;
+  error?: string; suffix?: string; isRTL?: boolean;
+}) {
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-secondary)', marginBottom: '6px' }}>
+        {label}{suffix ? ` ${suffix}` : ''}
+      </label>
+      <input type="number" step="any" value={value} onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          width: '100%', padding: '10px 14px', fontSize: '0.9375rem',
+          border: `1.5px solid ${error ? 'var(--color-error)' : 'var(--theme-border-input)'}`,
+          borderRadius: 'var(--radius-input)', backgroundColor: 'var(--theme-bg-input)',
+          color: 'var(--theme-text-primary)', outline: 'none',
+          direction: 'ltr', textAlign: isRTL ? 'right' : 'left',
+        }} />
+      {error && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{error}</p>}
     </div>
   );
 }
