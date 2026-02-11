@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
-import { useCurrency, useUser, useUserName } from '@/store/useStore';
+import { useCurrency, useUser, useUserName, useCategoryBudgets, useSavingsGoals, useLanguage } from '@/store/useStore';
 import { useTransactions } from '@/store/transactionStore';
 import { useMemo } from 'react';
+import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
 
 export default function OverviewPage() {
@@ -48,6 +49,55 @@ export default function OverviewPage() {
   // Recent transactions (most recent 5)
   const recentTransactions = transactions.slice(0, 5);
   const hasTransactions = transactions.length > 0;
+
+  // Budget & goal data
+  const language = useLanguage();
+  const isRTL = language === 'ar';
+  const categoryBudgets = useCategoryBudgets();
+  const savingsGoals = useSavingsGoals();
+  const currencyInfo = CURRENCIES.find((c) => c.code === currency);
+  const currencySymbol = isRTL
+    ? currencyInfo?.symbolAr || currencyInfo?.symbol || currency
+    : currencyInfo?.symbol || currency;
+
+  // Budget categories that have a limit set
+  const activeBudgets = useMemo(() => {
+    return DEFAULT_EXPENSE_CATEGORIES
+      .filter((cat) => categoryBudgets[cat.id] && categoryBudgets[cat.id] > 0)
+      .map((cat) => {
+        const limit = categoryBudgets[cat.id];
+        // Compute spending for this category in current month
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const spent = transactions
+          .filter(
+            (tx) =>
+              tx.type === 'expense' &&
+              tx.category === cat.id &&
+              new Date(tx.date) >= startOfMonth &&
+              new Date(tx.date) <= endOfMonth
+          )
+          .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+        return { ...cat, limit, spent, percentage: Math.min((spent / limit) * 100, 100) };
+      });
+  }, [categoryBudgets, transactions]);
+
+  const hasBudgets = activeBudgets.length > 0;
+
+  // Top goal = goal with highest priority (closest to completion that isn't done)
+  const topGoal = useMemo(() => {
+    if (savingsGoals.length === 0) return null;
+    // Sort: in-progress goals by closest to completion %, exclude completed
+    const inProgress = savingsGoals
+      .filter((g) => g.currentAmount < g.targetAmount)
+      .sort((a, b) => {
+        const pA = a.targetAmount > 0 ? a.currentAmount / a.targetAmount : 0;
+        const pB = b.targetAmount > 0 ? b.currentAmount / b.targetAmount : 0;
+        return pB - pA; // highest progress first
+      });
+    return inProgress[0] || savingsGoals[0];
+  }, [savingsGoals]);
 
   // Weekly spending data - expenses grouped by day of current week
   const weeklySpending = useMemo(() => {
@@ -275,7 +325,7 @@ export default function OverviewPage() {
           )}
         </div>
 
-        {/* Top Goal Card - Empty State (Goals feature coming soon) */}
+        {/* Top Goal Card */}
         <div 
           className="col-span-1 md:col-span-3 rounded-2xl shadow-sm" 
           style={{ 
@@ -292,23 +342,55 @@ export default function OverviewPage() {
               {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}
             </Link>
           </div>
-          {/* Empty state */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '1.5rem', gap: '0.75rem' }}>
-            <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
-              <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
+          {topGoal ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {/* Goal name + icon */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', backgroundColor: topGoal.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={topGoal.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                    <line x1="4" y1="22" x2="4" y2="15" />
+                  </svg>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--theme-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {topGoal.name}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
+                    {intl.formatMessage({ id: 'dashboard.target_amount', defaultMessage: 'Target: {amount}' }, { amount: `${currencySymbol} ${topGoal.targetAmount.toLocaleString()}` })}
+                  </p>
+                </div>
+              </div>
+              {/* Progress */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6875rem', color: 'var(--theme-text-muted)', marginBottom: '4px' }}>
+                  <span>{currencySymbol} {topGoal.currentAmount.toLocaleString()}</span>
+                  <span>{topGoal.targetAmount > 0 ? Math.min(Math.round((topGoal.currentAmount / topGoal.targetAmount) * 100), 100) : 0}%</span>
+                </div>
+                <div style={{ height: '6px', borderRadius: '9999px', backgroundColor: 'var(--theme-border)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${topGoal.targetAmount > 0 ? Math.min((topGoal.currentAmount / topGoal.targetAmount) * 100, 100) : 0}%`, borderRadius: '9999px', backgroundColor: topGoal.color, transition: 'width 0.3s ease' }} />
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-center" style={{ color: 'var(--theme-text-secondary)' }}>
-              {intl.formatMessage({ id: 'dashboard.no_goals_yet', defaultMessage: 'No goals yet' })}
-            </p>
-            <Link 
-              href="/goals" 
-              className="text-sm text-emerald-500 font-medium hover:underline"
-            >
-              {intl.formatMessage({ id: 'dashboard.create_first_goal', defaultMessage: 'Create your first goal' })}
-            </Link>
-          </div>
+          ) : (
+            /* Empty state */
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '1.5rem', gap: '0.75rem' }}>
+              <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <p className="text-sm text-center" style={{ color: 'var(--theme-text-secondary)' }}>
+                {intl.formatMessage({ id: 'dashboard.no_goals_yet', defaultMessage: 'No goals yet' })}
+              </p>
+              <Link 
+                href="/goals" 
+                className="text-sm text-emerald-500 font-medium hover:underline"
+              >
+                {intl.formatMessage({ id: 'dashboard.create_first_goal', defaultMessage: 'Create your first goal' })}
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -381,7 +463,7 @@ export default function OverviewPage() {
           )}
         </div>
 
-        {/* Budgets - Empty State (Budgets feature coming soon) */}
+        {/* Budgets */}
         <div 
           className="col-span-1 md:col-span-4 rounded-2xl shadow-sm" 
           style={{ 
@@ -398,23 +480,54 @@ export default function OverviewPage() {
               {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}
             </Link>
           </div>
-          {/* Empty state */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '2rem', gap: '0.75rem' }}>
-            <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
-              <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
+          {hasBudgets ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {activeBudgets.slice(0, 4).map((b) => {
+                const isOver = b.spent > b.limit;
+                return (
+                  <div key={b.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: b.color }} />
+                        <span className="text-xs font-medium" style={{ color: 'var(--theme-text-primary)' }}>
+                          {isRTL ? b.nameAr : b.name}
+                        </span>
+                      </div>
+                      <span className="text-xs" style={{ color: isOver ? '#EF4444' : 'var(--theme-text-muted)' }}>
+                        {currencySymbol} {b.spent.toLocaleString()} / {b.limit.toLocaleString()}
+                      </span>
+                    </div>
+                    <div style={{ height: '4px', borderRadius: '9999px', backgroundColor: 'var(--theme-border)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${b.percentage}%`, borderRadius: '9999px', backgroundColor: isOver ? '#EF4444' : b.color, transition: 'width 0.3s ease' }} />
+                    </div>
+                  </div>
+                );
+              })}
+              {activeBudgets.length > 4 && (
+                <Link href="/budgets" className="text-xs text-emerald-500 font-medium hover:underline" style={{ textAlign: 'center' }}>
+                  +{activeBudgets.length - 4} {isRTL ? 'المزيد' : 'more'}
+                </Link>
+              )}
             </div>
-            <p className="text-sm text-center" style={{ color: 'var(--theme-text-secondary)' }}>
-              {intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}
-            </p>
-            <Link 
-              href="/budgets" 
-              className="text-sm text-emerald-500 font-medium hover:underline"
-            >
-              {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
-            </Link>
-          </div>
+          ) : (
+            /* Empty state */
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBlock: '2rem', gap: '0.75rem' }}>
+              <div className="rounded-xl" style={{ width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--theme-border)' }}>
+                <svg className="w-6 h-6" style={{ color: 'var(--theme-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="text-sm text-center" style={{ color: 'var(--theme-text-secondary)' }}>
+                {intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}
+              </p>
+              <Link 
+                href="/budgets" 
+                className="text-sm text-emerald-500 font-medium hover:underline"
+              >
+                {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

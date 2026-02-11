@@ -210,3 +210,4 @@ export async function generateHomeAffordabilityPDF(
   pdfMake.createPdf(docDefinition).download(fileName);
 }
 
+

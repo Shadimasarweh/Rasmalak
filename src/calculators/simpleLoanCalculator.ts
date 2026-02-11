@@ -105,3 +105,4 @@ export function calculateSimpleLoan(input: SimpleLoanInput): SimpleLoanResult {
   };
 }
 
+

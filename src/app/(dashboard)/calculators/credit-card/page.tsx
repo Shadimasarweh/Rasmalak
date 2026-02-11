@@ -67,11 +67,11 @@ export default function CreditCardCalculatorPage() {
   // Form
   const [balance, setBalance] = useState('');
   const [rate, setRate] = useState('');
-  const [minPct, setMinPct] = useState('5');
+  const [minPct, setMinPct] = useState('');
   const [plusInterest, setPlusInterest] = useState(true);
-  const [floor, setFloor] = useState('25');
+  const [floor, setFloor] = useState('');
   const [fixedPayment, setFixedPayment] = useState('');
-  const [introMonths, setIntroMonths] = useState('0');
+  const [introMonths, setIntroMonths] = useState('');
 
   const [result, setResult] = useState<CreditCardResult | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -110,8 +110,8 @@ export default function CreditCardCalculatorPage() {
   }, [balance, rate, minPct, plusInterest, floor, fixedPayment, introMonths]);
 
   const handleReset = () => {
-    setBalance(''); setRate(''); setMinPct('5'); setPlusInterest(true);
-    setFloor('25'); setFixedPayment(''); setIntroMonths('0');
+    setBalance(''); setRate(''); setMinPct(''); setPlusInterest(true);
+    setFloor(''); setFixedPayment(''); setIntroMonths('');
     setResult(null); setErrors({});
   };
 

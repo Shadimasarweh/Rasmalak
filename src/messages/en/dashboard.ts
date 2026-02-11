@@ -59,4 +59,14 @@ export default {
   subscription: 'Subscription',
   // Trend indicator
   trend_indicator: '{direction, select, up {↗ +{percent}%} down {↘ -{percent}%} same {→ {percent}%} other {{percent}%}}',
+  // Budget & Goal page keys (used in dashboard cards)
+  no_goals_yet: 'No goals yet',
+  create_first_goal: 'Create your first goal',
+  no_budgets_set: 'No budgets set',
+  setup_first_budget: 'Set up your first budget',
+  no_spending_this_week: 'No spending recorded this week',
+  add_first_expense: 'Add your first expense',
+  no_monthly_data: 'No transactions this month',
+  budget_remaining: 'Remaining: {amount}',
+  goal_achieved: 'Goal achieved!',
 };

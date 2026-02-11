@@ -170,3 +170,4 @@ export async function generateSimpleLoanPDF(
   pdfMake.createPdf(docDefinition).download(fileName);
 }
 
+

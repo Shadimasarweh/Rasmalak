@@ -64,7 +64,7 @@ export default function HomeAffordabilityCalculatorPage() {
 
   // Income
   const [grossIncome, setGrossIncome] = useState('');
-  const [maxHousingPct, setMaxHousingPct] = useState('28');
+  const [maxHousingPct, setMaxHousingPct] = useState('');
 
   // Monthly debts
   const [carLoans, setCarLoans] = useState('');
@@ -73,7 +73,7 @@ export default function HomeAffordabilityCalculatorPage() {
   const [childSupport, setChildSupport] = useState('');
   const [otherMortgages, setOtherMortgages] = useState('');
   const [otherLoans, setOtherLoans] = useState('');
-  const [maxDTI, setMaxDTI] = useState('36');
+  const [maxDTI, setMaxDTI] = useState('');
 
   // Housing expenses
   const [propertyTax, setPropertyTax] = useState('');
@@ -85,11 +85,11 @@ export default function HomeAffordabilityCalculatorPage() {
   // Available funds
   const [availableFunds, setAvailableFunds] = useState('');
   const [fixedClosing, setFixedClosing] = useState('');
-  const [variableClosing, setVariableClosing] = useState('4');
-  const [minDown, setMinDown] = useState('20');
+  const [variableClosing, setVariableClosing] = useState('');
+  const [minDown, setMinDown] = useState('');
 
   // Financing
-  const [mortgageTerm, setMortgageTerm] = useState('30');
+  const [mortgageTerm, setMortgageTerm] = useState('');
   const [interestRate, setInterestRate] = useState('');
 
   const [result, setResult] = useState<HomeAffordabilityResult | null>(null);
@@ -147,12 +147,12 @@ export default function HomeAffordabilityCalculatorPage() {
   }, [grossIncome, maxHousingPct, carLoans, creditCards, studentLoans, childSupport, otherMortgages, otherLoans, maxDTI, propertyTax, insurance, pmi, hoa, otherExpenses, availableFunds, fixedClosing, variableClosing, minDown, mortgageTerm, interestRate]);
 
   const handleReset = () => {
-    setGrossIncome(''); setMaxHousingPct('28');
+    setGrossIncome(''); setMaxHousingPct('');
     setCarLoans(''); setCreditCards(''); setStudentLoans(''); setChildSupport('');
-    setOtherMortgages(''); setOtherLoans(''); setMaxDTI('36');
+    setOtherMortgages(''); setOtherLoans(''); setMaxDTI('');
     setPropertyTax(''); setInsurance(''); setPmi(''); setHoa(''); setOtherExpenses('');
-    setAvailableFunds(''); setFixedClosing(''); setVariableClosing('4'); setMinDown('20');
-    setMortgageTerm('30'); setInterestRate('');
+    setAvailableFunds(''); setFixedClosing(''); setVariableClosing(''); setMinDown('');
+    setMortgageTerm(''); setInterestRate('');
     setResult(null); setErrors({});
   };
 

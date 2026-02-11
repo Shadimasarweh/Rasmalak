@@ -59,4 +59,14 @@ export default {
   subscription: 'اشتراك',
   // Trend indicator
   trend_indicator: '{direction, select, up {↗ ‎+{percent}٪} down {↘ ‎−{percent}٪} same {→ {percent}٪} other {{percent}٪}}',
+  // Budget & Goal page keys (used in dashboard cards)
+  no_goals_yet: 'لا توجد أهداف بعد',
+  create_first_goal: 'أنشئ هدفك الأول',
+  no_budgets_set: 'لم يتم تحديد ميزانيات',
+  setup_first_budget: 'حدد ميزانيتك الأولى',
+  no_spending_this_week: 'لا يوجد إنفاق مسجل هذا الأسبوع',
+  add_first_expense: 'أضف أول مصروف',
+  no_monthly_data: 'لا توجد عمليات هذا الشهر',
+  budget_remaining: 'المتبقي: {amount}',
+  goal_achieved: 'تم تحقيق الهدف!',
 };
