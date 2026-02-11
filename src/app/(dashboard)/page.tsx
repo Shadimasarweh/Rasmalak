@@ -394,7 +394,7 @@ export default function OverviewPage() {
             <h2 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
               {intl.formatMessage({ id: 'dashboard.budgets', defaultMessage: 'Budgets' })}
             </h2>
-            <Link href="/budgets" className="text-sm text-emerald-500 font-medium hover:underline" style={{ flexShrink: 0 }}>
+            <Link href="/goals" className="text-sm text-emerald-500 font-medium hover:underline" style={{ flexShrink: 0 }}>
               {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}
             </Link>
           </div>
@@ -409,7 +409,7 @@ export default function OverviewPage() {
               {intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}
             </p>
             <Link 
-              href="/budgets" 
+              href="/goals" 
               className="text-sm text-emerald-500 font-medium hover:underline"
             >
               {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
