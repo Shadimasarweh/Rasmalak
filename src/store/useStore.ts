@@ -230,11 +230,18 @@ export const useStore = create<AppState>()(
           });
 
           if (error) {
-            // Provide user-friendly message for email confirmation error
-            if (error.message?.toLowerCase().includes('email not confirmed')) {
+            // Provide user-friendly messages for common Supabase errors
+            const msg = error.message?.toLowerCase() || '';
+            if (msg.includes('email not confirmed')) {
               return {
                 success: false,
-                error: 'Your email has not been confirmed yet. Please check your inbox for the confirmation link, or sign up again.',
+                error: 'This account has not been confirmed. Please try signing up again with the same email.',
+              };
+            }
+            if (msg.includes('invalid login credentials')) {
+              return {
+                success: false,
+                error: 'Incorrect email or password. Please try again.',
               };
             }
             return { success: false, error: error.message };
@@ -295,58 +302,38 @@ export const useStore = create<AppState>()(
             return { success: false, error: 'Signup failed. Please try again.' };
           }
 
-          // If Supabase requires email confirmation, signUpData.session will be null.
-          // In that case, the user is created but NOT logged in — we must handle this.
-          if (!signUpData.session) {
-            // Email confirmation is required — user needs to verify first.
-            // Auto-confirm by signing in immediately (works if Supabase allows it),
-            // otherwise inform the user.
+          // Determine the active session.
+          // signUp may return a session directly (confirmation disabled) or null.
+          // If null, try signing in — this handles edge cases like
+          // re-registering an existing unconfirmed user after confirmation was disabled.
+          let activeSession = signUpData.session;
+
+          if (!activeSession) {
             const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
               email: data.email,
               password: data.password,
             });
 
             if (loginError || !loginData.session) {
-              // Cannot auto-login — email confirmation is enforced by Supabase
-              return {
-                success: false,
-                error: 'Account created! Please check your email to confirm your account before logging in.',
-              };
+              // Provide a helpful, non-misleading error
+              const msg = loginError?.message?.toLowerCase().includes('email not confirmed')
+                ? 'Your email has not been confirmed. Please check your inbox or contact support.'
+                : 'Account created but automatic sign-in failed. Please try logging in manually.';
+              return { success: false, error: msg };
             }
 
-            // Auto-login succeeded — sync both stores
-            useAuthStore.getState().setSession(loginData.session);
-            if (!useAuthStore.getState().initialized) {
-              useAuthStore.getState().setInitialized(true);
-            }
-
-            const authUser: AuthUser = {
-              id: loginData.user.id,
-              email: loginData.user.email || '',
-              name: data.name,
-            };
-
-            set({
-              user: authUser,
-              isAuthenticated: true,
-              userName: data.name,
-              hasCompletedOnboarding: false,
-              onboardingData: null,
-              transactions: [],
-            });
-
-            return { success: true };
+            activeSession = loginData.session;
           }
 
-          // Session exists — no email confirmation required
-          useAuthStore.getState().setSession(signUpData.session);
+          // Sync BOTH stores so transactionStore sees the user immediately
+          useAuthStore.getState().setSession(activeSession);
           if (!useAuthStore.getState().initialized) {
             useAuthStore.getState().setInitialized(true);
           }
 
           const authUser: AuthUser = {
-            id: signUpData.user.id,
-            email: signUpData.user.email || '',
+            id: activeSession.user.id,
+            email: activeSession.user.email || '',
             name: data.name,
           };
 
@@ -354,10 +341,8 @@ export const useStore = create<AppState>()(
             user: authUser,
             isAuthenticated: true,
             userName: data.name,
-            // Reset onboarding for new users
             hasCompletedOnboarding: false,
             onboardingData: null,
-            // Reset transactions for new user
             transactions: [],
           });
 
