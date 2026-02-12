@@ -68,11 +68,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         console.log('[AuthProvider] Session:', session ? 'exists' : 'null', 'User ID:', session?.user?.id);
         
-        // If no session but we have a refresh token, try to refresh
+        // If no session, try to refresh — but handle stale/revoked tokens gracefully
         if (!session) {
           const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
           if (refreshError) {
-            console.log('[AuthProvider] No valid session, user needs to login');
+            // Stale refresh token (e.g. after logout) — clear it from localStorage
+            // so the error doesn't recur on subsequent loads
+            console.log('[AuthProvider] Refresh failed, clearing stale session:', refreshError.message);
+            await supabase.auth.signOut({ scope: 'local' });
           } else if (refreshData.session) {
             console.log('[AuthProvider] Session refreshed successfully');
             syncSessionToStores(refreshData.session, setSession);

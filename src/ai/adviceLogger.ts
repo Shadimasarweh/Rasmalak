@@ -14,7 +14,7 @@
  *     rule_id       TEXT,                   -- null for AI-sourced advice
  *     advice_text   TEXT NOT NULL,
  *     target_metric TEXT,                   -- e.g. 'spending', 'budget', 'savings'
- *     confidence    TEXT,                   -- e.g. 'high', 'medium', 'low'
+ *     confidence    NUMERIC,                -- 0.0–1.0 (mapped from 'high'→0.9, 'medium'→0.6, 'low'→0.3)
  *     conversation_id TEXT,                 -- null for rule-sourced advice
  *     context_hash  TEXT NOT NULL,          -- SHA-256 hex from computeContextHash
  *     created_at    TIMESTAMPTZ DEFAULT now()
@@ -39,6 +39,31 @@ export interface FinancialAdviceRow {
 }
 
 // ============================================
+// HELPERS
+// ============================================
+
+/**
+ * The Supabase `confidence` column is NUMERIC, but callers may pass
+ * string labels ('high', 'medium', 'low') or numeric strings ('0.9').
+ * Convert to a number so the insert never fails on type mismatch.
+ */
+function normalizeConfidence(value: string | null | undefined): number | null {
+  if (value == null) return null;
+
+  // If it's already a parseable number, use it directly
+  const num = Number(value);
+  if (!isNaN(num)) return num;
+
+  // Map common string labels to numeric values
+  const map: Record<string, number> = {
+    high: 0.9,
+    medium: 0.6,
+    low: 0.3,
+  };
+  return map[value.toLowerCase()] ?? null;
+}
+
+// ============================================
 // LOGGER
 // ============================================
 
@@ -57,7 +82,7 @@ export async function logFinancialAdvice(row: FinancialAdviceRow): Promise<void>
         rule_id: row.rule_id ?? null,
         advice_text: row.advice_text,
         target_metric: row.target_metric ?? null,
-        confidence: row.confidence ?? null,
+        confidence: normalizeConfidence(row.confidence),
         conversation_id: row.conversation_id ?? null,
         context_hash: row.context_hash,
       });

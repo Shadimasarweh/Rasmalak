@@ -7,6 +7,7 @@ import { generateId } from '@/lib/utils';
 import { DEFAULT_CURRENCY } from '@/lib/constants';
 import { Language } from '@/lib/translations';
 import { supabase } from '@/lib/supabaseClient';
+import { useAuthStore } from '@/store/authStore';
 
 export type Theme = 'light' | 'dark';
 
@@ -229,10 +230,17 @@ export const useStore = create<AppState>()(
           });
 
           if (error) {
+            // Provide user-friendly message for email confirmation error
+            if (error.message?.toLowerCase().includes('email not confirmed')) {
+              return {
+                success: false,
+                error: 'Your email has not been confirmed yet. Please check your inbox for the confirmation link, or sign up again.',
+              };
+            }
             return { success: false, error: error.message };
           }
 
-          if (!data.user) {
+          if (!data.user || !data.session) {
             return { success: false, error: 'Login failed. Please try again.' };
           }
 
@@ -242,6 +250,12 @@ export const useStore = create<AppState>()(
             name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || '',
             phone: data.user.user_metadata?.phone || '',
           };
+
+          // Sync BOTH stores so transactionStore sees the user immediately
+          useAuthStore.getState().setSession(data.session);
+          if (!useAuthStore.getState().initialized) {
+            useAuthStore.getState().setInitialized(true);
+          }
 
           set({
             user: authUser,
@@ -281,6 +295,55 @@ export const useStore = create<AppState>()(
             return { success: false, error: 'Signup failed. Please try again.' };
           }
 
+          // If Supabase requires email confirmation, signUpData.session will be null.
+          // In that case, the user is created but NOT logged in — we must handle this.
+          if (!signUpData.session) {
+            // Email confirmation is required — user needs to verify first.
+            // Auto-confirm by signing in immediately (works if Supabase allows it),
+            // otherwise inform the user.
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+              email: data.email,
+              password: data.password,
+            });
+
+            if (loginError || !loginData.session) {
+              // Cannot auto-login — email confirmation is enforced by Supabase
+              return {
+                success: false,
+                error: 'Account created! Please check your email to confirm your account before logging in.',
+              };
+            }
+
+            // Auto-login succeeded — sync both stores
+            useAuthStore.getState().setSession(loginData.session);
+            if (!useAuthStore.getState().initialized) {
+              useAuthStore.getState().setInitialized(true);
+            }
+
+            const authUser: AuthUser = {
+              id: loginData.user.id,
+              email: loginData.user.email || '',
+              name: data.name,
+            };
+
+            set({
+              user: authUser,
+              isAuthenticated: true,
+              userName: data.name,
+              hasCompletedOnboarding: false,
+              onboardingData: null,
+              transactions: [],
+            });
+
+            return { success: true };
+          }
+
+          // Session exists — no email confirmation required
+          useAuthStore.getState().setSession(signUpData.session);
+          if (!useAuthStore.getState().initialized) {
+            useAuthStore.getState().setInitialized(true);
+          }
+
           const authUser: AuthUser = {
             id: signUpData.user.id,
             email: signUpData.user.email || '',
@@ -308,6 +371,9 @@ export const useStore = create<AppState>()(
         // Sign out from Supabase
         await supabase.auth.signOut();
         
+        // Clear authStore so transactionStore sees no user
+        useAuthStore.getState().setSession(null);
+
         set({
           user: null,
           isAuthenticated: false,
