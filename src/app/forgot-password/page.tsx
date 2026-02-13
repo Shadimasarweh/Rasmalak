@@ -41,8 +41,8 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-bg-primary)] py-8 relative overflow-hidden">
       {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[var(--color-primary)]/5 -translate-y-1/2 translate-x-1/2 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[var(--color-gold)]/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" style={{ backgroundColor: 'var(--color-accent-growth)', opacity: 0.05 }} />
+      <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" style={{ backgroundColor: 'var(--color-accent-growth)', opacity: 0.05 }} />
 
       {/* Theme and Language Switcher */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
@@ -53,10 +53,10 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="relative inline-block">
-            <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
+            <div className="w-20 h-20 rounded-lg flex items-center justify-center mx-auto mb-6 shadow-xl animate-float" style={{ background: 'linear-gradient(to bottom right, var(--color-accent-growth), var(--color-accent-growth-hover))' }}>
               <KeyRound className="w-10 h-10 text-white" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--color-gold)] border-4 border-[var(--color-bg-primary)] flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent-growth)', borderColor: 'var(--color-bg-primary)' }}>
               <Sparkles className="w-3 h-3 text-white" />
             </div>
           </div>
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
         <div className="card card-elevated">
           {isSubmitted ? (
             <div className="text-center py-6">
-              <div className="w-16 h-16 rounded-full bg-[var(--color-warning)]/10 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'var(--color-accent-growth-subtle)' }}>
                 <span className="text-3xl">🚧</span>
               </div>
               <p className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
               </p>
               <Link
                 href="/login"
-                className="text-[var(--color-primary)] font-semibold hover:underline inline-flex items-center gap-2"
+                className="font-semibold hover:underline inline-flex items-center gap-2" style={{ color: 'var(--color-accent-growth)' }}
               >
                 {isRTL && <ArrowIcon className="w-4 h-4" />}
                 {backToLogin}
@@ -140,7 +140,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-8 pt-6 border-t border-[var(--color-border)] text-center">
               <Link
                 href="/login"
-                className="text-sm text-[var(--color-primary)] font-semibold hover:underline inline-flex items-center gap-2"
+                className="text-sm font-semibold hover:underline inline-flex items-center gap-2" style={{ color: 'var(--color-accent-growth)' }}
               >
                 {isRTL && <ArrowIcon className="w-4 h-4" />}
                 {backToLogin}

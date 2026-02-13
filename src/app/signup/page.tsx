@@ -81,10 +81,10 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Visual Panel */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 bg-brand-navy relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 relative overflow-hidden" style={{ backgroundColor: 'var(--color-sidebar-bg)' }}>
         {/* Logo */}
         <div className="flex items-center gap-2 relative z-10">
-          <div className="w-8 h-8 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center">
+          <div className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent-growth)' }}>
             <svg className="w-5 h-5 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
@@ -118,7 +118,7 @@ export default function SignupPage() {
         <div className="relative z-10">
           <h1 className="text-4xl font-bold text-[#FFFFFF] leading-tight mb-4">
             Master your money<br />
-            with <span className="text-brand-emerald">Rasmalak AI</span>
+            with <span style={{ color: 'var(--color-accent-growth)' }}>Rasmalak AI</span>
           </h1>
           <p className="text-[#FFFFFF]/60 text-base max-w-md mb-8">
             Join thousands of users in the MENA region taking control of their financial future. Track expenses, set budgets, and grow your wealth.
@@ -127,16 +127,16 @@ export default function SignupPage() {
           {/* Social Proof */}
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
-              <div className="w-8 h-8 rounded-[var(--radius-pill)] bg-brand-emerald/20 border-2 border-brand-navy flex items-center justify-center text-[#FFFFFF]/70 text-xs">
+              <div className="w-8 h-8 rounded-[var(--radius-pill)] border-2 flex items-center justify-center text-[#FFFFFF]/70 text-xs" style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent-growth) 20%, transparent)', borderColor: 'var(--color-sidebar-bg)' }}>
                 A
               </div>
-              <div className="w-8 h-8 rounded-[var(--radius-pill)] bg-brand-emerald/30 border-2 border-brand-navy flex items-center justify-center text-[#FFFFFF]/70 text-xs">
+              <div className="w-8 h-8 rounded-[var(--radius-pill)] border-2 flex items-center justify-center text-[#FFFFFF]/70 text-xs" style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent-growth) 30%, transparent)', borderColor: 'var(--color-sidebar-bg)' }}>
                 M
               </div>
-              <div className="w-8 h-8 rounded-[var(--radius-pill)] bg-brand-emerald/40 border-2 border-brand-navy flex items-center justify-center text-[#FFFFFF]/70 text-xs">
+              <div className="w-8 h-8 rounded-[var(--radius-pill)] border-2 flex items-center justify-center text-[#FFFFFF]/70 text-xs" style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent-growth) 40%, transparent)', borderColor: 'var(--color-sidebar-bg)' }}>
                 S
               </div>
-              <div className="w-8 h-8 rounded-[var(--radius-pill)] bg-brand-emerald border-2 border-brand-navy flex items-center justify-center text-[#FFFFFF] text-xs font-medium">
+              <div className="w-8 h-8 rounded-[var(--radius-pill)] border-2 flex items-center justify-center text-[#FFFFFF] text-xs font-medium" style={{ backgroundColor: 'var(--color-accent-growth)', borderColor: 'var(--color-sidebar-bg)' }}>
                 +2k
               </div>
             </div>
@@ -146,24 +146,24 @@ export default function SignupPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#FFFFFF]">
+      <div className="flex-1 flex items-center justify-center px-6 py-12" style={{ backgroundColor: 'var(--color-bg-surface-1)' }}>
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
           <div className="text-center mb-8 lg:hidden">
-            <div className="w-12 h-12 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-[var(--radius-md)] flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: 'var(--color-accent-growth)' }}>
               <svg className="w-6 h-6 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
-            <span className="text-brand-navy font-semibold text-lg">Rasmalak AI</span>
+            <span className="font-semibold text-lg" style={{ color: 'var(--color-text-primary)' }}>Rasmalak AI</span>
           </div>
 
           {/* Welcome Text */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-brand-navy mb-2">
+            <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
               {intl.formatMessage({ id: 'auth.get_started_title', defaultMessage: 'Get Started' })}
             </h2>
-            <p className="text-brand-navy/60 text-sm">
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               {intl.formatMessage({ id: 'auth.get_started_subtitle', defaultMessage: 'Create your account to start budgeting smarter.' })}
             </p>
           </div>
@@ -178,7 +178,7 @@ export default function SignupPage() {
 
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-brand-navy mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 {intl.formatMessage({ id: 'auth.full_name', defaultMessage: 'Full Name' })}
               </label>
               <Input
@@ -188,7 +188,7 @@ export default function SignupPage() {
                 placeholder={intl.formatMessage({ id: 'auth.full_name_placeholder', defaultMessage: 'e.g. Amir Al-Masri' })}
                 required
                 trailingIcon={
-                  <svg className="w-5 h-5 text-brand-navy/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--color-text-muted)' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 }
@@ -197,7 +197,7 @@ export default function SignupPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-brand-navy mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 {intl.formatMessage({ id: 'auth.email_address', defaultMessage: 'Email Address' })}
               </label>
               <Input
@@ -207,7 +207,7 @@ export default function SignupPage() {
                 placeholder={intl.formatMessage({ id: 'auth.email_placeholder', defaultMessage: 'name@example.com' })}
                 required
                 trailingIcon={
-                  <svg className="w-5 h-5 text-brand-navy/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--color-text-muted)' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 }
@@ -216,7 +216,7 @@ export default function SignupPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-brand-navy mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 {intl.formatMessage({ id: 'auth.create_password', defaultMessage: 'Create Password' })}
               </label>
               <Input
@@ -229,7 +229,8 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-brand-navy/40 hover:text-brand-navy"
+                    className="transition-colors hover:[color:var(--color-text-primary)]"
+                    style={{ color: 'var(--color-text-muted)' }}
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -255,8 +256,9 @@ export default function SignupPage() {
                         className={`h-1 flex-1 rounded-[var(--radius-pill)] ${
                           getPasswordStrength() >= level
                             ? strengthColors[getPasswordStrength()]
-                            : 'bg-brand-navy/10'
+                            : ''
                         }`}
+                        style={getPasswordStrength() < level ? { backgroundColor: 'var(--color-border)' } : undefined}
                       />
                     ))}
                   </div>
@@ -278,9 +280,10 @@ export default function SignupPage() {
                 id="terms"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-brand-navy/20 text-brand-emerald focus:ring-brand-emerald"
+                className="mt-1 w-4 h-4 rounded border"
+                style={{ borderColor: 'var(--color-border)', accentColor: 'var(--color-accent-growth)' }}
               />
-              <label htmlFor="terms" className="text-sm text-brand-navy/70">
+              <label htmlFor="terms" className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 {intl.formatMessage({ id: 'auth.agree_terms', defaultMessage: 'I agree to the Terms of Service and Privacy Policy.' })}
               </label>
             </div>
@@ -300,15 +303,16 @@ export default function SignupPage() {
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-brand-navy/10" />
-            <span className="text-sm text-brand-navy/40">{intl.formatMessage({ id: 'auth.or_continue_with', defaultMessage: 'Or continue with' })}</span>
-            <div className="flex-1 h-px bg-brand-navy/10" />
+            <div className="flex-1 h-px" style={{ backgroundColor: 'var(--color-border)' }} />
+            <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{intl.formatMessage({ id: 'auth.or_continue_with', defaultMessage: 'Or continue with' })}</span>
+            <div className="flex-1 h-px" style={{ backgroundColor: 'var(--color-border)' }} />
           </div>
 
           {/* Social Login Button */}
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-md)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border rounded-[var(--radius-md)] text-sm font-medium transition-colors"
+            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -321,11 +325,12 @@ export default function SignupPage() {
 
           {/* Login Link */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-brand-navy/60">
+            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               {intl.formatMessage({ id: 'auth.already_have_account', defaultMessage: 'Already have an account?' })}{' '}
               <Link
                 href="/login"
-                className="text-brand-emerald font-semibold hover:underline"
+                className="font-semibold hover:underline"
+                style={{ color: 'var(--color-accent-growth)' }}
               >
                 {intl.formatMessage({ id: 'auth.login', defaultMessage: 'Login' })}
               </Link>

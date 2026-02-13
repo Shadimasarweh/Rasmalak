@@ -224,24 +224,25 @@ export default function OnboardingPage() {
   const current = stepConfig[currentStep as keyof typeof stepConfig];
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Header */}
       <header className="py-4 px-6">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center">
-              <svg className="w-5 h-5 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent-growth)' }}>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--color-bg-surface-1)' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
-            <span className="text-brand-navy font-semibold">Rasmalak AI</span>
+            <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>Rasmalak AI</span>
           </div>
 
           {/* Skip */}
           <button
             onClick={handleSkip}
-            className="text-sm text-brand-navy/50 hover:text-brand-navy transition-colors"
+            className="text-sm transition-colors"
+            style={{ color: 'var(--color-text-muted)' }}
           >
             {intl.formatMessage({ id: 'onboarding.skip_for_now', defaultMessage: 'Skip for now' })}
           </button>
@@ -255,34 +256,34 @@ export default function OnboardingPage() {
             {/* Step Indicator */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-brand-navy uppercase tracking-wider">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>
                   {intl.formatMessage({ id: 'onboarding.step_of', defaultMessage: 'Step {current} of {total}' }, { current: currentStep, total: TOTAL_STEPS })}
                 </span>
-                <span className="text-sm text-brand-emerald font-medium">
+                <span className="text-sm font-medium" style={{ color: 'var(--color-accent-growth)' }}>
                   {intl.formatMessage({ id: 'onboarding.completed', defaultMessage: '{percent}% Completed' }, { percent: progressPercentage })}
                 </span>
               </div>
-              <div className="h-1.5 bg-brand-navy/10 rounded-[var(--radius-pill)] overflow-hidden">
+              <div className="h-1.5 rounded-[var(--radius-pill)] overflow-hidden" style={{ backgroundColor: 'var(--color-border)' }}>
                 <div
-                  className="h-full bg-brand-emerald rounded-[var(--radius-pill)] transition-all duration-300"
-                  style={{ width: `${progressPercentage}%` }}
+                  className="h-full rounded-[var(--radius-pill)] transition-all duration-300"
+                  style={{ backgroundColor: 'var(--color-accent-growth)', width: `${progressPercentage}%` }}
                 />
               </div>
             </div>
 
             {/* Title & Subtitle */}
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-brand-navy mb-2">
+              <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                 {current.title}
               </h1>
-              <p className="text-brand-navy/60">
+              <p style={{ color: 'var(--color-text-secondary)' }}>
                 {current.subtitle}
               </p>
             </div>
 
             {/* Question */}
             <div className="mb-6">
-              <h2 className="text-base font-semibold text-brand-navy mb-4">
+              <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
                 {current.question}
               </h2>
 
@@ -296,21 +297,16 @@ export default function OnboardingPage() {
                         <button
                           key={goal.id}
                           onClick={() => setSelectedGoal(goal.id)}
-                          className={`
-                            flex items-center gap-3 p-4
-                            border rounded-[var(--radius-md)]
-                            transition-colors duration-150
-                            text-left
-                            ${isSelected
-                              ? 'border-brand-emerald bg-brand-accent/30'
-                              : 'border-brand-navy/10 bg-[#FFFFFF] hover:border-brand-navy/20'
-                            }
-                          `}
+                          className="flex items-center gap-3 p-4 border rounded-[var(--radius-md)] transition-colors duration-150 text-left"
+                          style={{
+                            borderColor: isSelected ? 'var(--color-accent-growth)' : 'var(--color-border)',
+                            backgroundColor: isSelected ? 'var(--color-accent-growth-subtle)' : 'var(--color-bg-surface-1)',
+                          }}
                         >
-                          <span className={`${isSelected ? 'text-brand-emerald' : 'text-brand-navy/60'}`}>
+                          <span style={{ color: isSelected ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
                             {goal.icon}
                           </span>
-                          <span className={`text-sm font-medium ${isSelected ? 'text-brand-navy' : 'text-brand-navy/80'}`}>
+                          <span className="text-sm font-medium" style={{ color: isSelected ? 'var(--color-text-primary)' : 'var(--color-text-primary)' }}>
                             {intl.formatMessage({ id: goal.labelKey, defaultMessage: goal.defaultLabel })}
                           </span>
                         </button>
@@ -320,7 +316,7 @@ export default function OnboardingPage() {
 
                   {/* Custom Goal Input */}
                   <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-navy/40 pointer-events-none">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }}>
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
@@ -335,16 +331,11 @@ export default function OnboardingPage() {
                         }
                       }}
                       placeholder={intl.formatMessage({ id: 'onboarding.custom_goal_placeholder', defaultMessage: 'Or type your specific goal here...' })}
-                      className="
-                        w-full
-                        pl-10 pr-4 py-3
-                        text-sm
-                        bg-[#FFFFFF]
-                        border border-brand-navy/10
-                        rounded-[var(--radius-md)]
-                        placeholder:text-brand-navy/40
-                        focus:outline-none focus:border-brand-emerald focus:ring-2 focus:ring-brand-accent
-                      "
+                      className="w-full pl-10 pr-4 py-3 text-sm border rounded-[var(--radius-md)] focus:outline-none"
+                      style={{
+                        backgroundColor: 'var(--color-bg-surface-1)',
+                        borderColor: 'var(--color-border)',
+                      }}
                     />
                   </div>
                 </>
@@ -359,33 +350,31 @@ export default function OnboardingPage() {
                       <button
                         key={segment.id}
                         onClick={() => setSelectedSegment(segment.id)}
-                        className={`
-                          w-full flex items-center gap-4 p-4
-                          border rounded-[var(--radius-md)]
-                          transition-colors duration-150
-                          text-left
-                          ${isSelected
-                            ? 'border-brand-emerald bg-brand-accent/30'
-                            : 'border-brand-navy/10 bg-[#FFFFFF] hover:border-brand-navy/20'
-                          }
-                        `}
+                        className="w-full flex items-center gap-4 p-4 border rounded-[var(--radius-md)] transition-colors duration-150 text-left"
+                        style={{
+                          borderColor: isSelected ? 'var(--color-accent-growth)' : 'var(--color-border)',
+                          backgroundColor: isSelected ? 'var(--color-accent-growth-subtle)' : 'var(--color-bg-surface-1)',
+                        }}
                       >
-                        <div className={`
-                          w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center
-                          ${isSelected ? 'bg-brand-emerald text-[#FFFFFF]' : 'bg-brand-navy/5 text-brand-navy/60'}
-                        `}>
+                        <div
+                          className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center"
+                          style={{
+                            backgroundColor: isSelected ? 'var(--color-accent-growth)' : 'var(--color-bg-surface-2)',
+                            color: isSelected ? 'var(--color-bg-surface-1)' : 'var(--color-text-secondary)',
+                          }}
+                        >
                           {segment.icon}
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${isSelected ? 'text-brand-navy' : 'text-brand-navy/80'}`}>
+                          <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                             {intl.formatMessage({ id: segment.labelKey, defaultMessage: segment.defaultLabel })}
                           </p>
-                          <p className="text-xs text-brand-navy/50">
+                          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
                             {intl.formatMessage({ id: segment.descKey, defaultMessage: segment.defaultDesc })}
                           </p>
                         </div>
                         {isSelected && (
-                          <svg className="w-5 h-5 text-brand-emerald" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--color-accent-growth)' }}>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         )}
@@ -404,22 +393,18 @@ export default function OnboardingPage() {
                       <button
                         key={topic.id}
                         onClick={() => toggleTopic(topic.id)}
-                        className={`
-                          flex items-center justify-center gap-2 p-4
-                          border rounded-[var(--radius-md)]
-                          transition-colors duration-150
-                          ${isSelected
-                            ? 'border-brand-emerald bg-brand-accent/30'
-                            : 'border-brand-navy/10 bg-[#FFFFFF] hover:border-brand-navy/20'
-                          }
-                        `}
+                        className="flex items-center justify-center gap-2 p-4 border rounded-[var(--radius-md)] transition-colors duration-150"
+                        style={{
+                          borderColor: isSelected ? 'var(--color-accent-growth)' : 'var(--color-border)',
+                          backgroundColor: isSelected ? 'var(--color-accent-growth-subtle)' : 'var(--color-bg-surface-1)',
+                        }}
                       >
                         {isSelected && (
-                          <svg className="w-4 h-4 text-brand-emerald" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--color-accent-growth)' }}>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         )}
-                        <span className={`text-sm font-medium ${isSelected ? 'text-brand-navy' : 'text-brand-navy/80'}`}>
+                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                           {intl.formatMessage({ id: topic.labelKey, defaultMessage: topic.defaultLabel })}
                         </span>
                       </button>
@@ -437,17 +422,13 @@ export default function OnboardingPage() {
                       <button
                         key={range.id}
                         onClick={() => setSelectedIncome(range.id)}
-                        className={`
-                          flex items-center justify-center p-4
-                          border rounded-[var(--radius-md)]
-                          transition-colors duration-150
-                          ${isSelected
-                            ? 'border-brand-emerald bg-brand-accent/30'
-                            : 'border-brand-navy/10 bg-[#FFFFFF] hover:border-brand-navy/20'
-                          }
-                        `}
+                        className="flex items-center justify-center p-4 border rounded-[var(--radius-md)] transition-colors duration-150"
+                        style={{
+                          borderColor: isSelected ? 'var(--color-accent-growth)' : 'var(--color-border)',
+                          backgroundColor: isSelected ? 'var(--color-accent-growth-subtle)' : 'var(--color-bg-surface-1)',
+                        }}
                       >
-                        <span className={`text-sm font-medium ${isSelected ? 'text-brand-navy' : 'text-brand-navy/80'}`}>
+                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                           {intl.formatMessage({ id: range.labelKey, defaultMessage: range.defaultLabel })}
                         </span>
                       </button>
@@ -461,10 +442,8 @@ export default function OnboardingPage() {
             <div className="flex items-center justify-between pt-4">
               <button
                 onClick={handleBack}
-                className={`
-                  flex items-center gap-2 text-sm font-medium text-brand-navy/70 hover:text-brand-navy
-                  ${currentStep === 1 ? 'opacity-50 pointer-events-none' : ''}
-                `}
+                className={`flex items-center gap-2 text-sm font-medium ${currentStep === 1 ? 'opacity-50 pointer-events-none' : ''}`}
+                style={{ color: 'var(--color-text-secondary)' }}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
