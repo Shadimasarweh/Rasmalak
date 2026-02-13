@@ -51,7 +51,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 bg-brand-navy relative overflow-hidden">
         {/* Logo */}
         <div className="flex items-center gap-2 relative z-10">
-          <div className="w-8 h-8 rounded-[var(--radius-input)] bg-brand-emerald flex items-center justify-center">
+          <div className="w-8 h-8 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center">
             <svg className="w-5 h-5 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
@@ -63,10 +63,10 @@ export default function LoginPage() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative w-80 h-80">
             {/* Abstract cubes representation */}
-            <div className="absolute top-0 left-1/4 w-32 h-32 bg-brand-navy-light rounded-[var(--radius-card)] transform rotate-12 opacity-80" />
-            <div className="absolute top-1/4 right-1/4 w-24 h-24 bg-[#8B7355] rounded-[var(--radius-card)] transform -rotate-6" />
-            <div className="absolute bottom-1/4 left-1/3 w-40 h-40 bg-brand-navy-light rounded-[var(--radius-card)] transform rotate-3" />
-            <div className="absolute bottom-0 right-1/3 w-28 h-28 bg-brand-navy-light rounded-[var(--radius-card)] transform -rotate-12 opacity-60" />
+            <div className="absolute top-0 left-1/4 w-32 h-32 bg-brand-navy-light rounded-[var(--radius-xl)] transform rotate-12 opacity-80" />
+            <div className="absolute top-1/4 right-1/4 w-24 h-24 bg-[#8B7355] rounded-[var(--radius-xl)] transform -rotate-6" />
+            <div className="absolute bottom-1/4 left-1/3 w-40 h-40 bg-brand-navy-light rounded-[var(--radius-xl)] transform rotate-3" />
+            <div className="absolute bottom-0 right-1/3 w-28 h-28 bg-brand-navy-light rounded-[var(--radius-xl)] transform -rotate-12 opacity-60" />
             {/* Small accent sphere */}
             <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-[#D4A574] rounded-[var(--radius-pill)]" />
           </div>
@@ -90,7 +90,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
           <div className="text-center mb-8 lg:hidden">
-            <div className="w-12 h-12 rounded-[var(--radius-input)] bg-brand-emerald flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center mx-auto mb-3">
               <svg className="w-6 h-6 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
@@ -111,7 +111,7 @@ export default function LoginPage() {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-3 rounded-[var(--radius-input)] bg-danger/10 border border-danger/20 text-danger text-sm">
+              <div className="p-3 rounded-[var(--radius-md)] bg-danger/10 border border-danger/20 text-danger text-sm">
                 {error}
               </div>
             )}
@@ -210,7 +210,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-input)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-md)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -222,7 +222,7 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              className="flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-input)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-md)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />

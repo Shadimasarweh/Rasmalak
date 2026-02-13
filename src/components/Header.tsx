@@ -26,20 +26,20 @@ export default function Header({ onMenuToggle }: HeaderProps) {
   };
 
   return (
-    <header 
-      className="sticky top-0 z-30 h-16 border-b"
-      style={{ 
-        backgroundColor: 'var(--theme-bg-card)', 
-        borderColor: 'var(--theme-border)' 
+    <header
+      className="sticky top-0 z-30"
+      style={{
+        height: '4rem',
+        backgroundColor: 'var(--color-bg-surface-1)',
+        borderBottom: '1px solid var(--color-border)',
       }}
     >
-
-      <div className="h-full flex items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4">
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingInline: 'var(--spacing-4)', gap: 'var(--spacing-4)' }}>
         {/* Mobile menu button */}
         <button
           onClick={onMenuToggle}
-          className="p-2 rounded-[var(--radius-input)] lg:hidden"
-          style={{ color: 'var(--theme-text-secondary)' }}
+          className="lg:hidden"
+          style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)' }}
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -47,9 +47,9 @@ export default function Header({ onMenuToggle }: HeaderProps) {
         {/* Search */}
         <div className="flex-1 max-w-md hidden sm:block">
           <div className="relative">
-            <div 
+            <div
               className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-              style={{ color: 'var(--theme-text-muted)' }}
+              style={{ color: 'var(--color-text-muted)' }}
             >
               <Search className="w-5 h-5" />
             </div>
@@ -60,12 +60,17 @@ export default function Header({ onMenuToggle }: HeaderProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               autoComplete="off"
               name="dashboard-search"
-              className="w-full pl-10 pr-4 py-2 text-sm rounded-[var(--radius-input)] focus:outline-none focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20"
               style={{
-                backgroundColor: 'var(--theme-bg-input)',
-                borderColor: 'var(--theme-border)',
-                color: 'var(--theme-text-primary)',
-                border: '1px solid var(--theme-border)',
+                width: '100%',
+                paddingInlineStart: '2.5rem',
+                paddingInlineEnd: 'var(--spacing-4)',
+                paddingBlock: 'var(--spacing-2)',
+                fontSize: '0.875rem',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'var(--color-bg-input)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)',
+                outline: 'none',
               }}
             />
           </div>
@@ -75,29 +80,39 @@ export default function Header({ onMenuToggle }: HeaderProps) {
         <div className="flex-1 sm:hidden" />
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)' }}>
           {/* Notifications */}
-          <button 
-            className="relative p-2 rounded-[var(--radius-input)]"
-            style={{ color: 'var(--theme-text-secondary)' }}
+          <button
+            className="relative"
+            style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)' }}
           >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-[var(--radius-pill)]" />
+            <span
+              className="absolute"
+              style={{
+                top: '0.375rem',
+                insetInlineEnd: '0.375rem',
+                width: '0.5rem',
+                height: '0.5rem',
+                borderRadius: 'var(--radius-pill)',
+                backgroundColor: 'var(--color-danger-text)',
+              }}
+            />
           </button>
 
-          {/* Settings - visible on mobile only (lg:hidden) */}
-          <Link 
+          {/* Settings - visible on mobile only */}
+          <Link
             href="/settings"
-            className="p-2 rounded-[var(--radius-input)] lg:hidden"
-            style={{ color: 'var(--theme-text-secondary)' }}
+            className="lg:hidden"
+            style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)' }}
           >
             <Settings className="w-5 h-5" />
           </Link>
 
-          {/* Theme Toggle - hidden on mobile, visible on desktop */}
-          <button 
-            className="p-2 rounded-[var(--radius-input)] hidden lg:block"
-            style={{ color: 'var(--theme-text-secondary)' }}
+          {/* Theme Toggle - desktop only */}
+          <button
+            className="hidden lg:block"
+            style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)' }}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -105,38 +120,54 @@ export default function Header({ onMenuToggle }: HeaderProps) {
           </button>
 
           {/* User Avatar */}
-          <button 
+          <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="w-8 h-8 rounded-[var(--radius-pill)] bg-[#10B981] flex items-center justify-center text-[#FFFFFF] text-sm font-medium"
+            style={{
+              width: '2rem',
+              height: '2rem',
+              borderRadius: 'var(--radius-pill)',
+              backgroundColor: 'var(--color-accent-growth)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#FFFFFF',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              border: 'none',
+              cursor: 'pointer',
+            }}
           >
-            {displayName ? displayName.charAt(0).toUpperCase() : 'S'}
+            {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
           </button>
 
           {showUserMenu && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowUserMenu(false)} />
-              <div 
-                className="absolute right-6 top-14 mt-2 w-48 rounded-[var(--radius-card)] shadow-lg py-1 z-20"
+              <div
+                className="absolute z-20"
                 style={{
-                  backgroundColor: 'var(--theme-bg-card)',
-                  border: '1px solid var(--theme-border)',
+                  insetInlineEnd: 'var(--spacing-6)',
+                  top: '3.75rem',
+                  width: '12rem',
+                  borderRadius: 'var(--radius-lg)',
+                  backgroundColor: 'var(--color-bg-surface-1)',
+                  border: '1px solid var(--color-border)',
+                  boxShadow: 'var(--shadow-lg)',
+                  paddingBlock: 'var(--spacing-1)',
                 }}
               >
-                <div 
-                  className="px-3 py-2.5 border-b"
-                  style={{ borderColor: 'var(--theme-border)' }}
+                <div
+                  style={{
+                    paddingInline: 'var(--spacing-3)',
+                    paddingBlock: 'var(--spacing-2)',
+                    borderBottom: '1px solid var(--color-border)',
+                  }}
                 >
-                  <p 
-                    className="text-sm font-medium truncate"
-                    style={{ color: 'var(--theme-text-primary)' }}
-                  >
+                  <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {displayName || 'User'}
                   </p>
                   {user?.email && (
-                    <p 
-                      className="text-xs truncate mt-0.5"
-                      style={{ color: 'var(--theme-text-muted)' }}
-                    >
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 'var(--spacing-0_5)' }}>
                       {user.email}
                     </p>
                   )}
@@ -144,15 +175,35 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                 <Link
                   href="/settings"
                   onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm"
-                  style={{ color: 'var(--theme-text-secondary)' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-2)',
+                    paddingInline: 'var(--spacing-3)',
+                    paddingBlock: 'var(--spacing-2)',
+                    fontSize: '0.875rem',
+                    color: 'var(--color-text-secondary)',
+                    textDecoration: 'none',
+                  }}
                 >
                   <Settings className="w-4 h-4" />
                   Settings
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[#EF4444] hover:bg-[#EF4444]/5"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-2)',
+                    paddingInline: 'var(--spacing-3)',
+                    paddingBlock: 'var(--spacing-2)',
+                    fontSize: '0.875rem',
+                    color: 'var(--color-danger-text)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
                   <LogOut className="w-4 h-4" />
                   Logout

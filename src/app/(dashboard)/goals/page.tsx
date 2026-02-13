@@ -85,8 +85,8 @@ function AddFundsModal({
     >
       <div
         style={{
-          backgroundColor: 'var(--theme-bg-card)',
-          borderRadius: 'var(--radius-card)',
+          backgroundColor: 'var(--color-bg-surface-1)',
+          borderRadius: 'var(--radius-xl)',
           padding: '1.5rem',
           width: '100%',
           maxWidth: '400px',
@@ -99,18 +99,18 @@ function AddFundsModal({
           style={{
             fontSize: '1.125rem',
             fontWeight: 600,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
             marginBottom: '4px',
           }}
         >
           {isRTL ? 'إضافة مبلغ' : 'Add Funds'}
         </h3>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
           {goalName}
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1rem' }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--theme-text-muted)' }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-muted)' }}>
             {currencySymbol}
           </span>
           <input
@@ -124,10 +124,10 @@ function AddFundsModal({
               padding: '10px 12px',
               fontSize: '1.125rem',
               fontWeight: 600,
-              border: '1px solid var(--theme-border-input)',
-              borderRadius: 'var(--radius-input)',
-              backgroundColor: 'var(--theme-bg-input)',
-              color: 'var(--theme-text-primary)',
+              border: '1px solid var(--color-border-input)',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'var(--color-bg-input)',
+              color: 'var(--color-text-primary)',
               outline: 'none',
               direction: 'ltr',
             }}
@@ -142,10 +142,10 @@ function AddFundsModal({
               padding: '10px',
               fontSize: '0.875rem',
               fontWeight: 500,
-              border: '1px solid var(--theme-border)',
+              border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               background: 'transparent',
-              color: 'var(--theme-text-secondary)',
+              color: 'var(--color-text-secondary)',
               cursor: 'pointer',
             }}
           >
@@ -166,7 +166,7 @@ function AddFundsModal({
               fontWeight: 600,
               border: 'none',
               borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-brand-emerald)',
+              background: 'var(--color-accent-growth)',
               color: '#FFFFFF',
               cursor: 'pointer',
             }}
@@ -199,7 +199,7 @@ function GoalCard({
 
   return (
     <div
-      className="card-standard"
+      className="ds-card"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -217,7 +217,7 @@ function GoalCard({
           width: '4px',
           height: '100%',
           backgroundColor: goal.color,
-          borderRadius: isRTL ? '0 var(--radius-card) var(--radius-card) 0' : 'var(--radius-card) 0 0 var(--radius-card)',
+          borderRadius: isRTL ? '0 var(--radius-xl) var(--radius-xl) 0' : 'var(--radius-xl) 0 0 var(--radius-xl)',
         }}
       />
 
@@ -244,7 +244,7 @@ function GoalCard({
               style={{
                 fontSize: '1rem',
                 fontWeight: 600,
-                color: 'var(--color-brand-navy)',
+                color: 'var(--color-text-primary)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -253,7 +253,7 @@ function GoalCard({
               {goal.name}
             </h3>
             {goal.deadline && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                 {isRTL ? 'الموعد النهائي:' : 'Deadline:'}{' '}
                 {new Date(goal.deadline).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
@@ -272,7 +272,7 @@ function GoalCard({
             padding: '6px',
             border: 'none',
             background: 'transparent',
-            color: 'var(--theme-text-muted)',
+            color: 'var(--color-text-muted)',
             cursor: 'pointer',
             borderRadius: '4px',
             flexShrink: 0,
@@ -286,10 +286,10 @@ function GoalCard({
       {/* Progress bar */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
-          <span style={{ color: 'var(--theme-text-muted)' }}>
+          <span style={{ color: 'var(--color-text-muted)' }}>
             {currencySymbol} {goal.currentAmount.toLocaleString()}
           </span>
-          <span style={{ fontWeight: 600, color: isComplete ? '#10B981' : 'var(--theme-text-secondary)' }}>
+          <span style={{ fontWeight: 600, color: isComplete ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
             {percentage.toFixed(0)}%
           </span>
         </div>
@@ -297,7 +297,7 @@ function GoalCard({
           style={{
             height: '8px',
             borderRadius: 'var(--radius-pill)',
-            backgroundColor: 'var(--theme-border)',
+            backgroundColor: 'var(--color-border)',
             overflow: 'hidden',
           }}
         >
@@ -306,7 +306,7 @@ function GoalCard({
               height: '100%',
               width: `${percentage}%`,
               borderRadius: 'var(--radius-pill)',
-              backgroundColor: isComplete ? '#10B981' : goal.color,
+              backgroundColor: isComplete ? 'var(--color-accent-growth)' : goal.color,
               transition: 'width 0.3s ease',
             }}
           />
@@ -317,7 +317,7 @@ function GoalCard({
             justifyContent: 'space-between',
             fontSize: '0.6875rem',
             marginTop: '4px',
-            color: 'var(--theme-text-muted)',
+            color: 'var(--color-text-muted)',
           }}
         >
           <span>
@@ -356,8 +356,8 @@ function GoalCard({
             padding: '8px',
             fontSize: '0.8125rem',
             fontWeight: 600,
-            color: '#10B981',
-            backgroundColor: '#10B98110',
+            color: 'var(--color-accent-growth)',
+            backgroundColor: 'color-mix(in srgb, var(--color-accent-growth) 6%, transparent)',
             borderRadius: 'var(--radius-sm)',
           }}
         >
@@ -402,7 +402,7 @@ function CreateGoalForm({
     display: 'block',
     fontSize: '0.8125rem',
     fontWeight: 500,
-    color: 'var(--theme-text-secondary)',
+    color: 'var(--color-text-secondary)',
     marginBottom: '6px',
   };
 
@@ -410,28 +410,28 @@ function CreateGoalForm({
     width: '100%',
     padding: '10px 12px',
     fontSize: '0.875rem',
-    border: '1px solid var(--theme-border-input)',
-    borderRadius: 'var(--radius-input)',
-    backgroundColor: 'var(--theme-bg-input)',
-    color: 'var(--theme-text-primary)',
+    border: '1px solid var(--color-border-input)',
+    borderRadius: 'var(--radius-md)',
+    backgroundColor: 'var(--color-bg-input)',
+    color: 'var(--color-text-primary)',
     outline: 'none',
   };
 
   return (
     <div
-      className="card-standard"
+      className="ds-card"
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
-        border: '2px solid var(--color-brand-emerald)',
+        border: '2px solid var(--color-accent-growth)',
       }}
     >
       <h3
         style={{
           fontSize: '1rem',
           fontWeight: 600,
-          color: 'var(--color-brand-navy)',
+          color: 'var(--color-text-primary)',
         }}
       >
         {isRTL ? 'هدف ادخار جديد' : 'New Savings Goal'}
@@ -453,7 +453,7 @@ function CreateGoalForm({
       <div>
         <label style={labelStyle}>{isRTL ? 'المبلغ المستهدف' : 'Target Amount'}</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--theme-text-muted)', flexShrink: 0 }}>
+          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
           <input
@@ -491,9 +491,9 @@ function CreateGoalForm({
                 height: '32px',
                 borderRadius: '50%',
                 backgroundColor: c,
-                border: selectedColor === c ? '3px solid var(--color-brand-navy)' : '2px solid transparent',
+                border: selectedColor === c ? '3px solid var(--color-text-primary)' : '2px solid transparent',
                 cursor: 'pointer',
-                outline: selectedColor === c ? '2px solid var(--theme-bg-card)' : 'none',
+                outline: selectedColor === c ? '2px solid var(--color-bg-surface-1)' : 'none',
                 transition: 'transform 0.15s',
                 transform: selectedColor === c ? 'scale(1.15)' : 'scale(1)',
               }}
@@ -511,10 +511,10 @@ function CreateGoalForm({
             padding: '10px',
             fontSize: '0.875rem',
             fontWeight: 500,
-            border: '1px solid var(--theme-border)',
+            border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-sm)',
             background: 'transparent',
-            color: 'var(--theme-text-secondary)',
+            color: 'var(--color-text-secondary)',
             cursor: 'pointer',
           }}
         >
@@ -530,8 +530,8 @@ function CreateGoalForm({
             fontWeight: 600,
             border: 'none',
             borderRadius: 'var(--radius-sm)',
-            background: !name.trim() || !parseFloat(target) ? 'var(--theme-border)' : 'var(--color-brand-emerald)',
-            color: !name.trim() || !parseFloat(target) ? 'var(--theme-text-muted)' : '#FFFFFF',
+            background: !name.trim() || !parseFloat(target) ? 'var(--color-border)' : 'var(--color-accent-growth)',
+            color: !name.trim() || !parseFloat(target) ? 'var(--color-text-muted)' : '#FFFFFF',
             cursor: !name.trim() || !parseFloat(target) ? 'not-allowed' : 'pointer',
           }}
         >
@@ -573,7 +573,7 @@ export default function GoalsPage() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 'calc(100vh - 80px)',
-        padding: 'var(--spacing-3)',
+        padding: 'var(--spacing-6)',
         direction: isRTL ? 'rtl' : 'ltr',
       }}
     >
@@ -586,9 +586,9 @@ export default function GoalsPage() {
           gap: '6px',
           fontSize: '0.875rem',
           fontWeight: 500,
-          color: 'var(--color-brand-emerald)',
+          color: 'var(--color-accent-growth)',
           textDecoration: 'none',
-          marginBottom: 'var(--spacing-2)',
+          marginBottom: 'var(--spacing-5)',
         }}
         className="hover:underline"
       >
@@ -599,13 +599,13 @@ export default function GoalsPage() {
       </Link>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--spacing-3)', gap: '12px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--spacing-6)', gap: '12px', flexWrap: 'wrap' }}>
         <div>
           <h1
             style={{
               fontSize: '1.75rem',
               fontWeight: 700,
-              color: 'var(--color-brand-navy)',
+              color: 'var(--color-text-primary)',
               lineHeight: 1.2,
             }}
           >
@@ -614,7 +614,7 @@ export default function GoalsPage() {
           <p
             style={{
               fontSize: '0.9375rem',
-              color: 'var(--theme-text-secondary)',
+              color: 'var(--color-text-secondary)',
               lineHeight: 1.6,
               marginTop: '4px',
             }}
@@ -637,7 +637,7 @@ export default function GoalsPage() {
               fontWeight: 600,
               border: 'none',
               borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-brand-emerald)',
+              background: 'var(--color-accent-growth)',
               color: '#FFFFFF',
               cursor: 'pointer',
               flexShrink: 0,
@@ -653,19 +653,19 @@ export default function GoalsPage() {
       {/* Overall progress summary (only if goals exist) */}
       {savingsGoals.length > 0 && (
         <div
-          className="card-standard"
+          className="ds-card"
           style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '12px',
-            marginBottom: 'var(--spacing-2)',
+            marginBottom: 'var(--spacing-5)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
               {isRTL ? 'التقدم الإجمالي' : 'Overall Progress'}
             </p>
-            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: overallPercentage >= 100 ? '#10B981' : 'var(--theme-text-secondary)' }}>
+            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: overallPercentage >= 100 ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
               {overallPercentage.toFixed(0)}%
             </p>
           </div>
@@ -673,7 +673,7 @@ export default function GoalsPage() {
             style={{
               height: '10px',
               borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--theme-border)',
+              backgroundColor: 'var(--color-border)',
               overflow: 'hidden',
             }}
           >
@@ -682,12 +682,12 @@ export default function GoalsPage() {
                 height: '100%',
                 width: `${overallPercentage}%`,
                 borderRadius: 'var(--radius-pill)',
-                background: 'linear-gradient(90deg, #10B981, #14B8A6)',
+                background: 'linear-gradient(90deg, var(--color-accent-growth), #14B8A6)',
                 transition: 'width 0.3s ease',
               }}
             />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
             <span>
               {isRTL ? 'تم ادخار:' : 'Saved:'} {currencySymbol} {totalSaved.toLocaleString()}
             </span>
@@ -700,7 +700,7 @@ export default function GoalsPage() {
 
       {/* Create form */}
       {showCreate && (
-        <div style={{ marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ marginBottom: 'var(--spacing-5)' }}>
           <CreateGoalForm
             currencySymbol={currencySymbol}
             isRTL={isRTL}
@@ -719,7 +719,7 @@ export default function GoalsPage() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 'var(--spacing-2)',
+            gap: 'var(--spacing-5)',
           }}
         >
           {savingsGoals.map((goal) => (
@@ -740,7 +740,7 @@ export default function GoalsPage() {
       ) : (
         !showCreate && (
           <div
-            className="card-standard"
+            className="ds-card"
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -755,16 +755,16 @@ export default function GoalsPage() {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--theme-border)',
+                backgroundColor: 'var(--color-border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--theme-text-muted)',
+                color: 'var(--color-text-muted)',
               }}
             >
               <FlagIcon />
             </div>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--theme-text-secondary)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', textAlign: 'center' }}>
               {isRTL ? 'لا توجد أهداف بعد' : 'No goals yet'}
             </p>
             <button
@@ -772,7 +772,7 @@ export default function GoalsPage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--color-brand-emerald)',
+                color: 'var(--color-accent-growth)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',

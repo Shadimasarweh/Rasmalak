@@ -84,7 +84,7 @@ export default function SignupPage() {
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 bg-brand-navy relative overflow-hidden">
         {/* Logo */}
         <div className="flex items-center gap-2 relative z-10">
-          <div className="w-8 h-8 rounded-[var(--radius-input)] bg-brand-emerald flex items-center justify-center">
+          <div className="w-8 h-8 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center">
             <svg className="w-5 h-5 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
@@ -106,8 +106,8 @@ export default function SignupPage() {
               />
               <defs>
                 <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#10B981" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#10B981" stopOpacity="1" />
+                  <stop offset="0%" stopColor="var(--color-accent-growth)" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="var(--color-accent-growth)" stopOpacity="1" />
                 </linearGradient>
               </defs>
             </svg>
@@ -150,7 +150,7 @@ export default function SignupPage() {
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
           <div className="text-center mb-8 lg:hidden">
-            <div className="w-12 h-12 rounded-[var(--radius-input)] bg-brand-emerald flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center mx-auto mb-3">
               <svg className="w-6 h-6 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
@@ -171,7 +171,7 @@ export default function SignupPage() {
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 rounded-[var(--radius-input)] bg-danger/10 border border-danger/20 text-danger text-sm">
+              <div className="p-3 rounded-[var(--radius-md)] bg-danger/10 border border-danger/20 text-danger text-sm">
                 {error}
               </div>
             )}
@@ -308,7 +308,7 @@ export default function SignupPage() {
           {/* Social Login Button */}
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-input)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-navy/10 rounded-[var(--radius-md)] text-sm font-medium text-brand-navy hover:bg-brand-bg transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

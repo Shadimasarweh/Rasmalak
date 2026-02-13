@@ -20,64 +20,16 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useStore';
 
 const navItems = [
-  { 
-    id: 'dashboard', 
-    path: '/', 
-    icon: LayoutDashboard, 
-    labelAr: 'الرئيسية', 
-    labelEn: 'Dashboard',
-    smeOnly: false,
-  },
-  { 
-    id: 'budgets', 
-    path: '/transactions', 
-    icon: Receipt, 
-    labelAr: 'الميزانيات', 
-    labelEn: 'Budgets',
-    smeOnly: false,
-  },
-  { 
-    id: 'learn', 
-    path: '/learn', 
-    icon: GraduationCap, 
-    labelAr: 'تعلّم', 
-    labelEn: 'Learn',
-    smeOnly: false,
-  },
-  { 
-    id: 'chat', 
-    path: '/chat', 
-    icon: MessageSquareText, 
-    labelAr: 'مستشارك', 
-    labelEn: 'Mustasharak',
-    smeOnly: false,
-  },
-  { 
-    id: 'tools', 
-    path: '/tools', 
-    icon: Calculator, 
-    labelAr: 'الأدوات', 
-    labelEn: 'Tools',
-    smeOnly: false,
-  },
-  { 
-    id: 'community', 
-    path: '/community', 
-    icon: Users, 
-    labelAr: 'المجتمع', 
-    labelEn: 'Community',
-    smeOnly: true,
-  },
+  { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard', smeOnly: false },
+  { id: 'budgets', path: '/transactions', icon: Receipt, labelAr: 'الميزانيات', labelEn: 'Budgets', smeOnly: false },
+  { id: 'learn', path: '/learn', icon: GraduationCap, labelAr: 'تعلّم', labelEn: 'Learn', smeOnly: false },
+  { id: 'chat', path: '/chat', icon: MessageSquareText, labelAr: 'مستشارك', labelEn: 'Mustasharak', smeOnly: false },
+  { id: 'tools', path: '/tools', icon: Calculator, labelAr: 'الأدوات', labelEn: 'Tools', smeOnly: false },
+  { id: 'community', path: '/community', icon: Users, labelAr: 'المجتمع', labelEn: 'Community', smeOnly: true },
 ];
 
 const bottomNavItems = [
-  { 
-    id: 'settings', 
-    path: '/settings', 
-    icon: Settings, 
-    labelAr: 'الإعدادات', 
-    labelEn: 'Settings' 
-  },
+  { id: 'settings', path: '/settings', icon: Settings, labelAr: 'الإعدادات', labelEn: 'Settings' },
 ];
 
 interface SidebarProps {
@@ -94,7 +46,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
   const logout = useLogout();
   const onboardingData = useOnboardingData();
   const displayName = user?.name || userName || (language === 'ar' ? 'مستخدم' : 'User');
-  
+
   const isSmeUser = onboardingData?.segment === 'sme' || onboardingData?.segment === 'self_employed';
   const visibleNavItems = navItems.filter(item => !item.smeOnly || isSmeUser);
 
@@ -137,22 +89,36 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
   const sidebarContent = (isMobile: boolean) => (
     <>
       {/* Logo */}
-      <div 
-        className={`h-16 flex items-center ${(!isMobile && !isExpanded) ? 'justify-center' : 'px-5 gap-3'}`}
-        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
+      <div
+        className={`h-16 flex items-center ${(!isMobile && !isExpanded) ? 'justify-center' : 'gap-3'}`}
+        style={{
+          borderBottom: '1px solid var(--color-sidebar-border)',
+          paddingInline: (!isMobile && !isExpanded) ? undefined : 'var(--spacing-5)',
+        }}
       >
-        <div className="w-8 h-8 rounded-[var(--radius-input)] bg-[#10B981] flex items-center justify-center flex-shrink-0">
-          <span className="text-[#FFFFFF] font-bold text-sm">R</span>
+        <div
+          className="flex items-center justify-center flex-shrink-0"
+          style={{
+            width: '2rem',
+            height: '2rem',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-accent-growth)',
+          }}
+        >
+          <span style={{ color: 'var(--color-sidebar-text)', fontWeight: 700, fontSize: '0.875rem' }}>R</span>
         </div>
         {(isMobile || isExpanded) && (
-          <span className="text-[#FFFFFF] font-semibold flex-1">
-            Rasmalak <span className="text-[#10B981]">AI</span>
+          <span style={{ color: 'var(--color-sidebar-text)', fontWeight: 600 }}>
+            Rasmalak <span style={{ color: 'var(--color-accent-growth)' }}>AI</span>
           </span>
         )}
         {isMobile && (
           <button
             onClick={onMobileClose}
-            className="p-1.5 rounded-lg text-[#FFFFFF]/60 hover:text-[#FFFFFF] hover:bg-[#FFFFFF]/10 transition-colors"
+            style={{ color: 'var(--color-sidebar-text-dim)' }}
+            className="p-1.5 rounded-lg transition-colors"
+            onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-sidebar-text)'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-sidebar-text-dim)'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -160,18 +126,33 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       </div>
 
       {/* User Profile Section */}
-      <div 
-        className={`${(!isMobile && !isExpanded) ? 'p-2' : 'px-4 py-4'}`}
-        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
+      <div
+        style={{
+          borderBottom: '1px solid var(--color-sidebar-border)',
+          padding: (!isMobile && !isExpanded) ? 'var(--spacing-2)' : 'var(--spacing-4)',
+        }}
       >
         <div className={`flex items-center ${(!isMobile && !isExpanded) ? 'justify-center' : 'gap-3'}`}>
-          <div className="w-10 h-10 rounded-[var(--radius-input)] bg-[#10B981]/20 flex items-center justify-center text-[#10B981] font-semibold text-sm flex-shrink-0">
+          <div
+            className="flex items-center justify-center flex-shrink-0"
+            style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--color-accent-growth-subtle)',
+              color: 'var(--color-accent-growth)',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+            }}
+          >
             {getInitials(displayName)}
           </div>
           {(isMobile || isExpanded) && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[#FFFFFF] truncate">{displayName}</p>
-              <p className="text-xs text-[#FFFFFF]/50 truncate">
+              <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-sidebar-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {displayName}
+              </p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-sidebar-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {user?.email || (language === 'ar' ? 'حساب شخصي' : 'Free Account')}
               </p>
             </div>
@@ -180,9 +161,26 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       </div>
 
       {/* Navigation */}
-      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${(!isMobile && !isExpanded) ? 'px-2' : 'px-3'}`}>
+      <nav
+        className="flex-1 overflow-y-auto"
+        style={{
+          paddingBlock: 'var(--spacing-4)',
+          paddingInline: (!isMobile && !isExpanded) ? 'var(--spacing-2)' : 'var(--spacing-3)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--spacing-1)',
+        }}
+      >
         {(isMobile || isExpanded) && (
-          <p className="px-3 py-2 text-[10px] font-semibold text-[#FFFFFF]/40 uppercase tracking-wider">
+          <p style={{
+            paddingInline: 'var(--spacing-3)',
+            paddingBlock: 'var(--spacing-2)',
+            fontSize: '0.625rem',
+            fontWeight: 600,
+            color: 'var(--color-sidebar-text-muted)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}>
             {language === 'ar' ? 'القائمة الرئيسية' : 'Main Menu'}
           </p>
         )}
@@ -197,20 +195,25 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
             <Link
               key={item.id}
               href={item.path}
-              className={`
-                flex items-center rounded-[var(--radius-input)] min-h-[44px]
-                transition-colors duration-150
-                ${showLabel ? 'gap-3 px-3' : 'justify-center px-0'}
-                ${active
-                  ? 'bg-[#10B981] text-[#FFFFFF]'
-                  : 'text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]'
-                }
-              `}
+              className="transition-colors duration-150"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: 'var(--radius-md)',
+                minHeight: '2.75rem',
+                gap: showLabel ? 'var(--spacing-3)' : undefined,
+                paddingInline: showLabel ? 'var(--spacing-3)' : undefined,
+                justifyContent: showLabel ? undefined : 'center',
+                background: active ? 'var(--color-sidebar-active)' : 'transparent',
+                color: active ? 'var(--color-sidebar-text)' : 'var(--color-sidebar-text-dim)',
+              }}
               title={!showLabel ? label : undefined}
+              onMouseOver={(e) => { if (!active) e.currentTarget.style.background = 'var(--color-sidebar-hover)'; e.currentTarget.style.color = 'var(--color-sidebar-text)'; }}
+              onMouseOut={(e) => { if (!active) e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = active ? 'var(--color-sidebar-text)' : 'var(--color-sidebar-text-dim)'; }}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               {showLabel && (
-                <span className="text-sm font-medium truncate">{label}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
               )}
             </Link>
           );
@@ -218,9 +221,15 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       </nav>
 
       {/* Bottom Section */}
-      <div 
-        className={`py-3 space-y-1 ${(!isMobile && !isExpanded) ? 'px-2' : 'px-3'}`}
-        style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
+      <div
+        style={{
+          borderTop: '1px solid var(--color-sidebar-border)',
+          paddingBlock: 'var(--spacing-3)',
+          paddingInline: (!isMobile && !isExpanded) ? 'var(--spacing-2)' : 'var(--spacing-3)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--spacing-1)',
+        }}
       >
         {bottomNavItems.map((item) => {
           const active = isActive(item.path);
@@ -232,20 +241,25 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
             <Link
               key={item.id}
               href={item.path}
-              className={`
-                flex items-center rounded-[var(--radius-input)] min-h-[44px]
-                transition-colors duration-150
-                ${showLabel ? 'gap-3 px-3' : 'justify-center px-0'}
-                ${active
-                  ? 'bg-[#10B981] text-[#FFFFFF]'
-                  : 'text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]'
-                }
-              `}
+              className="transition-colors duration-150"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: 'var(--radius-md)',
+                minHeight: '2.75rem',
+                gap: showLabel ? 'var(--spacing-3)' : undefined,
+                paddingInline: showLabel ? 'var(--spacing-3)' : undefined,
+                justifyContent: showLabel ? undefined : 'center',
+                background: active ? 'var(--color-sidebar-active)' : 'transparent',
+                color: active ? 'var(--color-sidebar-text)' : 'var(--color-sidebar-text-dim)',
+              }}
               title={!showLabel ? label : undefined}
+              onMouseOver={(e) => { if (!active) e.currentTarget.style.background = 'var(--color-sidebar-hover)'; e.currentTarget.style.color = 'var(--color-sidebar-text)'; }}
+              onMouseOut={(e) => { if (!active) e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = active ? 'var(--color-sidebar-text)' : 'var(--color-sidebar-text-dim)'; }}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               {showLabel && (
-                <span className="text-sm font-medium truncate">{label}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
               )}
             </Link>
           );
@@ -254,17 +268,28 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         {/* Logout Button */}
         <button
           onClick={() => logout()}
-          className={`
-            w-full flex items-center rounded-[var(--radius-input)] min-h-[44px]
-            transition-colors duration-150
-            text-[#FFFFFF]/70 hover:bg-[#FFFFFF]/5 hover:text-[#FFFFFF]
-            ${(!isMobile && !isExpanded) ? 'justify-center px-0' : 'gap-3 px-3'}
-          `}
-          title={(!isMobile && !isExpanded) ? (language === 'ar' ? 'تسجيل الخروج' : 'Logout') : undefined}
+          className="transition-colors duration-150"
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            borderRadius: 'var(--radius-md)',
+            minHeight: '2.75rem',
+            gap: (!mobileOpen && !isExpanded) ? undefined : 'var(--spacing-3)',
+            paddingInline: (!mobileOpen && !isExpanded) ? undefined : 'var(--spacing-3)',
+            justifyContent: (!mobileOpen && !isExpanded) ? 'center' : undefined,
+            background: 'transparent',
+            color: 'var(--color-sidebar-text-dim)',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          title={(!mobileOpen && !isExpanded) ? (language === 'ar' ? 'تسجيل الخروج' : 'Logout') : undefined}
+          onMouseOver={(e) => { e.currentTarget.style.background = 'var(--color-sidebar-hover)'; e.currentTarget.style.color = 'var(--color-sidebar-text)'; }}
+          onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-sidebar-text-dim)'; }}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {(isMobile || isExpanded) && (
-            <span className="text-sm font-medium truncate">
+          {(mobileOpen || isExpanded) && (
+            <span style={{ fontSize: '0.875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
             </span>
           )}
@@ -275,33 +300,32 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
 
   return (
     <>
-      {/* Desktop Sidebar - always visible on lg+ */}
+      {/* Desktop Sidebar */}
       <aside
-        className={`
-          sticky top-0 h-screen flex-shrink-0
-          flex flex-col
-          transition-all duration-300 ease-out
-          hidden lg:flex
-          ${isExpanded ? 'w-60' : 'w-[72px]'}
-        `}
-        style={{ backgroundColor: 'var(--theme-bg-sidebar)' }}
+        className="sticky top-0 h-screen flex-shrink-0 flex-col transition-all duration-300 ease-out hidden lg:flex"
+        style={{
+          width: isExpanded ? '15rem' : '4.5rem',
+          backgroundColor: 'var(--color-sidebar-bg)',
+        }}
       >
         {sidebarContent(false)}
       </aside>
 
-      {/* Mobile Sidebar Drawer - overlay on small screens */}
+      {/* Mobile Sidebar Drawer */}
       {mobileOpen && (
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
+            className="fixed inset-0 z-[60] lg:hidden"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
             onClick={onMobileClose}
           />
           {/* Drawer */}
           <aside
-            className="fixed inset-y-0 z-[70] w-72 flex flex-col lg:hidden"
+            className="fixed inset-y-0 z-[70] flex flex-col lg:hidden"
             style={{
-              backgroundColor: 'var(--theme-bg-sidebar)',
+              width: '18rem',
+              backgroundColor: 'var(--color-sidebar-bg)',
               [isRTL ? 'right' : 'left']: 0,
             }}
           >

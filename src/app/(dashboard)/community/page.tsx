@@ -75,7 +75,7 @@ export default function CommunityPage() {
   if (!hasAccess) {
     return (
       <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
-        <div className="page-container">
+        <div className="ds-page">
           <div className="card max-w-md mx-auto text-center p-8">
             <div className="w-16 h-16 rounded-lg bg-indigo-500/10 flex items-center justify-center mx-auto mb-4">
               <Users className="w-8 h-8 text-indigo-500" />
@@ -104,7 +104,7 @@ export default function CommunityPage() {
     <div className="min-h-screen bg-transparent">
       {/* Header */}
       <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 text-white">
-        <div className="page-container py-8">
+        <div className="ds-page py-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center">
               <Users className="w-5 h-5 text-indigo-400" />
@@ -118,7 +118,7 @@ export default function CommunityPage() {
       </div>
 
       {/* Main Content */}
-      <div className="page-container py-6">
+      <div className="ds-page py-6">
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
@@ -411,7 +411,7 @@ function CreatePostModal({ t, language, isRTL, onClose }: CreatePostModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-[var(--color-bg-card)] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-[var(--color-bg-surface-1)] rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
           <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
@@ -645,7 +645,7 @@ function ThreadViewModal({ post, t, language, isRTL, onClose }: ThreadViewModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-[var(--color-bg-card)] rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-[var(--color-bg-surface-1)] rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-2">

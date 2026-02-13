@@ -15,7 +15,7 @@ export default function DashboardLayout({
     <AuthGuard>
       <TransactionProvider>
       {/* Flex container: sidebar + main content side by side */}
-      <div className="flex min-h-screen w-full" style={{ backgroundColor: 'var(--theme-bg-main)' }}>
+      <div className="flex min-h-screen w-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         {/* Sidebar - hidden on mobile (shows as drawer), sticky on desktop */}
         <Sidebar
           mobileOpen={mobileMenuOpen}

@@ -120,7 +120,7 @@ function TransactionTypeToggle({ intl }: { intl: ReturnType<typeof useIntl> }) {
           fontWeight: 500,
           borderRadius: 'var(--radius-pill)',
           background: 'transparent',
-          color: 'var(--theme-text-muted)',
+          color: 'var(--color-text-muted)',
           textAlign: 'center',
           textDecoration: 'none',
           cursor: 'pointer',
@@ -135,7 +135,7 @@ function TransactionTypeToggle({ intl }: { intl: ReturnType<typeof useIntl> }) {
           fontSize: '0.875rem',
           fontWeight: 500,
           borderRadius: 'var(--radius-pill)',
-          background: 'var(--theme-bg-card)',
+          background: 'var(--color-bg-surface-1)',
           color: 'var(--color-success)',
           boxShadow: '0 1px 3px rgb(0 0 0 / 0.1)',
           textAlign: 'center',
@@ -172,8 +172,8 @@ function CategoryItem({
         justifyContent: 'center',
         padding: 'var(--spacing-2)',
         borderRadius: 'var(--radius-sm)',
-        border: selected ? '2px solid var(--color-success)' : '1px solid var(--theme-border)',
-        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-card)',
+        border: selected ? '2px solid var(--color-success)' : '1px solid var(--color-border)',
+        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-surface-1)',
         cursor: 'pointer',
         gap: '8px',
         minHeight: '80px',
@@ -187,7 +187,7 @@ function CategoryItem({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: selected ? 'var(--color-success)' : 'var(--theme-text-muted)',
+          color: selected ? 'var(--color-success)' : 'var(--color-text-muted)',
         }}
       >
         {icon}
@@ -196,7 +196,7 @@ function CategoryItem({
         style={{
           fontSize: '0.75rem',
           fontWeight: 500,
-          color: selected ? 'var(--color-success)' : 'var(--theme-text-secondary)',
+          color: selected ? 'var(--color-success)' : 'var(--color-text-secondary)',
         }}
       >
         {label}
@@ -297,7 +297,7 @@ export default function AddIncomePage() {
       }}
     >
       <div style={{ width: '100%', maxWidth: '500px' }}>
-        <div className="card-standard">
+        <div className="ds-card">
           {/* ===== TRANSACTION TYPE TOGGLE ===== */}
           <div
             style={{
@@ -317,7 +317,7 @@ export default function AddIncomePage() {
               style={{
                 fontSize: '0.75rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-muted)',
+                color: 'var(--color-text-muted)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 marginBottom: 'var(--spacing-1)',
@@ -344,7 +344,7 @@ export default function AddIncomePage() {
                 style={{
                   fontSize: '3rem',
                   fontWeight: 300,
-                  color: amount ? 'var(--color-success)' : 'var(--theme-text-muted)',
+                  color: amount ? 'var(--color-success)' : 'var(--color-text-muted)',
                   letterSpacing: '-0.02em',
                   background: 'transparent',
                   border: 'none',
@@ -358,7 +358,7 @@ export default function AddIncomePage() {
                 style={{
                   fontSize: '1.25rem',
                   fontWeight: 500,
-                  color: amount ? 'var(--color-success)' : 'var(--theme-text-muted)',
+                  color: amount ? 'var(--color-success)' : 'var(--color-text-muted)',
                 }}
               >
                 {formattedAmount}
@@ -377,7 +377,7 @@ export default function AddIncomePage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
                 marginBottom: 'var(--spacing-1)',
               }}
             >
@@ -414,7 +414,7 @@ export default function AddIncomePage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
                 marginBottom: '6px',
               }}
             >
@@ -429,12 +429,12 @@ export default function AddIncomePage() {
                   width: '100%',
                   padding: '12px',
                   fontSize: '0.875rem',
-                  color: 'var(--theme-text-primary)',
-                  background: 'var(--theme-bg-input)',
+                  color: 'var(--color-text-primary)',
+                  background: 'var(--color-bg-input)',
                   border: errors.date
                     ? '1px solid var(--color-error)'
-                    : '1px solid var(--theme-border)',
-                  borderRadius: 'var(--radius-input)',
+                    : '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
                   outline: 'none',
                 }}
               />
@@ -452,7 +452,7 @@ export default function AddIncomePage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
                 marginBottom: '6px',
               }}
             >
@@ -467,10 +467,10 @@ export default function AddIncomePage() {
                 width: '100%',
                 padding: '12px',
                 fontSize: '0.875rem',
-                color: 'var(--theme-text-primary)',
-                background: 'var(--theme-bg-input)',
-                border: '1px solid var(--theme-border)',
-                borderRadius: 'var(--radius-input)',
+                color: 'var(--color-text-primary)',
+                background: 'var(--color-bg-input)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
                 outline: 'none',
                 resize: 'none',
               }}
@@ -484,7 +484,7 @@ export default function AddIncomePage() {
               alignItems: 'center',
               justifyContent: 'space-between',
               paddingTop: 'var(--spacing-2)',
-              borderTop: '1px solid var(--theme-divider)',
+              borderTop: '1px solid var(--color-divider)',
             }}
           >
             <button
@@ -493,7 +493,7 @@ export default function AddIncomePage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-secondary)',
+                color: 'var(--color-text-secondary)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -514,9 +514,9 @@ export default function AddIncomePage() {
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: '#FFFFFF',
-                background: isAuthReady ? 'var(--color-success)' : 'rgba(10, 25, 47, 0.3)',
+                background: isAuthReady ? 'var(--color-success)' : 'var(--color-text-muted)',
                 border: 'none',
-                borderRadius: 'var(--radius-input)',
+                borderRadius: 'var(--radius-md)',
                 padding: '12px 24px',
                 cursor: isAuthReady ? 'pointer' : 'not-allowed',
                 opacity: isAuthReady ? 1 : 0.6,

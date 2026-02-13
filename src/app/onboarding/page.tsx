@@ -230,7 +230,7 @@ export default function OnboardingPage() {
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[var(--radius-input)] bg-brand-emerald flex items-center justify-center">
+            <div className="w-8 h-8 rounded-[var(--radius-md)] bg-brand-emerald flex items-center justify-center">
               <svg className="w-5 h-5 text-[#FFFFFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
@@ -298,7 +298,7 @@ export default function OnboardingPage() {
                           onClick={() => setSelectedGoal(goal.id)}
                           className={`
                             flex items-center gap-3 p-4
-                            border rounded-[var(--radius-input)]
+                            border rounded-[var(--radius-md)]
                             transition-colors duration-150
                             text-left
                             ${isSelected
@@ -341,7 +341,7 @@ export default function OnboardingPage() {
                         text-sm
                         bg-[#FFFFFF]
                         border border-brand-navy/10
-                        rounded-[var(--radius-input)]
+                        rounded-[var(--radius-md)]
                         placeholder:text-brand-navy/40
                         focus:outline-none focus:border-brand-emerald focus:ring-2 focus:ring-brand-accent
                       "
@@ -361,7 +361,7 @@ export default function OnboardingPage() {
                         onClick={() => setSelectedSegment(segment.id)}
                         className={`
                           w-full flex items-center gap-4 p-4
-                          border rounded-[var(--radius-input)]
+                          border rounded-[var(--radius-md)]
                           transition-colors duration-150
                           text-left
                           ${isSelected
@@ -371,7 +371,7 @@ export default function OnboardingPage() {
                         `}
                       >
                         <div className={`
-                          w-10 h-10 rounded-[var(--radius-input)] flex items-center justify-center
+                          w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center
                           ${isSelected ? 'bg-brand-emerald text-[#FFFFFF]' : 'bg-brand-navy/5 text-brand-navy/60'}
                         `}>
                           {segment.icon}
@@ -406,7 +406,7 @@ export default function OnboardingPage() {
                         onClick={() => toggleTopic(topic.id)}
                         className={`
                           flex items-center justify-center gap-2 p-4
-                          border rounded-[var(--radius-input)]
+                          border rounded-[var(--radius-md)]
                           transition-colors duration-150
                           ${isSelected
                             ? 'border-brand-emerald bg-brand-accent/30'
@@ -439,7 +439,7 @@ export default function OnboardingPage() {
                         onClick={() => setSelectedIncome(range.id)}
                         className={`
                           flex items-center justify-center p-4
-                          border rounded-[var(--radius-input)]
+                          border rounded-[var(--radius-md)]
                           transition-colors duration-150
                           ${isSelected
                             ? 'border-brand-emerald bg-brand-accent/30'

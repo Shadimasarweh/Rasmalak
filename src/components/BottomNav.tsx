@@ -21,69 +21,42 @@ export default function BottomNav() {
   }
 
   const navItems = [
-    { 
-      id: 'dashboard', 
-      path: '/', 
-      labelAr: 'الرئيسية', 
-      labelEn: 'Dashboard',
-      icon: LayoutDashboard 
-    },
-    { 
-      id: 'budgets', 
-      path: '/transactions', 
-      labelAr: 'الميزانيات', 
-      labelEn: 'Budgets',
-      icon: Receipt 
-    },
-    { 
-      id: 'add', 
-      path: '/transactions/new', 
-      labelAr: 'إضافة', 
-      labelEn: 'Add',
-      icon: Plus, 
-      isAction: true 
-    },
-    { 
-      id: 'chat', 
-      path: '/chat', 
-      labelAr: 'مستشارك', 
-      labelEn: 'Mustasharak',
-      icon: MessageSquareText 
-    },
-    { 
-      id: 'tools', 
-      path: '/tools', 
-      labelAr: 'الأدوات', 
-      labelEn: 'Tools',
-      icon: Calculator 
-    },
+    { id: 'dashboard', path: '/', labelAr: 'الرئيسية', labelEn: 'Dashboard', icon: LayoutDashboard },
+    { id: 'budgets', path: '/transactions', labelAr: 'الميزانيات', labelEn: 'Budgets', icon: Receipt },
+    { id: 'add', path: '/transactions/new', labelAr: 'إضافة', labelEn: 'Add', icon: Plus, isAction: true },
+    { id: 'chat', path: '/chat', labelAr: 'مستشارك', labelEn: 'Mustasharak', icon: MessageSquareText },
+    { id: 'tools', path: '/tools', labelAr: 'الأدوات', labelEn: 'Tools', icon: Calculator },
   ];
 
   return (
-    <nav 
+    <nav
       className="fixed bottom-0 left-0 right-0 z-50 pb-safe lg:hidden"
-      style={{ backgroundColor: 'var(--theme-bg-sidebar)' }}
+      style={{ backgroundColor: 'var(--color-sidebar-bg)' }}
     >
-      <div className="flex items-center justify-around py-2 px-2 max-w-md mx-auto">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', paddingBlock: 'var(--spacing-2)', paddingInline: 'var(--spacing-2)', maxWidth: '28rem', margin: '0 auto' }}>
         {navItems.map((item) => {
-          const isActive = pathname === item.path ||
-            (item.path !== '/' && pathname.startsWith(item.path));
+          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
 
-          // Center "Add" action button with emerald color (matching sidebar accent)
-          if (item.isAction) {
+          // Center "Add" action button
+          if ((item as { isAction?: boolean }).isAction) {
             return (
-              <Link
-                key={item.id}
-                href={item.path}
-                className="flex items-center justify-center -mt-5"
-              >
-                <div 
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform duration-150"
-                  style={{ backgroundColor: '#10B981' }}
+              <Link key={item.id} href={item.path} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-1.25rem' }}>
+                <div
+                  className="active:scale-95 transition-transform duration-150"
+                  style={{
+                    width: '3.5rem',
+                    height: '3.5rem',
+                    borderRadius: 'var(--radius-xl)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'var(--color-accent-growth)',
+                    boxShadow: 'var(--shadow-lg)',
+                  }}
                 >
-                  <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
+                  <Icon style={{ width: '1.5rem', height: '1.5rem', color: '#FFFFFF', strokeWidth: 2.5 }} />
                 </div>
               </Link>
             );
@@ -93,21 +66,37 @@ export default function BottomNav() {
             <Link
               key={item.id}
               href={item.path}
-              className="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95"
+              className="active:scale-95 transition-all duration-200"
               style={{
-                color: isActive ? '#10B981' : 'rgba(255, 255, 255, 0.7)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingBlock: 'var(--spacing-1_5)',
+                paddingInline: 'var(--spacing-3)',
+                borderRadius: 'var(--radius-md)',
+                color: isActive ? 'var(--color-accent-growth)' : 'var(--color-sidebar-text-dim)',
+                textDecoration: 'none',
               }}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+                <Icon style={{ width: '1.25rem', height: '1.25rem', strokeWidth: isActive ? 2.5 : 1.5 }} />
                 {isActive && (
-                  <div 
-                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                    style={{ backgroundColor: '#10B981' }}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-0.25rem',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '0.25rem',
+                      height: '0.25rem',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'var(--color-accent-growth)',
+                    }}
                   />
                 )}
               </div>
-              <span className={`text-[10px] mt-1.5 ${isActive ? 'font-semibold' : 'font-medium'}`}>
+              <span style={{ fontSize: '0.625rem', marginTop: 'var(--spacing-1_5)', fontWeight: isActive ? 600 : 500 }}>
                 {label}
               </span>
             </Link>

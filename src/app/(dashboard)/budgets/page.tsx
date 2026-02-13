@@ -62,8 +62,8 @@ function CategoryBudgetRow({
         gap: '8px',
         padding: '12px',
         borderRadius: 'var(--radius-sm)',
-        backgroundColor: 'var(--theme-bg-input)',
-        border: '1px solid var(--theme-border)',
+        backgroundColor: 'var(--color-bg-input)',
+        border: '1px solid var(--color-border)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -83,14 +83,14 @@ function CategoryBudgetRow({
             flex: 1,
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: 'var(--theme-text-primary)',
+            color: 'var(--color-text-primary)',
           }}
         >
           {name}
         </span>
         {/* Budget input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '130px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', flexShrink: 0 }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
           <input
@@ -103,10 +103,10 @@ function CategoryBudgetRow({
               padding: '6px 8px',
               fontSize: '0.875rem',
               fontWeight: 600,
-              border: '1px solid var(--theme-border-input)',
-              borderRadius: 'var(--radius-input)',
-              backgroundColor: 'var(--theme-bg-card)',
-              color: 'var(--theme-text-primary)',
+              border: '1px solid var(--color-border-input)',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'var(--color-bg-surface-1)',
+              color: 'var(--color-text-primary)',
               outline: 'none',
               direction: 'ltr',
               textAlign: isRTL ? 'right' : 'left',
@@ -122,7 +122,7 @@ function CategoryBudgetRow({
             style={{
               height: '6px',
               borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--theme-border)',
+              backgroundColor: 'var(--color-border)',
               overflow: 'hidden',
             }}
           >
@@ -131,7 +131,7 @@ function CategoryBudgetRow({
                 height: '100%',
                 width: `${percentage}%`,
                 borderRadius: 'var(--radius-pill)',
-                backgroundColor: isOver ? '#EF4444' : color,
+                backgroundColor: isOver ? 'var(--color-danger-text)' : color,
                 transition: 'width 0.3s ease',
               }}
             />
@@ -142,7 +142,7 @@ function CategoryBudgetRow({
               justifyContent: 'space-between',
               marginTop: '4px',
               fontSize: '0.6875rem',
-              color: isOver ? '#EF4444' : 'var(--theme-text-muted)',
+              color: isOver ? 'var(--color-danger-text)' : 'var(--color-text-muted)',
             }}
           >
             <span>{currencySymbol} {spent.toLocaleString()}</span>
@@ -256,7 +256,7 @@ export default function BudgetsPage() {
           gap: '6px',
           fontSize: '0.875rem',
           fontWeight: 500,
-          color: 'var(--color-brand-emerald)',
+          color: 'var(--color-accent-growth)',
           textDecoration: 'none',
           marginBottom: 'var(--spacing-2)',
         }}
@@ -274,7 +274,7 @@ export default function BudgetsPage() {
           style={{
             fontSize: '1.75rem',
             fontWeight: 700,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
             lineHeight: 1.2,
           }}
         >
@@ -283,7 +283,7 @@ export default function BudgetsPage() {
         <p
           style={{
             fontSize: '0.9375rem',
-            color: 'var(--theme-text-secondary)',
+            color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
             marginTop: '4px',
           }}
@@ -296,7 +296,7 @@ export default function BudgetsPage() {
 
       {/* Monthly budget card */}
       <div
-        className="card-standard"
+        className="ds-card"
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -308,18 +308,18 @@ export default function BudgetsPage() {
           style={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
           }}
         >
           {isRTL ? 'الميزانية الشهرية' : 'Monthly Budget'}
         </h2>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginTop: '-8px' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '-8px' }}>
           {isRTL
             ? 'حد الإنفاق الشهري الإجمالي (بغض النظر عن الفئات)'
             : 'Total monthly spending limit (regardless of categories)'}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--theme-text-muted)', flexShrink: 0 }}>
+          <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
           <input
@@ -332,10 +332,10 @@ export default function BudgetsPage() {
               padding: '12px 14px',
               fontSize: '1.25rem',
               fontWeight: 700,
-              border: '1px solid var(--theme-border-input)',
-              borderRadius: 'var(--radius-input)',
-              backgroundColor: 'var(--theme-bg-input)',
-              color: 'var(--theme-text-primary)',
+              border: '1px solid var(--color-border-input)',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: 'var(--color-bg-input)',
+              color: 'var(--color-text-primary)',
               outline: 'none',
               direction: 'ltr',
               textAlign: isRTL ? 'right' : 'left',
@@ -346,7 +346,7 @@ export default function BudgetsPage() {
 
       {/* Summary card */}
       <div
-        className="card-standard"
+        className="ds-card"
         style={{
           display: 'flex',
           justifyContent: 'space-around',
@@ -357,38 +357,38 @@ export default function BudgetsPage() {
         }}
       >
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', marginBottom: '2px' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
             {isRTL ? 'إجمالي الميزانية' : 'Total Budget'}
           </p>
-          <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-brand-navy)' }}>
+          <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
             {currencySymbol} {displayBudget.toLocaleString()}
           </p>
         </div>
-        <div style={{ width: '1px', backgroundColor: 'var(--theme-border)', alignSelf: 'stretch' }} />
+        <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', marginBottom: '2px' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
             {t('spent', 'Spent')}
           </p>
           <p
             style={{
               fontSize: '1.25rem',
               fontWeight: 700,
-              color: totalSpent > displayBudget && displayBudget > 0 ? '#EF4444' : 'var(--color-brand-navy)',
+              color: totalSpent > displayBudget && displayBudget > 0 ? 'var(--color-danger-text)' : 'var(--color-text-primary)',
             }}
           >
             {currencySymbol} {totalSpent.toLocaleString()}
           </p>
         </div>
-        <div style={{ width: '1px', backgroundColor: 'var(--theme-border)', alignSelf: 'stretch' }} />
+        <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', marginBottom: '2px' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
             {t('left', 'Left')}
           </p>
           <p
             style={{
               fontSize: '1.25rem',
               fontWeight: 700,
-              color: displayBudget - totalSpent >= 0 ? '#10B981' : '#EF4444',
+              color: displayBudget - totalSpent >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)',
             }}
           >
             {currencySymbol} {Math.abs(displayBudget - totalSpent).toLocaleString()}
@@ -398,7 +398,7 @@ export default function BudgetsPage() {
 
       {/* Category budgets */}
       <div
-        className="card-standard"
+        className="ds-card"
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -410,7 +410,7 @@ export default function BudgetsPage() {
           style={{
             fontSize: '1rem',
             fontWeight: 600,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
             marginBottom: '8px',
           }}
         >
@@ -442,7 +442,7 @@ export default function BudgetsPage() {
           justifyContent: 'center',
           gap: '8px',
           padding: '14px 28px',
-          background: isSaved ? '#6366F1' : 'var(--color-brand-emerald)',
+          background: isSaved ? '#6366F1' : 'var(--color-accent-growth)',
           color: '#FFFFFF',
           fontSize: '0.9375rem',
           fontWeight: 600,

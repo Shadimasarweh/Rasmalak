@@ -69,7 +69,7 @@ function DeleteConfirmModal({
       onClick={onCancel}
     >
       <div
-        className="card-standard"
+        className="ds-card"
         style={{
           maxWidth: '400px',
           margin: '0 16px',
@@ -80,7 +80,7 @@ function DeleteConfirmModal({
           style={{
             fontSize: '1.125rem',
             fontWeight: 600,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
             marginBottom: 'var(--spacing-1)',
           }}
         >
@@ -89,7 +89,7 @@ function DeleteConfirmModal({
         <p
           style={{
             fontSize: '0.875rem',
-            color: 'rgba(10, 25, 47, 0.6)',
+            color: 'var(--color-text-secondary)',
             marginBottom: 'var(--spacing-2)',
           }}
         >
@@ -106,9 +106,9 @@ function DeleteConfirmModal({
               padding: '10px 20px',
               fontSize: '0.875rem',
               fontWeight: 500,
-              color: 'rgba(10, 25, 47, 0.6)',
+              color: 'var(--color-text-secondary)',
               background: 'transparent',
-              border: '1px solid rgba(10, 25, 47, 0.15)',
+              border: '1px solid var(--color-border-input)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
             }}
@@ -153,7 +153,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
     >
       <div
         style={{
-          color: 'rgba(10, 25, 47, 0.2)',
+          color: 'var(--color-border-subtle)',
           marginBottom: 'var(--spacing-2)',
         }}
       >
@@ -163,7 +163,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
         style={{
           fontSize: '1.125rem',
           fontWeight: 600,
-          color: 'var(--color-brand-navy)',
+          color: 'var(--color-text-primary)',
           marginBottom: '8px',
         }}
       >
@@ -172,7 +172,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
       <p
         style={{
           fontSize: '0.875rem',
-          color: 'rgba(10, 25, 47, 0.5)',
+          color: 'var(--color-text-muted)',
           marginBottom: 'var(--spacing-2)',
           maxWidth: '300px',
         }}
@@ -181,7 +181,7 @@ function EmptyState({ intl }: { intl: ReturnType<typeof useIntl> }) {
       </p>
       <Link
         href="/transactions/new"
-        className="btn btn-primary"
+        className="ds-btn ds-btn-primary"
         style={{ display: 'inline-flex', alignItems: 'center' }}
       >
         <PlusIcon />
@@ -213,21 +213,21 @@ function TransactionRow({
   );
 
   return (
-    <tr className="table-row">
-      <td className="table-cell small-text">{formattedDate}</td>
-      <td className="table-cell">
+    <tr className="ds-table-row">
+      <td className="ds-table-cell ds-body">{formattedDate}</td>
+      <td className="ds-table-cell">
         <span
           style={{
             fontSize: '0.875rem',
             fontWeight: 500,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
           }}
         >
           {transaction.category || '—'}
         </span>
       </td>
-      <td className="table-cell small-text">{transaction.description || '—'}</td>
-      <td className="table-cell">
+      <td className="ds-table-cell ds-body">{transaction.description || '—'}</td>
+      <td className="ds-table-cell">
         <span
           style={{
             display: 'inline-block',
@@ -235,7 +235,7 @@ function TransactionRow({
             fontSize: '0.6875rem',
             fontWeight: 600,
             borderRadius: 'var(--radius-pill)',
-            background: isIncome ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+            background: isIncome ? 'var(--color-accent-growth-subtle)' : 'var(--color-danger-bg)',
             color: isIncome ? 'var(--color-success)' : 'var(--color-error)',
             textTransform: 'capitalize',
           }}
@@ -244,7 +244,7 @@ function TransactionRow({
         </span>
       </td>
       <td
-        className="table-cell"
+        className="ds-table-cell"
         style={{
           textAlign: 'right',
           fontWeight: 600,
@@ -259,7 +259,7 @@ function TransactionRow({
           }
         )}
       </td>
-      <td className="table-cell" style={{ textAlign: 'right' }}>
+      <td className="ds-table-cell" style={{ textAlign: 'right' }}>
         <button
           type="button"
           onClick={onDelete}
@@ -268,7 +268,7 @@ function TransactionRow({
             background: 'transparent',
             border: 'none',
             borderRadius: 'var(--radius-sm)',
-            color: 'rgba(10, 25, 47, 0.4)',
+            color: 'var(--color-text-muted)',
             cursor: 'pointer',
           }}
           title={intl.formatMessage({ id: 'transactions.delete_transaction', defaultMessage: 'Delete transaction' })}
@@ -312,19 +312,19 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="page-container">
+    <div className="ds-page">
       {/* ===== PAGE HEADER ===== */}
-      <div className="section-header">
+      <div className="ds-section-header">
         <div>
-          <h1 className="heading-2">
+          <h1 className="ds-title-page">
             {intl.formatMessage({ id: 'budgets.title', defaultMessage: 'Budgets' })}
           </h1>
-          <p className="small-text">
+          <p className="ds-body">
             {intl.formatMessage({ id: 'budgets.subtitle', defaultMessage: 'Manage and track your budget allocations.' })}
           </p>
         </div>
         <div className="flex items-center" style={{ gap: 'var(--spacing-1)' }}>
-          <Link href="/transactions/new" className="btn btn-primary">
+          <Link href="/transactions/new" className="ds-btn ds-btn-primary">
             <PlusIcon />
             {intl.formatMessage({ id: 'budgets.edit_budget', defaultMessage: 'Edit Budget' })}
           </Link>
@@ -339,37 +339,37 @@ export default function TransactionsPage() {
           {/* Per Contract Section 7: Totals computed from visible transactions only */}
           <div className="responsive-grid-3">
             {/* Total Income */}
-            <div className="card card-standard">
+            <div className="ds-card">
               <div>
-                <p className="card-title">
+                <p className="ds-title-card">
                   {intl.formatMessage({ id: 'transactions.total_income', defaultMessage: 'Total Income' })}
                 </p>
-                <p className="card-value" style={{ color: 'var(--color-success)' }}>
+                <p className="ds-metric-sm" style={{ color: 'var(--color-success)' }}>
                   {intl.formatNumber(totalIncome, { style: 'currency', currency })}
                 </p>
               </div>
             </div>
 
             {/* Total Expenses */}
-            <div className="card card-standard">
+            <div className="ds-card">
               <div>
-                <p className="card-title">
+                <p className="ds-title-card">
                   {intl.formatMessage({ id: 'transactions.total_expenses', defaultMessage: 'Total Expenses' })}
                 </p>
-                <p className="card-value" style={{ color: 'var(--color-error)' }}>
+                <p className="ds-metric-sm" style={{ color: 'var(--color-error)' }}>
                   {intl.formatNumber(totalExpenses, { style: 'currency', currency })}
                 </p>
               </div>
             </div>
 
             {/* Net Balance */}
-            <div className="card card-standard">
+            <div className="ds-card">
               <div>
-                <p className="card-title">
+                <p className="ds-title-card">
                   {intl.formatMessage({ id: 'transactions.net_balance', defaultMessage: 'Net Balance' })}
                 </p>
                 <p
-                  className="card-value"
+                  className="ds-metric-sm"
                   style={{ color: netBalance >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}
                 >
                   {intl.formatNumber(netBalance, { style: 'currency', currency })}
@@ -379,12 +379,12 @@ export default function TransactionsPage() {
           </div>
 
           {/* ===== TRANSACTIONS TABLE ===== */}
-          <div className="card card-standard">
-            <div className="section-header">
-              <h2 className="section-title">
+          <div className="ds-card">
+            <div className="ds-section-header">
+              <h2 className="ds-title-section">
                 {intl.formatMessage({ id: 'transactions.all_transactions', defaultMessage: 'All Transactions' })}
               </h2>
-              <span className="card-meta">
+              <span className="ds-supporting">
                 {intl.formatMessage({ id: 'transactions.transaction_count', defaultMessage: '{count} transaction(s)' }, { count: transactions.length })}
               </span>
             </div>
@@ -392,23 +392,23 @@ export default function TransactionsPage() {
             <div className="overflow-x-auto">
             <table style={{ width: '100%', minWidth: '600px' }}>
               <thead>
-                <tr className="table-header">
-                  <th className="table-cell label-text" style={{ textAlign: 'left' }}>
+                <tr className="ds-table-header">
+                  <th className="ds-table-cell ds-label" style={{ textAlign: 'left' }}>
                     {intl.formatMessage({ id: 'transactions.date', defaultMessage: 'Date' })}
                   </th>
-                  <th className="table-cell label-text" style={{ textAlign: 'left' }}>
+                  <th className="ds-table-cell ds-label" style={{ textAlign: 'left' }}>
                     {intl.formatMessage({ id: 'transactions.category', defaultMessage: 'Category' })}
                   </th>
-                  <th className="table-cell label-text" style={{ textAlign: 'left' }}>
+                  <th className="ds-table-cell ds-label" style={{ textAlign: 'left' }}>
                     {intl.formatMessage({ id: 'transactions.description', defaultMessage: 'Description' })}
                   </th>
-                  <th className="table-cell label-text" style={{ textAlign: 'left' }}>
+                  <th className="ds-table-cell ds-label" style={{ textAlign: 'left' }}>
                     {intl.formatMessage({ id: 'transactions.type', defaultMessage: 'Type' })}
                   </th>
-                  <th className="table-cell label-text" style={{ textAlign: 'right' }}>
+                  <th className="ds-table-cell ds-label" style={{ textAlign: 'right' }}>
                     {intl.formatMessage({ id: 'transactions.amount', defaultMessage: 'Amount' })}
                   </th>
-                  <th className="table-cell label-text" style={{ textAlign: 'right', width: '60px' }}>
+                  <th className="ds-table-cell ds-label" style={{ textAlign: 'right', width: '60px' }}>
                     
                   </th>
                 </tr>
@@ -429,7 +429,7 @@ export default function TransactionsPage() {
         </>
       ) : (
         /* Empty State per Contract Section 5 */
-        <div className="card card-standard">
+        <div className="ds-card">
           <EmptyState intl={intl} />
         </div>
       )}

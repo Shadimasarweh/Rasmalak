@@ -134,10 +134,10 @@ export default function SimpleLoanCalculatorPage() {
     width: '100%',
     padding: '10px 14px',
     fontSize: '0.9375rem',
-    border: `1.5px solid ${hasError ? 'var(--color-error)' : 'var(--theme-border-input)'}`,
-    borderRadius: 'var(--radius-input)',
-    backgroundColor: 'var(--theme-bg-input)',
-    color: 'var(--theme-text-primary)',
+    border: `1.5px solid ${hasError ? 'var(--color-error)' : 'var(--color-border-input)'}`,
+    borderRadius: 'var(--radius-md)',
+    backgroundColor: 'var(--color-bg-input)',
+    color: 'var(--color-text-primary)',
     outline: 'none',
     direction: 'ltr',
     textAlign: isRTL ? 'right' : 'left',
@@ -146,7 +146,7 @@ export default function SimpleLoanCalculatorPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', padding: 'var(--spacing-3)', direction: isRTL ? 'rtl' : 'ltr' }}>
       {/* Back Link */}
-      <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-brand-emerald)', textDecoration: 'none', marginBottom: 'var(--spacing-2)' }} className="hover:underline">
+      <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-accent-growth)', textDecoration: 'none', marginBottom: 'var(--spacing-2)' }} className="hover:underline">
         <span style={{ transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex' }}><ArrowLeftIcon /></span>
         {t('simple_loan_back_to_tools', 'Back to Tools')}
       </Link>
@@ -158,10 +158,10 @@ export default function SimpleLoanCalculatorPage() {
             <CreditIcon />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-brand-navy)', lineHeight: 1.2 }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
               {t('simple_loan_title', 'Simple Loan Calculator')}
             </h1>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--theme-text-secondary)', lineHeight: 1.6, marginTop: '4px' }}>
+            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, marginTop: '4px' }}>
               {t('simple_loan_subtitle', 'Calculate your monthly payment and view the full amortization schedule for any fixed-rate loan.')}
             </p>
           </div>
@@ -172,17 +172,17 @@ export default function SimpleLoanCalculatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Input Form */}
         <div className="col-span-1 lg:col-span-5">
-          <div className="card-standard" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+          <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ color: 'var(--color-brand-emerald)' }}><CalculatorIcon /></span>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+              <span style={{ color: 'var(--color-accent-growth)' }}><CalculatorIcon /></span>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
                 {t('simple_loan_enter_values', 'Enter Loan Details')}
               </h2>
             </div>
 
             {/* Loan Amount */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-secondary)', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                 {t('simple_loan_loan_amount', 'Loan Amount')} ({currencySymbol})
               </label>
               <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)}
@@ -193,7 +193,7 @@ export default function SimpleLoanCalculatorPage() {
 
             {/* Interest Rate */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-secondary)', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                 {t('simple_loan_interest_rate', 'Annual Interest Rate (%)')}
               </label>
               <input type="number" step="0.01" value={interestRate} onChange={e => setInterestRate(e.target.value)}
@@ -204,7 +204,7 @@ export default function SimpleLoanCalculatorPage() {
 
             {/* Loan Period */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-secondary)', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                 {t('simple_loan_loan_period', 'Loan Period (Years)')}
               </label>
               <input type="number" value={loanPeriod} onChange={e => setLoanPeriod(e.target.value)}
@@ -215,23 +215,23 @@ export default function SimpleLoanCalculatorPage() {
 
             {/* Start Date */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-secondary)', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                 {t('simple_loan_start_date', 'Start Date of Loan')}
               </label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', fontSize: '0.9375rem', border: `1.5px solid ${errors.startDate ? 'var(--color-error)' : 'var(--theme-border-input)'}`, borderRadius: 'var(--radius-input)', backgroundColor: 'var(--theme-bg-input)', color: 'var(--theme-text-primary)', outline: 'none' }} />
+                style={{ width: '100%', padding: '10px 14px', fontSize: '0.9375rem', border: `1.5px solid ${errors.startDate ? 'var(--color-error)' : 'var(--color-border-input)'}`, borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-bg-input)', color: 'var(--color-text-primary)', outline: 'none' }} />
               {errors.startDate && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.startDate}</p>}
             </div>
 
             {/* Buttons */}
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
               <button type="button" onClick={handleCalculate}
-                style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 24px', background: 'var(--color-brand-emerald)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 24px', background: 'var(--color-accent-growth)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
                 className="hover:opacity-90 transition-opacity">
                 <CalculatorIcon /> {t('simple_loan_calculate', 'Calculate')}
               </button>
               <button type="button" onClick={handleReset}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 20px', background: 'transparent', color: 'var(--theme-text-secondary)', fontSize: '0.875rem', fontWeight: 500, border: '1.5px solid var(--theme-border-input)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 20px', background: 'transparent', color: 'var(--color-text-secondary)', fontSize: '0.875rem', fontWeight: 500, border: '1.5px solid var(--color-border-input)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
                 className="hover:opacity-80 transition-opacity">
                 {t('simple_loan_reset', 'Reset')}
               </button>
@@ -243,9 +243,9 @@ export default function SimpleLoanCalculatorPage() {
         <div className="col-span-1 lg:col-span-7">
           {result ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-              <div className="card-standard" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-brand-navy)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: 'var(--color-brand-emerald)' }}><CheckCircleIcon /></span>
+              <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--color-accent-growth)' }}><CheckCircleIcon /></span>
                   {t('simple_loan_summary', 'Loan Summary')}
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -257,21 +257,21 @@ export default function SimpleLoanCalculatorPage() {
               </div>
 
               <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', background: isGeneratingPDF ? 'var(--theme-text-muted)' : 'var(--color-brand-emerald)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', background: isGeneratingPDF ? 'var(--color-text-muted)' : 'var(--color-accent-growth)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%' }}
                 className="hover:opacity-90 transition-opacity">
                 <DownloadIcon />
                 {isGeneratingPDF ? t('simple_loan_generating', 'Generating...') : t('simple_loan_download_report', 'Download PDF Report')}
               </button>
             </div>
           ) : (
-            <div className="card-standard" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-card)', background: 'rgba(239, 68, 68, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)' }}>
+            <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-xl)', background: 'rgba(239, 68, 68, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)' }}>
                 <CreditIcon />
               </div>
-              <p style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--theme-text-secondary)', textAlign: 'center' }}>
+              <p style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--color-text-secondary)', textAlign: 'center' }}>
                 {t('simple_loan_enter_values', 'Enter Loan Details')}
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
                 {t('simple_loan_subtitle', 'Calculate your monthly payment and view the full amortization schedule for any fixed-rate loan.')}
               </p>
             </div>
@@ -284,9 +284,9 @@ export default function SimpleLoanCalculatorPage() {
 
 function SummaryItem({ label, value, highlight, accent }: { label: string; value: string; highlight?: boolean; accent?: boolean }) {
   return (
-    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(16, 185, 129, 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--theme-bg-input)', border: highlight ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--theme-border)' }}>
-      <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--theme-text-muted)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>
-      <p style={{ fontSize: highlight ? '1.25rem' : '1rem', fontWeight: 600, color: highlight ? 'var(--color-brand-emerald)' : accent ? '#6366F1' : 'var(--color-brand-navy)', lineHeight: 1.3 }}>{value}</p>
+    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(16, 185, 129, 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--color-border)' }}>
+      <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>
+      <p style={{ fontSize: highlight ? '1.25rem' : '1rem', fontWeight: 600, color: highlight ? 'var(--color-accent-growth)' : accent ? '#6366F1' : 'var(--color-text-primary)', lineHeight: 1.3 }}>{value}</p>
     </div>
   );
 }

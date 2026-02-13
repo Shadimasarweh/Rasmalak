@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={isLoading || !email}
-                className={`w-full btn btn-primary py-4 text-base ${isLoading || !email ? 'opacity-70' : ''}`}
+                className={`w-full ds-btn ds-btn-primary py-4 text-base ${isLoading || !email ? 'opacity-70' : ''}`}
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">

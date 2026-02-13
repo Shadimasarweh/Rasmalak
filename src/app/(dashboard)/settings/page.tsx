@@ -198,7 +198,7 @@ function ToggleSwitch({ enabled, onToggle }: { enabled: boolean; onToggle?: () =
         width: '44px',
         height: '24px',
         borderRadius: '12px',
-        background: enabled ? 'var(--color-brand-emerald)' : 'rgba(10, 25, 47, 0.15)',
+        background: enabled ? 'var(--color-accent-growth)' : 'var(--color-border)',
         position: 'relative',
         cursor: 'pointer',
         transition: 'background 0.2s',
@@ -242,10 +242,10 @@ function NavTab({
         gap: '12px',
         padding: '12px 16px',
         borderRadius: 'var(--radius-sm)',
-        background: active ? 'var(--theme-bg-card)' : 'transparent',
-        border: active ? '1px solid var(--theme-border)' : '1px solid transparent',
+        background: active ? 'var(--color-bg-surface-1)' : 'transparent',
+        border: active ? '1px solid var(--color-border)' : '1px solid transparent',
         cursor: 'pointer',
-        color: active ? 'var(--color-brand-emerald)' : 'var(--theme-text-secondary)',
+        color: active ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)',
         transition: 'all 0.15s ease',
       }}
     >
@@ -254,7 +254,7 @@ function NavTab({
         style={{
           fontSize: '0.875rem',
           fontWeight: active ? 600 : 500,
-          color: active ? 'var(--theme-text-primary)' : 'var(--theme-text-secondary)',
+          color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
         }}
       >
         {label}
@@ -297,7 +297,7 @@ function InputField({
           display: 'block',
           fontSize: '0.8125rem',
           fontWeight: 500,
-          color: 'var(--theme-text-primary)',
+          color: 'var(--color-text-primary)',
           marginBottom: '6px',
         }}
       >
@@ -309,13 +309,13 @@ function InputField({
           alignItems: 'center',
           gap: '10px',
           padding: '12px 14px',
-          background: readOnly ? 'var(--theme-bg-tertiary)' : 'var(--theme-bg-input)',
+          background: readOnly ? 'var(--theme-bg-tertiary)' : 'var(--color-bg-input)',
           borderRadius: 'var(--radius-sm)',
-          border: error ? '1px solid var(--color-error)' : '1px solid var(--theme-border)',
+          border: error ? '1px solid var(--color-error)' : '1px solid var(--color-border)',
           opacity: disabled ? 0.6 : 1,
         }}
       >
-        {icon && <span style={{ color: 'var(--theme-text-muted)' }}>{icon}</span>}
+        {icon && <span style={{ color: 'var(--color-text-muted)' }}>{icon}</span>}
         <input
           type={type}
           name={name}
@@ -332,13 +332,13 @@ function InputField({
             border: 'none',
             outline: 'none',
             fontSize: '0.875rem',
-            color: 'var(--theme-text-primary)',
+            color: 'var(--color-text-primary)',
             cursor: disabled || readOnly ? 'not-allowed' : 'text',
           }}
         />
       </div>
       {hint && !error && (
-        <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', marginTop: '4px' }}>
+        <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
           {hint}
         </p>
       )}
@@ -373,8 +373,8 @@ function LanguageOption({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '14px 16px',
-        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-input)',
-        border: selected ? '2px solid var(--color-brand-emerald)' : '1px solid var(--theme-border)',
+        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+        border: selected ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
         transition: 'all 0.15s ease',
@@ -385,12 +385,12 @@ function LanguageOption({
           style={{
             fontSize: '0.9375rem',
             fontWeight: 600,
-            color: 'var(--theme-text-primary)',
+            color: 'var(--color-text-primary)',
           }}
         >
           {name}
         </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>{secondaryLabel}</p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{secondaryLabel}</p>
       </div>
       {selected && (
         <div
@@ -398,7 +398,7 @@ function LanguageOption({
             width: '24px',
             height: '24px',
             borderRadius: '50%',
-            background: 'var(--color-brand-emerald)',
+            background: 'var(--color-accent-growth)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -437,7 +437,7 @@ function SettingRow({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 'var(--spacing-2)',
-        borderBottom: isLast ? 'none' : '1px solid var(--theme-divider)',
+        borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -460,13 +460,13 @@ function SettingRow({
             style={{
               fontSize: '0.875rem',
               fontWeight: 500,
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {label}
           </p>
           {description && (
-            <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>{description}</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{description}</p>
           )}
         </div>
       </div>
@@ -541,13 +541,13 @@ function ProfileContent({
   return (
     <>
       {/* Profile Information Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
           <h3
             style={{
               fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {intl.formatMessage({ id: 'settings.profile_information', defaultMessage: 'Profile Information' })}
@@ -561,7 +561,7 @@ function ProfileContent({
                 alignItems: 'center',
                 gap: '6px',
                 padding: '8px 16px',
-                background: 'var(--color-brand-emerald)',
+                background: 'var(--color-accent-growth)',
                 color: '#FFFFFF',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
@@ -587,7 +587,7 @@ function ProfileContent({
               marginBottom: 'var(--spacing-2)',
               borderRadius: 'var(--radius-sm)',
               background: saveMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              color: saveMessage.type === 'success' ? 'var(--color-brand-emerald)' : 'var(--color-error)',
+              color: saveMessage.type === 'success' ? 'var(--color-accent-growth)' : 'var(--color-error)',
               fontSize: '0.8125rem',
               fontWeight: 500,
             }}
@@ -649,7 +649,7 @@ function ProfileContent({
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  background: 'var(--color-brand-emerald)',
+                  background: 'var(--color-accent-growth)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -661,10 +661,10 @@ function ProfileContent({
                 <CameraIcon />
               </div>
             </div>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'settings.allowed_formats', defaultMessage: 'Allowed *.jpeg, *.jpg, *.png, *.gif' })}
             </p>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'settings.max_size', defaultMessage: 'Max size of 3.1 MB' })}
             </p>
           </div>
@@ -822,8 +822,8 @@ function TwoFactorSetupModal({
     >
       <div
         style={{
-          background: 'var(--theme-bg-card)',
-          borderRadius: 'var(--radius-card)',
+          background: 'var(--color-bg-surface-1)',
+          borderRadius: 'var(--radius-xl)',
           width: '100%',
           maxWidth: '480px',
           maxHeight: '90vh',
@@ -834,10 +834,10 @@ function TwoFactorSetupModal({
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {intl.formatMessage({ id: 'settings.two_factor_setup_title', defaultMessage: 'Set Up Two-Factor Authentication' })}
           </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--theme-text-muted)' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
             <XIcon />
           </button>
         </div>
@@ -851,7 +851,7 @@ function TwoFactorSetupModal({
                 flex: 1,
                 height: '4px',
                 borderRadius: '2px',
-                background: s <= step ? 'var(--color-brand-emerald)' : 'var(--theme-border)',
+                background: s <= step ? 'var(--color-accent-growth)' : 'var(--color-border)',
               }}
             />
           ))}
@@ -873,19 +873,19 @@ function TwoFactorSetupModal({
         {/* Step 1: QR Code */}
         {step === 1 && (
           <div style={{ textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--theme-text-primary)', marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step1_title', defaultMessage: 'Step 1: Scan QR Code' })}
             </h4>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step1_desc', defaultMessage: 'Scan this QR code with your authenticator app' })}
             </p>
             
             {isLoading ? (
-              <div style={{ padding: '40px', color: 'var(--theme-text-muted)' }}>Loading...</div>
+              <div style={{ padding: '40px', color: 'var(--color-text-muted)' }}>Loading...</div>
             ) : qrCodeUrl ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                 <img src={qrCodeUrl} alt="QR Code" style={{ width: '200px', height: '200px', borderRadius: '8px' }} />
-                <div style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', wordBreak: 'break-all', maxWidth: '300px' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', wordBreak: 'break-all', maxWidth: '300px' }}>
                   Manual entry: <code style={{ background: 'var(--theme-bg-tertiary)', padding: '2px 6px', borderRadius: '4px' }}>{secret}</code>
                 </div>
               </div>
@@ -901,7 +901,7 @@ function TwoFactorSetupModal({
               style={{
                 marginTop: 'var(--spacing-2)',
                 padding: '12px 24px',
-                background: 'var(--color-brand-emerald)',
+                background: 'var(--color-accent-growth)',
                 color: '#FFFFFF',
                 fontSize: '0.875rem',
                 fontWeight: 600,
@@ -919,10 +919,10 @@ function TwoFactorSetupModal({
         {/* Step 2: Verification */}
         {step === 2 && (
           <div style={{ textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--theme-text-primary)', marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step2_title', defaultMessage: 'Step 2: Enter Verification Code' })}
             </h4>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step2_desc', defaultMessage: 'Enter the 6-digit code from your authenticator app' })}
             </p>
 
@@ -939,10 +939,10 @@ function TwoFactorSetupModal({
                 fontFamily: 'monospace',
                 textAlign: 'center',
                 letterSpacing: '0.5em',
-                background: 'var(--theme-bg-input)',
-                border: '2px solid var(--theme-border)',
+                background: 'var(--color-bg-input)',
+                border: '2px solid var(--color-border)',
                 borderRadius: 'var(--radius-sm)',
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
               }}
             />
 
@@ -952,10 +952,10 @@ function TwoFactorSetupModal({
                 style={{
                   padding: '12px 24px',
                   background: 'transparent',
-                  color: 'var(--theme-text-primary)',
+                  color: 'var(--color-text-primary)',
                   fontSize: '0.875rem',
                   fontWeight: 500,
-                  border: '1px solid var(--theme-border)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: 'var(--radius-sm)',
                   cursor: 'pointer',
                 }}
@@ -967,7 +967,7 @@ function TwoFactorSetupModal({
                 disabled={verificationCode.length !== 6 || isLoading}
                 style={{
                   padding: '12px 24px',
-                  background: 'var(--color-brand-emerald)',
+                  background: 'var(--color-accent-growth)',
                   color: '#FFFFFF',
                   fontSize: '0.875rem',
                   fontWeight: 600,
@@ -986,10 +986,10 @@ function TwoFactorSetupModal({
         {/* Step 3: Recovery Codes */}
         {step === 3 && (
           <div style={{ textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--theme-text-primary)', marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step3_title', defaultMessage: 'Step 3: Save Recovery Codes' })}
             </h4>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step3_desc', defaultMessage: 'Save these recovery codes in a safe place' })}
             </p>
 
@@ -1003,7 +1003,7 @@ function TwoFactorSetupModal({
               marginBottom: 'var(--spacing-2)',
             }}>
               {recoveryCodes.map((code, i) => (
-                <code key={i} style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: 'var(--theme-text-primary)' }}>
+                <code key={i} style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>
                   {code}
                 </code>
               ))}
@@ -1018,9 +1018,9 @@ function TwoFactorSetupModal({
                 type="checkbox"
                 checked={codesSaved}
                 onChange={(e) => setCodesSaved(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: 'var(--color-brand-emerald)' }}
+                style={{ width: '18px', height: '18px', accentColor: 'var(--color-accent-growth)' }}
               />
-              <span style={{ fontSize: '0.875rem', color: 'var(--theme-text-primary)' }}>
+              <span style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>
                 {intl.formatMessage({ id: 'settings.two_factor_codes_saved', defaultMessage: 'I have saved my recovery codes' })}
               </span>
             </label>
@@ -1030,7 +1030,7 @@ function TwoFactorSetupModal({
               disabled={!codesSaved}
               style={{
                 padding: '12px 24px',
-                background: 'var(--color-brand-emerald)',
+                background: 'var(--color-accent-growth)',
                 color: '#FFFFFF',
                 fontSize: '0.875rem',
                 fontWeight: 600,
@@ -1099,8 +1099,8 @@ function DeleteAccountModal({
     >
       <div
         style={{
-          background: 'var(--theme-bg-card)',
-          borderRadius: 'var(--radius-card)',
+          background: 'var(--color-bg-surface-1)',
+          borderRadius: 'var(--radius-xl)',
           width: '100%',
           maxWidth: '440px',
           padding: 'var(--spacing-3)',
@@ -1126,7 +1126,7 @@ function DeleteAccountModal({
             <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-error)', marginBottom: '4px' }}>
               {intl.formatMessage({ id: 'settings.delete_account_confirm_title', defaultMessage: 'Delete Your Account?' })}
             </h3>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
               {intl.formatMessage({ id: 'settings.delete_account_confirm_desc', defaultMessage: 'This will permanently delete your account and all associated data.' })}
             </p>
           </div>
@@ -1146,7 +1146,7 @@ function DeleteAccountModal({
         )}
 
         <div style={{ marginBottom: 'var(--spacing-2)' }}>
-          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-primary)', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '6px' }}>
             {intl.formatMessage({ id: 'settings.delete_account_type_confirm', defaultMessage: 'Type DELETE to confirm' })}
           </label>
           <input
@@ -1158,16 +1158,16 @@ function DeleteAccountModal({
               width: '100%',
               padding: '12px 14px',
               fontSize: '0.875rem',
-              background: 'var(--theme-bg-input)',
-              border: '1px solid var(--theme-border)',
+              background: 'var(--color-bg-input)',
+              border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           />
         </div>
 
         <div style={{ marginBottom: 'var(--spacing-2)' }}>
-          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--theme-text-primary)', marginBottom: '6px' }}>
+          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '6px' }}>
             {intl.formatMessage({ id: 'settings.delete_account_reauth', defaultMessage: 'Enter your password to confirm' })}
           </label>
           <input
@@ -1179,10 +1179,10 @@ function DeleteAccountModal({
               width: '100%',
               padding: '12px 14px',
               fontSize: '0.875rem',
-              background: 'var(--theme-bg-input)',
-              border: '1px solid var(--theme-border)',
+              background: 'var(--color-bg-input)',
+              border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           />
         </div>
@@ -1194,10 +1194,10 @@ function DeleteAccountModal({
               flex: 1,
               padding: '12px',
               background: 'transparent',
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
               fontSize: '0.875rem',
               fontWeight: 500,
-              border: '1px solid var(--theme-border)',
+              border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
             }}
@@ -1355,17 +1355,17 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   return (
     <>
       {/* Two-Factor Authentication Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
-          <span style={{ color: 'var(--color-brand-emerald)' }}>
+          <span style={{ color: 'var(--color-accent-growth)' }}>
             <ShieldIcon />
           </span>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {intl.formatMessage({ id: 'settings.two_factor_auth', defaultMessage: 'Two-Factor Authentication' })}
           </h3>
         </div>
         
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
           {intl.formatMessage({ id: 'settings.two_factor_auth_description', defaultMessage: 'Add an extra layer of security to your account using an authenticator app.' })}
         </p>
 
@@ -1376,18 +1376,18 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           padding: '16px',
           background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-tertiary)',
           borderRadius: 'var(--radius-sm)',
-          border: twoFactorEnabled ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--theme-border)',
+          border: twoFactorEnabled ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--color-border)',
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
                 {intl.formatMessage({ id: 'settings.two_factor_status', defaultMessage: 'Status' })}:
               </span>
               <span style={{
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                color: twoFactorEnabled ? 'var(--color-brand-emerald)' : 'var(--theme-text-muted)',
-                background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.15)' : 'var(--theme-border)',
+                color: twoFactorEnabled ? 'var(--color-accent-growth)' : 'var(--color-text-muted)',
+                background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.15)' : 'var(--color-border)',
                 padding: '2px 10px',
                 borderRadius: 'var(--radius-pill)',
               }}>
@@ -1399,11 +1399,11 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             </div>
             {twoFactorEnabled && (
               <>
-                <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                   {intl.formatMessage({ id: 'settings.two_factor_method', defaultMessage: 'Method: Authenticator App' })}
                 </p>
                 {twoFactorLastUsed && (
-                  <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <ClockIcon />
                     {intl.formatMessage({ id: 'settings.two_factor_last_used', defaultMessage: 'Last verified' })}: {intl.formatDate(new Date(twoFactorLastUsed), { dateStyle: 'medium' })}
                   </p>
@@ -1433,7 +1433,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
               onClick={() => setShowTwoFactorModal(true)}
               style={{
                 padding: '8px 16px',
-                background: 'var(--color-brand-emerald)',
+                background: 'var(--color-accent-growth)',
                 color: '#FFFFFF',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
@@ -1449,12 +1449,12 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       </div>
 
       {/* Change Password Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
           <span style={{ color: 'var(--color-info)' }}>
             <KeyIcon />
           </span>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {intl.formatMessage({ id: 'settings.change_password', defaultMessage: 'Change Password' })}
           </h3>
         </div>
@@ -1465,7 +1465,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             marginBottom: 'var(--spacing-2)',
             borderRadius: 'var(--radius-sm)',
             background: 'rgba(16, 185, 129, 0.1)',
-            color: 'var(--color-brand-emerald)',
+            color: 'var(--color-accent-growth)',
             fontSize: '0.8125rem',
           }}>
             {intl.formatMessage({ id: 'settings.password_updated', defaultMessage: 'Password updated successfully' })}
@@ -1490,7 +1490,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
               placeholder="••••••••"
               error={passwordError || undefined}
             />
-            <p style={{ fontSize: '0.6875rem', color: 'var(--theme-text-muted)', marginTop: '4px' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
               {intl.formatMessage({ id: 'settings.password_requirements', defaultMessage: 'Password must be at least 8 characters with uppercase, lowercase, and a number' })}
             </p>
           </div>
@@ -1505,8 +1505,8 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'var(--spacing-2)', flexWrap: 'wrap', gap: '12px' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
-            <a href="/auth/forgot-password" style={{ color: 'var(--color-brand-emerald)', textDecoration: 'none' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+            <a href="/auth/forgot-password" style={{ color: 'var(--color-accent-growth)', textDecoration: 'none' }}>
               {intl.formatMessage({ id: 'settings.forgot_password', defaultMessage: 'Forgot Password?' })}
             </a>
             {' '}- {intl.formatMessage({ id: 'settings.forgot_password_hint', defaultMessage: 'Reset via email' })}
@@ -1517,7 +1517,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             disabled={!currentPassword || !newPassword || !confirmPassword || isUpdatingPassword}
             style={{
               padding: '10px 20px',
-              background: 'var(--color-brand-emerald)',
+              background: 'var(--color-accent-growth)',
               color: '#FFFFFF',
               fontSize: '0.875rem',
               fontWeight: 600,
@@ -1536,9 +1536,9 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       </div>
 
       {/* Active Sessions Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)', flexWrap: 'wrap', gap: '12px' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--theme-text-primary)' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {intl.formatMessage({ id: 'settings.active_sessions', defaultMessage: 'Active Sessions' })}
           </h3>
           
@@ -1570,9 +1570,9 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 alignItems: 'flex-start',
                 justifyContent: 'space-between',
                 padding: '14px 16px',
-                background: session.current ? 'var(--theme-bg-tertiary)' : 'var(--theme-bg-input)',
+                background: session.current ? 'var(--theme-bg-tertiary)' : 'var(--color-bg-input)',
                 borderRadius: 'var(--radius-sm)',
-                border: session.current ? '1px solid var(--theme-border)' : '1px solid transparent',
+                border: session.current ? '1px solid var(--color-border)' : '1px solid transparent',
                 opacity: session.current ? 1 : 0.85,
               }}
             >
@@ -1586,7 +1586,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: session.current ? 'var(--color-brand-emerald)' : 'var(--color-info)',
+                    color: session.current ? 'var(--color-accent-growth)' : 'var(--color-info)',
                     flexShrink: 0,
                   }}
                 >
@@ -1594,7 +1594,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--theme-text-primary)' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>
                       {session.device}
                     </p>
                     {session.current && (
@@ -1602,7 +1602,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                         style={{
                           fontSize: '0.6875rem',
                           fontWeight: 600,
-                          color: 'var(--color-brand-emerald)',
+                          color: 'var(--color-accent-growth)',
                           background: 'rgba(16, 185, 129, 0.1)',
                           padding: '2px 8px',
                           borderRadius: 'var(--radius-pill)',
@@ -1613,10 +1613,10 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                     )}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <MapPinIcon /> {session.location} ({session.ip})
                     </p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <ClockIcon /> {intl.formatMessage({ id: 'settings.last_active', defaultMessage: 'Last active' })}: {intl.formatRelativeTime(
                         Math.round((new Date(session.lastActive).getTime() - Date.now()) / 60000),
                         'minute'
@@ -1631,10 +1631,10 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 style={{
                   padding: '6px 12px',
                   background: 'transparent',
-                  color: session.current ? 'var(--theme-text-muted)' : 'var(--color-error)',
+                  color: session.current ? 'var(--color-text-muted)' : 'var(--color-error)',
                   fontSize: '0.75rem',
                   fontWeight: 500,
-                  border: `1px solid ${session.current ? 'var(--theme-border)' : 'var(--color-error)'}`,
+                  border: `1px solid ${session.current ? 'var(--color-border)' : 'var(--color-error)'}`,
                   borderRadius: 'var(--radius-sm)',
                   cursor: 'pointer',
                   flexShrink: 0,
@@ -1649,7 +1649,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
       {/* Danger Zone */}
       <div
-        className="card-standard"
+        className="ds-card"
         style={{ 
           border: '2px solid rgba(239, 68, 68, 0.4)',
           marginTop: 'var(--spacing-2)',
@@ -1673,7 +1673,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-error)', marginBottom: '4px' }}>
               {intl.formatMessage({ id: 'settings.danger_zone', defaultMessage: 'Danger Zone' })}
             </h3>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '8px' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.danger_zone_description', defaultMessage: 'Deleting your account permanently removes all financial data and cannot be undone.' })}
             </p>
             <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginBottom: 'var(--spacing-2)' }}>
@@ -1744,8 +1744,8 @@ function CurrencyOption({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 14px',
-        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-input)',
-        border: selected ? '2px solid var(--color-brand-emerald)' : '1px solid var(--theme-border)',
+        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+        border: selected ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
         transition: 'all 0.15s ease',
@@ -1756,7 +1756,7 @@ function CurrencyOption({
           style={{
             fontSize: '0.875rem',
             fontWeight: 600,
-            color: 'var(--theme-text-primary)',
+            color: 'var(--color-text-primary)',
           }}
         >
           {name}
@@ -1768,7 +1768,7 @@ function CurrencyOption({
             width: '20px',
             height: '20px',
             borderRadius: '50%',
-            background: 'var(--color-brand-emerald)',
+            background: 'var(--color-accent-growth)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1814,7 +1814,7 @@ function PreferencesContent({
   return (
     <>
       {/* Language Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <span style={{ color: 'var(--color-info)' }}>
             <GlobeIcon />
@@ -1823,16 +1823,16 @@ function PreferencesContent({
             style={{
               fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {intl.formatMessage({ id: 'settings.language', defaultMessage: 'Language' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '4px' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'settings.language_description', defaultMessage: 'Select your preferred language for the interface.' })}
         </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-brand-emerald)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-accent-growth)', marginBottom: 'var(--spacing-2)' }}>
           {intl.formatMessage({ id: 'settings.language_applies_immediately', defaultMessage: 'Applies immediately across the interface.' })}
         </p>
         
@@ -1868,25 +1868,25 @@ function PreferencesContent({
       </div>
 
       {/* Currency Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <span style={{ color: 'var(--color-brand-emerald)' }}>
+          <span style={{ color: 'var(--color-accent-growth)' }}>
             <DollarIcon />
           </span>
           <h3
             style={{
               fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {intl.formatMessage({ id: 'settings.currency', defaultMessage: 'Currency' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--theme-text-muted)', marginBottom: '4px' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'settings.currency_description', defaultMessage: 'Used for display only. Transactions keep their original currency.' })}
         </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
           {intl.formatMessage({ id: 'settings.currency_no_conversion', defaultMessage: 'No automatic conversion is applied to existing records.' })}
         </p>
 
@@ -1901,9 +1901,9 @@ function PreferencesContent({
               paddingRight: '40px',
               fontSize: '0.9375rem',
               fontWeight: 500,
-              color: 'var(--theme-text-primary)',
-              background: 'var(--theme-bg-input)',
-              border: '2px solid var(--color-brand-emerald)',
+              color: 'var(--color-text-primary)',
+              background: 'var(--color-bg-input)',
+              border: '2px solid var(--color-accent-growth)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
               appearance: 'none',
@@ -1925,7 +1925,7 @@ function PreferencesContent({
               top: '50%',
               transform: 'translateY(-50%)',
               pointerEvents: 'none',
-              color: 'var(--color-brand-emerald)',
+              color: 'var(--color-accent-growth)',
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1936,7 +1936,7 @@ function PreferencesContent({
       </div>
 
       {/* Appearance Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
           <span style={{ color: 'var(--color-warning)' }}>
             <SunIcon />
@@ -1945,7 +1945,7 @@ function PreferencesContent({
             style={{
               fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {intl.formatMessage({ id: 'settings.appearance', defaultMessage: 'Appearance' })}
@@ -1962,8 +1962,8 @@ function PreferencesContent({
               justifyContent: 'center',
               gap: '8px',
               padding: '12px',
-              background: selectedTheme === 'light' ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-input)',
-              border: selectedTheme === 'light' ? '2px solid var(--color-brand-emerald)' : '1px solid var(--theme-border)',
+              background: selectedTheme === 'light' ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+              border: selectedTheme === 'light' ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
             }}
@@ -1973,7 +1973,7 @@ function PreferencesContent({
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
               }}
             >
               {intl.formatMessage({ id: 'settings.light', defaultMessage: 'Light' })}
@@ -1988,8 +1988,8 @@ function PreferencesContent({
               justifyContent: 'center',
               gap: '8px',
               padding: '12px',
-              background: selectedTheme === 'dark' ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-input)',
-              border: selectedTheme === 'dark' ? '2px solid var(--color-brand-emerald)' : '1px solid var(--theme-border)',
+              background: selectedTheme === 'dark' ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+              border: selectedTheme === 'dark' ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
             }}
@@ -1999,7 +1999,7 @@ function PreferencesContent({
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
               }}
             >
               {intl.formatMessage({ id: 'settings.dark', defaultMessage: 'Dark' })}
@@ -2009,7 +2009,7 @@ function PreferencesContent({
       </div>
 
       {/* Notifications Card */}
-      <div className="card-standard">
+      <div className="ds-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
           <span style={{ color: 'var(--color-error)' }}>
             <BellIcon />
@@ -2018,7 +2018,7 @@ function PreferencesContent({
             style={{
               fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {intl.formatMessage({ id: 'settings.notifications', defaultMessage: 'Notifications' })}
@@ -2037,7 +2037,7 @@ function PreferencesContent({
           <SettingRow
             icon={<SmartphoneIcon />}
             iconBg="rgba(16, 185, 129, 0.1)"
-            iconColor="var(--color-brand-emerald)"
+            iconColor="var(--color-accent-growth)"
             label={intl.formatMessage({ id: 'settings.push_notifications', defaultMessage: 'Push Notifications' })}
             description={intl.formatMessage({ id: 'settings.push_notifications_description', defaultMessage: 'Receive push notifications on your device' })}
             action={<ToggleSwitch enabled={pushNotifications} onToggle={() => setPushNotifications(!pushNotifications)} />}
@@ -2132,7 +2132,7 @@ export default function SettingsPage() {
           style={{
             fontSize: '1.75rem',
             fontWeight: 700,
-            color: 'var(--theme-text-primary)',
+            color: 'var(--color-text-primary)',
             marginBottom: '8px',
           }}
         >
@@ -2141,7 +2141,7 @@ export default function SettingsPage() {
         <p
           style={{
             fontSize: '0.9375rem',
-            color: 'var(--theme-text-secondary)',
+            color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
           }}
         >
@@ -2206,7 +2206,7 @@ export default function SettingsPage() {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: 'var(--spacing-2)',
-          borderTop: '1px solid var(--theme-border)',
+          borderTop: '1px solid var(--color-border)',
           marginTop: 'var(--spacing-2)',
           flexWrap: 'wrap',
           gap: '1rem',
@@ -2241,12 +2241,12 @@ export default function SettingsPage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: 'var(--theme-text-primary)',
+                color: 'var(--color-text-primary)',
               }}
             >
               {displayName}
             </p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--theme-text-muted)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
               {displayEmail}
             </p>
           </div>
@@ -2260,10 +2260,10 @@ export default function SettingsPage() {
             style={{
               padding: '10px 24px',
               background: 'transparent',
-              color: 'var(--theme-text-primary)',
+              color: 'var(--color-text-primary)',
               fontSize: '0.875rem',
               fontWeight: 500,
-              border: '1px solid var(--theme-border)',
+              border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
             }}
@@ -2275,7 +2275,7 @@ export default function SettingsPage() {
             onClick={handleSaveChanges}
             style={{
               padding: '10px 24px',
-              background: 'var(--color-brand-emerald)',
+              background: 'var(--color-accent-growth)',
               color: '#FFFFFF',
               fontSize: '0.875rem',
               fontWeight: 600,

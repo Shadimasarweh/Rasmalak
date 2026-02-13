@@ -169,12 +169,12 @@ function ModeSelector({
         padding: '12px 16px',
         minWidth: '100px',
         flex: '0 0 auto',
-        background: isActive ? 'var(--color-brand-emerald)' : 'rgba(16, 185, 129, 0.1)',
+        background: isActive ? 'var(--color-accent-growth)' : 'var(--color-accent-growth-subtle)',
         border: isActive ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
-        borderRadius: 'var(--radius-card)',
+        borderRadius: 'var(--radius-xl)',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
-        color: isActive ? '#FFFFFF' : 'var(--color-brand-emerald)',
+        color: isActive ? '#FFFFFF' : 'var(--color-accent-growth)',
       }}
     >
       <span style={{ opacity: isActive ? 1 : 0.8 }}>{mode.icon}</span>
@@ -192,7 +192,7 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
       style={{
         background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%)',
         border: '1px solid rgba(99, 102, 241, 0.2)',
-        borderRadius: 'var(--radius-card)',
+        borderRadius: 'var(--radius-xl)',
         padding: 'var(--spacing-3)',
         display: 'flex',
         alignItems: 'center',
@@ -207,7 +207,7 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
           style={{
             fontSize: '1.25rem',
             fontWeight: 700,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
             marginBottom: '8px',
           }}
         >
@@ -222,7 +222,7 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
           <p
             style={{
               fontSize: '0.875rem',
-              color: 'rgba(10, 25, 47, 0.6)',
+              color: 'var(--color-text-secondary)',
               lineHeight: 1.6,
               maxWidth: '400px',
               marginBottom: 'var(--spacing-2)',
@@ -277,15 +277,15 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
             marginBottom: '8px',
           }}
         >
-          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-brand-navy)' }}>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
             {hasStartedCourses ? '750' : '--'}
           </span>
         </div>
-        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-brand-navy)', textAlign: 'center' }}>
+        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-primary)', textAlign: 'center' }}>
           {intl.formatMessage({ id: 'learn.literacy_score', defaultMessage: 'Financial Literacy Score' })}
         </p>
         {!hasStartedCourses && (
-          <p style={{ fontSize: '0.6875rem', color: 'rgba(10, 25, 47, 0.5)', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
             {intl.formatMessage({ id: 'learn.score_placeholder', defaultMessage: 'Complete lessons to unlock' })}
           </p>
         )}
@@ -323,16 +323,16 @@ function FeaturedContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             key={i}
             style={{
               flex: 1,
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-              borderRadius: 'var(--radius-card)',
+              background: 'var(--color-divider)',
+              border: '1px solid var(--color-border-subtle)',
+              borderRadius: 'var(--radius-xl)',
               padding: 'var(--spacing-2)',
               height: '100px',
             }}
           >
-            <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'rgba(255, 255, 255, 0.04)', marginBottom: '8px' }} />
-            <div style={{ width: '70%', height: '12px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.04)', marginBottom: '6px' }} />
-            <div style={{ width: '50%', height: '8px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.03)' }} />
+            <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'var(--color-divider)', marginBottom: '8px' }} />
+            <div style={{ width: '70%', height: '12px', borderRadius: '4px', background: 'var(--color-divider)', marginBottom: '6px' }} />
+            <div style={{ width: '50%', height: '8px', borderRadius: '4px', background: 'var(--color-divider)' }} />
           </div>
         ))}
       </div>
@@ -374,12 +374,12 @@ function RecommendedContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
         style={{
           background: 'rgba(245, 158, 11, 0.08)',
           border: '1px solid rgba(245, 158, 11, 0.15)',
-          borderRadius: 'var(--radius-card)',
+          borderRadius: 'var(--radius-xl)',
           padding: 'var(--spacing-2)',
           maxWidth: '400px',
         }}
       >
-        <p style={{ fontSize: '0.875rem', color: 'rgba(10, 25, 47, 0.7)', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
           {intl.formatMessage({ id: 'learn.recommendation_text', defaultMessage: 'Based on your profile, start with Budgeting 101.' })}
         </p>
       </div>
@@ -392,9 +392,9 @@ function LiteracyScorePlaceholder({ intl }: { intl: ReturnType<typeof useIntl> }
   return (
     <div
       style={{
-        background: 'rgba(255, 255, 255, 0.04)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: 'var(--radius-card)',
+        background: 'var(--color-divider)',
+        border: '1px solid var(--color-border-subtle)',
+        borderRadius: 'var(--radius-xl)',
         padding: 'var(--spacing-2)',
         display: 'flex',
         alignItems: 'center',
@@ -413,13 +413,13 @@ function LiteracyScorePlaceholder({ intl }: { intl: ReturnType<typeof useIntl> }
           justifyContent: 'center',
         }}
       >
-        <span style={{ fontSize: '1rem', fontWeight: 700, color: 'rgba(255, 255, 255, 0.6)' }}>--</span>
+        <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-secondary)' }}>--</span>
       </div>
       <div>
-        <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', marginBottom: '2px' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
           {intl.formatMessage({ id: 'learn.literacy_score', defaultMessage: 'Financial Literacy Score' })}
         </p>
-        <p style={{ fontSize: '0.6875rem', color: 'rgba(255, 255, 255, 0.3)' }}>
+        <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
           {intl.formatMessage({ id: 'learn.score_placeholder', defaultMessage: 'Complete lessons to unlock' })}
         </p>
       </div>
@@ -444,7 +444,7 @@ function TopicCard({
   duration: string;
 }) {
   return (
-    <div className="card-standard" style={{ cursor: 'pointer' }}>
+    <div className="ds-card" style={{ cursor: 'pointer' }}>
       <div
         style={{
           width: '40px',
@@ -464,7 +464,7 @@ function TopicCard({
         style={{
           fontSize: '0.9375rem',
           fontWeight: 600,
-          color: 'var(--color-brand-navy)',
+          color: 'var(--color-text-primary)',
           marginBottom: '4px',
         }}
       >
@@ -473,7 +473,7 @@ function TopicCard({
       <p
         style={{
           fontSize: '0.75rem',
-          color: 'rgba(10, 25, 47, 0.5)',
+          color: 'var(--color-text-muted)',
         }}
       >
         {lessons} Lessons • {duration}
@@ -505,7 +505,7 @@ function LearningPathCard({
   startLabel: string;
 }) {
   return (
-    <div className="card-standard">
+    <div className="ds-card">
       {/* Header */}
       <div
         style={{
@@ -528,7 +528,7 @@ function LearningPathCard({
             >
               {badge}
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
               {moduleInfo}
             </span>
           </div>
@@ -536,7 +536,7 @@ function LearningPathCard({
             style={{
               fontSize: '1.125rem',
               fontWeight: 600,
-              color: 'var(--color-brand-navy)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {title}
@@ -547,12 +547,12 @@ function LearningPathCard({
             style={{
               fontSize: '1.5rem',
               fontWeight: 700,
-              color: 'var(--color-brand-navy)',
+              color: 'var(--color-text-primary)',
             }}
           >
             {progress}%
           </p>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>{completedLabel}</p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{completedLabel}</p>
         </div>
       </div>
 
@@ -560,7 +560,7 @@ function LearningPathCard({
       <div
         style={{
           height: '6px',
-          background: 'rgba(10, 25, 47, 0.1)',
+          background: 'var(--color-border-subtle)',
           borderRadius: 'var(--radius-pill)',
           marginBottom: 'var(--spacing-2)',
           overflow: 'hidden',
@@ -570,7 +570,7 @@ function LearningPathCard({
           style={{
             height: '100%',
             width: `${progress}%`,
-            background: 'var(--color-brand-emerald)',
+            background: 'var(--color-accent-growth)',
             borderRadius: 'var(--radius-pill)',
           }}
         />
@@ -617,13 +617,13 @@ function LessonRow({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 0',
-        borderBottom: '1px solid rgba(10, 25, 47, 0.05)',
+        borderBottom: '1px solid var(--color-divider)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <span
           style={{
-            color: completed ? 'var(--color-brand-emerald)' : 'rgba(10, 25, 47, 0.25)',
+            color: completed ? 'var(--color-accent-growth)' : 'var(--color-border)',
           }}
         >
           {completed ? <CheckCircleIcon /> : <CircleIcon />}
@@ -633,21 +633,21 @@ function LessonRow({
             style={{
               fontSize: '0.875rem',
               fontWeight: 500,
-              color: completed ? 'rgba(10, 25, 47, 0.5)' : 'var(--color-brand-navy)',
+              color: completed ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
               textDecoration: completed ? 'line-through' : 'none',
             }}
           >
             {title}
           </p>
           {current && currentDescription && (
-            <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
               {currentDescription}
             </p>
           )}
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.4)' }}>{duration}</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{duration}</span>
         {current && startLabel && (
           <button
             style={{
@@ -692,7 +692,7 @@ function PathPreviewCard({
   progress: number;
 }) {
   return (
-    <div className="card-standard">
+    <div className="ds-card">
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
         <div
           style={{
@@ -712,16 +712,16 @@ function PathPreviewCard({
           <p style={{ fontSize: '0.625rem', fontWeight: 600, color: badgeColor, textTransform: 'uppercase' }}>
             {badge}
           </p>
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             {title}
           </h3>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>{modules} Modules • {duration}</span>
-        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>{progress}%</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{modules} Modules • {duration}</span>
+        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>{progress}%</span>
       </div>
-      <div style={{ height: '4px', background: 'rgba(10, 25, 47, 0.1)', borderRadius: 'var(--radius-pill)' }}>
+      <div style={{ height: '4px', background: 'var(--color-border-subtle)', borderRadius: 'var(--radius-pill)' }}>
         <div style={{ height: '100%', width: `${progress}%`, background: badgeColor, borderRadius: 'var(--radius-pill)' }} />
       </div>
     </div>
@@ -742,7 +742,7 @@ function ArticleRow({
 }) {
   return (
     <div
-      className="card-standard"
+      className="ds-card"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -754,11 +754,11 @@ function ArticleRow({
         <p style={{ fontSize: '0.6875rem', color: categoryColor, fontWeight: 500, marginBottom: '4px' }}>
           {category}
         </p>
-        <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+        <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
           {title}
         </h4>
       </div>
-      <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.4)' }}>{readTime}</span>
+      <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{readTime}</span>
     </div>
   );
 }
@@ -774,7 +774,7 @@ function VideoCard({
   color: string;
 }) {
   return (
-    <div className="card-standard" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}>
+    <div className="ds-card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}>
       <div
         style={{
           height: '120px',
@@ -818,7 +818,7 @@ function VideoCard({
         </span>
       </div>
       <div style={{ padding: 'var(--spacing-2)' }}>
-        <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-brand-navy)' }}>
+        <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
           {title}
         </h4>
       </div>
@@ -840,7 +840,7 @@ function AchievementBadge({
 }) {
   return (
     <div
-      className="card-standard"
+      className="ds-card"
       style={{
         textAlign: 'center',
         opacity: earned ? 1 : 0.5,
@@ -851,7 +851,7 @@ function AchievementBadge({
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          background: earned ? `${color}20` : 'rgba(10, 25, 47, 0.05)',
+          background: earned ? `${color}20` : 'var(--color-divider)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -863,7 +863,7 @@ function AchievementBadge({
             <CheckIcon />
           </span>
         ) : (
-          <span style={{ color: 'rgba(10, 25, 47, 0.3)' }}>
+          <span style={{ color: 'var(--color-text-muted)' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -875,13 +875,13 @@ function AchievementBadge({
         style={{
           fontSize: '0.875rem',
           fontWeight: 600,
-          color: 'var(--color-brand-navy)',
+          color: 'var(--color-text-primary)',
           marginBottom: '4px',
         }}
       >
         {name}
       </h4>
-      <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)' }}>{description}</p>
+      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{description}</p>
     </div>
   );
 }
@@ -894,7 +894,7 @@ function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
       {/* Current Path (In Progress) */}
       <div>
-        <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+        <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
           {intl.formatMessage({ id: 'learn.current_path', defaultMessage: 'Continue Your Path' })}
         </h2>
         <LearningPathCard
@@ -917,7 +917,7 @@ function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
       {/* Available Paths */}
       <div>
-        <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+        <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
           {intl.formatMessage({ id: 'learn.available_paths', defaultMessage: 'Available Paths' })}
         </h2>
         <div className="responsive-grid-3">
@@ -972,7 +972,7 @@ function ArticlesContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
   return (
     <div>
-      <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.all_articles', defaultMessage: 'All Articles' })}
       </h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
@@ -1001,7 +1001,7 @@ function VideosContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
   return (
     <div>
-      <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.all_videos', defaultMessage: 'All Videos' })}
       </h2>
       <div className="responsive-grid-4">
@@ -1017,7 +1017,7 @@ function VideosContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   return (
     <div>
-      <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.explore_topics', defaultMessage: 'Explore Topics' })}
       </h2>
       <div className="responsive-grid-4">
@@ -1031,8 +1031,8 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
         />
         <TopicCard
           icon={<CoinIcon />}
-          iconBg="rgba(16, 185, 129, 0.1)"
-          iconColor="#10B981"
+          iconBg="var(--color-accent-growth-subtle)"
+          iconColor="var(--color-accent-growth)"
           title={intl.formatMessage({ id: 'learn.budgeting_101', defaultMessage: 'Budgeting 101' })}
           lessons={8}
           duration="1h 45m"
@@ -1069,7 +1069,7 @@ function AchievementsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
   return (
     <div>
-      <h2 className="heading-3" style={{ marginBottom: 'var(--spacing-2)' }}>
+      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
         {intl.formatMessage({ id: 'learn.your_achievements', defaultMessage: 'Your Achievements' })}
       </h2>
       <div className="responsive-grid-4">
@@ -1094,9 +1094,9 @@ function SkeletonCard({ height = '100px' }: { height?: string }) {
   return (
     <div
       style={{
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        borderRadius: 'var(--radius-card)',
+        background: 'var(--color-divider)',
+        border: '1px solid var(--color-border-subtle)',
+        borderRadius: 'var(--radius-xl)',
         height,
         display: 'flex',
         flexDirection: 'column',
@@ -1110,7 +1110,7 @@ function SkeletonCard({ height = '100px' }: { height?: string }) {
           width: '32px',
           height: '32px',
           borderRadius: 'var(--radius-sm)',
-          background: 'rgba(255, 255, 255, 0.04)',
+          background: 'var(--color-divider)',
         }}
       />
       {/* Skeleton title line */}
@@ -1119,7 +1119,7 @@ function SkeletonCard({ height = '100px' }: { height?: string }) {
           width: '70%',
           height: '12px',
           borderRadius: '4px',
-          background: 'rgba(255, 255, 255, 0.04)',
+          background: 'var(--color-divider)',
         }}
       />
       {/* Skeleton subtitle line */}
@@ -1128,7 +1128,7 @@ function SkeletonCard({ height = '100px' }: { height?: string }) {
           width: '50%',
           height: '8px',
           borderRadius: '4px',
-          background: 'rgba(255, 255, 255, 0.03)',
+          background: 'var(--color-divider)',
         }}
       />
     </div>
@@ -1143,7 +1143,7 @@ function RecentlyAddedPlaceholder({ intl }: { intl: ReturnType<typeof useIntl> }
         style={{
           fontSize: '0.75rem',
           fontWeight: 500,
-          color: 'rgba(255, 255, 255, 0.3)',
+          color: 'var(--color-text-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
           marginBottom: 'var(--spacing-1)',
@@ -1180,7 +1180,7 @@ function FeaturedRowPlaceholder({
         style={{
           fontSize: '0.6875rem',
           fontWeight: 500,
-          color: 'rgba(255, 255, 255, 0.25)',
+          color: 'var(--color-text-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.04em',
           marginBottom: '8px',
@@ -1254,7 +1254,7 @@ export default function LearnPage() {
   };
 
   return (
-    <div className="page-container">
+    <div className="ds-page">
       {/* ===== HERO SECTION (Always visible) ===== */}
       <HeroSection intl={intl} hasStartedCourses={hasStartedCourses} />
 

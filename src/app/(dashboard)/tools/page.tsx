@@ -176,7 +176,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'See how your savings grow over time with compound interest and plan your wealth-building journey.',
     icon: <PiggyIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
   },
@@ -188,7 +188,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Compare the financial implications of renting versus buying a home to make an informed decision.',
     icon: <HomeIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
   },
@@ -200,7 +200,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Determine how much home you can afford based on your income, debts, and down payment.',
     icon: <HomeIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
     href: '/calculators/home-affordability',
@@ -213,7 +213,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate how extra payments can help you pay off your mortgage faster and save on interest.',
     icon: <HomeIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
     href: '/calculators/mortgage-payoff',
@@ -226,7 +226,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Plan your retirement savings and see if you\'re on track to meet your retirement goals.',
     icon: <RetirementIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
   },
@@ -289,7 +289,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate your end of service benefits and gratuity entitlements under UAE labor law.',
     icon: <ShieldIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'social',
     countries: ['uae'],
   },
@@ -302,7 +302,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate your annual Zakat obligation based on your assets and Saudi Arabian Zakat regulations.',
     icon: <ZakatIcon />,
     iconBg: 'rgba(16, 185, 129, 0.1)',
-    iconColor: 'var(--color-brand-emerald)',
+    iconColor: 'var(--color-accent-growth)',
     category: 'tax',
     countries: ['ksa'],
   },
@@ -384,7 +384,7 @@ function FeaturedToolCard({
 }) {
   return (
     <div
-      className="card-standard featured-tool-grid"
+      className="ds-card featured-tool-grid"
       style={{
         display: 'grid',
         gridTemplateColumns: '1fr',
@@ -402,7 +402,7 @@ function FeaturedToolCard({
             gap: '6px',
             fontSize: '0.6875rem',
             fontWeight: 600,
-            color: 'var(--color-brand-emerald)',
+            color: 'var(--color-accent-growth)',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
             marginBottom: 'var(--spacing-1)',
@@ -417,7 +417,7 @@ function FeaturedToolCard({
           style={{
             fontSize: '1.5rem',
             fontWeight: 700,
-            color: 'var(--color-brand-navy)',
+            color: 'var(--color-text-primary)',
             marginBottom: '8px',
           }}
         >
@@ -428,7 +428,7 @@ function FeaturedToolCard({
         <p
           style={{
             fontSize: '0.9375rem',
-            color: 'rgba(10, 25, 47, 0.6)',
+            color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
             marginBottom: 'var(--spacing-2)',
             maxWidth: '480px',
@@ -445,7 +445,7 @@ function FeaturedToolCard({
             alignItems: 'center',
             gap: '8px',
             padding: '12px 24px',
-            background: 'var(--color-brand-emerald)',
+            background: 'var(--color-accent-growth)',
             color: '#FFFFFF',
             fontSize: '0.875rem',
             fontWeight: 600,
@@ -490,20 +490,20 @@ function FeaturedToolCard({
                 to right,
                 transparent 0%,
                 transparent 10%,
-                var(--color-brand-emerald) 10%,
-                var(--color-brand-emerald) 11%,
+                var(--color-accent-growth) 10%,
+                var(--color-accent-growth) 11%,
                 transparent 11%,
                 transparent 30%,
-                var(--color-brand-emerald) 30%,
-                var(--color-brand-emerald) 31%,
+                var(--color-accent-growth) 30%,
+                var(--color-accent-growth) 31%,
                 transparent 31%,
                 transparent 50%,
-                var(--color-brand-emerald) 50%,
-                var(--color-brand-emerald) 51%,
+                var(--color-accent-growth) 50%,
+                var(--color-accent-growth) 51%,
                 transparent 51%,
                 transparent 70%,
-                var(--color-brand-emerald) 70%,
-                var(--color-brand-emerald) 71%,
+                var(--color-accent-growth) 70%,
+                var(--color-accent-growth) 71%,
                 transparent 71%
               )`,
               clipPath: 'polygon(0% 100%, 10% 80%, 30% 90%, 50% 50%, 70% 60%, 90% 20%, 100% 10%, 100% 100%)',
@@ -519,7 +519,7 @@ function FeaturedToolCard({
             width: '40px',
             height: '40px',
             borderRadius: '50%',
-            background: 'var(--color-brand-emerald)',
+            background: 'var(--color-accent-growth)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -562,10 +562,10 @@ function ToolCard({
         gap: '6px',
         padding: '10px 20px',
         background: 'transparent',
-        color: 'var(--color-brand-emerald)',
+        color: 'var(--color-accent-growth)',
         fontSize: '0.8125rem',
         fontWeight: 600,
-        border: '1.5px solid var(--color-brand-emerald)',
+        border: '1.5px solid var(--color-accent-growth)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
         textDecoration: 'none',
@@ -584,10 +584,10 @@ function ToolCard({
         gap: '6px',
         padding: '10px 20px',
         background: 'transparent',
-        color: 'var(--color-brand-emerald)',
+        color: 'var(--color-accent-growth)',
         fontSize: '0.8125rem',
         fontWeight: 600,
-        border: '1.5px solid var(--color-brand-emerald)',
+        border: '1.5px solid var(--color-accent-growth)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
       }}
@@ -599,7 +599,7 @@ function ToolCard({
 
   return (
     <div
-      className="card-standard"
+      className="ds-card"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -628,7 +628,7 @@ function ToolCard({
         style={{
           fontSize: '1rem',
           fontWeight: 600,
-          color: 'var(--color-brand-navy)',
+          color: 'var(--color-text-primary)',
           marginBottom: '8px',
           lineHeight: 1.3,
         }}
@@ -640,7 +640,7 @@ function ToolCard({
       <p
         style={{
           fontSize: '0.8125rem',
-          color: 'rgba(10, 25, 47, 0.6)',
+          color: 'var(--color-text-secondary)',
           lineHeight: 1.5,
           flex: 1,
           marginBottom: 'var(--spacing-2)',
@@ -682,7 +682,7 @@ function CountryFilter({
         gap: '6px',
         fontSize: '0.8125rem',
         fontWeight: 500,
-        color: 'rgba(255, 255, 255, 0.5)',
+        color: 'var(--color-text-muted)',
         marginRight: '8px',
         flexShrink: 0,
       }}
@@ -708,12 +708,12 @@ function CountryFilter({
             transition: 'all 0.2s ease',
             background:
               selectedCountry === country.id
-                ? 'var(--color-brand-emerald)'
-                : 'rgba(255, 255, 255, 0.1)',
+                ? 'var(--color-accent-growth)'
+                : 'var(--color-bg-surface-2)',
             color:
               selectedCountry === country.id
                 ? '#FFFFFF'
-                : 'rgba(255, 255, 255, 0.7)',
+                : 'var(--color-text-secondary)',
           }}
         >
           <span style={{ fontSize: '1rem' }}>{country.flag}</span>
@@ -762,7 +762,7 @@ export default function FinancialToolsPage() {
             style={{
               fontSize: '1.75rem',
               fontWeight: 700,
-              color: 'var(--color-brand-navy)',
+              color: 'var(--color-text-primary)',
               marginBottom: '8px',
             }}
           >
@@ -771,7 +771,7 @@ export default function FinancialToolsPage() {
           <p
             style={{
               fontSize: '0.9375rem',
-              color: 'rgba(255, 255, 255, 0.6)',
+              color: 'var(--color-text-secondary)',
               maxWidth: '600px',
               lineHeight: 1.6,
             }}
@@ -817,7 +817,7 @@ export default function FinancialToolsPage() {
                 style={{
                   fontSize: '1.125rem',
                   fontWeight: 600,
-                  color: 'var(--color-brand-navy)',
+                  color: 'var(--color-text-primary)',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.credit_debt', defaultMessage: 'Credit & Debt' })}
@@ -858,7 +858,7 @@ export default function FinancialToolsPage() {
                 style={{
                   fontSize: '1.125rem',
                   fontWeight: 600,
-                  color: 'var(--color-brand-navy)',
+                  color: 'var(--color-text-primary)',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.budgeting_saving', defaultMessage: 'Budgeting & Saving' })}
@@ -899,7 +899,7 @@ export default function FinancialToolsPage() {
                 style={{
                   fontSize: '1.125rem',
                   fontWeight: 600,
-                  color: 'var(--color-brand-navy)',
+                  color: 'var(--color-text-primary)',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.auto_loans', defaultMessage: 'Auto Loans' })}
@@ -940,7 +940,7 @@ export default function FinancialToolsPage() {
                 style={{
                   fontSize: '1.125rem',
                   fontWeight: 600,
-                  color: 'var(--color-brand-navy)',
+                  color: 'var(--color-text-primary)',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.tax_zakat', defaultMessage: 'Tax & Zakat' })}
@@ -981,7 +981,7 @@ export default function FinancialToolsPage() {
                 style={{
                   fontSize: '1.125rem',
                   fontWeight: 600,
-                  color: 'var(--color-brand-navy)',
+                  color: 'var(--color-text-primary)',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.social_security', defaultMessage: 'Social Security & Benefits' })}
@@ -1010,7 +1010,7 @@ export default function FinancialToolsPage() {
             style={{
               textAlign: 'center',
               padding: 'var(--spacing-4)',
-              color: 'rgba(10, 25, 47, 0.5)',
+              color: 'var(--color-text-muted)',
             }}
           >
             <p style={{ fontSize: '1rem' }}>
@@ -1027,18 +1027,18 @@ export default function FinancialToolsPage() {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: 'var(--spacing-2)',
-          borderTop: '1px solid rgba(10, 25, 47, 0.08)',
+          borderTop: '1px solid var(--color-border)',
           marginTop: 'var(--spacing-2)',
         }}
       >
-        <p style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.4)' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
           {intl.formatMessage({ id: 'tools.copyright', defaultMessage: '© {year} Rasmalak AI. All rights reserved.' }, { year: 2024 })}
         </p>
         <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
-          <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)', cursor: 'pointer' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
             {intl.formatMessage({ id: 'tools.privacy_policy', defaultMessage: 'Privacy Policy' })}
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'rgba(10, 25, 47, 0.5)', cursor: 'pointer' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
             {intl.formatMessage({ id: 'tools.terms_of_service', defaultMessage: 'Terms of Service' })}
           </span>
         </div>

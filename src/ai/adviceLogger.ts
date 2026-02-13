@@ -43,6 +43,28 @@ export interface FinancialAdviceRow {
 // ============================================
 
 /**
+ * The Supabase `target_metric` column has a CHECK constraint
+ * (`financial_advice_target_metric_check`).
+ * Until the exact allowed values are confirmed, pass NULL to avoid
+ * constraint violations.  The metric string is logged for debugging.
+ */
+function normalizeTargetMetric(value: string | null | undefined): string {
+  if (value == null) return 'spending'; // fallback — column is NOT NULL
+
+  const v = value.toLowerCase();
+
+  // Direct matches for the three allowed values
+  if (v === 'spending' || v === 'budget' || v === 'savings') return v;
+
+  // Map related terms
+  if (v === 'cashflow' || v === 'cash_flow') return 'spending';
+  if (v === 'goals' || v === 'goal') return 'savings';
+
+  // 'general' or anything else → 'spending' (safest catch-all)
+  return 'spending';
+}
+
+/**
  * The Supabase `confidence` column is NUMERIC, but callers may pass
  * string labels ('high', 'medium', 'low') or numeric strings ('0.9').
  * Convert to a number so the insert never fails on type mismatch.
@@ -81,7 +103,7 @@ export async function logFinancialAdvice(row: FinancialAdviceRow): Promise<void>
         source: row.source,
         rule_id: row.rule_id ?? null,
         advice_text: row.advice_text,
-        target_metric: row.target_metric ?? null,
+        target_metric: normalizeTargetMetric(row.target_metric),
         confidence: normalizeConfidence(row.confidence),
         conversation_id: row.conversation_id ?? null,
         context_hash: row.context_hash,
