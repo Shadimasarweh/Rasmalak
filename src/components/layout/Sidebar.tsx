@@ -27,9 +27,9 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    id: 'budgets',
-    labelKey: 'nav.budgets',
-    defaultLabel: 'Budgets',
+    id: 'transactions',
+    labelKey: 'nav.transactions',
+    defaultLabel: 'Transactions',
     href: '/transactions',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

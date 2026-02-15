@@ -645,7 +645,7 @@ export default function MustasharakPage() {
         const errorMessage: AIMessage = {
           id: `msg_${Date.now()}_error`,
           role: 'assistant',
-          content: data.error || 'حدث خطأ. الرجاء المحاولة مرة أخرى.',
+          content: data.error || (language === 'ar' ? 'حدث خطأ. الرجاء المحاولة مرة أخرى.' : 'An error occurred. Please try again.'),
           timestamp: new Date().toISOString(),
           isError: true,
           errorMessage: data.error,

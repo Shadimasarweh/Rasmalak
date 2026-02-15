@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useIntl } from 'react-intl';
 import {
   LayoutDashboard,
   Receipt,
@@ -9,11 +10,10 @@ import {
   MessageSquareText,
   Calculator,
 } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const { language } = useTranslation();
+  const intl = useIntl();
 
   // Hide bottom nav on auth pages
   if (pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/onboarding') {
@@ -21,11 +21,11 @@ export default function BottomNav() {
   }
 
   const navItems = [
-    { id: 'dashboard', path: '/', labelAr: 'الرئيسية', labelEn: 'Dashboard', icon: LayoutDashboard },
-    { id: 'budgets', path: '/transactions', labelAr: 'الميزانيات', labelEn: 'Budgets', icon: Receipt },
-    { id: 'add', path: '/transactions/new', labelAr: 'إضافة', labelEn: 'Add', icon: Plus, isAction: true },
-    { id: 'chat', path: '/chat', labelAr: 'مستشارك', labelEn: 'Mustasharak', icon: MessageSquareText },
-    { id: 'tools', path: '/tools', labelAr: 'الأدوات', labelEn: 'Tools', icon: Calculator },
+    { id: 'dashboard', path: '/', labelKey: 'nav.dashboard', defaultLabel: 'Dashboard', icon: LayoutDashboard },
+    { id: 'transactions', path: '/transactions', labelKey: 'nav.transactions', defaultLabel: 'Transactions', icon: Receipt },
+    { id: 'add', path: '/transactions/new', labelKey: 'nav.add', defaultLabel: 'Add', icon: Plus, isAction: true },
+    { id: 'chat', path: '/chat', labelKey: 'nav.chat', defaultLabel: 'Mustasharak', icon: MessageSquareText },
+    { id: 'tools', path: '/tools', labelKey: 'nav.tools', defaultLabel: 'Tools', icon: Calculator },
   ];
 
   return (
@@ -37,7 +37,7 @@ export default function BottomNav() {
         {navItems.map((item) => {
           const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
           const Icon = item.icon;
-          const label = language === 'ar' ? item.labelAr : item.labelEn;
+          const label = intl.formatMessage({ id: item.labelKey, defaultMessage: item.defaultLabel });
 
           // Center "Add" action button
           if ((item as { isAction?: boolean }).isAction) {

@@ -58,4 +58,37 @@ export default {
   money_basics: 'Money Basics',
   budgeting_101: 'Budgeting 101',
   debt_management: 'Debt Management',
+  // Mode selectors
+  'mode.home': 'Home',
+  'mode.paths': 'Learning Paths',
+  'mode.articles': 'Articles',
+  'mode.videos': 'Videos',
+  'mode.topics': 'Topics & Skills',
+  'mode.achievements': 'Achievements',
+  // Hero section
+  featured_title: 'Start Your Financial Journey',
+  featured_desc: 'Begin with our beginner-friendly Financial Foundations path and build your knowledge step by step.',
+  get_started: 'Get Started',
+  literacy_score: 'Financial Literacy Score',
+  score_placeholder: 'Complete lessons to unlock',
+  // Content sections
+  featured: 'Featured',
+  recommended: 'Recommended for you',
+  recommendation_text: 'Based on your profile, start with Budgeting 101.',
+  recently_added: 'Recently added',
+  featured_articles: 'Featured Articles',
+  featured_courses: 'Featured Courses',
+  current_path: 'Continue Your Path',
+  available_paths: 'Available Paths',
+  all_articles: 'All Articles',
+  all_videos: 'All Videos',
+  // Topic card template
+  lessons_count: '{count} Lessons',
+  modules_count: '{count} Modules',
+  // Article categories
+  debt: 'Debt',
+  debt_snowball_title: 'Debt Snowball vs Avalanche Method',
+  // Video titles
+  understanding_credit: 'Understanding Credit Scores',
+  retirement_planning: 'Retirement Planning Basics',
 };

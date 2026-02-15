@@ -58,4 +58,37 @@ export default {
   money_basics: 'أساسيات المال',
   budgeting_101: 'الميزانية 101',
   debt_management: 'إدارة الديون',
+  // Mode selectors
+  'mode.home': 'الرئيسية',
+  'mode.paths': 'مسارات التعلم',
+  'mode.articles': 'مقالات',
+  'mode.videos': 'فيديوهات',
+  'mode.topics': 'المواضيع والمهارات',
+  'mode.achievements': 'الإنجازات',
+  // Hero section
+  featured_title: 'ابدأ رحلتك المالية',
+  featured_desc: 'ابدأ بمسار أساسيات المال المناسب للمبتدئين وابنِ معرفتك خطوة بخطوة.',
+  get_started: 'ابدأ الآن',
+  literacy_score: 'درجة الثقافة المالية',
+  score_placeholder: 'أكمل الدروس لفتح النتيجة',
+  // Content sections
+  featured: 'مميز',
+  recommended: 'موصى به لك',
+  recommendation_text: 'بناءً على ملفك الشخصي، ابدأ بالميزانية 101.',
+  recently_added: 'أُضيف مؤخراً',
+  featured_articles: 'مقالات مميزة',
+  featured_courses: 'دورات مميزة',
+  current_path: 'تابع مسارك',
+  available_paths: 'المسارات المتاحة',
+  all_articles: 'جميع المقالات',
+  all_videos: 'جميع الفيديوهات',
+  // Topic card template
+  lessons_count: '{count} دروس',
+  modules_count: '{count} وحدات',
+  // Article categories
+  debt: 'الديون',
+  debt_snowball_title: 'طريقة كرة الثلج مقابل طريقة الانهيار لسداد الديون',
+  // Video titles
+  understanding_credit: 'فهم الدرجة الائتمانية',
+  retirement_planning: 'أساسيات التخطيط للتقاعد',
 };

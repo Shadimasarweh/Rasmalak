@@ -131,5 +131,12 @@ export default {
   english: 'English',
   arabic: 'Arabic',
   
+  guest_user: 'Guest User',
+  no_email: 'No email set',
+  continue_btn: 'Continue',
+  back_btn: 'Back',
+  verifying: 'Verifying...',
+  deleting: 'Deleting...',
+  complete_setup: 'Complete Setup',
   // Note: Currency names are centralized in src/lib/currencies.ts
 };

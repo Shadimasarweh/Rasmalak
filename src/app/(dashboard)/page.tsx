@@ -92,7 +92,15 @@ export default function OverviewPage() {
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - dayOfWeek);
     startOfWeek.setHours(0, 0, 0, 0);
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const days = [
+      intl.formatMessage({ id: 'dashboard.day_sun', defaultMessage: 'Sun' }),
+      intl.formatMessage({ id: 'dashboard.day_mon', defaultMessage: 'Mon' }),
+      intl.formatMessage({ id: 'dashboard.day_tue', defaultMessage: 'Tue' }),
+      intl.formatMessage({ id: 'dashboard.day_wed', defaultMessage: 'Wed' }),
+      intl.formatMessage({ id: 'dashboard.day_thu', defaultMessage: 'Thu' }),
+      intl.formatMessage({ id: 'dashboard.day_fri', defaultMessage: 'Fri' }),
+      intl.formatMessage({ id: 'dashboard.day_sat', defaultMessage: 'Sat' }),
+    ];
     const spending: Record<string, number> = {};
     days.forEach(day => { spending[day] = 0; });
     transactions.forEach(tx => {
@@ -111,7 +119,7 @@ export default function OverviewPage() {
       height: spending[day] > 0 ? Math.max((spending[day] / maxSpending) * 100, 5) : 0,
       isToday: day === todayName,
     }));
-  }, [transactions]);
+  }, [transactions, intl]);
 
   const hasWeeklySpending = weeklySpending.some(d => d.amount > 0);
 
@@ -401,7 +409,7 @@ export default function OverviewPage() {
               })}
               {activeBudgets.length > 4 && (
                 <Link href="/budgets" className="ds-link-action" style={{ textAlign: 'center' }}>
-                  +{activeBudgets.length - 4} {isRTL ? 'المزيد' : 'more'}
+                  {intl.formatMessage({ id: 'dashboard.more_budgets', defaultMessage: '+{count} more' }, { count: activeBudgets.length - 4 })}
                 </Link>
               )}
             </div>
