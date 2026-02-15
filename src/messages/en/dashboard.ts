@@ -90,6 +90,15 @@ export default {
   add_transaction_hint: 'Add your first transaction to start tracking your finances',
   expense: 'Expense',
   more_budgets: '+{count} more',
+  // Budgets page
+  budgets_back_to_dashboard: 'Back to Dashboard',
+  budgets_subtitle: 'Set an overall monthly budget or per-category spending limits.',
+  budgets_monthly_budget: 'Monthly Budget',
+  budgets_monthly_budget_desc: 'Total monthly spending limit (regardless of categories)',
+  budgets_total_budget: 'Total Budget',
+  budgets_category_budgets: 'Category Budgets',
+  budgets_saved: 'Saved!',
+  budgets_save_budgets: 'Save Budgets',
   // Goals page
   goals_title: 'Savings Goals',
   goals_subtitle: 'Set your financial goals and track your progress toward achieving them.',

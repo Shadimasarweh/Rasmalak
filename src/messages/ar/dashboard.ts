@@ -90,6 +90,15 @@ export default {
   add_transaction_hint: 'أضف أول عملية لبدء تتبع أموالك',
   expense: 'مصروف',
   more_budgets: '+{count} المزيد',
+  // Budgets page
+  budgets_back_to_dashboard: 'العودة للرئيسية',
+  budgets_subtitle: 'حدد ميزانيتك الشهرية الإجمالية أو ميزانية لكل فئة مصاريف.',
+  budgets_monthly_budget: 'الميزانية الشهرية',
+  budgets_monthly_budget_desc: 'حد الإنفاق الشهري الإجمالي (بغض النظر عن الفئات)',
+  budgets_total_budget: 'إجمالي الميزانية',
+  budgets_category_budgets: 'ميزانية الفئات',
+  budgets_saved: 'تم الحفظ!',
+  budgets_save_budgets: 'حفظ الميزانيات',
   // Goals page
   goals_title: 'أهداف الادخار',
   goals_subtitle: 'حدد أهدافك المالية وتابع تقدمك نحو تحقيقها.',
