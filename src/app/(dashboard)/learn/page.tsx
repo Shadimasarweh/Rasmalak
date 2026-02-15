@@ -435,6 +435,7 @@ function TopicCard({
   title,
   lessons,
   duration,
+  intl,
 }: {
   icon: React.ReactNode;
   iconBg: string;
@@ -442,6 +443,7 @@ function TopicCard({
   title: string;
   lessons: number;
   duration: string;
+  intl: ReturnType<typeof useIntl>;
 }) {
   return (
     <div className="ds-card" style={{ cursor: 'pointer' }}>
@@ -476,7 +478,7 @@ function TopicCard({
           color: 'var(--color-text-muted)',
         }}
       >
-        {lessons} Lessons • {duration}
+        {intl.formatMessage({ id: 'learn.lessons_count', defaultMessage: '{count} Lessons' }, { count: lessons })} • {duration}
       </p>
     </div>
   );
@@ -680,6 +682,7 @@ function PathPreviewCard({
   modules,
   duration,
   progress,
+  intl,
 }: {
   icon: React.ReactNode;
   iconBg: string;
@@ -690,6 +693,7 @@ function PathPreviewCard({
   modules: number;
   duration: string;
   progress: number;
+  intl: ReturnType<typeof useIntl>;
 }) {
   return (
     <div className="ds-card">
@@ -718,7 +722,7 @@ function PathPreviewCard({
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{modules} Modules • {duration}</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{intl.formatMessage({ id: 'learn.modules_count', defaultMessage: '{count} Modules' }, { count: modules })} • {duration}</span>
         <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>{progress}%</span>
       </div>
       <div style={{ height: '4px', background: 'var(--color-border-subtle)', borderRadius: 'var(--radius-pill)' }}>
@@ -931,6 +935,7 @@ function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             modules={6}
             duration="4h 30m"
             progress={0}
+            intl={intl}
           />
           <PathPreviewCard
             icon={<ShieldIcon />}
@@ -942,6 +947,7 @@ function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             modules={8}
             duration="6h 15m"
             progress={0}
+            intl={intl}
           />
           <PathPreviewCard
             icon={<BookIcon />}
@@ -953,6 +959,7 @@ function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             modules={5}
             duration="3h 45m"
             progress={0}
+            intl={intl}
           />
         </div>
       </div>
@@ -1028,6 +1035,7 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           title={intl.formatMessage({ id: 'learn.money_basics', defaultMessage: 'Money Basics' })}
           lessons={12}
           duration="2h 15m"
+          intl={intl}
         />
         <TopicCard
           icon={<CoinIcon />}
@@ -1036,6 +1044,7 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           title={intl.formatMessage({ id: 'learn.budgeting_101', defaultMessage: 'Budgeting 101' })}
           lessons={8}
           duration="1h 45m"
+          intl={intl}
         />
         <TopicCard
           icon={<TrendIcon />}
@@ -1044,6 +1053,7 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           title={intl.formatMessage({ id: 'learn.investing', defaultMessage: 'Investing' })}
           lessons={15}
           duration="3h 10m"
+          intl={intl}
         />
         <TopicCard
           icon={<ShieldIcon />}
@@ -1052,6 +1062,7 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           title={intl.formatMessage({ id: 'learn.debt_management', defaultMessage: 'Debt Management' })}
           lessons={6}
           duration="1h 20m"
+          intl={intl}
         />
       </div>
     </div>

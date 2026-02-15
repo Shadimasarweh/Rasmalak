@@ -279,6 +279,12 @@ export const translations = {
       welcomeBack: 'أهلاً بعودتك',
       createAccount: 'إنشاء حساب جديد',
       getStarted: 'ابدأ رحلتك المالية',
+      resetPassword: 'استعادة كلمة المرور',
+      resetPasswordHelper: 'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.',
+      sendResetLink: 'إرسال رابط التعيين',
+      backToLogin: 'العودة لتسجيل الدخول',
+      comingSoon: '🚧 هذه الميزة قادمة قريباً',
+      resetComingSoonDesc: 'سيتم تفعيل إعادة تعيين كلمة المرور قريباً.',
     },
 
     // Budget
@@ -702,6 +708,12 @@ export const translations = {
       welcomeBack: 'Welcome back',
       createAccount: 'Create new account',
       getStarted: 'Start your financial journey',
+      resetPassword: 'Reset your password',
+      resetPasswordHelper: "Enter your email and we'll send you a reset link.",
+      sendResetLink: 'Send reset link',
+      backToLogin: 'Back to login',
+      comingSoon: '🚧 Coming soon',
+      resetComingSoonDesc: 'Password reset will be enabled soon.',
     },
 
     // Budget

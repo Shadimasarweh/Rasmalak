@@ -265,7 +265,7 @@ export default function BudgetsPage() {
         <span style={{ transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex' }}>
           <ArrowLeftIcon />
         </span>
-        {isRTL ? 'العودة للرئيسية' : 'Back to Dashboard'}
+        {intl.formatMessage({ id: 'dashboard.budgets_back_to_dashboard', defaultMessage: 'Back to Dashboard' })}
       </Link>
 
       {/* Header */}
@@ -288,9 +288,7 @@ export default function BudgetsPage() {
             marginTop: '4px',
           }}
         >
-          {isRTL
-            ? 'حدد ميزانيتك الشهرية الإجمالية أو ميزانية لكل فئة مصاريف.'
-            : 'Set an overall monthly budget or per-category spending limits.'}
+          {intl.formatMessage({ id: 'dashboard.budgets_subtitle', defaultMessage: 'Set an overall monthly budget or per-category spending limits.' })}
         </p>
       </div>
 
@@ -311,12 +309,10 @@ export default function BudgetsPage() {
             color: 'var(--color-text-primary)',
           }}
         >
-          {isRTL ? 'الميزانية الشهرية' : 'Monthly Budget'}
+          {intl.formatMessage({ id: 'dashboard.budgets_monthly_budget', defaultMessage: 'Monthly Budget' })}
         </h2>
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '-8px' }}>
-          {isRTL
-            ? 'حد الإنفاق الشهري الإجمالي (بغض النظر عن الفئات)'
-            : 'Total monthly spending limit (regardless of categories)'}
+          {intl.formatMessage({ id: 'dashboard.budgets_monthly_budget_desc', defaultMessage: 'Total monthly spending limit (regardless of categories)' })}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-muted)', flexShrink: 0 }}>
@@ -358,7 +354,7 @@ export default function BudgetsPage() {
       >
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
-            {isRTL ? 'إجمالي الميزانية' : 'Total Budget'}
+            {intl.formatMessage({ id: 'dashboard.budgets_total_budget', defaultMessage: 'Total Budget' })}
           </p>
           <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
             {currencySymbol} {displayBudget.toLocaleString()}
@@ -414,7 +410,7 @@ export default function BudgetsPage() {
             marginBottom: '8px',
           }}
         >
-          {isRTL ? 'ميزانية الفئات' : 'Category Budgets'}
+          {intl.formatMessage({ id: 'dashboard.budgets_category_budgets', defaultMessage: 'Category Budgets' })}
         </h2>
 
         {DEFAULT_EXPENSE_CATEGORIES.map((cat) => (
@@ -456,8 +452,8 @@ export default function BudgetsPage() {
       >
         {isSaved ? <CheckIcon /> : <SaveIcon />}
         {isSaved
-          ? isRTL ? 'تم الحفظ!' : 'Saved!'
-          : isRTL ? 'حفظ الميزانيات' : 'Save Budgets'}
+          ? intl.formatMessage({ id: 'dashboard.budgets_saved', defaultMessage: 'Saved!' })
+          : intl.formatMessage({ id: 'dashboard.budgets_save_budgets', defaultMessage: 'Save Budgets' })}
       </button>
     </div>
   );

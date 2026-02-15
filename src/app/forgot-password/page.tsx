@@ -27,16 +27,12 @@ export default function ForgotPasswordPage() {
   };
 
   // Translations
-  const heading = isRTL ? 'استعادة كلمة المرور' : 'Reset your password';
-  const helper = isRTL
-    ? 'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.'
-    : "Enter your email and we'll send you a reset link.";
+  const heading = t.auth.resetPassword;
+  const helper = t.auth.resetPasswordHelper;
   const emailLabel = t.auth.email;
-  const submitText = isRTL ? 'إرسال رابط التعيين' : 'Send reset link';
-  const backToLogin = isRTL ? 'العودة لتسجيل الدخول' : 'Back to login';
-  const comingSoonMessage = isRTL
-    ? '🚧 هذه الميزة قادمة قريباً'
-    : '🚧 Coming soon';
+  const submitText = t.auth.sendResetLink;
+  const backToLogin = t.auth.backToLogin;
+  const comingSoonMessage = t.auth.comingSoon;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-bg-primary)] py-8 relative overflow-hidden">
@@ -77,9 +73,7 @@ export default function ForgotPasswordPage() {
                 {comingSoonMessage}
               </p>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                {isRTL
-                  ? 'سيتم تفعيل إعادة تعيين كلمة المرور قريباً.'
-                  : 'Password reset will be enabled soon.'}
+                {t.auth.resetComingSoonDesc}
               </p>
               <Link
                 href="/login"

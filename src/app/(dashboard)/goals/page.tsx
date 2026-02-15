@@ -57,6 +57,7 @@ function AddFundsModal({
   onClose,
   onConfirm,
   isRTL,
+  intl,
 }: {
   isOpen: boolean;
   goalName: string;
@@ -64,6 +65,7 @@ function AddFundsModal({
   onClose: () => void;
   onConfirm: (amount: number) => void;
   isRTL: boolean;
+  intl: ReturnType<typeof useIntl>;
 }) {
   const [amount, setAmount] = useState('');
 
@@ -103,7 +105,7 @@ function AddFundsModal({
             marginBottom: '4px',
           }}
         >
-          {isRTL ? 'إضافة مبلغ' : 'Add Funds'}
+          {intl.formatMessage({ id: 'dashboard.goals_add_funds', defaultMessage: 'Add Funds' })}
         </h3>
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
           {goalName}
@@ -149,7 +151,7 @@ function AddFundsModal({
               cursor: 'pointer',
             }}
           >
-            {isRTL ? 'إلغاء' : 'Cancel'}
+            {intl.formatMessage({ id: 'dashboard.goals_cancel', defaultMessage: 'Cancel' })}
           </button>
           <button
             onClick={() => {
@@ -171,7 +173,7 @@ function AddFundsModal({
               cursor: 'pointer',
             }}
           >
-            {isRTL ? 'إضافة' : 'Add'}
+            {intl.formatMessage({ id: 'dashboard.goals_add', defaultMessage: 'Add' })}
           </button>
         </div>
       </div>
@@ -186,12 +188,14 @@ function GoalCard({
   onAddFunds,
   onDelete,
   isRTL,
+  intl,
 }: {
   goal: { id: string; name: string; nameAr: string; targetAmount: number; currentAmount: number; deadline?: string; color: string };
   currencySymbol: string;
   onAddFunds: () => void;
   onDelete: () => void;
   isRTL: boolean;
+  intl: ReturnType<typeof useIntl>;
 }) {
   const percentage = goal.targetAmount > 0 ? Math.min((goal.currentAmount / goal.targetAmount) * 100, 100) : 0;
   const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
@@ -254,7 +258,7 @@ function GoalCard({
             </h3>
             {goal.deadline && (
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                {isRTL ? 'الموعد النهائي:' : 'Deadline:'}{' '}
+                {intl.formatMessage({ id: 'dashboard.goals_deadline', defaultMessage: 'Deadline' })}:{' '}
                 {new Date(goal.deadline).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
                   month: 'short',
@@ -267,7 +271,7 @@ function GoalCard({
 
         <button
           onClick={onDelete}
-          title={isRTL ? 'حذف' : 'Delete'}
+          title={intl.formatMessage({ id: 'dashboard.goals_delete', defaultMessage: 'Delete' })}
           style={{
             padding: '6px',
             border: 'none',
@@ -321,10 +325,10 @@ function GoalCard({
           }}
         >
           <span>
-            {isRTL ? 'المتبقي:' : 'Remaining:'} {currencySymbol} {remaining.toLocaleString()}
+            {intl.formatMessage({ id: 'dashboard.goals_remaining', defaultMessage: 'Remaining' })}: {currencySymbol} {remaining.toLocaleString()}
           </span>
           <span>
-            {isRTL ? 'الهدف:' : 'Target:'} {currencySymbol} {goal.targetAmount.toLocaleString()}
+            {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {goal.targetAmount.toLocaleString()}
           </span>
         </div>
       </div>
@@ -346,7 +350,7 @@ function GoalCard({
           }}
           className="hover:opacity-80 transition-opacity"
         >
-          {isRTL ? 'إضافة مبلغ' : 'Add Funds'}
+          {intl.formatMessage({ id: 'dashboard.goals_add_funds', defaultMessage: 'Add Funds' })}
         </button>
       )}
       {isComplete && (
@@ -361,7 +365,7 @@ function GoalCard({
             borderRadius: 'var(--radius-sm)',
           }}
         >
-          {isRTL ? 'تم تحقيق الهدف!' : 'Goal achieved!'}
+          {intl.formatMessage({ id: 'dashboard.goals_goal_achieved', defaultMessage: 'Goal achieved!' })}
         </div>
       )}
     </div>
@@ -374,11 +378,13 @@ function CreateGoalForm({
   isRTL,
   onCancel,
   onSave,
+  intl,
 }: {
   currencySymbol: string;
   isRTL: boolean;
   onCancel: () => void;
   onSave: (data: { name: string; nameAr: string; targetAmount: number; deadline?: string; color: string; currentAmount: number }) => void;
+  intl: ReturnType<typeof useIntl>;
 }) {
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
@@ -434,24 +440,24 @@ function CreateGoalForm({
           color: 'var(--color-text-primary)',
         }}
       >
-        {isRTL ? 'هدف ادخار جديد' : 'New Savings Goal'}
+        {intl.formatMessage({ id: 'dashboard.goals_new_savings_goal', defaultMessage: 'New Savings Goal' })}
       </h3>
 
       {/* Goal Name */}
       <div>
-        <label style={labelStyle}>{isRTL ? 'اسم الهدف' : 'Goal Name'}</label>
+        <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_goal_name', defaultMessage: 'Goal Name' })}</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder={isRTL ? 'مثال: رحلة صيفية' : 'e.g. Summer Vacation'}
+          placeholder={intl.formatMessage({ id: 'dashboard.goals_goal_name_placeholder', defaultMessage: 'e.g. Summer Vacation' })}
           style={inputStyle}
         />
       </div>
 
       {/* Target amount */}
       <div>
-        <label style={labelStyle}>{isRTL ? 'المبلغ المستهدف' : 'Target Amount'}</label>
+        <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_target_amount', defaultMessage: 'Target Amount' })}</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
@@ -468,7 +474,7 @@ function CreateGoalForm({
 
       {/* Deadline */}
       <div>
-        <label style={labelStyle}>{isRTL ? 'الموعد النهائي (اختياري)' : 'Deadline (optional)'}</label>
+        <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_deadline_optional', defaultMessage: 'Deadline (optional)' })}</label>
         <input
           type="date"
           value={deadline}
@@ -479,7 +485,7 @@ function CreateGoalForm({
 
       {/* Color picker */}
       <div>
-        <label style={labelStyle}>{isRTL ? 'اللون' : 'Color'}</label>
+        <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_color', defaultMessage: 'Color' })}</label>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {GOAL_COLORS.map((c) => (
             <button
@@ -517,25 +523,25 @@ function CreateGoalForm({
             color: 'var(--color-text-secondary)',
             cursor: 'pointer',
           }}
-        >
-          {isRTL ? 'إلغاء' : 'Cancel'}
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={!name.trim() || !parseFloat(target)}
-          style={{
-            flex: 1,
-            padding: '10px',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            background: !name.trim() || !parseFloat(target) ? 'var(--color-border)' : 'var(--color-accent-growth)',
-            color: !name.trim() || !parseFloat(target) ? 'var(--color-text-muted)' : '#FFFFFF',
-            cursor: !name.trim() || !parseFloat(target) ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {isRTL ? 'إنشاء الهدف' : 'Create Goal'}
+          >
+            {intl.formatMessage({ id: 'dashboard.goals_cancel', defaultMessage: 'Cancel' })}
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!name.trim() || !parseFloat(target)}
+            style={{
+              flex: 1,
+              padding: '10px',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              background: !name.trim() || !parseFloat(target) ? 'var(--color-border)' : 'var(--color-accent-growth)',
+              color: !name.trim() || !parseFloat(target) ? 'var(--color-text-muted)' : '#FFFFFF',
+              cursor: !name.trim() || !parseFloat(target) ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {intl.formatMessage({ id: 'dashboard.goals_create_goal', defaultMessage: 'Create Goal' })}
         </button>
       </div>
     </div>
@@ -595,7 +601,7 @@ export default function GoalsPage() {
         <span style={{ transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex' }}>
           <ArrowLeftIcon />
         </span>
-        {isRTL ? 'العودة للرئيسية' : 'Back to Dashboard'}
+        {intl.formatMessage({ id: 'dashboard.goals_back_to_dashboard', defaultMessage: 'Back to Dashboard' })}
       </Link>
 
       {/* Header */}
@@ -609,7 +615,7 @@ export default function GoalsPage() {
               lineHeight: 1.2,
             }}
           >
-            {isRTL ? 'أهداف الادخار' : 'Savings Goals'}
+            {intl.formatMessage({ id: 'dashboard.goals_title', defaultMessage: 'Savings Goals' })}
           </h1>
           <p
             style={{
@@ -619,9 +625,7 @@ export default function GoalsPage() {
               marginTop: '4px',
             }}
           >
-            {isRTL
-              ? 'حدد أهدافك المالية وتابع تقدمك نحو تحقيقها.'
-              : 'Set your financial goals and track your progress toward achieving them.'}
+            {intl.formatMessage({ id: 'dashboard.goals_subtitle', defaultMessage: 'Set your financial goals and track your progress toward achieving them.' })}
           </p>
         </div>
 
@@ -645,7 +649,7 @@ export default function GoalsPage() {
             className="hover:opacity-90 transition-opacity"
           >
             <PlusIcon />
-            {isRTL ? 'هدف جديد' : 'New Goal'}
+            {intl.formatMessage({ id: 'dashboard.goals_new_goal', defaultMessage: 'New Goal' })}
           </button>
         )}
       </div>
@@ -663,7 +667,7 @@ export default function GoalsPage() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              {isRTL ? 'التقدم الإجمالي' : 'Overall Progress'}
+              {intl.formatMessage({ id: 'dashboard.goals_overall_progress', defaultMessage: 'Overall Progress' })}
             </p>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: overallPercentage >= 100 ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
               {overallPercentage.toFixed(0)}%
@@ -689,10 +693,10 @@ export default function GoalsPage() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
             <span>
-              {isRTL ? 'تم ادخار:' : 'Saved:'} {currencySymbol} {totalSaved.toLocaleString()}
+              {intl.formatMessage({ id: 'dashboard.goals_saved', defaultMessage: 'Saved' })}: {currencySymbol} {totalSaved.toLocaleString()}
             </span>
             <span>
-              {isRTL ? 'الهدف:' : 'Target:'} {currencySymbol} {totalTarget.toLocaleString()}
+              {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {totalTarget.toLocaleString()}
             </span>
           </div>
         </div>
@@ -704,6 +708,7 @@ export default function GoalsPage() {
           <CreateGoalForm
             currencySymbol={currencySymbol}
             isRTL={isRTL}
+            intl={intl}
             onCancel={() => setShowCreate(false)}
             onSave={(data) => {
               addSavingsGoal(data);
@@ -728,9 +733,10 @@ export default function GoalsPage() {
               goal={goal}
               currencySymbol={currencySymbol}
               isRTL={isRTL}
+              intl={intl}
               onAddFunds={() => setAddFundsGoalId(goal.id)}
               onDelete={() => {
-                if (confirm(isRTL ? 'هل أنت متأكد من حذف هذا الهدف؟' : 'Are you sure you want to delete this goal?')) {
+                if (confirm(intl.formatMessage({ id: 'dashboard.goals_delete_confirm', defaultMessage: 'Are you sure you want to delete this goal?' }))) {
                   deleteSavingsGoal(goal.id);
                 }
               }}
@@ -765,7 +771,7 @@ export default function GoalsPage() {
               <FlagIcon />
             </div>
             <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', textAlign: 'center' }}>
-              {isRTL ? 'لا توجد أهداف بعد' : 'No goals yet'}
+              {intl.formatMessage({ id: 'dashboard.goals_no_goals', defaultMessage: 'No goals yet' })}
             </p>
             <button
               onClick={() => setShowCreate(true)}
@@ -779,7 +785,7 @@ export default function GoalsPage() {
                 textDecoration: 'underline',
               }}
             >
-              {isRTL ? 'أنشئ هدفك الأول' : 'Create your first goal'}
+              {intl.formatMessage({ id: 'dashboard.goals_create_first', defaultMessage: 'Create your first goal' })}
             </button>
           </div>
         )
@@ -791,6 +797,7 @@ export default function GoalsPage() {
         goalName={addFundsGoal ? addFundsGoal.name : ''}
         currencySymbol={currencySymbol}
         isRTL={isRTL}
+        intl={intl}
         onClose={() => setAddFundsGoalId(null)}
         onConfirm={(amount) => {
           if (addFundsGoalId && addFundsGoal) {

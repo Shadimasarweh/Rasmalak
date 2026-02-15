@@ -881,7 +881,7 @@ function TwoFactorSetupModal({
             </p>
             
             {isLoading ? (
-              <div style={{ padding: '40px', color: 'var(--color-text-muted)' }}>Loading...</div>
+              <div style={{ padding: '40px', color: 'var(--color-text-muted)' }}>{intl.formatMessage({ id: 'common.loading', defaultMessage: 'Loading...' })}</div>
             ) : qrCodeUrl ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                 <img src={qrCodeUrl} alt="QR Code" style={{ width: '200px', height: '200px', borderRadius: '8px' }} />
@@ -911,7 +911,7 @@ function TwoFactorSetupModal({
                 opacity: qrCodeUrl ? 1 : 0.5,
               }}
             >
-              Continue
+              {intl.formatMessage({ id: 'settings.continue_btn', defaultMessage: 'Continue' })}
             </button>
           </div>
         )}
@@ -960,7 +960,7 @@ function TwoFactorSetupModal({
                   cursor: 'pointer',
                 }}
               >
-                Back
+                {intl.formatMessage({ id: 'settings.back_btn', defaultMessage: 'Back' })}
               </button>
               <button
                 onClick={verifyCode}
@@ -977,7 +977,7 @@ function TwoFactorSetupModal({
                   opacity: verificationCode.length === 6 && !isLoading ? 1 : 0.5,
                 }}
               >
-                {isLoading ? 'Verifying...' : intl.formatMessage({ id: 'settings.two_factor_verify', defaultMessage: 'Verify & Enable' })}
+                {isLoading ? intl.formatMessage({ id: 'settings.verifying', defaultMessage: 'Verifying...' }) : intl.formatMessage({ id: 'settings.two_factor_verify', defaultMessage: 'Verify & Enable' })}
               </button>
             </div>
           </div>
@@ -1040,7 +1040,7 @@ function TwoFactorSetupModal({
                 opacity: codesSaved ? 1 : 0.5,
               }}
             >
-              {intl.formatMessage({ id: 'settings.two_factor_success', defaultMessage: 'Complete Setup' })}
+              {intl.formatMessage({ id: 'settings.complete_setup', defaultMessage: 'Complete Setup' })}
             </button>
           </div>
         )}
@@ -1220,7 +1220,7 @@ function DeleteAccountModal({
               opacity: confirmText === 'DELETE' && password && !isDeleting ? 1 : 0.5,
             }}
           >
-            {isDeleting ? 'Deleting...' : intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
+            {isDeleting ? intl.formatMessage({ id: 'settings.deleting', defaultMessage: 'Deleting...' }) : intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
           </button>
         </div>
       </div>
