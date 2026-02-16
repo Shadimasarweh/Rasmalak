@@ -74,13 +74,13 @@ export const AI_SAFETY = {
   // Maximum user message length (characters)
   maxInputLength: 2000,
   
-  // Topics the AI should refuse to discuss
-  blockedTopics: [
+  // Topics where the AI should add a professional-advice disclaimer
+  // (NOT refused — just flagged as needing a real professional)
+  disclaimerTopics: [
     'specific investment advice',
     'stock picks',
     'cryptocurrency recommendations',
     'legal advice',
-    'tax evasion',
   ],
   
   // Require disclaimer for financial advice
