@@ -195,8 +195,8 @@ class RasmalakAIService {
     const messages = formatMessagesForOpenAI(prompt, [], 'Generate insights');
 
     const result = await sendChatCompletionWithRetry(messages, {
-      max_tokens: 500,
-      temperature: 0.5, // More consistent for insights
+      max_tokens: 1024,
+      temperature: 0.6, // Slightly creative for richer insights while staying consistent
     });
 
     if (!result.success) {

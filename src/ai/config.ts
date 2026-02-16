@@ -25,8 +25,9 @@ export const AI_CONFIG: AIProviderConfig = {
   
   // Maximum tokens in response
   // Lower = faster & cheaper, higher = more detailed
-  // 1000 tokens ≈ 750 words
-  maxTokens: 1000,
+  // 2048 tokens ≈ 1500 words; Arabic text is token-heavy (~2-3 tokens/char)
+  // so a generous budget is needed for rich, detailed responses.
+  maxTokens: 2048,
   
   // Temperature (creativity)
   // 0.0 = deterministic, same input = same output
