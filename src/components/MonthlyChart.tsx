@@ -11,7 +11,7 @@ import {
   Legend,
 } from 'recharts';
 import { useIntl } from 'react-intl';
-import { useCurrency } from '@/store/useStore';
+import { useCurrency, useAccentColor } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface MonthlyChartProps {
@@ -21,6 +21,7 @@ interface MonthlyChartProps {
 export default function MonthlyChart({ data }: MonthlyChartProps) {
   const intl = useIntl();
   const currency = useCurrency();
+  const accentColor = useAccentColor();
   const { language } = useTranslation();
 
   if (data.length === 0) {
@@ -93,7 +94,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
           <Bar
             dataKey="income"
             name="income"
-            fill="#10B981"
+            fill={accentColor || '#1F7A5A'}
             radius={[4, 4, 0, 0]}
           />
           <Bar

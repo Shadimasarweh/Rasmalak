@@ -173,7 +173,7 @@ function CategoryItem({
         padding: 'var(--spacing-2)',
         borderRadius: 'var(--radius-sm)',
         border: selected ? '2px solid var(--color-success)' : '1px solid var(--color-border)',
-        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-surface-1)',
+        background: selected ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-surface-1)',
         cursor: 'pointer',
         gap: '8px',
         minHeight: '80px',

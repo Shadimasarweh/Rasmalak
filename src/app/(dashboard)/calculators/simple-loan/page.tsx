@@ -284,7 +284,7 @@ export default function SimpleLoanCalculatorPage() {
 
 function SummaryItem({ label, value, highlight, accent }: { label: string; value: string; highlight?: boolean; accent?: boolean }) {
   return (
-    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(16, 185, 129, 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--color-border)' }}>
+    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(var(--accent-color-rgb), 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)' }}>
       <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>
       <p style={{ fontSize: highlight ? '1.25rem' : '1rem', fontWeight: 600, color: highlight ? 'var(--color-accent-growth)' : accent ? '#6366F1' : 'var(--color-text-primary)', lineHeight: 1.3 }}>{value}</p>
     </div>

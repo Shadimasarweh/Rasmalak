@@ -170,7 +170,7 @@ function ModeSelector({
         minWidth: '100px',
         flex: '0 0 auto',
         background: isActive ? 'var(--color-accent-growth)' : 'var(--color-accent-growth-subtle)',
-        border: isActive ? 'none' : '1px solid rgba(16, 185, 129, 0.3)',
+        border: isActive ? 'none' : '1px solid rgba(var(--accent-color-rgb), 0.3)',
         borderRadius: 'var(--radius-xl)',
         cursor: 'pointer',
         transition: 'all 0.2s ease',

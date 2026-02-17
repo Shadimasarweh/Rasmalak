@@ -231,7 +231,7 @@ export default function MortgagePayoffCalculatorPage() {
               width: '48px',
               height: '48px',
               borderRadius: 'var(--radius-sm)',
-              background: 'rgba(16, 185, 129, 0.1)',
+              background: 'rgba(var(--accent-color-rgb), 0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -683,8 +683,8 @@ export default function MortgagePayoffCalculatorPage() {
                   style={{
                     padding: '1rem 1.25rem',
                     borderRadius: 'var(--radius-xl)',
-                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.03) 100%)',
-                    border: '1px solid rgba(16, 185, 129, 0.2)',
+                    background: 'linear-gradient(135deg, rgba(var(--accent-color-rgb), 0.08) 0%, rgba(var(--accent-color-rgb), 0.03) 100%)',
+                    border: '1px solid rgba(var(--accent-color-rgb), 0.2)',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
@@ -769,7 +769,7 @@ export default function MortgagePayoffCalculatorPage() {
                   width: '80px',
                   height: '80px',
                   borderRadius: 'var(--radius-xl)',
-                  background: 'rgba(16, 185, 129, 0.08)',
+                  background: 'rgba(var(--accent-color-rgb), 0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -810,12 +810,12 @@ function SummaryItem({
         padding: '12px',
         borderRadius: 'var(--radius-sm)',
         backgroundColor: highlight
-          ? 'rgba(16, 185, 129, 0.08)'
+          ? 'rgba(var(--accent-color-rgb), 0.08)'
           : accent
             ? 'rgba(99, 102, 241, 0.06)'
             : 'var(--color-bg-input)',
         border: highlight
-          ? '1px solid rgba(16, 185, 129, 0.2)'
+          ? '1px solid rgba(var(--accent-color-rgb), 0.2)'
           : '1px solid var(--color-border)',
       }}
     >

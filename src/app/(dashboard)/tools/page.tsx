@@ -175,7 +175,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.compound_savings_desc',
     descDefault: 'See how your savings grow over time with compound interest and plan your wealth-building journey.',
     icon: <PiggyIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
@@ -187,7 +187,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.rent_vs_buy_desc',
     descDefault: 'Compare the financial implications of renting versus buying a home to make an informed decision.',
     icon: <HomeIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
@@ -199,7 +199,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.mortgage_affordability_desc',
     descDefault: 'Determine how much home you can afford based on your income, debts, and down payment.',
     icon: <HomeIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
@@ -212,7 +212,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.mortgage_payoff_desc',
     descDefault: 'Calculate how extra payments can help you pay off your mortgage faster and save on interest.',
     icon: <HomeIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
@@ -225,7 +225,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.retirement_planner_desc',
     descDefault: 'Plan your retirement savings and see if you\'re on track to meet your retirement goals.',
     icon: <RetirementIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
@@ -288,7 +288,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.uae_gratuity_desc',
     descDefault: 'Calculate your end of service benefits and gratuity entitlements under UAE labor law.',
     icon: <ShieldIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'social',
     countries: ['uae'],
@@ -301,7 +301,7 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.ksa_zakat_desc',
     descDefault: 'Calculate your annual Zakat obligation based on your assets and Saudi Arabian Zakat regulations.',
     icon: <ZakatIcon />,
-    iconBg: 'rgba(16, 185, 129, 0.1)',
+    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
     iconColor: 'var(--color-accent-growth)',
     category: 'tax',
     countries: ['ksa'],
@@ -851,7 +851,7 @@ export default function FinancialToolsPage() {
                 marginBottom: 'var(--spacing-2)',
               }}
             >
-              <span style={{ color: 'rgba(16, 185, 129, 0.6)' }}>
+              <span style={{ color: 'rgba(var(--accent-color-rgb), 0.6)' }}>
                 <PiggyIcon />
               </span>
               <h2

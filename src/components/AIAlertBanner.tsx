@@ -237,8 +237,8 @@ export function AIGoalSuggestions() {
           style={{
             padding: 'var(--spacing-2)',
             borderRadius: 'var(--radius-sm)',
-            background: 'rgba(16, 185, 129, 0.05)',
-            border: '1px solid rgba(16, 185, 129, 0.1)',
+            background: 'rgba(var(--accent-color-rgb), 0.05)',
+            border: '1px solid rgba(var(--accent-color-rgb), 0.1)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>

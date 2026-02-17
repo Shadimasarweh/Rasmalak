@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Transaction, AuthUser, LoginCredentials, SignupData } from '@/types';
 import { generateId } from '@/lib/utils';
-import { DEFAULT_CURRENCY } from '@/lib/constants';
+import { DEFAULT_CURRENCY, DEFAULT_ACCENT_COLOR } from '@/lib/constants';
 import { Language } from '@/lib/translations';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/store/authStore';
@@ -197,6 +197,10 @@ interface AppState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+
+  // Accent Color
+  accentColor: string;
+  setAccentColor: (color: string) => void;
 
   // User
   userName: string;
@@ -496,6 +500,10 @@ export const useStore = create<AppState>()(
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
 
+      // Accent Color
+      accentColor: DEFAULT_ACCENT_COLOR,
+      setAccentColor: (color) => set({ accentColor: color }),
+
       // User
       userName: '',
       setUserName: (name) => set({ userName: name }),
@@ -541,6 +549,7 @@ export const useStore = create<AppState>()(
         userName: state.userName,
         language: state.language,
         theme: state.theme,
+        accentColor: state.accentColor,
         monthlyBudget: state.monthlyBudget,
         categoryBudgets: state.categoryBudgets,
         savingsGoals: state.savingsGoals,
@@ -558,6 +567,7 @@ export const useBaseCurrency = () => useStore((state) => state.baseCurrency);
 export const useUserName = () => useStore((state) => state.userName);
 export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);
+export const useAccentColor = () => useStore((state) => state.accentColor);
 
 // Budget selectors
 export const useMonthlyBudget = () => useStore((state) => state.monthlyBudget);

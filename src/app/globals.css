@@ -76,13 +76,19 @@
    2. LIGHT THEME  (default)
    ============================================================ */
 :root {
+  /* --- User-selectable accent color (updated by JS) --- */
+  --accent-color: #1F7A5A;
+  --accent-color-hover: #259A72;
+  --accent-color-dark: #16654A;
+  --accent-color-rgb: 31, 122, 90;
+
   /* --- Backgrounds --- */
   --color-bg-primary: #F2F0EC;
   --color-bg-surface-1: #FFFFFF;
   --color-bg-surface-2: #E8E5DF;
   --color-bg-input: #F2F0EC;
   --color-bg-sidebar: #0F1E2E;
-  --color-bg-hero: linear-gradient(135deg, #0F1E2E 0%, #162635 60%, #1F7A5A 100%);
+  --color-bg-hero: linear-gradient(135deg, #0F1E2E 0%, #162635 60%, var(--accent-color) 100%);
 
   /* --- Text --- */
   --color-text-primary: #1C1F26;
@@ -92,10 +98,10 @@
   --color-text-on-hero: #FFFFFF;
   --color-text-on-hero-dim: rgba(255, 255, 255, 0.65);
 
-  /* --- Accent --- */
-  --color-accent-growth: #1F7A5A;
-  --color-accent-growth-hover: #259A72;
-  --color-accent-growth-subtle: rgba(31, 122, 90, 0.1);
+  /* --- Accent (derived from --accent-color) --- */
+  --color-accent-growth: var(--accent-color);
+  --color-accent-growth-hover: var(--accent-color-hover);
+  --color-accent-growth-subtle: rgba(var(--accent-color-rgb), 0.1);
 
   /* --- Border --- */
   --color-border: #D6D1C8;
@@ -140,16 +146,18 @@
   --theme-bg-secondary: var(--color-bg-surface-2);
   --theme-bg-tertiary: var(--color-bg-surface-2);
 
-  /* Legacy brand aliases */
+  /* Legacy brand aliases (derived from --accent-color) */
   --color-primary: var(--color-text-primary);
   --color-secondary: var(--color-accent-growth);
   --color-bg: var(--color-bg-primary);
   --color-brand-bg: var(--color-bg-primary);
   --color-brand-navy-light: #162635;
   --color-brand-navy-dark: #0A1220;
-  --color-brand-emerald-light: #259A72;
-  --color-brand-emerald-dark: #16654A;
-  --color-brand-accent: rgba(31, 122, 90, 0.12);
+  --color-brand-emerald: var(--accent-color);
+  --color-brand-emerald-hover: var(--accent-color-hover);
+  --color-brand-emerald-light: var(--accent-color-hover);
+  --color-brand-emerald-dark: var(--accent-color-dark);
+  --color-brand-accent: rgba(var(--accent-color-rgb), 0.12);
   --color-error: var(--color-danger-text);
 
   /* Legacy radius aliases */
@@ -168,7 +176,7 @@
   --color-bg-surface-2: #1C2E40;
   --color-bg-input: #1C2E40;
   --color-bg-sidebar: #0A1525;
-  --color-bg-hero: linear-gradient(135deg, #1F7A5A 0%, #16654A 50%, #0F1E2E 100%);
+  --color-bg-hero: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-color-dark) 50%, #0F1E2E 100%);
 
   /* --- Text --- */
   --color-text-primary: #E6EDF3;
@@ -178,10 +186,10 @@
   --color-text-on-hero: #FFFFFF;
   --color-text-on-hero-dim: rgba(255, 255, 255, 0.6);
 
-  /* --- Accent --- */
-  --color-accent-growth: #1F7A5A;
-  --color-accent-growth-hover: #259A72;
-  --color-accent-growth-subtle: rgba(31, 122, 90, 0.18);
+  /* --- Accent (derived from --accent-color) --- */
+  --color-accent-growth: var(--accent-color);
+  --color-accent-growth-hover: var(--accent-color-hover);
+  --color-accent-growth-subtle: rgba(var(--accent-color-rgb), 0.18);
 
   /* --- Border --- */
   --color-border: #223547;

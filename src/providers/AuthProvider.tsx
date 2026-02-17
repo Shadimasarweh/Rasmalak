@@ -128,7 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             width: '40px',
             height: '40px',
             border: '3px solid #E5E7EB',
-            borderTopColor: '#10B981',
+            borderTopColor: 'var(--accent-color, #1F7A5A)',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
           }}

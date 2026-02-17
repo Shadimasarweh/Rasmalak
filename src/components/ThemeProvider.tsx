@@ -2,9 +2,10 @@
 
 import { useEffect } from 'react';
 import { useStore } from '@/store/useStore';
+import { ACCENT_COLOR_OPTIONS, DEFAULT_ACCENT_COLOR } from '@/lib/constants';
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { theme, language } = useStore();
+  const { theme, language, accentColor } = useStore();
 
   useEffect(() => {
     // Apply theme to document
@@ -25,6 +26,18 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
       metaThemeColor.setAttribute('content', theme === 'dark' ? '#0B0E14' : '#F9FAFB');
     }
   }, [theme]);
+
+  useEffect(() => {
+    // Apply accent color CSS variables
+    const option = ACCENT_COLOR_OPTIONS.find((c) => c.value === accentColor)
+      || ACCENT_COLOR_OPTIONS.find((c) => c.value === DEFAULT_ACCENT_COLOR)!;
+
+    const root = document.documentElement;
+    root.style.setProperty('--accent-color', option.value);
+    root.style.setProperty('--accent-color-hover', option.hover);
+    root.style.setProperty('--accent-color-dark', option.dark);
+    root.style.setProperty('--accent-color-rgb', option.rgb);
+  }, [accentColor]);
 
   useEffect(() => {
     // Apply language direction

@@ -686,7 +686,7 @@ export default function GoalsPage() {
                 height: '100%',
                 width: `${overallPercentage}%`,
                 borderRadius: 'var(--radius-pill)',
-                background: 'linear-gradient(90deg, var(--color-accent-growth), #14B8A6)',
+                background: 'linear-gradient(90deg, var(--color-accent-growth), var(--accent-color-hover))',
                 transition: 'width 0.3s ease',
               }}
             />

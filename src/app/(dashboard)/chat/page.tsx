@@ -815,7 +815,7 @@ export default function MustasharakPage() {
                 />
                 <QuickActionCard
                   icon={<PiggyIcon />}
-                  iconBg="rgba(16, 185, 129, 0.1)"
+                  iconBg="rgba(var(--accent-color-rgb), 0.1)"
                   iconColor="var(--color-accent-growth)"
                   title={intl.formatMessage({ id: 'chat.how_save_more', defaultMessage: 'How can I save more?' })}
                   description={intl.formatMessage({ id: 'chat.how_save_more_desc', defaultMessage: 'Smart budgeting tips' })}
@@ -1043,7 +1043,7 @@ export default function MustasharakPage() {
                 fontSize: '0.625rem',
                 fontWeight: 600,
                 color: 'var(--color-accent-growth)',
-                background: 'rgba(16, 185, 129, 0.1)',
+                background: 'rgba(var(--accent-color-rgb), 0.1)',
                 padding: '4px 8px',
                 borderRadius: 'var(--radius-pill)',
                 textTransform: 'uppercase',
@@ -1058,8 +1058,8 @@ export default function MustasharakPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div
                 style={{
-                  background: 'rgba(16, 185, 129, 0.05)',
-                  border: '1px solid rgba(16, 185, 129, 0.1)',
+                  background: 'rgba(var(--accent-color-rgb), 0.05)',
+                  border: '1px solid rgba(var(--accent-color-rgb), 0.1)',
                   borderRadius: 'var(--radius-sm)',
                   padding: 'var(--spacing-1)',
                 }}

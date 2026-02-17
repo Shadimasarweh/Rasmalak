@@ -189,7 +189,7 @@ export default function HomeAffordabilityCalculatorPage() {
       {/* Header */}
       <div style={{ marginBottom: 'var(--spacing-3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-growth)', flexShrink: 0 }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', background: 'rgba(var(--accent-color-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-growth)', flexShrink: 0 }}>
             <HomeIcon />
           </div>
           <div>
@@ -297,7 +297,7 @@ export default function HomeAffordabilityCalculatorPage() {
                 </div>
 
                 {/* Hero Result */}
-                <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.03) 100%)', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
+                <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(135deg, rgba(var(--accent-color-rgb), 0.08) 0%, rgba(var(--accent-color-rgb), 0.03) 100%)', border: '1px solid rgba(var(--accent-color-rgb), 0.2)', textAlign: 'center' }}>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
                     {t('home_afford_max_price', 'Maximum Home Price')}
                   </p>
@@ -316,7 +316,7 @@ export default function HomeAffordabilityCalculatorPage() {
             </div>
           ) : (
             <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-xl)', background: 'rgba(16, 185, 129, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-growth)' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-xl)', background: 'rgba(var(--accent-color-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-growth)' }}>
                 <HomeIcon />
               </div>
               <p style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--color-text-secondary)', textAlign: 'center' }}>
@@ -360,7 +360,7 @@ function NumField({ label, value, onChange, placeholder, error, suffix, isRTL }:
 
 function SummaryItem({ label, value, highlight, accent }: { label: string; value: string; highlight?: boolean; accent?: boolean }) {
   return (
-    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(16, 185, 129, 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--color-border)' }}>
+    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(var(--accent-color-rgb), 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)' }}>
       <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>
       <p style={{ fontSize: highlight ? '1.25rem' : '1rem', fontWeight: 600, color: highlight ? 'var(--color-accent-growth)' : accent ? '#6366F1' : 'var(--color-text-primary)', lineHeight: 1.3 }}>{value}</p>
     </div>

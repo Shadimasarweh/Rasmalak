@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useStore, useUser, useUserName, useUpdateUserProfile } from '@/store/useStore';
 import { SUPPORTED_CURRENCY_CODES, getCurrencyDisplayName } from '@/lib/currencies';
+import { ACCENT_COLOR_OPTIONS } from '@/lib/constants';
 import { supabase } from '@/lib/supabaseClient';
 
 /* ============================================
@@ -373,7 +374,7 @@ function LanguageOption({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '14px 16px',
-        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+        background: selected ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
         border: selected ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
@@ -586,7 +587,7 @@ function ProfileContent({
               padding: '10px 14px',
               marginBottom: 'var(--spacing-2)',
               borderRadius: 'var(--radius-sm)',
-              background: saveMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              background: saveMessage.type === 'success' ? 'rgba(var(--accent-color-rgb), 0.1)' : 'rgba(239, 68, 68, 0.1)',
               color: saveMessage.type === 'success' ? 'var(--color-accent-growth)' : 'var(--color-error)',
               fontSize: '0.8125rem',
               fontWeight: 500,
@@ -1374,9 +1375,9 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '16px',
-          background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.08)' : 'var(--theme-bg-tertiary)',
+          background: twoFactorEnabled ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--theme-bg-tertiary)',
           borderRadius: 'var(--radius-sm)',
-          border: twoFactorEnabled ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid var(--color-border)',
+          border: twoFactorEnabled ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)',
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -1387,7 +1388,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 color: twoFactorEnabled ? 'var(--color-accent-growth)' : 'var(--color-text-muted)',
-                background: twoFactorEnabled ? 'rgba(16, 185, 129, 0.15)' : 'var(--color-border)',
+                background: twoFactorEnabled ? 'rgba(var(--accent-color-rgb), 0.15)' : 'var(--color-border)',
                 padding: '2px 10px',
                 borderRadius: 'var(--radius-pill)',
               }}>
@@ -1464,7 +1465,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             padding: '10px 14px',
             marginBottom: 'var(--spacing-2)',
             borderRadius: 'var(--radius-sm)',
-            background: 'rgba(16, 185, 129, 0.1)',
+            background: 'rgba(var(--accent-color-rgb), 0.1)',
             color: 'var(--color-accent-growth)',
             fontSize: '0.8125rem',
           }}>
@@ -1582,7 +1583,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                     width: '36px',
                     height: '36px',
                     borderRadius: 'var(--radius-sm)',
-                    background: session.current ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)',
+                    background: session.current ? 'rgba(var(--accent-color-rgb), 0.1)' : 'rgba(99, 102, 241, 0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1603,7 +1604,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                           fontSize: '0.6875rem',
                           fontWeight: 600,
                           color: 'var(--color-accent-growth)',
-                          background: 'rgba(16, 185, 129, 0.1)',
+                          background: 'rgba(var(--accent-color-rgb), 0.1)',
                           padding: '2px 8px',
                           borderRadius: 'var(--radius-pill)',
                         }}
@@ -1744,7 +1745,7 @@ function CurrencyOption({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 14px',
-        background: selected ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+        background: selected ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
         border: selected ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
         borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
@@ -1782,6 +1783,161 @@ function CurrencyOption({
   );
 }
 
+/* ===== PALETTE ICON ===== */
+const PaletteIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="13.5" cy="6.5" r="2.5" />
+    <circle cx="17.5" cy="10.5" r="2.5" />
+    <circle cx="8.5" cy="7.5" r="2.5" />
+    <circle cx="6.5" cy="12.5" r="2.5" />
+    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+  </svg>
+);
+
+/* ===== ACCENT COLOR PICKER MODAL ===== */
+function AccentColorPickerModal({
+  intl,
+  isOpen,
+  onClose,
+  selectedColor,
+  onColorChange,
+  language,
+}: {
+  intl: ReturnType<typeof useIntl>;
+  isOpen: boolean;
+  onClose: () => void;
+  selectedColor: string;
+  onColorChange: (color: string) => void;
+  language: 'en' | 'ar';
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0, 0, 0, 0.5)',
+        padding: '1rem',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: 'var(--color-bg-surface-1)',
+          borderRadius: 'var(--radius-xl)',
+          width: '100%',
+          maxWidth: '400px',
+          maxHeight: '85vh',
+          overflow: 'auto',
+          padding: 'var(--spacing-3)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: 'var(--color-accent-growth)' }}><PaletteIcon /></span>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              {intl.formatMessage({ id: 'settings.accent_color', defaultMessage: 'Accent Color' })}
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+            <XIcon />
+          </button>
+        </div>
+
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-3)' }}>
+          {intl.formatMessage({ id: 'settings.accent_color_description', defaultMessage: 'Choose a color that personalizes buttons, links, and highlights across the app.' })}
+        </p>
+
+        {/* Color grid */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {ACCENT_COLOR_OPTIONS.map((option) => {
+            const isSelected = selectedColor === option.value;
+            return (
+              <button
+                key={option.value}
+                onClick={() => onColorChange(option.value)}
+                title={language === 'ar' ? option.labelAr : option.label}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: option.value,
+                    border: isSelected ? '3px solid var(--color-text-primary)' : '2px solid transparent',
+                    outline: isSelected ? '2px solid var(--color-text-primary)' : 'none',
+                    outlineOffset: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'transform 0.15s ease, outline 0.15s ease',
+                    transform: isSelected ? 'scale(1.1)' : 'scale(1)',
+                  }}
+                >
+                  {isSelected && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <span
+                  style={{
+                    fontSize: '0.625rem',
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+                    maxWidth: '48px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {language === 'ar' ? option.labelAr : option.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Footer */}
+        <div style={{ marginTop: 'var(--spacing-3)', paddingTop: 'var(--spacing-2)', borderTop: '1px solid var(--color-divider)', display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 20px',
+              background: 'var(--color-accent-growth)',
+              color: '#FFFFFF',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              cursor: 'pointer',
+            }}
+          >
+            {intl.formatMessage({ id: 'settings.done', defaultMessage: 'Done' })}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ===== PREFERENCES TAB CONTENT ===== */
 function PreferencesContent({ 
   intl,
@@ -1791,6 +1947,8 @@ function PreferencesContent({
   onCurrencyChange,
   selectedTheme,
   onThemeChange,
+  selectedAccentColor,
+  onAccentColorChange,
 }: { 
   intl: ReturnType<typeof useIntl>;
   selectedLanguage: 'en' | 'ar';
@@ -1799,11 +1957,14 @@ function PreferencesContent({
   onCurrencyChange: (currency: string) => void;
   selectedTheme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
+  selectedAccentColor: string;
+  onAccentColorChange: (color: string) => void;
 }) {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [weeklySummary, setWeeklySummary] = useState(false);
   const [languageChangeNotice, setLanguageChangeNotice] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   
   const handleLanguageChange = (lang: 'en' | 'ar') => {
     onLanguageChange(lang);
@@ -1962,7 +2123,7 @@ function PreferencesContent({
               justifyContent: 'center',
               gap: '8px',
               padding: '12px',
-              background: selectedTheme === 'light' ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+              background: selectedTheme === 'light' ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
               border: selectedTheme === 'light' ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
@@ -1988,7 +2149,7 @@ function PreferencesContent({
               justifyContent: 'center',
               gap: '8px',
               padding: '12px',
-              background: selectedTheme === 'dark' ? 'rgba(16, 185, 129, 0.08)' : 'var(--color-bg-input)',
+              background: selectedTheme === 'dark' ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
               border: selectedTheme === 'dark' ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
               borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
@@ -2007,6 +2168,83 @@ function PreferencesContent({
           </div>
         </div>
       </div>
+
+      {/* Accent Color Card */}
+      <div className="ds-card">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
+          <span style={{ color: 'var(--color-accent-growth)' }}>
+            <PaletteIcon />
+          </span>
+          <h3
+            style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            {intl.formatMessage({ id: 'settings.accent_color', defaultMessage: 'Accent Color' })}
+          </h3>
+        </div>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+          {intl.formatMessage({ id: 'settings.accent_color_description', defaultMessage: 'Choose a color that personalizes buttons, links, and highlights across the app.' })}
+        </p>
+
+        {/* Current color preview + change button */}
+        {(() => {
+          const current = ACCENT_COLOR_OPTIONS.find((c) => c.value === selectedAccentColor) || ACCENT_COLOR_OPTIONS.find((c) => c.value === '#1F7A5A')!;
+          return (
+            <div
+              onClick={() => setShowColorPicker(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px',
+                background: 'rgba(var(--accent-color-rgb), 0.08)',
+                border: '2px solid var(--color-accent-growth)',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: current.value,
+                    border: '2px solid #FFFFFF',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                    flexShrink: 0,
+                  }}
+                />
+                <div>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                    {selectedLanguage === 'ar' ? current.labelAr : current.label}
+                  </p>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                    {intl.formatMessage({ id: 'settings.tap_to_change', defaultMessage: 'Tap to change' })}
+                  </p>
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          );
+        })()}
+      </div>
+
+      {/* Accent Color Picker Modal */}
+      <AccentColorPickerModal
+        intl={intl}
+        isOpen={showColorPicker}
+        onClose={() => setShowColorPicker(false)}
+        selectedColor={selectedAccentColor}
+        onColorChange={onAccentColorChange}
+        language={selectedLanguage}
+      />
 
       {/* Notifications Card */}
       <div className="ds-card">
@@ -2036,7 +2274,7 @@ function PreferencesContent({
           />
           <SettingRow
             icon={<SmartphoneIcon />}
-            iconBg="rgba(16, 185, 129, 0.1)"
+            iconBg="rgba(var(--accent-color-rgb), 0.1)"
             iconColor="var(--color-accent-growth)"
             label={intl.formatMessage({ id: 'settings.push_notifications', defaultMessage: 'Push Notifications' })}
             description={intl.formatMessage({ id: 'settings.push_notifications_description', defaultMessage: 'Receive push notifications on your device' })}
@@ -2088,6 +2326,10 @@ export default function SettingsPage() {
   const globalTheme = useStore((state) => state.theme);
   const setGlobalTheme = useStore((state) => state.setTheme);
   
+  // Get global accent color from store
+  const globalAccentColor = useStore((state) => state.accentColor);
+  const setGlobalAccentColor = useStore((state) => state.setAccentColor);
+  
   // Local state for pending changes (before save)
   const [pendingLanguage, setPendingLanguage] = useState<'en' | 'ar'>(globalLanguage);
   const [pendingCurrency, setPendingCurrency] = useState<string>(globalCurrency);
@@ -2095,6 +2337,11 @@ export default function SettingsPage() {
   // Theme is applied immediately for instant preview
   const handleThemeChange = (theme: 'light' | 'dark') => {
     setGlobalTheme(theme);
+  };
+  
+  // Accent color is applied immediately for instant preview
+  const handleAccentColorChange = (color: string) => {
+    setGlobalAccentColor(color);
   };
   
   // Handle profile update
@@ -2194,6 +2441,8 @@ export default function SettingsPage() {
               onCurrencyChange={setPendingCurrency}
               selectedTheme={globalTheme}
               onThemeChange={handleThemeChange}
+              selectedAccentColor={globalAccentColor}
+              onAccentColorChange={handleAccentColorChange}
             />
           )}
         </div>
