@@ -29,12 +29,27 @@ interface OpenAIRequest {
   messages: OpenAIMessage[];
   max_tokens: number;
   temperature: number;
+  response_format?: {
+    type: 'json_schema';
+    json_schema: {
+      name: string;
+      schema: Record<string, unknown>;
+      strict: boolean;
+    };
+  };
+}
+
+/** Passed by callers to request structured JSON output. */
+export interface StructuredOutputSchema {
+  name: string;
+  schema: Record<string, unknown>;
 }
 
 interface OpenAIChoice {
   message: {
     role: string;
-    content: string;
+    content: string | null;
+    refusal?: string | null;
   };
   finish_reason: string;
 }
@@ -66,12 +81,22 @@ interface OpenAIError {
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
+/** Options accepted by sendChatCompletion / sendChatCompletionWithRetry. */
+export type ChatCompletionOptions = Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>> & {
+  model?: string;
+  /** When provided, the request uses OpenAI Structured Outputs (json_schema). */
+  responseSchema?: StructuredOutputSchema;
+};
+
 /**
- * Send a chat completion request to OpenAI
+ * Send a chat completion request to OpenAI.
+ * When `options.responseSchema` is supplied the request includes
+ * `response_format: { type: "json_schema", ... }` so the API is
+ * guaranteed to return schema-valid JSON.
  */
 export async function sendChatCompletion(
   messages: OpenAIMessage[],
-  options?: Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>> & { model?: string }
+  options?: ChatCompletionOptions
 ): Promise<{ success: true; content: string; usage: OpenAIResponse['usage'] } | { success: false; error: string }> {
   const apiKey = getProviderApiKey();
   
@@ -88,6 +113,17 @@ export async function sendChatCompletion(
     max_tokens: options?.max_tokens ?? AI_CONFIG.maxTokens,
     temperature: options?.temperature ?? AI_CONFIG.temperature,
   };
+
+  if (options?.responseSchema) {
+    requestBody.response_format = {
+      type: 'json_schema',
+      json_schema: {
+        name: options.responseSchema.name,
+        schema: options.responseSchema.schema,
+        strict: true,
+      },
+    };
+  }
 
   try {
     const controller = new AbortController();
@@ -122,9 +158,26 @@ export async function sendChatCompletion(
       };
     }
 
+    const choice = data.choices[0];
+
+    // Handle structured-output refusal
+    if (choice.message.refusal) {
+      return {
+        success: false,
+        error: `Model refused: ${choice.message.refusal}`,
+      };
+    }
+
+    if (choice.message.content == null) {
+      return {
+        success: false,
+        error: 'Empty response content from OpenAI',
+      };
+    }
+
     return {
       success: true,
-      content: data.choices[0].message.content,
+      content: choice.message.content,
       usage: data.usage,
     };
   } catch (error) {
@@ -152,7 +205,7 @@ export async function sendChatCompletion(
  */
 export async function sendChatCompletionWithRetry(
   messages: OpenAIMessage[],
-  options?: Partial<Pick<OpenAIRequest, 'max_tokens' | 'temperature'>> & { model?: string }
+  options?: ChatCompletionOptions
 ): Promise<{ success: true; content: string; usage: OpenAIResponse['usage'] } | { success: false; error: string }> {
   let lastError = '';
   

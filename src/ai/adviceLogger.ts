@@ -44,23 +44,21 @@ export interface FinancialAdviceRow {
 
 /**
  * The Supabase `target_metric` column has a CHECK constraint
- * (`financial_advice_target_metric_check`).
- * Until the exact allowed values are confirmed, pass NULL to avoid
- * constraint violations.  The metric string is logged for debugging.
+ * (`financial_advice_target_metric_check`) that only allows
+ * 'spending' and 'savings'.  All other metric strings are mapped
+ * into one of those two buckets.
  */
 function normalizeTargetMetric(value: string | null | undefined): string {
   if (value == null) return 'spending'; // fallback — column is NOT NULL
 
   const v = value.toLowerCase();
 
-  // Direct matches for the three allowed values
-  if (v === 'spending' || v === 'budget' || v === 'savings') return v;
+  // Savings-family: goals, savings, saving
+  if (v === 'savings' || v === 'saving' || v === 'goals' || v === 'goal') {
+    return 'savings';
+  }
 
-  // Map related terms
-  if (v === 'cashflow' || v === 'cash_flow') return 'spending';
-  if (v === 'goals' || v === 'goal') return 'savings';
-
-  // 'general' or anything else → 'spending' (safest catch-all)
+  // Everything else is spending-family: spending, budget, cashflow, general, …
   return 'spending';
 }
 

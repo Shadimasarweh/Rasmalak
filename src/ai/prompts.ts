@@ -402,34 +402,57 @@ If user asks about these topics, say:
 }
 
 // ============================================
+// LANGUAGE DETECTION RULE
+// ============================================
+
+const LANGUAGE_DETECTION_RULE = `## CRITICAL: Language Detection & Matching
+
+You are a fully BILINGUAL assistant (Arabic + English). Follow these rules strictly:
+
+1. **Detect** the language of each user message.
+2. **Always respond in the SAME language** the user writes in.
+3. If the user writes in Arabic (any dialect), respond in Arabic.
+4. If the user writes in English, respond in English.
+5. If the user mixes Arabic and English, you may mix too.
+6. **Match the user's Arabic dialect** — Jordanian → Jordanian, Egyptian → Egyptian, Gulf → Gulf, Fusha → Fusha.
+7. NEVER default to one language — always follow the user's actual message language.
+8. The UI language setting does NOT determine your response language — only the user's message does.`;
+
+// ============================================
 // MAIN PROMPT BUILDERS
 // ============================================
 
 /**
- * Get the main system prompt for chat
- * This combines all prompt sections with user context
+ * Get the main system prompt for chat.
+ * Builds a BILINGUAL prompt so the AI can detect the user's language
+ * and respond accordingly, rather than being locked to the UI language.
  */
 export function getSystemPrompt(
   context: UserFinancialContext,
   language: 'ar' | 'en'
 ): string {
-  const sections = language === 'ar' 
-    ? [
-        IDENTITY_AR,
-        LANGUAGE_UNDERSTANDING_AR,
-        FINANCIAL_RULES_AR,
-        RESPONSE_STYLE_AR,
-        formatUserContext(context, language),
-        getBlockedTopicsPrompt(language),
-      ]
-    : [
-        IDENTITY_EN,
-        LANGUAGE_UNDERSTANDING_EN,
-        FINANCIAL_RULES_EN,
-        RESPONSE_STYLE_EN,
-        formatUserContext(context, language),
-        getBlockedTopicsPrompt(language),
-      ];
+  const sections = [
+    // Identity in both languages (AI needs to know its name in both)
+    IDENTITY_EN,
+    IDENTITY_AR,
+    // Language detection rule (the key new addition)
+    LANGUAGE_DETECTION_RULE,
+    // Arabic dialect understanding (always included so AI handles all dialects)
+    LANGUAGE_UNDERSTANDING_AR,
+    // English language understanding
+    LANGUAGE_UNDERSTANDING_EN,
+    // Financial rules in both languages
+    FINANCIAL_RULES_EN,
+    FINANCIAL_RULES_AR,
+    // Response style in both languages (Arabic section has dialect examples)
+    RESPONSE_STYLE_EN,
+    RESPONSE_STYLE_AR,
+    // User data context (in the UI language for data formatting)
+    formatUserContext(context, language),
+    // Blocked topics
+    getBlockedTopicsPrompt('en'),
+    getBlockedTopicsPrompt('ar'),
+  ];
 
   return sections.join('\n\n---\n\n');
 }
@@ -457,28 +480,18 @@ ${userContext}
 - قابلة للتنفيذ
 - غير مخيفة
 
-أعد الرؤى بتنسيق JSON:
+لكل رؤية أعطِ: معرّف فريد (id)، نوع (warning/success/info/tip)، عنوان بالإنجليزية (title)، عنوان بالعربية (titleAr)، رسالة بالإنجليزية (message)، رسالة بالعربية (messageAr)، ومقياس اختياري (metric) يحتوي على القيمة والوحدة ونسبة التغيير والاتجاه.
 
-\`\`\`json
-{
-  "insights": [
-    {
-      "id": "insight_1",
-      "type": "warning|success|info|tip",
-      "title": "عنوان قصير",
-      "titleAr": "عنوان قصير",
-      "message": "شرح موجز",
-      "messageAr": "شرح موجز",
-      "metric": {
-        "value": 123,
-        "unit": "JOD",
-        "change": 15,
-        "changeDirection": "up|down"
-      }
-    }
-  ]
-}
-\`\`\``;
+## Interpretation Rules (Authoritative)
+
+- Advisory State classifications must guide severity and tone.
+- Do not contradict Financial Signals or Advisory State.
+- If financialPressureLevel is "high", at least one insight must be of type "warning".
+- If goalRiskLevel is "critical", at least one insight must reference goal progress.
+- If volatilityRisk is true, include one insight about spending variability.
+- Do not invent new metrics not present in Financial Signals.
+- Do not override deterministic classifications.
+- Financial Health band is binding: if band is "critical" at least one insight must be a "warning" and must be the first insight.`;
   }
   
   return `You are a financial analyst for the Rasmalak app.
@@ -494,28 +507,18 @@ Generate 2-3 insights based on the data above. Each insight should be:
 - Actionable
 - Not fear-mongering
 
-Return insights in JSON format:
+For each insight provide: a unique id, type (warning/success/info/tip), title in English, titleAr in Arabic, message in English, messageAr in Arabic, and an optional metric with value, unit, change percentage, and changeDirection (up/down).
 
-\`\`\`json
-{
-  "insights": [
-    {
-      "id": "insight_1",
-      "type": "warning|success|info|tip",
-      "title": "Short title",
-      "titleAr": "عنوان قصير",
-      "message": "Brief explanation",
-      "messageAr": "شرح موجز",
-      "metric": {
-        "value": 123,
-        "unit": "JOD",
-        "change": 15,
-        "changeDirection": "up|down"
-      }
-    }
-  ]
-}
-\`\`\``;
+## Interpretation Rules (Authoritative)
+
+- Advisory State classifications must guide severity and tone.
+- Do not contradict Financial Signals or Advisory State.
+- If financialPressureLevel is "high", at least one insight must be of type "warning".
+- If goalRiskLevel is "critical", at least one insight must reference goal progress.
+- If volatilityRisk is true, include one insight about spending variability.
+- Do not invent new metrics not present in Financial Signals.
+- Do not override deterministic classifications.
+- Financial Health band is binding: if band is "critical" at least one insight must be a "warning" and must be the first insight.`;
 }
 
 /**
@@ -529,29 +532,25 @@ export function getTaskPrompt(
   switch (task) {
     case 'classify_intent':
       return language === 'ar'
-        ? `صنّف نية الرسالة التالية إلى إحدى الفئات: analyze_spending, savings_advice, budget_status, goal_progress, predict_end_of_month, explain_concept, greeting, unclear
+        ? `صنّف نية الرسالة التالية إلى الفئة الأنسب.
 
-الرسالة: "${input}"
+الفئات المتاحة: analyze_spending, category_breakdown, compare_periods, savings_advice, goal_progress, goal_planning, budget_status, budget_advice, overspending_alert, predict_end_of_month, simulate_scenario, forecast_savings, explain_concept, learning_recommendation, greeting, gratitude, unclear, out_of_scope
 
-أجب بـ JSON فقط: {"intent": "...", "confidence": "high|medium|low"}`
-        : `Classify the intent of the following message into one of: analyze_spending, savings_advice, budget_status, goal_progress, predict_end_of_month, explain_concept, greeting, unclear
+الرسالة: "${input}"`
+        : `Classify the intent of the following message into the most appropriate category.
 
-Message: "${input}"
+Valid intents: analyze_spending, category_breakdown, compare_periods, savings_advice, goal_progress, goal_planning, budget_status, budget_advice, overspending_alert, predict_end_of_month, simulate_scenario, forecast_savings, explain_concept, learning_recommendation, greeting, gratitude, unclear, out_of_scope
 
-Reply with JSON only: {"intent": "...", "confidence": "high|medium|low"}`;
+Message: "${input}"`;
 
     case 'extract_entities':
       return language === 'ar'
-        ? `استخرج الكيانات من الرسالة التالية (مبالغ، فئات، فترات زمنية).
+        ? `استخرج الكيانات المالية من الرسالة التالية: مبالغ مالية، فئات إنفاق، تواريخ أو فترات زمنية، أسماء تجار، وأهداف مالية.
 
-الرسالة: "${input}"
+الرسالة: "${input}"`
+        : `Extract financial entities from the following message: monetary amounts, spending categories, dates or time periods, merchant names, and financial goals.
 
-أجب بـ JSON فقط: {"entities": [{"type": "money|category|time_period", "value": "...", "raw": "..."}]}`
-        : `Extract entities from the following message (amounts, categories, time periods).
-
-Message: "${input}"
-
-Reply with JSON only: {"entities": [{"type": "money|category|time_period", "value": "...", "raw": "..."}]}`;
+Message: "${input}"`;
 
     case 'summarize':
       return language === 'ar'

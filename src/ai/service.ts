@@ -20,10 +20,19 @@ import {
   MessageAttachment,
 } from './types';
 import { AI_CONFIG, AI_SAFETY, AI_FEATURES } from './config';
-import { sendChatCompletionWithRetry, formatMessagesForOpenAI, getModelForAttachments } from './providers/openai';
-import { getSystemPrompt, getInsightPrompt } from './prompts';
+import { sendChatCompletion, sendChatCompletionWithRetry, formatMessagesForOpenAI, getModelForAttachments } from './providers/openai';
+import { getSystemPrompt, getInsightPrompt, getTaskPrompt } from './prompts';
 import { computeContextHash } from './contextHash';
 import { logFinancialAdvice } from './adviceLogger';
+import {
+  InsightsResponseSchema,
+  IntentResponseSchema,
+  EntitiesResponseSchema,
+  VALID_INTENTS,
+} from './schemas';
+import { computeFinancialSignals, type SignalSummary } from './financialSignals';
+import { deriveAdvisoryState } from './financialAdvisory';
+import { computeFinancialHealth } from './financialHealth';
 
 // ============================================
 // ACTIONABLE INTENT CLASSIFICATION
@@ -68,6 +77,58 @@ function intentToMetric(intent: AIIntent): string {
     default:
       return 'general';
   }
+}
+
+// ============================================
+// SIGNAL SUMMARY BUILDER
+// ============================================
+// Maps UserFinancialContext → SignalSummary consumed by
+// computeFinancialSignals().  Derives monthly arrays from
+// the current-month values and month-over-month deltas when
+// full historical arrays are unavailable.
+
+function buildSignalSummary(ctx: UserFinancialContext): SignalSummary {
+  // Recurring expenses normalised to monthly amounts
+  let recurringMonthly = 0;
+  for (const r of ctx.patterns.recurringExpenses) {
+    switch (r.frequency) {
+      case 'weekly':  recurringMonthly += r.amount * (52 / 12); break;
+      case 'monthly': recurringMonthly += r.amount;              break;
+      case 'yearly':  recurringMonthly += r.amount / 12;         break;
+    }
+  }
+
+  const discretionary = Math.max(0, ctx.totalExpenses - recurringMonthly);
+
+  // Derive last-month values from percentage-change deltas.
+  // comparedToLastMonth.*Change are percentages (e.g. +15 means +15 %).
+  const curExp = ctx.currentMonth.expenses;
+  const curInc = ctx.currentMonth.income;
+  const expDelta = ctx.comparedToLastMonth.expenseChange;   // %
+  const incDelta = ctx.comparedToLastMonth.incomeChange;     // %
+
+  const prevExp = expDelta !== 0 ? curExp / (1 + expDelta / 100) : curExp;
+  const prevInc = incDelta !== 0 ? curInc / (1 + incDelta / 100) : curInc;
+
+  // monthlyExpenses / monthlyIncome: [previous, current] (oldest-first)
+  const monthlyExpenses = [prevExp, curExp].filter((v) => Number.isFinite(v) && v >= 0);
+  const monthlyIncome   = [prevInc, curInc].filter((v) => Number.isFinite(v) && v >= 0);
+
+  // Goals
+  const goals = ctx.goals.map((g) => ({
+    target:  g.targetAmount,
+    current: g.currentAmount,
+  }));
+
+  return {
+    totalIncome:           ctx.totalIncome,
+    totalExpenses:         ctx.totalExpenses,
+    recurringExpenses:     recurringMonthly,
+    discretionaryExpenses: discretionary,
+    monthlyExpenses,
+    monthlyIncome,
+    goals: goals.length > 0 ? goals : undefined,
+  };
 }
 
 // ============================================
@@ -180,7 +241,12 @@ class RasmalakAIService {
   }
 
   /**
-   * Generate insights for the dashboard (no user message, just analysis)
+   * Generate insights for the dashboard (no user message, just analysis).
+   * Uses OpenAI Structured Outputs to guarantee valid JSON.
+   *
+   * Before calling the model, deterministic financial signals are computed
+   * and injected as structured JSON so the model's reasoning is grounded
+   * in hard numbers rather than relying on prompt interpretation alone.
    */
   async generateInsights(
     context: UserFinancialContext,
@@ -190,38 +256,125 @@ class RasmalakAIService {
       return [];
     }
 
-    const prompt = getInsightPrompt(context, language);
-    
+    // Compute deterministic signals, advisory state, and health score (pure math, no AI)
+    const signalSummary = buildSignalSummary(context);
+    const signals = computeFinancialSignals(signalSummary);
+    const advisory = deriveAdvisoryState(signals);
+    const health = computeFinancialHealth(signals);
+
+    // Build prompt and append all three layers as structured JSON
+    const basePrompt = getInsightPrompt(context, language);
+    const signalsBlock =
+      '\n\n## Financial Signals (deterministic raw metrics)\n' +
+      JSON.stringify(signals, null, 2) +
+      '\n\n## Advisory State (system-defined interpretation)\n' +
+      JSON.stringify(advisory, null, 2) +
+      '\n\n## Financial Health (deterministic score)\n' +
+      JSON.stringify({ score: health.score, band: health.band, components: health.components }, null, 2);
+    const prompt = basePrompt + signalsBlock;
+
     const messages = formatMessagesForOpenAI(prompt, [], 'Generate insights');
 
     const result = await sendChatCompletionWithRetry(messages, {
       max_tokens: 500,
-      temperature: 0.5, // More consistent for insights
+      temperature: 0.5,
+      responseSchema: { name: 'InsightsResponse', schema: InsightsResponseSchema },
     });
 
     if (!result.success) {
       console.error('[AI] Failed to generate insights:', result.error);
-      return [];
+      return this.getFallbackInsights(language);
     }
 
-    return this.parseInsightsResponse(result.content, language);
+    try {
+      const parsed = JSON.parse(result.content);
+      if (Array.isArray(parsed.insights) && parsed.insights.length > 0) {
+        return parsed.insights;
+      }
+      return this.getFallbackInsights(language);
+    } catch {
+      console.error('[AI] Failed to parse insights JSON');
+      return this.getFallbackInsights(language);
+    }
   }
 
   /**
-   * Classify user intent (for routing/analytics)
+   * Classify user intent (for routing/analytics).
+   * Uses OpenAI Structured Outputs with the IntentResponse schema.
+   * Falls back to local keyword detection if the AI call fails.
    */
   async classifyIntent(
     message: string,
     language: 'ar' | 'en' = 'ar'
   ): Promise<{ intent: AIIntent; confidence: ConfidenceLevel }> {
-    // For now, use simple keyword matching
-    // This can be enhanced with a dedicated classification call
-    const intent = this.detectIntentLocally(message);
-    
+    try {
+      const taskPrompt = getTaskPrompt('classify_intent', message, language);
+      const messages = formatMessagesForOpenAI(
+        language === 'ar' ? 'أنت مصنف نوايا الرسائل.' : 'You are a message intent classifier.',
+        [],
+        taskPrompt
+      );
+
+      const result = await sendChatCompletion(messages, {
+        max_tokens: 50,
+        temperature: 0,
+        responseSchema: { name: 'IntentResponse', schema: IntentResponseSchema },
+      });
+
+      if (result.success) {
+        const parsed = JSON.parse(result.content);
+        if (VALID_INTENTS.has(parsed.intent)) {
+          return { intent: parsed.intent as AIIntent, confidence: 'high' };
+        }
+      }
+    } catch {
+      // Fall through to local detection
+    }
+
     return {
-      intent,
+      intent: this.detectIntentLocally(message),
       confidence: 'medium',
     };
+  }
+
+  /**
+   * Extract financial entities from a message.
+   * Uses OpenAI Structured Outputs with the EntitiesResponse schema.
+   * Returns empty arrays per field if the AI call fails.
+   */
+  async extractEntities(
+    message: string,
+    language: 'ar' | 'en' = 'ar'
+  ): Promise<{ amounts: number[]; categories: string[]; dates: string[]; merchants: string[]; goals: string[] }> {
+    const empty = { amounts: [] as number[], categories: [] as string[], dates: [] as string[], merchants: [] as string[], goals: [] as string[] };
+
+    try {
+      const taskPrompt = getTaskPrompt('extract_entities', message, language);
+      const messages = formatMessagesForOpenAI(
+        language === 'ar' ? 'أنت محلل نصوص مالية.' : 'You are a financial text analyzer.',
+        [],
+        taskPrompt
+      );
+
+      const result = await sendChatCompletion(messages, {
+        max_tokens: 200,
+        temperature: 0,
+        responseSchema: { name: 'EntitiesResponse', schema: EntitiesResponseSchema },
+      });
+
+      if (!result.success) return empty;
+
+      const parsed = JSON.parse(result.content);
+      return {
+        amounts:    parsed.entities?.amounts    ?? [],
+        categories: parsed.entities?.categories ?? [],
+        dates:      parsed.entities?.dates      ?? [],
+        merchants:  parsed.entities?.merchants  ?? [],
+        goals:      parsed.entities?.goals      ?? [],
+      };
+    } catch {
+      return empty;
+    }
   }
 
   // ============================================
@@ -292,19 +445,22 @@ class RasmalakAIService {
     };
   }
 
-  private parseInsightsResponse(content: string, language: 'ar' | 'en'): InsightCard[] {
-    try {
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[1]);
-        if (Array.isArray(parsed.insights)) {
-          return parsed.insights;
-        }
-      }
-    } catch {
-      // Failed to parse, return empty
-    }
-    return [];
+  /**
+   * Safe fallback insight returned when AI generation or parsing fails.
+   */
+  private getFallbackInsights(language: 'ar' | 'en'): InsightCard[] {
+    return [
+      {
+        id: 'fallback_insight',
+        type: 'info',
+        title: language === 'ar' ? 'تعذر التحليل' : 'Analysis Unavailable',
+        titleAr: 'تعذر التحليل',
+        message: language === 'ar'
+          ? 'تعذر توليد الملخص الآن، حاول مرة أخرى'
+          : 'Could not generate summary right now, please try again',
+        messageAr: 'تعذر توليد الملخص الآن، حاول مرة أخرى',
+      },
+    ];
   }
 
   private createErrorResponse(error: string, startTime: number): AIResponse {
