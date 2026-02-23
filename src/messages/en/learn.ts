@@ -91,4 +91,17 @@ export default {
   // Video titles
   understanding_credit: 'Understanding Credit Scores',
   retirement_planning: 'Retirement Planning Basics',
+  // Course viewer
+  'course.back_to_courses': 'Back to Learn',
+  'course.exit_course': 'Exit Course',
+  'course.sections_completed': '{done} of {total} sections completed',
+  'course.course_complete': 'Course Complete!',
+  'course.not_found': 'Course not found',
+  'course.continue': 'Continue',
+  'course.start_course': 'Start Course',
+  'course.sections_count': '{count} sections',
+  'course.available_courses': 'Available Courses',
+  'course.next_section': 'Next Section',
+  'course.previous_section': 'Previous Section',
+  'course.complete_course': 'Complete Course',
 };

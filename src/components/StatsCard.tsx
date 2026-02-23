@@ -3,6 +3,7 @@
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { useCurrency, useStore } from '@/store/useStore';
+import { styledNum } from '@/components/StyledNumber';
 
 interface StatsCardProps {
   type: 'income' | 'expense' | 'balance' | 'savings';
@@ -65,7 +66,7 @@ export default function StatsCard({ type, value, label, percentage }: StatsCardP
 
       <p className="text-sm text-[var(--color-text-secondary)] mb-1 font-medium">{label}</p>
       <p className={`text-xl font-bold ${valueColor} ltr-nums`}>
-        {intl.formatNumber(value, { style: 'currency', currency })}
+        {styledNum(intl.formatNumber(value, { style: 'currency', currency }))}
       </p>
     </div>
   );

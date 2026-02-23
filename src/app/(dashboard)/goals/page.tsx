@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
-import { useLanguage, useCurrency, useSavingsGoals, useStore } from '@/store/useStore';
+import { useLanguage, useCurrency } from '@/store/useStore';
+import { useGoals } from '@/store/goalsStore';
 import { CURRENCIES } from '@/lib/constants';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ===== FIXED PALETTE (matching existing brand colors) ===== */
 const GOAL_COLORS = [
@@ -291,7 +293,7 @@ function GoalCard({
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
           <span style={{ color: 'var(--color-text-muted)' }}>
-            {currencySymbol} {goal.currentAmount.toLocaleString()}
+            {currencySymbol} {styledNum(goal.currentAmount.toLocaleString())}
           </span>
           <span style={{ fontWeight: 600, color: isComplete ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
             {percentage.toFixed(0)}%
@@ -325,10 +327,10 @@ function GoalCard({
           }}
         >
           <span>
-            {intl.formatMessage({ id: 'dashboard.goals_remaining', defaultMessage: 'Remaining' })}: {currencySymbol} {remaining.toLocaleString()}
+            {intl.formatMessage({ id: 'dashboard.goals_remaining', defaultMessage: 'Remaining' })}: {currencySymbol} {styledNum(remaining.toLocaleString())}
           </span>
           <span>
-            {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {goal.targetAmount.toLocaleString()}
+            {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {styledNum(goal.targetAmount.toLocaleString())}
           </span>
         </div>
       </div>
@@ -554,10 +556,7 @@ export default function GoalsPage() {
   const language = useLanguage();
   const currency = useCurrency();
   const isRTL = language === 'ar';
-  const savingsGoals = useSavingsGoals();
-  const addSavingsGoal = useStore((state) => state.addSavingsGoal);
-  const updateSavingsGoal = useStore((state) => state.updateSavingsGoal);
-  const deleteSavingsGoal = useStore((state) => state.deleteSavingsGoal);
+  const { savingsGoals, addSavingsGoal, updateSavingsGoal, deleteSavingsGoal } = useGoals();
 
   const currencyInfo = CURRENCIES.find((c) => c.code === currency);
   const currencySymbol = isRTL
@@ -693,10 +692,10 @@ export default function GoalsPage() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
             <span>
-              {intl.formatMessage({ id: 'dashboard.goals_saved', defaultMessage: 'Saved' })}: {currencySymbol} {totalSaved.toLocaleString()}
+              {intl.formatMessage({ id: 'dashboard.goals_saved', defaultMessage: 'Saved' })}: {currencySymbol} {styledNum(totalSaved.toLocaleString())}
             </span>
             <span>
-              {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {totalTarget.toLocaleString()}
+              {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {styledNum(totalTarget.toLocaleString())}
             </span>
           </div>
         </div>

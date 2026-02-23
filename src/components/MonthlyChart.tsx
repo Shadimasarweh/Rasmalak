@@ -13,6 +13,7 @@ import {
 import { useIntl } from 'react-intl';
 import { useCurrency, useAccentColor } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { styledNum } from '@/components/StyledNumber';
 
 interface MonthlyChartProps {
   data: { month: string; income: number; expenses: number }[];
@@ -34,7 +35,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
 
   // Format currency using intl
   const formatCurrencyValue = (value: number) => {
-    return intl.formatNumber(value, { style: 'currency', currency });
+    return styledNum(intl.formatNumber(value, { style: 'currency', currency }));
   };
 
   // Format axis tick (abbreviated)

@@ -11,29 +11,6 @@ import { useAuthStore } from '@/store/authStore';
 
 export type Theme = 'light' | 'dark';
 
-// Budget types
-export interface CategoryBudget {
-  category: string;
-  limit: number;
-  spent: number;
-}
-
-export interface MonthlyBudget {
-  month: string; // Format: 'YYYY-MM'
-  totalBudget: number;
-  categoryBudgets: CategoryBudget[];
-}
-
-export interface SavingsGoal {
-  id: string;
-  name: string;
-  nameAr: string;
-  targetAmount: number;
-  currentAmount: number;
-  deadline?: string;
-  color: string;
-}
-
 // Onboarding types
 export type UserSegment = 'individual' | 'self_employed' | 'sme';
 
@@ -169,19 +146,6 @@ interface AppState {
   addTransaction: (transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
-
-  // Budgets
-  monthlyBudget: number;
-  setMonthlyBudget: (amount: number) => void;
-  categoryBudgets: Record<string, number>; // category -> limit
-  setCategoryBudget: (category: string, limit: number) => void;
-  removeCategoryBudget: (category: string) => void;
-
-  // Savings Goals
-  savingsGoals: SavingsGoal[];
-  addSavingsGoal: (goal: Omit<SavingsGoal, 'id'>) => void;
-  updateSavingsGoal: (id: string, updates: Partial<SavingsGoal>) => void;
-  deleteSavingsGoal: (id: string) => void;
 
   // Settings
   currency: string;
@@ -444,47 +408,6 @@ export const useStore = create<AppState>()(
         }));
       },
 
-      // Budgets
-      monthlyBudget: 0,
-      setMonthlyBudget: (amount) => set({ monthlyBudget: amount }),
-      
-      categoryBudgets: {},
-      setCategoryBudget: (category, limit) => {
-        set((state) => ({
-          categoryBudgets: { ...state.categoryBudgets, [category]: limit },
-        }));
-      },
-      removeCategoryBudget: (category) => {
-        set((state) => {
-          const { [category]: _, ...rest } = state.categoryBudgets;
-          return { categoryBudgets: rest };
-        });
-      },
-
-      // Savings Goals
-      savingsGoals: [],
-      addSavingsGoal: (goalData) => {
-        const newGoal: SavingsGoal = {
-          ...goalData,
-          id: generateId(),
-        };
-        set((state) => ({
-          savingsGoals: [...state.savingsGoals, newGoal],
-        }));
-      },
-      updateSavingsGoal: (id, updates) => {
-        set((state) => ({
-          savingsGoals: state.savingsGoals.map((g) =>
-            g.id === id ? { ...g, ...updates } : g
-          ),
-        }));
-      },
-      deleteSavingsGoal: (id) => {
-        set((state) => ({
-          savingsGoals: state.savingsGoals.filter((g) => g.id !== id),
-        }));
-      },
-
       // Settings
       currency: DEFAULT_CURRENCY,
       setCurrency: (currency) => set({ currency }),
@@ -550,9 +473,6 @@ export const useStore = create<AppState>()(
         language: state.language,
         theme: state.theme,
         accentColor: state.accentColor,
-        monthlyBudget: state.monthlyBudget,
-        categoryBudgets: state.categoryBudgets,
-        savingsGoals: state.savingsGoals,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         onboardingData: state.onboardingData,
       }),
@@ -569,11 +489,6 @@ export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);
 export const useAccentColor = () => useStore((state) => state.accentColor);
 
-// Budget selectors
-export const useMonthlyBudget = () => useStore((state) => state.monthlyBudget);
-export const useCategoryBudgets = () => useStore((state) => state.categoryBudgets);
-export const useSavingsGoals = () => useStore((state) => state.savingsGoals);
-
 // Auth selectors - split to avoid SSR hydration issues
 // Use these individual selectors in components instead of a combined hook
 export const useUser = () => useStore((state) => state.user);
@@ -581,9 +496,7 @@ export const useIsAuthenticated = () => useStore((state) => state.isAuthenticate
 export const useLogin = () => useStore((state) => state.login);
 export const useSignup = () => useStore((state) => state.signup);
 export const useLogout = () => useStore((state) => state.logout);
-export const useUpdateUserProfile = () => useStore((state) => state.updateUserProfile);
-
-// Onboarding selectors
+export const useUpdateUserProfile = () => useStore((state) => state.updateUserProfile);// Onboarding selectors
 export const useHasCompletedOnboarding = () => useStore((state) => state.hasCompletedOnboarding);
 export const useOnboardingData = () => useStore((state) => state.onboardingData);
 export const useCompleteOnboarding = () => useStore((state) => state.completeOnboarding);

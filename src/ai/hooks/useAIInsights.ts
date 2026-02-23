@@ -17,11 +17,10 @@ import { useTransactions } from '@/store/transactionStore';
 import { 
   useCurrency, 
   useLanguage, 
-  useMonthlyBudget, 
-  useCategoryBudgets, 
-  useSavingsGoals,
   useOnboardingData,
 } from '@/store/useStore';
+import { useBudget } from '@/store/budgetStore';
+import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser } from '@/store/authStore';
 import { buildUserContext } from '../context';
 import { 
@@ -173,9 +172,8 @@ export function useAIInsights(): AIInsights {
   const { transactions } = useTransactions();
   const currency = useCurrency();
   const language = useLanguage();
-  const monthlyBudget = useMonthlyBudget();
-  const categoryBudgets = useCategoryBudgets();
-  const savingsGoals = useSavingsGoals();
+  const { monthlyBudget, categoryBudgets } = useBudget();
+  const { savingsGoals } = useGoals();
   const onboardingData = useOnboardingData();
   
   // Build context (memoized so downstream effects have a stable reference)

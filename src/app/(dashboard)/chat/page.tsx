@@ -6,12 +6,11 @@ import { useTransactions } from '@/store/transactionStore';
 import { 
   useCurrency, 
   useLanguage, 
-  useMonthlyBudget, 
-  useCategoryBudgets, 
-  useSavingsGoals,
   useOnboardingData,
   useUserName,
 } from '@/store/useStore';
+import { useBudget } from '@/store/budgetStore';
+import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
 import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType } from '@/ai/types';
@@ -456,9 +455,8 @@ export default function MustasharakPage() {
   // Get user data for context
   const { transactions } = useTransactions();
   const currency = useCurrency();
-  const monthlyBudget = useMonthlyBudget();
-  const categoryBudgets = useCategoryBudgets();
-  const savingsGoals = useSavingsGoals();
+  const { monthlyBudget, categoryBudgets } = useBudget();
+  const { savingsGoals } = useGoals();
   const onboardingData = useOnboardingData();
   
   // Chat state

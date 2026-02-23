@@ -21,6 +21,7 @@ import {
 import { useIntl } from 'react-intl';
 import { useCurrency } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { styledNum } from '@/components/StyledNumber';
 
 interface OverviewTransactionRowProps {
   category: string;
@@ -80,7 +81,7 @@ export default function OverviewTransactionRow({
   };
 
   // Format amount using intl
-  const formattedAmount = intl.formatNumber(amount, { style: 'currency', currency });
+  const formattedAmount = styledNum(intl.formatNumber(amount, { style: 'currency', currency }));
 
   return (
     <div className="transaction-item">

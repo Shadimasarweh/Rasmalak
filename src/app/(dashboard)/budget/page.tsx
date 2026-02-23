@@ -3,19 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Target, Check, PiggyBank, AlertTriangle } from 'lucide-react';
-import { useMonthlyBudget, useCategoryBudgets, useCurrency, useStore } from '@/store/useStore';
+import { useCurrency } from '@/store/useStore';
+import { useBudget } from '@/store/budgetStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CURRENCIES, DEFAULT_EXPENSE_CATEGORIES } from '@/lib/constants';
+import { styledNum } from '@/components/StyledNumber';
 
 export default function BudgetSettingsPage() {
   const router = useRouter();
   const { t, language, isRTL } = useTranslation();
   const currency = useCurrency();
-  const monthlyBudget = useMonthlyBudget();
-  const categoryBudgets = useCategoryBudgets();
-  const setMonthlyBudget = useStore((state) => state.setMonthlyBudget);
-  const setCategoryBudget = useStore((state) => state.setCategoryBudget);
-  const removeCategoryBudget = useStore((state) => state.removeCategoryBudget);
+  const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
 
   const [tempMonthlyBudget, setTempMonthlyBudget] = useState(monthlyBudget.toString());
   const [tempCategoryBudgets, setTempCategoryBudgets] = useState<Record<string, string>>({});
@@ -200,7 +198,7 @@ export default function BudgetSettingsPage() {
               {language === 'ar' ? 'المجموع' : 'Total'}
             </p>
             <p className={`text-lg font-bold ltr-nums ${hasOverflow ? 'text-amber-600' : 'text-[var(--color-text-primary)]'}`}>
-              {new Intl.NumberFormat(language === 'ar' ? 'ar-SA' : 'en-US').format(totalCategoryBudget)} {currencySymbol}
+              {styledNum(new Intl.NumberFormat(language === 'ar' ? 'ar-SA' : 'en-US').format(totalCategoryBudget))} {currencySymbol}
             </p>
           </div>
         </div>

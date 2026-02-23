@@ -8,6 +8,7 @@ import { calculateCreditCard } from '@/calculators/creditCardCalculator';
 import type { CreditCardInput, CreditCardResult } from '@/calculators/creditCardCalculator';
 import { generateCreditCardPDF } from '@/calculators/creditCardReport';
 import { CURRENCIES } from '@/lib/constants';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ===== ICONS ===== */
 const ArrowLeftIcon = () => (
@@ -138,7 +139,7 @@ export default function CreditCardCalculatorPage() {
   };
 
   const formatCurrencyValue = (value: number) =>
-    intl.formatNumber(value, { style: 'currency', currency });
+    styledNum(intl.formatNumber(value, { style: 'currency', currency }));
 
   const inputFieldStyle = (hasError: boolean): React.CSSProperties => ({
     width: '100%',
@@ -315,7 +316,7 @@ export default function CreditCardCalculatorPage() {
   );
 }
 
-function SummaryItem({ label, value, highlight, accent }: { label: string; value: string; highlight?: boolean; accent?: boolean }) {
+function SummaryItem({ label, value, highlight, accent }: { label: string; value: React.ReactNode; highlight?: boolean; accent?: boolean }) {
   return (
     <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(var(--accent-color-rgb), 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)' }}>
       <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>

@@ -1,8 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Link from 'next/link';
+import { useShallow } from 'zustand/react/shallow';
+import { FilterPanel, useFilterStore, applyFilters } from '@/components/filters';
+import type { FilterConfig } from '@/components/filters';
+
+const EMPTY_FILTERS: Record<string, string[]> = {};
 
 /* ============================================
    FINANCIAL TOOLS PAGE
@@ -113,12 +118,6 @@ const ShieldIcon = () => (
 const RetirementIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-  </svg>
-);
-
-const GlobeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
   </svg>
 );
 
@@ -655,90 +654,59 @@ function ToolCard({
   );
 }
 
-/* ===== COUNTRY FILTER COMPONENT ===== */
-function CountryFilter({
-  selectedCountry,
-  onCountryChange,
-  intl,
-}: {
-  selectedCountry: Country;
-  onCountryChange: (country: Country) => void;
-  intl: ReturnType<typeof useIntl>;
-}) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--spacing-1)',
-        flexWrap: 'wrap',
-        overflowX: 'auto',
-      }}
-    >
-      <span
-        style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        fontSize: '0.8125rem',
-        fontWeight: 500,
-        color: 'var(--color-text-muted)',
-        marginRight: '8px',
-        flexShrink: 0,
-      }}
-    >
-      <GlobeIcon />
-      {intl.formatMessage({ id: 'tools.filter_by_country', defaultMessage: 'Filter by country:' })}
-      </span>
-      {COUNTRIES.map((country) => (
-        <button
-          key={country.id}
-          type="button"
-          onClick={() => onCountryChange(country.id)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 14px',
-            fontSize: '0.8125rem',
-            fontWeight: 500,
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            background:
-              selectedCountry === country.id
-                ? 'var(--color-accent-growth)'
-                : 'var(--color-bg-surface-2)',
-            color:
-              selectedCountry === country.id
-                ? '#FFFFFF'
-                : 'var(--color-text-secondary)',
-          }}
-        >
-          <span style={{ fontSize: '1rem' }}>{country.flag}</span>
-          {intl.formatMessage({ id: country.labelKey, defaultMessage: country.labelDefault })}
-        </button>
-      ))}
-    </div>
-  );
-}
+/* ===== FILTER CONFIG ===== */
+const TOOLS_FILTER_CONFIG: FilterConfig = {
+  pageId: 'tools',
+  sections: [
+    {
+      key: 'country',
+      titleKey: 'tools.filter.country_title',
+      titleDefault: 'Country',
+      type: 'multi',
+      variant: 'searchable',
+      options: COUNTRIES
+        .filter((c) => c.id !== 'all')
+        .map((c) => ({
+          value: c.id,
+          labelKey: c.labelKey,
+          labelDefault: c.labelDefault,
+          icon: <span>{c.flag}</span>,
+        })),
+    },
+    {
+      key: 'category',
+      titleKey: 'tools.filter.category_title',
+      titleDefault: 'Tool Category',
+      type: 'multi',
+      options: [
+        { value: 'credit', labelKey: 'tools.section.credit_debt', labelDefault: 'Credit & Debt' },
+        { value: 'budgeting', labelKey: 'tools.section.budgeting_saving', labelDefault: 'Budgeting & Saving' },
+        { value: 'auto', labelKey: 'tools.section.auto_loans', labelDefault: 'Auto Loans' },
+        { value: 'tax', labelKey: 'tools.section.tax_zakat', labelDefault: 'Tax & Zakat' },
+        { value: 'social', labelKey: 'tools.section.social_security', labelDefault: 'Social Security & Benefits' },
+      ],
+    },
+  ],
+};
+
+const TOOLS_MATCHERS: Record<string, (tool: Tool, values: string[]) => boolean> = {
+  country: (tool, vals) =>
+    tool.countries.includes('all') || tool.countries.some((c) => vals.includes(c)),
+  category: (tool, vals) => vals.includes(tool.category),
+};
 
 /* ===== MAIN PAGE ===== */
 export default function FinancialToolsPage() {
   const intl = useIntl();
-  const [selectedCountry, setSelectedCountry] = useState<Country>('all');
+  const filters = useFilterStore(
+    useShallow((s) => s.filters['tools'] ?? EMPTY_FILTERS),
+  );
 
-  // Filter tools based on selected country
-  const filteredTools = TOOLS_DATA.filter((tool) => {
-    if (selectedCountry === 'all') {
-      return true; // Show all tools
-    }
-    // Show tools that are available for all countries OR specifically for the selected country
-    return tool.countries.includes('all') || tool.countries.includes(selectedCountry);
-  });
+  const filteredTools = useMemo(
+    () => applyFilters(TOOLS_DATA, filters, TOOLS_MATCHERS),
+    [filters],
+  );
 
-  // Group tools by category for better organization
   const creditTools = filteredTools.filter((t) => t.category === 'credit');
   const budgetingTools = filteredTools.filter((t) => t.category === 'budgeting');
   const autoTools = filteredTools.filter((t) => t.category === 'auto');
@@ -780,13 +748,9 @@ export default function FinancialToolsPage() {
           </p>
         </div>
 
-        {/* ----- Country Filter ----- */}
+        {/* ----- Filters ----- */}
         <div style={{ marginBottom: 'var(--spacing-3)' }}>
-          <CountryFilter
-            selectedCountry={selectedCountry}
-            onCountryChange={setSelectedCountry}
-            intl={intl}
-          />
+          <FilterPanel config={TOOLS_FILTER_CONFIG} />
         </div>
 
         {/* ----- Featured Tool (Hero Card) ----- */}

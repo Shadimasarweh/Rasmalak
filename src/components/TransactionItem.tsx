@@ -23,6 +23,7 @@ import { Transaction } from '@/types';
 import { getRelativeTime, getCategoryById, convertCurrency } from '@/lib/utils';
 import { useCurrency, useBaseCurrency } from '@/store/useStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { styledNum } from '@/components/StyledNumber';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   utensils: Utensils,
@@ -62,7 +63,7 @@ export default function TransactionItem({ transaction, onClick }: TransactionIte
 
   // Convert and format amount using intl
   const convertedAmount = convertCurrency(transaction.amount, transaction.currency || baseCurrency, currency);
-  const formattedAmount = intl.formatNumber(convertedAmount, { style: 'currency', currency });
+  const formattedAmount = styledNum(intl.formatNumber(convertedAmount, { style: 'currency', currency }));
 
   return (
     <button

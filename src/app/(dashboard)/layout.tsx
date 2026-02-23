@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { AuthGuard, Sidebar, Header } from '@/components';
 import { TransactionProvider } from '@/store/transactionStore';
+import { BudgetProvider } from '@/store/budgetStore';
+import { GoalsProvider } from '@/store/goalsStore';
 
 export default function DashboardLayout({
   children,
@@ -14,6 +16,8 @@ export default function DashboardLayout({
   return (
     <AuthGuard>
       <TransactionProvider>
+      <BudgetProvider>
+      <GoalsProvider>
       {/* Flex container: sidebar + main content side by side */}
       <div className="flex min-h-screen w-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         {/* Sidebar - hidden on mobile (shows as drawer), sticky on desktop */}
@@ -30,6 +34,8 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
+      </GoalsProvider>
+      </BudgetProvider>
       </TransactionProvider>
     </AuthGuard>
   );

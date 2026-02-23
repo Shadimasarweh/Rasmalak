@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions, Transaction } from '@/store/transactionStore';
 import { useCurrency } from '@/store/useStore';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ============================================
    TRANSACTIONS PAGE
@@ -53,7 +54,7 @@ function DeleteConfirmModal({
     { id: 'transactions.transaction_type', defaultMessage: '{type, select, income {Income} expense {Expense} other {Transaction}}' },
     { type: transaction.type }
   );
-  const amountLabel = intl.formatNumber(Math.abs(transaction.amount), { style: 'currency', currency: transaction.currency });
+  const amountLabel = styledNum(intl.formatNumber(Math.abs(transaction.amount), { style: 'currency', currency: transaction.currency }));
 
   return (
     <div
@@ -255,7 +256,7 @@ function TransactionRow({
           { id: 'transactions.amount_signed', defaultMessage: '{type, select, income {+{amount}} expense {-{amount}} other {{amount}}}' },
           { 
             type: transaction.type,
-            amount: intl.formatNumber(Math.abs(transaction.amount), { style: 'currency', currency: transaction.currency })
+            amount: styledNum(intl.formatNumber(Math.abs(transaction.amount), { style: 'currency', currency: transaction.currency }))
           }
         )}
       </td>
@@ -345,7 +346,7 @@ export default function TransactionsPage() {
                   {intl.formatMessage({ id: 'transactions.total_income', defaultMessage: 'Total Income' })}
                 </p>
                 <p className="ds-metric-sm" style={{ color: 'var(--color-success)' }}>
-                  {intl.formatNumber(totalIncome, { style: 'currency', currency })}
+                  {styledNum(intl.formatNumber(totalIncome, { style: 'currency', currency }))}
                 </p>
               </div>
             </div>
@@ -357,7 +358,7 @@ export default function TransactionsPage() {
                   {intl.formatMessage({ id: 'transactions.total_expenses', defaultMessage: 'Total Expenses' })}
                 </p>
                 <p className="ds-metric-sm" style={{ color: 'var(--color-error)' }}>
-                  {intl.formatNumber(totalExpenses, { style: 'currency', currency })}
+                  {styledNum(intl.formatNumber(totalExpenses, { style: 'currency', currency }))}
                 </p>
               </div>
             </div>
@@ -372,7 +373,7 @@ export default function TransactionsPage() {
                   className="ds-metric-sm"
                   style={{ color: netBalance >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}
                 >
-                  {intl.formatNumber(netBalance, { style: 'currency', currency })}
+                  {styledNum(intl.formatNumber(netBalance, { style: 'currency', currency }))}
                 </p>
               </div>
             </div>

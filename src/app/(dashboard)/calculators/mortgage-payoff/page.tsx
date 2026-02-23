@@ -8,6 +8,7 @@ import { calculateMortgagePayoff } from '@/calculators/mortgagePayoffCalculator'
 import type { MortgagePayoffInput, MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
 import { generateMortgagePayoffPDF } from '@/calculators/mortgagePayoffReport';
 import { CURRENCIES } from '@/lib/constants';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ===== ICONS ===== */
 const ArrowLeftIcon = () => (
@@ -189,7 +190,7 @@ export default function MortgagePayoffCalculatorPage() {
 
   // Format number for display
   const formatCurrency = (value: number) => {
-    return intl.formatNumber(value, { style: 'currency', currency });
+    return styledNum(intl.formatNumber(value, { style: 'currency', currency }));
   };
 
   return (
@@ -800,7 +801,7 @@ function SummaryItem({
   accent,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   highlight?: boolean;
   accent?: boolean;
 }) {

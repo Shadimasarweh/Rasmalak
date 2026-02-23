@@ -7,6 +7,7 @@ import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
 import { useCurrency } from '@/store/useStore';
 import { useAuthStore } from '@/store/authStore';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ============================================
    ADD INCOME PAGE
@@ -277,12 +278,12 @@ export default function AddIncomePage() {
   // Only show decimals if user explicitly entered them (contains a dot)
   const parsedAmount = amount ? parseFloat(amount) : 0;
   const hasDecimals = amount.includes('.');
-  const formattedAmount = intl.formatNumber(parsedAmount, {
+  const formattedAmount = styledNum(intl.formatNumber(parsedAmount, {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: hasDecimals ? 2 : 0,
     maximumFractionDigits: hasDecimals ? 2 : 0,
-  });
+  }));
   
   // Format date for display (locale-aware)
   const formattedDate = date ? intl.formatDate(new Date(date + 'T00:00:00'), { year: 'numeric', month: 'long', day: 'numeric' }) : '';

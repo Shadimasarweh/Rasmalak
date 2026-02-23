@@ -2,11 +2,14 @@
 
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
-import { useCurrency, useUser, useUserName, useCategoryBudgets, useSavingsGoals, useLanguage } from '@/store/useStore';
+import { useCurrency, useUser, useUserName, useLanguage } from '@/store/useStore';
+import { useBudget } from '@/store/budgetStore';
+import { useGoals } from '@/store/goalsStore';
 import { useTransactions } from '@/store/transactionStore';
 import { useMemo } from 'react';
 import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ═══════════════════════════════════════════════════
    Dashboard — Overview Page
@@ -51,8 +54,8 @@ export default function OverviewPage() {
   /* ---------- Budget & Goal Data ---------- */
   const language = useLanguage();
   const isRTL = language === 'ar';
-  const categoryBudgets = useCategoryBudgets();
-  const savingsGoals = useSavingsGoals();
+  const { categoryBudgets } = useBudget();
+  const { savingsGoals } = useGoals();
   const currencyInfo = CURRENCIES.find(c => c.code === currency);
   const currencySymbol = isRTL ? currencyInfo?.symbolAr || currencyInfo?.symbol || currency : currencyInfo?.symbol || currency;
 
@@ -137,6 +140,11 @@ export default function OverviewPage() {
   );
 
   /* ---------- Helpers ---------- */
+  const fmtCurrency = (value: number, cur: string = currency) =>
+    styledNum(intl.formatNumber(value, { style: 'currency', currency: cur }));
+  const fmtLocale = (value: number) =>
+    styledNum(value.toLocaleString());
+
   const getCategoryIcon = (category: string | null) => {
     const icons: Record<string, string> = {
       food: '🍽️', transport: '🚗', shopping: '🛍️', entertainment: '🎬',
@@ -182,7 +190,7 @@ export default function OverviewPage() {
             {intl.formatMessage({ id: 'dashboard.total_balance', defaultMessage: 'Total Balance' })}
           </p>
           <div className="ds-metric" style={{ color: 'var(--color-text-on-hero)', fontSize: 'clamp(1.5rem, 4vw, 2.25rem)' }}>
-            {intl.formatNumber(totalBalance, { style: 'currency', currency })}
+            {fmtCurrency(totalBalance)}
           </div>
           {!hasTransactions && (
             <p className="ds-supporting" style={{ color: 'var(--color-text-on-hero-dim)', marginTop: 'var(--spacing-2)' }}>
@@ -228,7 +236,7 @@ export default function OverviewPage() {
               <div style={{ minWidth: 0 }}>
                 <p className="ds-label">{intl.formatMessage({ id: 'dashboard.income', defaultMessage: 'Income' })}</p>
                 <p className="ds-metric-sm" style={{ marginTop: 'var(--spacing-1)' }}>
-                  {intl.formatNumber(monthlyIncome, { style: 'currency', currency })}
+                  {fmtCurrency(monthlyIncome)}
                 </p>
               </div>
             </div>
@@ -244,7 +252,7 @@ export default function OverviewPage() {
               <div style={{ minWidth: 0 }}>
                 <p className="ds-label">{intl.formatMessage({ id: 'dashboard.expenses', defaultMessage: 'Expenses' })}</p>
                 <p className="ds-metric-sm" style={{ marginTop: 'var(--spacing-1)' }}>
-                  {intl.formatNumber(monthlyExpenses, { style: 'currency', currency })}
+                  {fmtCurrency(monthlyExpenses)}
                 </p>
               </div>
             </div>
@@ -259,8 +267,8 @@ export default function OverviewPage() {
               </div>
               <p className="ds-supporting" style={{ textAlign: 'center', marginTop: 'var(--spacing-3)', fontWeight: 500, color: monthlyCashFlow >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)' }}>
                 {monthlyCashFlow >= 0
-                  ? intl.formatMessage({ id: 'dashboard.saved_this_month', defaultMessage: 'Saved {amount} this month' }, { amount: intl.formatNumber(monthlyCashFlow, { style: 'currency', currency }) })
-                  : intl.formatMessage({ id: 'dashboard.overspent_this_month', defaultMessage: 'Overspent {amount} this month' }, { amount: intl.formatNumber(Math.abs(monthlyCashFlow), { style: 'currency', currency }) })
+                  ? <>{intl.formatMessage({ id: 'dashboard.saved_label', defaultMessage: 'Saved' })} {fmtCurrency(monthlyCashFlow)} {intl.formatMessage({ id: 'dashboard.this_month_suffix', defaultMessage: 'this month' })}</>
+                  : <>{intl.formatMessage({ id: 'dashboard.overspent_label', defaultMessage: 'Overspent' })} {fmtCurrency(Math.abs(monthlyCashFlow))} {intl.formatMessage({ id: 'dashboard.this_month_suffix', defaultMessage: 'this month' })}</>
                 }
               </p>
             </div>
@@ -301,7 +309,7 @@ export default function OverviewPage() {
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-1)' }}>
-                  <span className="ds-label">{currencySymbol} {topGoal.currentAmount.toLocaleString()}</span>
+                  <span className="ds-label">{currencySymbol} {fmtLocale(topGoal.currentAmount)}</span>
                   <span className="ds-label">{goalPct}%</span>
                 </div>
                 <div className="ds-progress">
@@ -398,7 +406,7 @@ export default function OverviewPage() {
                         </span>
                       </div>
                       <span className="ds-label" style={{ color: isOver ? 'var(--color-danger-text)' : 'var(--color-text-muted)' }}>
-                        {currencySymbol} {b.spent.toLocaleString()} / {b.limit.toLocaleString()}
+                        {currencySymbol} {fmtLocale(b.spent)} / {fmtLocale(b.limit)}
                       </span>
                     </div>
                     <div className="ds-progress" style={{ height: '4px' }}>
@@ -575,7 +583,7 @@ export default function OverviewPage() {
                       </span>
                     </td>
                     <td style={{ textAlign: 'end', fontWeight: 500, color: tx.type === 'expense' ? 'var(--color-text-primary)' : 'var(--color-accent-growth)' }}>
-                      {tx.type === 'income' ? '+' : '-'}{intl.formatNumber(Math.abs(tx.amount), { style: 'currency', currency: tx.currency || currency })}
+                      {tx.type === 'income' ? '+' : '-'}{fmtCurrency(Math.abs(tx.amount), tx.currency || currency)}
                     </td>
                   </tr>
                 ))}

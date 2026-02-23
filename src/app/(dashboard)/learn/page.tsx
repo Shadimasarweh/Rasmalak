@@ -1,7 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useIntl } from 'react-intl';
+import { useRouter } from 'next/navigation';
+import { FilterPanel } from '@/components/filters';
+import type { FilterConfig } from '@/components/filters';
+import { getAllCourses, getCourseIdForLocale } from '@/data/courses';
+import { getTotalSections } from '@/types/course';
+import type { CourseData } from '@/types/course';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuthStore } from '@/store/authStore';
+import { useStore } from '@/store/useStore';
 
 /* ============================================
    LEARN PAGE
@@ -141,6 +150,37 @@ const LEARNING_MODES: { id: LearningMode; labelKey: string; labelDefault: string
   { id: 'topics', labelKey: 'learn.mode.topics', labelDefault: 'Topics & Skills', icon: <TopicsIcon /> },
   { id: 'achievements', labelKey: 'learn.mode.achievements', labelDefault: 'Achievements', icon: <TrophyIcon /> },
 ];
+
+/* ===== LEARN FILTER CONFIG ===== */
+const LEARN_FILTER_CONFIG: FilterConfig = {
+  pageId: 'learn',
+  sections: [
+    {
+      key: 'contentType',
+      titleKey: 'learn.filter.content_type',
+      titleDefault: 'Content Type',
+      type: 'multi',
+      options: [
+        { value: 'paths', labelKey: 'learn.mode.paths', labelDefault: 'Learning Paths' },
+        { value: 'articles', labelKey: 'learn.mode.articles', labelDefault: 'Articles' },
+        { value: 'videos', labelKey: 'learn.mode.videos', labelDefault: 'Videos' },
+        { value: 'topics', labelKey: 'learn.mode.topics', labelDefault: 'Topics & Skills' },
+        { value: 'achievements', labelKey: 'learn.mode.achievements', labelDefault: 'Achievements' },
+      ],
+    },
+    {
+      key: 'level',
+      titleKey: 'learn.filter.level',
+      titleDefault: 'Level',
+      type: 'multi',
+      options: [
+        { value: 'beginner', labelKey: 'learn.level.beginner', labelDefault: 'Beginner' },
+        { value: 'intermediate', labelKey: 'learn.level.intermediate', labelDefault: 'Intermediate' },
+        { value: 'advanced', labelKey: 'learn.level.advanced', labelDefault: 'Advanced' },
+      ],
+    },
+  ],
+};
 
 /* ===== REUSABLE COMPONENTS ===== */
 
@@ -1098,6 +1138,153 @@ function AchievementsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   );
 }
 
+/* ===== COURSE CATALOG SECTION ===== */
+function CourseCard({
+  course,
+  progress,
+  intl,
+  onClick,
+}: {
+  course: CourseData;
+  progress: number;
+  intl: ReturnType<typeof useIntl>;
+  onClick: () => void;
+}) {
+  const total = getTotalSections(course);
+  const completedCount = Math.round((progress / 100) * total);
+  const isRtl = course.locale === 'ar';
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="ds-card"
+      style={{
+        cursor: 'pointer',
+        textAlign: isRtl ? 'right' : 'left',
+        width: '100%',
+        border: '1px solid var(--color-border-subtle)',
+        transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span style={{ color: 'var(--color-accent-growth)', flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </span>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              {course.title}
+            </h3>
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, marginBottom: 'var(--spacing-2)' }}>
+            {course.description}
+          </p>
+        </div>
+        {progress === 100 && (
+          <span style={{ color: 'var(--color-success)', flexShrink: 0, marginInlineStart: '8px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+            </svg>
+          </span>
+        )}
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
+        <div style={{ flex: 1, height: '4px', background: 'var(--color-border-subtle)', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${progress}%`, background: progress === 100 ? 'var(--color-success)' : 'var(--color-accent-growth)', borderRadius: 'var(--radius-pill)', transition: 'width 0.3s ease' }} />
+        </div>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+          {progress > 0
+            ? `${completedCount}/${total}`
+            : intl.formatMessage({ id: 'learn.course.sections_count', defaultMessage: '{count} sections' }, { count: total })
+          }
+        </span>
+      </div>
+
+      {/* Action label */}
+      <div style={{ marginTop: 'var(--spacing-2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent-growth)' }}>
+          {progress === 100
+            ? intl.formatMessage({ id: 'learn.course.course_complete', defaultMessage: 'Course Complete!' })
+            : progress > 0
+            ? intl.formatMessage({ id: 'learn.course.continue', defaultMessage: 'Continue' })
+            : intl.formatMessage({ id: 'learn.course.start_course', defaultMessage: 'Start Course' })
+          }
+        </span>
+        {progress < 100 && (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-growth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> }) {
+  const router = useRouter();
+  const language = useStore((s) => s.language);
+  const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
+
+  const courses = getAllCourses(language);
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!initialized || !user) return;
+
+    const fetchProgress = async () => {
+      const { data } = await supabase
+        .from('course_progress')
+        .select('course_id, completed_section_ids, locale')
+        .eq('user_id', user.id)
+        .eq('locale', language);
+
+      if (!data) return;
+
+      const map: Record<string, number> = {};
+      for (const row of data) {
+        const course = courses.find((c) => c.courseId === row.course_id);
+        if (course) {
+          const total = getTotalSections(course);
+          const done = (row.completed_section_ids as string[])?.length ?? 0;
+          map[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+        }
+      }
+      setProgressMap(map);
+    };
+
+    fetchProgress();
+  }, [initialized, user, language, courses]);
+
+  if (courses.length === 0) return null;
+
+  return (
+    <div style={{ marginTop: 'var(--spacing-3)' }}>
+      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
+        {intl.formatMessage({ id: 'learn.course.available_courses', defaultMessage: 'Available Courses' })}
+      </h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+        {courses.map((course) => (
+          <CourseCard
+            key={course.courseId}
+            course={course}
+            progress={progressMap[course.courseId] ?? 0}
+            intl={intl}
+            onClick={() => router.push(`/learn/courses/${course.courseId}`)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ===== ZERO-PROGRESS STATE COMPONENTS ===== */
 
 /* ----- Skeleton Card (Generic Placeholder) ----- */
@@ -1269,7 +1456,7 @@ export default function LearnPage() {
       {/* ===== HERO SECTION (Always visible) ===== */}
       <HeroSection intl={intl} hasStartedCourses={hasStartedCourses} />
 
-      {/* ===== MODE SELECTORS ===== */}
+      {/* ===== MODE SELECTORS + FILTERS ===== */}
       <div style={{ marginTop: 'var(--spacing-3)' }}>
         <div
           style={{
@@ -1291,11 +1478,17 @@ export default function LearnPage() {
             ))}
           </div>
         </div>
+
+        {/* Filters */}
+        <div style={{ marginTop: 'var(--spacing-2)' }}>
+          <FilterPanel config={LEARN_FILTER_CONFIG} />
+        </div>
       </div>
 
-      {/* ===== HOME MODE CONTENT: Featured & Recommended ===== */}
+      {/* ===== HOME MODE CONTENT: Courses, Featured & Recommended ===== */}
       {isHomeMode && (
         <>
+          <AvailableCoursesSection intl={intl} />
           <FeaturedContent intl={intl} />
           <RecommendedContent intl={intl} />
         </>

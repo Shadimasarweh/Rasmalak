@@ -2,37 +2,49 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowRight, ArrowLeft, Sparkles, KeyRound } from 'lucide-react';
+import { Mail, ArrowRight, ArrowLeft, Sparkles, KeyRound, CheckCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ThemeLanguageSwitcher } from '@/components';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function ForgotPasswordPage() {
   const { t, isRTL } = useTranslation();
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email) return;
 
     setIsLoading(true);
-    // Simulate a small delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    setError('');
+
+    const redirectTo = `${window.location.origin}/auth/callback?next=/reset-password`;
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email,
+      { redirectTo },
+    );
+
     setIsLoading(false);
+
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+
     setIsSubmitted(true);
   };
 
-  // Translations
   const heading = t.auth.resetPassword;
   const helper = t.auth.resetPasswordHelper;
   const emailLabel = t.auth.email;
   const submitText = t.auth.sendResetLink;
   const backToLogin = t.auth.backToLogin;
-  const comingSoonMessage = t.auth.comingSoon;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-bg-primary)] py-8 relative overflow-hidden">
@@ -62,18 +74,18 @@ export default function ForgotPasswordPage() {
           <p className="text-base text-[var(--color-text-secondary)]">{helper}</p>
         </div>
 
-        {/* Forgot Password Form */}
+        {/* Form Card */}
         <div className="card card-elevated">
           {isSubmitted ? (
             <div className="text-center py-6">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'var(--color-accent-growth-subtle)' }}>
-                <span className="text-3xl">🚧</span>
+                <CheckCircle className="w-8 h-8" style={{ color: 'var(--color-accent-growth)' }} />
               </div>
               <p className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-                {comingSoonMessage}
+                {t.auth.resetEmailSent || 'Check your email'}
               </p>
               <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-                {t.auth.resetComingSoonDesc}
+                {t.auth.resetEmailSentDesc || 'We sent a password reset link to your email address. Click the link to set a new password.'}
               </p>
               <Link
                 href="/login"
@@ -86,13 +98,19 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Error */}
+              {error && (
+                <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-error)' }}>
+                  {error}
+                </div>
+              )}
+
               {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-[var(--color-text-primary)] mb-2">
                   {emailLabel}
                 </label>
                 <div className="relative">
-                  {/* Leading icon - positioned at start */}
                   <div className="absolute inset-y-0 start-0 flex items-center ps-4 pointer-events-none">
                     <Mail className="w-5 h-5 text-[var(--color-text-muted)]" />
                   </div>
@@ -108,7 +126,7 @@ export default function ForgotPasswordPage() {
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={isLoading || !email}
@@ -129,7 +147,7 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          {/* Back to Login Link */}
+          {/* Back to Login */}
           {!isSubmitted && (
             <div className="mt-8 pt-6 border-t border-[var(--color-border)] text-center">
               <Link
@@ -147,7 +165,3 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
-
-
-
-

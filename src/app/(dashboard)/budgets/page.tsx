@@ -3,10 +3,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
-import { useLanguage, useCurrency, useCategoryBudgets, useMonthlyBudget, useStore } from '@/store/useStore';
+import { useLanguage, useCurrency } from '@/store/useStore';
 import { useTransactions } from '@/store/transactionStore';
 import type { Transaction } from '@/store/transactionStore';
+import { useBudget } from '@/store/budgetStore';
 import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
+import { styledNum } from '@/components/StyledNumber';
 
 /* ===== ICONS (module scope — Fault Log F-007) ===== */
 const ArrowLeftIcon = () => (
@@ -145,7 +147,7 @@ function CategoryBudgetRow({
               color: isOver ? 'var(--color-danger-text)' : 'var(--color-text-muted)',
             }}
           >
-            <span>{currencySymbol} {spent.toLocaleString()}</span>
+            <span>{currencySymbol} {styledNum(spent.toLocaleString())}</span>
             <span>{percentage.toFixed(0)}%</span>
           </div>
         </div>
@@ -160,12 +162,8 @@ export default function BudgetsPage() {
   const language = useLanguage();
   const currency = useCurrency();
   const isRTL = language === 'ar';
-  const categoryBudgets = useCategoryBudgets();
-  const monthlyBudget = useMonthlyBudget();
+  const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
   const { transactions } = useTransactions();
-  const setCategoryBudget = useStore((state) => state.setCategoryBudget);
-  const removeCategoryBudget = useStore((state) => state.removeCategoryBudget);
-  const setMonthlyBudget = useStore((state) => state.setMonthlyBudget);
 
   const currencyInfo = CURRENCIES.find((c) => c.code === currency);
   const currencySymbol = isRTL
@@ -357,7 +355,7 @@ export default function BudgetsPage() {
             {intl.formatMessage({ id: 'dashboard.budgets_total_budget', defaultMessage: 'Total Budget' })}
           </p>
           <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-            {currencySymbol} {displayBudget.toLocaleString()}
+            {currencySymbol} {styledNum(displayBudget.toLocaleString())}
           </p>
         </div>
         <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
@@ -372,7 +370,7 @@ export default function BudgetsPage() {
               color: totalSpent > displayBudget && displayBudget > 0 ? 'var(--color-danger-text)' : 'var(--color-text-primary)',
             }}
           >
-            {currencySymbol} {totalSpent.toLocaleString()}
+            {currencySymbol} {styledNum(totalSpent.toLocaleString())}
           </p>
         </div>
         <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
@@ -387,7 +385,7 @@ export default function BudgetsPage() {
               color: displayBudget - totalSpent >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)',
             }}
           >
-            {currencySymbol} {Math.abs(displayBudget - totalSpent).toLocaleString()}
+            {currencySymbol} {styledNum(Math.abs(displayBudget - totalSpent).toLocaleString())}
           </p>
         </div>
       </div>
