@@ -4,15 +4,17 @@
  * React hook for accessing AI-generated alerts and suggestions.
  * Updates automatically when user data changes.
  *
+ * Reads from the structured memory (user_semantic_state) when available
+ * to enrich insights with persistent user profile data.
+ *
  * Every rule-generated recommendation is logged to the financial_advice
  * table with a deterministic context_hash before it becomes visible to
- * UI components.  This mirrors the accountability applied to AI-sourced
- * advice in src/ai/service.ts.
+ * UI components.
  */
 
 'use client';
 
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { useTransactions } from '@/store/transactionStore';
 import { 
   useCurrency, 
@@ -35,21 +37,20 @@ import {
 import { InsightCard, UserFinancialContext } from '../types';
 import { computeContextHash } from '../contextHash';
 import { logFinancialAdvice } from '../adviceLogger';
+import { readMemoryFields } from '../memory/memoryService';
+import type { UserSemanticState } from '../memory/types';
 
 export interface AIInsights {
-  // Raw data
   alerts: SpendingAlert[];
   suggestions: GoalSuggestion[];
-  
-  // Formatted for display
   alertCards: InsightCard[];
   suggestionCards: InsightCard[];
   allCards: InsightCard[];
-  
-  // Summary
   hasHighPriorityAlert: boolean;
   alertCount: number;
   suggestionCount: number;
+  /** Persistent memory fields read from Supabase (if available). */
+  memory: Partial<UserSemanticState>;
 }
 
 // ============================================
@@ -168,15 +169,14 @@ function useLogRuleAdvice(
  * with a context_hash in the same render cycle that produces them.
  */
 export function useAIInsights(): AIInsights {
-  // Get user data from stores
   const { transactions } = useTransactions();
   const currency = useCurrency();
   const language = useLanguage();
   const { monthlyBudget, categoryBudgets } = useBudget();
   const { savingsGoals } = useGoals();
   const onboardingData = useOnboardingData();
+  const userId = useAuthUser()?.id;
   
-  // Build context (memoized so downstream effects have a stable reference)
   const context = useMemo(() => buildUserContext({
     transactions,
     currency,
@@ -187,14 +187,22 @@ export function useAIInsights(): AIInsights {
     onboardingData,
   }), [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData]);
 
-  // Generate alerts and suggestions (rule-based, synchronous)
+  // Read from structured memory (non-blocking, best-effort)
+  const [memory, setMemory] = useState<Partial<UserSemanticState>>({});
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    readMemoryFields(userId, ['financialHealthBand', 'riskProfile', 'preferences'])
+      .then(fields => { if (!cancelled) setMemory(fields); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [userId, context]);
+
   const alerts = useMemo(() => detectSpendingAlerts(context), [context]);
   const suggestions = useMemo(() => generateGoalSuggestions(context), [context]);
 
-  // Log every rule-generated recommendation to financial_advice
   useLogRuleAdvice(alerts, suggestions, context, language);
 
-  // Build display cards
   const insights = useMemo(() => {
     const alertCards = alertsToInsightCards(alerts, language);
     const suggestionCards = suggestionsToInsightCards(suggestions, language);
@@ -209,8 +217,9 @@ export function useAIInsights(): AIInsights {
       hasHighPriorityAlert: alerts.some(a => a.severity === 'high'),
       alertCount: alerts.length,
       suggestionCount: suggestions.length,
+      memory,
     };
-  }, [alerts, suggestions, language]);
+  }, [alerts, suggestions, language, memory]);
   
   return insights;
 }

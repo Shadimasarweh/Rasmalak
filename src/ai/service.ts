@@ -226,11 +226,10 @@ class RasmalakAIService {
       formattedHistory,
       message,
       attachments
-    );
+    ) as any;
 
     const model = getModelForAttachments(attachments);
 
-    // Call AI provider with potentially different model
     const result = await sendChatCompletionWithRetry(messages, {
       // Override model if needed for vision
       ...(model !== AI_CONFIG.model && { model }),
@@ -305,7 +304,7 @@ class RasmalakAIService {
       JSON.stringify({ score: health.score, band: health.band, components: health.components }, null, 2);
     const prompt = basePrompt + signalsBlock;
 
-    const messages = formatMessages(prompt, [], 'Generate insights');
+    const messages = formatMessages(prompt, [], 'Generate insights') as any;
 
     const result = await sendChatCompletionWithRetry(messages, {
       max_tokens: 500,
@@ -345,7 +344,7 @@ class RasmalakAIService {
         language === 'ar' ? 'أنت مصنف نوايا الرسائل.' : 'You are a message intent classifier.',
         [],
         taskPrompt
-      );
+      ) as any;
 
       const result = await sendChatCompletion(messages, {
         max_tokens: 50,
@@ -386,7 +385,7 @@ class RasmalakAIService {
         language === 'ar' ? 'أنت محلل نصوص مالية.' : 'You are a financial text analyzer.',
         [],
         taskPrompt
-      );
+      ) as any;
 
       const result = await sendChatCompletion(messages, {
         max_tokens: 200,

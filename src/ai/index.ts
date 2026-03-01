@@ -3,15 +3,52 @@
  * ==================
  * Central export for all AI functionality.
  * 
- * Usage:
- *   import { aiService } from '@/ai';
- *   const response = await aiService.chat(message, context, conversationId);
+ * The orchestrator is the primary entry point for AI interactions.
+ * Legacy aiService is preserved for backward compatibility.
  */
 
-// Main service
+// ─── Orchestrator (primary entry point) ───
+export { orchestrator, AIOrchestrator } from './orchestrator';
+export type { OrchestratorInput, OrchestratorOutput, ExplanationTrace } from './orchestrator/types';
+
+// ─── Legacy service (backward compatibility) ───
 export { aiService } from './service';
 
-// Types
+// ─── Agents ───
+export type { AgentDefinition, AgentId, AgentPromptParams, FinancialContextSlice } from './agents/types';
+export { getAgent, findAgentForIntent, getAllAgents } from './agents/registry';
+
+// ─── Memory ───
+export type { UserSemanticState } from './memory/types';
+export { readMemoryFields, writeMemoryFields } from './memory/memoryService';
+
+// ─── Context ───
+export type { ContextSliceType } from './context/sliceTypes';
+export { selectContext } from './context/contextSelector';
+
+// ─── Deterministic ───
+export {
+  computeFinancialSignals,
+  computeFinancialHealth,
+  deriveAdvisoryState,
+  computeProjections,
+} from './deterministic';
+export type {
+  FinancialSignals,
+  SignalSummary,
+  FinancialHealthResult,
+  FinancialHealthBand,
+  FinancialAdvisoryState,
+  DeterministicOutputs,
+  ProjectionResult,
+} from './deterministic';
+
+// ─── Validation ───
+export { validateOutput } from './validation/pipeline';
+export type { ValidationResult, ValidationError } from './validation/pipeline';
+export { evaluatePolicy } from './agents/policyAgent';
+
+// ─── Types ───
 export type {
   AIIntent,
   AIEntity,
@@ -33,22 +70,24 @@ export type {
   AIProviderConfig,
   InsightTrigger,
   GeneratedInsight,
+  AttachmentType,
+  MessageAttachment,
 } from './types';
 
-// Configuration
+// ─── Configuration ───
 export { AI_CONFIG, AI_FEATURES, AI_SAFETY } from './config';
 
-// Context Builder
+// ─── Context Builder ───
 export { buildUserContext, buildEmptyContext, getContextSummary } from './context';
 
-// Context Hashing (single source of truth — no other module may duplicate this)
+// ─── Context Hashing ───
 export { computeContextHash } from './contextHash';
 
-// Advice Logger
+// ─── Advice Logger ───
 export { logFinancialAdvice } from './adviceLogger';
 export type { FinancialAdviceRow } from './adviceLogger';
 
-// Alerts & Suggestions
+// ─── Alerts & Suggestions ───
 export { 
   detectSpendingAlerts, 
   generateGoalSuggestions,
@@ -57,6 +96,5 @@ export {
 } from './alerts';
 export type { SpendingAlert, GoalSuggestion, AlertType } from './alerts';
 
-// React Hooks
+// ─── React Hooks ───
 export { useAIInsights, useSpendingAlerts, useGoalSuggestions } from './hooks/useAIInsights';
-
