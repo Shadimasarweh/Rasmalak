@@ -293,10 +293,10 @@ function GoalCard({
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
           <span style={{ color: 'var(--color-text-muted)' }}>
-            {currencySymbol} {styledNum(goal.currentAmount.toLocaleString())}
+            {currencySymbol} {styledNum(intl.formatNumber(goal.currentAmount))}
           </span>
           <span style={{ fontWeight: 600, color: isComplete ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
-            {percentage.toFixed(0)}%
+            {intl.formatNumber(Math.round(percentage))}%
           </span>
         </div>
         <div
@@ -327,10 +327,10 @@ function GoalCard({
           }}
         >
           <span>
-            {intl.formatMessage({ id: 'dashboard.goals_remaining', defaultMessage: 'Remaining' })}: {currencySymbol} {styledNum(remaining.toLocaleString())}
+            {intl.formatMessage({ id: 'dashboard.goals_remaining', defaultMessage: 'Remaining' })}: {currencySymbol} {styledNum(intl.formatNumber(remaining))}
           </span>
           <span>
-            {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {styledNum(goal.targetAmount.toLocaleString())}
+            {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {styledNum(intl.formatNumber(goal.targetAmount))}
           </span>
         </div>
       </div>
@@ -669,7 +669,7 @@ export default function GoalsPage() {
               {intl.formatMessage({ id: 'dashboard.goals_overall_progress', defaultMessage: 'Overall Progress' })}
             </p>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: overallPercentage >= 100 ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
-              {overallPercentage.toFixed(0)}%
+              {intl.formatNumber(Math.round(overallPercentage))}%
             </p>
           </div>
           <div
@@ -692,10 +692,10 @@ export default function GoalsPage() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
             <span>
-              {intl.formatMessage({ id: 'dashboard.goals_saved', defaultMessage: 'Saved' })}: {currencySymbol} {styledNum(totalSaved.toLocaleString())}
+              {intl.formatMessage({ id: 'dashboard.goals_saved', defaultMessage: 'Saved' })}: {currencySymbol} {styledNum(intl.formatNumber(totalSaved))}
             </span>
             <span>
-              {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {styledNum(totalTarget.toLocaleString())}
+              {intl.formatMessage({ id: 'dashboard.goals_target', defaultMessage: 'Target' })}: {currencySymbol} {styledNum(intl.formatNumber(totalTarget))}
             </span>
           </div>
         </div>

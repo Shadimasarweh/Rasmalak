@@ -293,8 +293,8 @@ export default function HomeAffordabilityCalculatorPage() {
                   <SummaryItem label={t('home_afford_m4', 'Max PI (Funds)')} value={formatCurrencyValue(result.m4MaxPIFunds)} />
                   <SummaryItem label={t('home_afford_max_pi', 'Maximum PI Payment')} value={formatCurrencyValue(result.maxPIPayment)} highlight />
                   <SummaryItem label={t('home_afford_loan_amount', 'Loan Amount')} value={formatCurrencyValue(result.loanAmount)} />
-                  <SummaryItem label={t('home_afford_down_payment', 'Down Payment')} value={<>{formatCurrencyValue(result.downPaymentAmount)} ({result.downPaymentPercent.toFixed(1)}%)</>} />
-                  <SummaryItem label={t('home_afford_closing_costs', 'Closing Costs')} value={<>{formatCurrencyValue(result.estimatedClosingCosts)} ({result.closingCostsPercent.toFixed(1)}%)</>} />
+                  <SummaryItem label={t('home_afford_down_payment', 'Down Payment')} value={<>{formatCurrencyValue(result.downPaymentAmount)} ({intl.formatNumber(result.downPaymentPercent, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</>} />
+                  <SummaryItem label={t('home_afford_closing_costs', 'Closing Costs')} value={<>{formatCurrencyValue(result.estimatedClosingCosts)} ({intl.formatNumber(result.closingCostsPercent, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</>} />
                 </div>
 
                 {/* Hero Result */}

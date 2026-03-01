@@ -23,6 +23,37 @@ export function formatNumber(num: number): string {
 }
 
 /**
+ * Locale-aware number formatting.
+ * Arabic → Arabic-Indic numerals (٠١٢٣٤), English → Western (01234).
+ */
+export function fmtNum(value: number, language: 'ar' | 'en', decimals?: number): string {
+  const locale = language === 'ar' ? 'ar-u-nu-arab' : 'en-US';
+  const opts: Intl.NumberFormatOptions = {};
+  if (decimals != null) {
+    opts.minimumFractionDigits = decimals;
+    opts.maximumFractionDigits = decimals;
+  }
+  return new Intl.NumberFormat(locale, opts).format(value);
+}
+
+/**
+ * Locale-aware percentage formatting.
+ * Returns e.g. "٢٥٫٣%" for Arabic or "25.3%" for English.
+ */
+export function fmtPct(value: number, language: 'ar' | 'en', decimals: number = 1): string {
+  return `${fmtNum(value, language, decimals)}%`;
+}
+
+/**
+ * Locale-aware currency formatting with symbol.
+ */
+export function fmtCurrencyLocale(amount: number, currencyCode: string, language: 'ar' | 'en'): string {
+  const currency = CURRENCIES.find(c => c.code === currencyCode);
+  const formatted = fmtNum(Math.abs(amount), language, 2);
+  return `${formatted} ${currency?.symbol || currencyCode}`;
+}
+
+/**
  * Convert an amount from one currency to another
  * @param amount - The amount to convert
  * @param fromCurrency - The source currency code
@@ -57,9 +88,9 @@ export function getExchangeRate(fromCurrency: string, toCurrency: string): numbe
   return toRate / fromRate;
 }
 
-// Format percentage
-export function formatPercentage(value: number): string {
-  return `${value.toFixed(1)}%`;
+// Format percentage (legacy — prefer fmtPct for locale-aware formatting)
+export function formatPercentage(value: number, language: 'ar' | 'en' = 'en'): string {
+  return fmtPct(value, language, 1);
 }
 
 // Format date in Arabic

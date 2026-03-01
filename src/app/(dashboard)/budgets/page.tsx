@@ -42,6 +42,7 @@ function CategoryBudgetRow({
   currencySymbol,
   onChange,
   isRTL,
+  fmtNumber,
 }: {
   categoryId: string;
   name: string;
@@ -51,6 +52,7 @@ function CategoryBudgetRow({
   currencySymbol: string;
   onChange: (value: string) => void;
   isRTL: boolean;
+  fmtNumber: (value: number) => string;
 }) {
   const limit = parseFloat(budgetValue) || 0;
   const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
@@ -147,8 +149,8 @@ function CategoryBudgetRow({
               color: isOver ? 'var(--color-danger-text)' : 'var(--color-text-muted)',
             }}
           >
-            <span>{currencySymbol} {styledNum(spent.toLocaleString())}</span>
-            <span>{percentage.toFixed(0)}%</span>
+            <span>{currencySymbol} {styledNum(fmtNumber(spent))}</span>
+            <span>{styledNum(fmtNumber(Math.round(percentage)))}%</span>
           </div>
         </div>
       )}
@@ -355,7 +357,7 @@ export default function BudgetsPage() {
             {intl.formatMessage({ id: 'dashboard.budgets_total_budget', defaultMessage: 'Total Budget' })}
           </p>
           <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-            {currencySymbol} {styledNum(displayBudget.toLocaleString())}
+            {currencySymbol} {styledNum(intl.formatNumber(displayBudget))}
           </p>
         </div>
         <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
@@ -370,7 +372,7 @@ export default function BudgetsPage() {
               color: totalSpent > displayBudget && displayBudget > 0 ? 'var(--color-danger-text)' : 'var(--color-text-primary)',
             }}
           >
-            {currencySymbol} {styledNum(totalSpent.toLocaleString())}
+            {currencySymbol} {styledNum(intl.formatNumber(totalSpent))}
           </p>
         </div>
         <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
@@ -385,7 +387,7 @@ export default function BudgetsPage() {
               color: displayBudget - totalSpent >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)',
             }}
           >
-            {currencySymbol} {styledNum(Math.abs(displayBudget - totalSpent).toLocaleString())}
+            {currencySymbol} {styledNum(intl.formatNumber(Math.abs(displayBudget - totalSpent)))}
           </p>
         </div>
       </div>
@@ -422,6 +424,7 @@ export default function BudgetsPage() {
             currencySymbol={currencySymbol}
             onChange={(v) => setTempBudgets((prev) => ({ ...prev, [cat.id]: v }))}
             isRTL={isRTL}
+            fmtNumber={(v) => intl.formatNumber(v)}
           />
         ))}
       </div>

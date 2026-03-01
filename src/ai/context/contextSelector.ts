@@ -17,6 +17,7 @@ import type { UserSemanticState } from '../memory/types';
 import type { ContextSliceType } from './sliceTypes';
 import { estimateTokens, wouldExceedBudget } from './tokenBudget';
 import { AI_CONFIG } from '../config';
+import { fmtNum, fmtPct } from '@/lib/utils';
 
 export interface ContextSelection {
   memoryFields: Partial<UserSemanticState>;
@@ -30,56 +31,59 @@ type SliceBuilder = (ctx: UserFinancialContext, lang: 'ar' | 'en') => string;
 const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
   summary: (ctx, lang) => {
     const currency = ctx.currency || 'JOD';
+    const n = (v: number) => fmtNum(v, lang);
     if (lang === 'ar') {
       return `### الملخص المالي
-- إجمالي الدخل: ${ctx.totalIncome.toLocaleString()} ${currency}
-- إجمالي المصاريف: ${ctx.totalExpenses.toLocaleString()} ${currency}
-- الرصيد الصافي: ${ctx.netBalance.toLocaleString()} ${currency}
-- معدل الادخار: ${(ctx.savingsRate * 100).toFixed(1)}%`;
+- إجمالي الدخل: ${n(ctx.totalIncome)} ${currency}
+- إجمالي المصاريف: ${n(ctx.totalExpenses)} ${currency}
+- الرصيد الصافي: ${n(ctx.netBalance)} ${currency}
+- معدل الادخار: ${fmtPct(ctx.savingsRate * 100, lang)}`;
     }
     return `### Financial Summary
-- Total Income: ${ctx.totalIncome.toLocaleString()} ${currency}
-- Total Expenses: ${ctx.totalExpenses.toLocaleString()} ${currency}
-- Net Balance: ${ctx.netBalance.toLocaleString()} ${currency}
-- Savings Rate: ${(ctx.savingsRate * 100).toFixed(1)}%`;
+- Total Income: ${n(ctx.totalIncome)} ${currency}
+- Total Expenses: ${n(ctx.totalExpenses)} ${currency}
+- Net Balance: ${n(ctx.netBalance)} ${currency}
+- Savings Rate: ${fmtPct(ctx.savingsRate * 100, lang)}`;
   },
 
   currentMonth: (ctx, lang) => {
     const currency = ctx.currency || 'JOD';
+    const n = (v: number) => fmtNum(v, lang);
     if (lang === 'ar') {
       return `### الشهر الحالي
-- الدخل: ${ctx.currentMonth.income.toLocaleString()} ${currency}
-- المصاريف: ${ctx.currentMonth.expenses.toLocaleString()} ${currency}
-- الأيام المتبقية: ${ctx.currentMonth.daysRemaining}
-- الرصيد المتوقع نهاية الشهر: ${ctx.currentMonth.projectedEndBalance.toLocaleString()} ${currency}`;
+- الدخل: ${n(ctx.currentMonth.income)} ${currency}
+- المصاريف: ${n(ctx.currentMonth.expenses)} ${currency}
+- الأيام المتبقية: ${n(ctx.currentMonth.daysRemaining)}
+- الرصيد المتوقع نهاية الشهر: ${n(ctx.currentMonth.projectedEndBalance)} ${currency}`;
     }
     return `### Current Month
-- Income: ${ctx.currentMonth.income.toLocaleString()} ${currency}
-- Expenses: ${ctx.currentMonth.expenses.toLocaleString()} ${currency}
-- Days Remaining: ${ctx.currentMonth.daysRemaining}
-- Projected End Balance: ${ctx.currentMonth.projectedEndBalance.toLocaleString()} ${currency}`;
+- Income: ${n(ctx.currentMonth.income)} ${currency}
+- Expenses: ${n(ctx.currentMonth.expenses)} ${currency}
+- Days Remaining: ${n(ctx.currentMonth.daysRemaining)}
+- Projected End Balance: ${n(ctx.currentMonth.projectedEndBalance)} ${currency}`;
   },
 
   lastMonth: (ctx, lang) => {
     const c = ctx.comparedToLastMonth;
     if (lang === 'ar') {
       return `### مقارنة بالشهر الماضي
-- تغير الدخل: ${c.incomeChange > 0 ? '+' : ''}${c.incomeChange.toFixed(1)}%
-- تغير المصاريف: ${c.expenseChange > 0 ? '+' : ''}${c.expenseChange.toFixed(1)}%
+- تغير الدخل: ${c.incomeChange > 0 ? '+' : ''}${fmtPct(c.incomeChange, lang)}
+- تغير المصاريف: ${c.expenseChange > 0 ? '+' : ''}${fmtPct(c.expenseChange, lang)}
 - الاتجاه: ${c.trend === 'improving' ? 'تحسن' : c.trend === 'stable' ? 'مستقر' : 'تراجع'}`;
     }
     return `### Compared to Last Month
-- Income Change: ${c.incomeChange > 0 ? '+' : ''}${c.incomeChange.toFixed(1)}%
-- Expense Change: ${c.expenseChange > 0 ? '+' : ''}${c.expenseChange.toFixed(1)}%
+- Income Change: ${c.incomeChange > 0 ? '+' : ''}${fmtPct(c.incomeChange, lang)}
+- Expense Change: ${c.expenseChange > 0 ? '+' : ''}${fmtPct(c.expenseChange, lang)}
 - Trend: ${c.trend}`;
   },
 
   categoryBreakdown: (ctx, lang) => {
     if (ctx.spendingByCategory.length === 0) return '';
     const currency = ctx.currency || 'JOD';
+    const n = (v: number) => fmtNum(v, lang);
     const header = lang === 'ar' ? '### الإنفاق حسب الفئة' : '### Spending by Category';
     const lines = ctx.spendingByCategory.slice(0, 5).map(cat =>
-      `- ${cat.category}: ${cat.amount.toLocaleString()} ${currency} (${cat.percentage.toFixed(1)}%)`,
+      `- ${cat.category}: ${n(cat.amount)} ${currency} (${fmtPct(cat.percentage, lang)})`,
     );
     return header + '\n' + lines.join('\n');
   },
@@ -87,9 +91,10 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
   goals: (ctx, lang) => {
     if (ctx.goals.length === 0) return '';
     const currency = ctx.currency || 'JOD';
+    const n = (v: number) => fmtNum(v, lang);
     const header = lang === 'ar' ? '### الأهداف' : '### Goals';
     const lines = ctx.goals.map(g =>
-      `- ${g.name}: ${g.currentAmount.toLocaleString()}/${g.targetAmount.toLocaleString()} ${currency} (${g.progressPercentage.toFixed(0)}%)`,
+      `- ${g.name}: ${n(g.currentAmount)}/${n(g.targetAmount)} ${currency} (${fmtPct(g.progressPercentage, lang, 0)})`,
     );
     return header + '\n' + lines.join('\n');
   },
@@ -97,18 +102,19 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
   budgets: (ctx, lang) => {
     if (!ctx.budget) return '';
     const currency = ctx.currency || 'JOD';
+    const n = (v: number) => fmtNum(v, lang);
     if (lang === 'ar') {
       return `### حالة الميزانية
-- الحد الشهري: ${ctx.budget.monthlyLimit.toLocaleString()} ${currency}
-- المصروف: ${ctx.budget.spent.toLocaleString()} ${currency}
-- المتبقي: ${ctx.budget.remaining.toLocaleString()} ${currency}
-- النسبة المستخدمة: ${ctx.budget.percentageUsed.toFixed(0)}%${ctx.budget.isOverBudget ? '\n- ⚠️ تجاوز الميزانية!' : ''}`;
+- الحد الشهري: ${n(ctx.budget.monthlyLimit)} ${currency}
+- المصروف: ${n(ctx.budget.spent)} ${currency}
+- المتبقي: ${n(ctx.budget.remaining)} ${currency}
+- النسبة المستخدمة: ${fmtPct(ctx.budget.percentageUsed, lang, 0)}${ctx.budget.isOverBudget ? '\n- ⚠️ تجاوز الميزانية!' : ''}`;
     }
     return `### Budget Status
-- Monthly Limit: ${ctx.budget.monthlyLimit.toLocaleString()} ${currency}
-- Spent: ${ctx.budget.spent.toLocaleString()} ${currency}
-- Remaining: ${ctx.budget.remaining.toLocaleString()} ${currency}
-- Used: ${ctx.budget.percentageUsed.toFixed(0)}%${ctx.budget.isOverBudget ? '\n- ⚠️ Over budget!' : ''}`;
+- Monthly Limit: ${n(ctx.budget.monthlyLimit)} ${currency}
+- Spent: ${n(ctx.budget.spent)} ${currency}
+- Remaining: ${n(ctx.budget.remaining)} ${currency}
+- Used: ${fmtPct(ctx.budget.percentageUsed, lang, 0)}${ctx.budget.isOverBudget ? '\n- ⚠️ Over budget!' : ''}`;
   },
 
   recentTransactions: (_ctx, _lang) => {
@@ -135,8 +141,8 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
       const header = lang === 'ar' ? '### إنفاق غير معتاد' : '### Unusual Spending';
       const lines = ctx.patterns.unusualSpending.map(u =>
         lang === 'ar'
-          ? `- ${u.category}: أعلى من المعتاد بـ ${u.deviation.toFixed(0)}%`
-          : `- ${u.category}: ${u.deviation.toFixed(0)}% above normal`,
+          ? `- ${u.category}: أعلى من المعتاد بـ ${fmtPct(u.deviation, lang, 0)}`
+          : `- ${u.category}: ${fmtPct(u.deviation, lang, 0)} above normal`,
       );
       parts.push(header + '\n' + lines.join('\n'));
     }
@@ -144,7 +150,7 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
       const currency = ctx.currency || 'JOD';
       const header = lang === 'ar' ? '### مصاريف متكررة' : '### Recurring Expenses';
       const lines = ctx.patterns.recurringExpenses.slice(0, 3).map(r =>
-        `- ${r.description}: ${r.amount.toLocaleString()} ${currency} (${r.frequency})`,
+        `- ${r.description}: ${fmtNum(r.amount, lang)} ${currency} (${r.frequency})`,
       );
       parts.push(header + '\n' + lines.join('\n'));
     }
@@ -155,10 +161,10 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
     const currency = ctx.currency || 'JOD';
     if (lang === 'ar') {
       return `### التوقعات
-- الرصيد المتوقع نهاية الشهر: ${ctx.currentMonth.projectedEndBalance.toLocaleString()} ${currency}`;
+- الرصيد المتوقع نهاية الشهر: ${fmtNum(ctx.currentMonth.projectedEndBalance, lang)} ${currency}`;
     }
     return `### Projections
-- Projected End of Month Balance: ${ctx.currentMonth.projectedEndBalance.toLocaleString()} ${currency}`;
+- Projected End of Month Balance: ${fmtNum(ctx.currentMonth.projectedEndBalance, lang)} ${currency}`;
   },
 };
 

@@ -143,7 +143,7 @@ export default function OverviewPage() {
   const fmtCurrency = (value: number, cur: string = currency) =>
     styledNum(intl.formatNumber(value, { style: 'currency', currency: cur }));
   const fmtLocale = (value: number) =>
-    styledNum(value.toLocaleString());
+    styledNum(intl.formatNumber(value));
 
   const getCategoryIcon = (category: string | null) => {
     const icons: Record<string, string> = {
@@ -303,14 +303,14 @@ export default function OverviewPage() {
                     {topGoal.name}
                   </p>
                   <p className="ds-supporting">
-                    {intl.formatMessage({ id: 'dashboard.target_amount', defaultMessage: 'Target: {amount}' }, { amount: `${currencySymbol} ${topGoal.targetAmount.toLocaleString()}` })}
+                    {intl.formatMessage({ id: 'dashboard.target_amount', defaultMessage: 'Target: {amount}' }, { amount: `${currencySymbol} ${intl.formatNumber(topGoal.targetAmount)}` })}
                   </p>
                 </div>
               </div>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-1)' }}>
                   <span className="ds-label">{currencySymbol} {fmtLocale(topGoal.currentAmount)}</span>
-                  <span className="ds-label">{goalPct}%</span>
+                  <span className="ds-label">{intl.formatNumber(goalPct)}%</span>
                 </div>
                 <div className="ds-progress">
                   <div className="ds-progress-fill" style={{ width: `${goalPct}%`, background: topGoal.color }} />

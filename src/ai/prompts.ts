@@ -10,6 +10,7 @@
 
 import { UserFinancialContext } from './types';
 import { AI_SAFETY } from './config';
+import { fmtNum, fmtPct } from '@/lib/utils';
 
 // ============================================
 // CORE IDENTITY PROMPT
@@ -255,63 +256,60 @@ If you don't have enough data or don't know:
 
 function formatUserContext(context: UserFinancialContext, language: 'ar' | 'en'): string {
   const currency = context.currency || 'JOD';
+  const n = (v: number) => fmtNum(v, language);
+  const p = (v: number, d: number = 1) => fmtPct(v, language, d);
   
   if (language === 'ar') {
     let contextStr = `## بيانات المستخدم الحالية
 
 ### الملخص المالي
-- إجمالي الدخل: ${context.totalIncome.toLocaleString()} ${currency}
-- إجمالي المصاريف: ${context.totalExpenses.toLocaleString()} ${currency}
-- الرصيد الصافي: ${context.netBalance.toLocaleString()} ${currency}
-- معدل الادخار: ${(context.savingsRate * 100).toFixed(1)}%
+- إجمالي الدخل: ${n(context.totalIncome)} ${currency}
+- إجمالي المصاريف: ${n(context.totalExpenses)} ${currency}
+- الرصيد الصافي: ${n(context.netBalance)} ${currency}
+- معدل الادخار: ${p(context.savingsRate * 100)}
 
 ### الشهر الحالي
-- الدخل: ${context.currentMonth.income.toLocaleString()} ${currency}
-- المصاريف: ${context.currentMonth.expenses.toLocaleString()} ${currency}
-- الأيام المتبقية: ${context.currentMonth.daysRemaining}
-- الرصيد المتوقع نهاية الشهر: ${context.currentMonth.projectedEndBalance.toLocaleString()} ${currency}`;
+- الدخل: ${n(context.currentMonth.income)} ${currency}
+- المصاريف: ${n(context.currentMonth.expenses)} ${currency}
+- الأيام المتبقية: ${n(context.currentMonth.daysRemaining)}
+- الرصيد المتوقع نهاية الشهر: ${n(context.currentMonth.projectedEndBalance)} ${currency}`;
 
-    // Add spending by category
     if (context.spendingByCategory.length > 0) {
       contextStr += `\n\n### الإنفاق حسب الفئة`;
       for (const cat of context.spendingByCategory.slice(0, 5)) {
-        contextStr += `\n- ${cat.category}: ${cat.amount.toLocaleString()} ${currency} (${cat.percentage.toFixed(1)}%)`;
+        contextStr += `\n- ${cat.category}: ${n(cat.amount)} ${currency} (${p(cat.percentage)})`;
       }
     }
 
-    // Add comparison to last month
     if (context.comparedToLastMonth) {
       contextStr += `\n\n### مقارنة بالشهر الماضي`;
-      contextStr += `\n- تغير الدخل: ${context.comparedToLastMonth.incomeChange > 0 ? '+' : ''}${context.comparedToLastMonth.incomeChange.toFixed(1)}%`;
-      contextStr += `\n- تغير المصاريف: ${context.comparedToLastMonth.expenseChange > 0 ? '+' : ''}${context.comparedToLastMonth.expenseChange.toFixed(1)}%`;
+      contextStr += `\n- تغير الدخل: ${context.comparedToLastMonth.incomeChange > 0 ? '+' : ''}${p(context.comparedToLastMonth.incomeChange)}`;
+      contextStr += `\n- تغير المصاريف: ${context.comparedToLastMonth.expenseChange > 0 ? '+' : ''}${p(context.comparedToLastMonth.expenseChange)}`;
       contextStr += `\n- الاتجاه: ${context.comparedToLastMonth.trend === 'improving' ? 'تحسن' : context.comparedToLastMonth.trend === 'stable' ? 'مستقر' : 'تراجع'}`;
     }
 
-    // Add goals
     if (context.goals.length > 0) {
       contextStr += `\n\n### الأهداف`;
       for (const goal of context.goals) {
-        contextStr += `\n- ${goal.name}: ${goal.currentAmount.toLocaleString()}/${goal.targetAmount.toLocaleString()} ${currency} (${goal.progressPercentage.toFixed(0)}%)`;
+        contextStr += `\n- ${goal.name}: ${n(goal.currentAmount)}/${n(goal.targetAmount)} ${currency} (${p(goal.progressPercentage, 0)})`;
       }
     }
 
-    // Add budget status
     if (context.budget) {
       contextStr += `\n\n### حالة الميزانية`;
-      contextStr += `\n- الحد الشهري: ${context.budget.monthlyLimit.toLocaleString()} ${currency}`;
-      contextStr += `\n- المصروف: ${context.budget.spent.toLocaleString()} ${currency}`;
-      contextStr += `\n- المتبقي: ${context.budget.remaining.toLocaleString()} ${currency}`;
-      contextStr += `\n- النسبة المستخدمة: ${context.budget.percentageUsed.toFixed(0)}%`;
+      contextStr += `\n- الحد الشهري: ${n(context.budget.monthlyLimit)} ${currency}`;
+      contextStr += `\n- المصروف: ${n(context.budget.spent)} ${currency}`;
+      contextStr += `\n- المتبقي: ${n(context.budget.remaining)} ${currency}`;
+      contextStr += `\n- النسبة المستخدمة: ${p(context.budget.percentageUsed, 0)}`;
       if (context.budget.isOverBudget) {
         contextStr += `\n- ⚠️ تجاوز الميزانية!`;
       }
     }
 
-    // Add patterns
     if (context.patterns.unusualSpending.length > 0) {
       contextStr += `\n\n### إنفاق غير معتاد`;
       for (const unusual of context.patterns.unusualSpending) {
-        contextStr += `\n- ${unusual.category}: أعلى من المعتاد بـ ${unusual.deviation.toFixed(0)}%`;
+        contextStr += `\n- ${unusual.category}: أعلى من المعتاد بـ ${p(unusual.deviation, 0)}`;
       }
     }
 
@@ -322,44 +320,44 @@ function formatUserContext(context: UserFinancialContext, language: 'ar' | 'en')
   let contextStr = `## Current User Data
 
 ### Financial Summary
-- Total Income: ${context.totalIncome.toLocaleString()} ${currency}
-- Total Expenses: ${context.totalExpenses.toLocaleString()} ${currency}
-- Net Balance: ${context.netBalance.toLocaleString()} ${currency}
-- Savings Rate: ${(context.savingsRate * 100).toFixed(1)}%
+- Total Income: ${n(context.totalIncome)} ${currency}
+- Total Expenses: ${n(context.totalExpenses)} ${currency}
+- Net Balance: ${n(context.netBalance)} ${currency}
+- Savings Rate: ${p(context.savingsRate * 100)}
 
 ### Current Month
-- Income: ${context.currentMonth.income.toLocaleString()} ${currency}
-- Expenses: ${context.currentMonth.expenses.toLocaleString()} ${currency}
-- Days Remaining: ${context.currentMonth.daysRemaining}
-- Projected End Balance: ${context.currentMonth.projectedEndBalance.toLocaleString()} ${currency}`;
+- Income: ${n(context.currentMonth.income)} ${currency}
+- Expenses: ${n(context.currentMonth.expenses)} ${currency}
+- Days Remaining: ${n(context.currentMonth.daysRemaining)}
+- Projected End Balance: ${n(context.currentMonth.projectedEndBalance)} ${currency}`;
 
   if (context.spendingByCategory.length > 0) {
     contextStr += `\n\n### Spending by Category`;
     for (const cat of context.spendingByCategory.slice(0, 5)) {
-      contextStr += `\n- ${cat.category}: ${cat.amount.toLocaleString()} ${currency} (${cat.percentage.toFixed(1)}%)`;
+      contextStr += `\n- ${cat.category}: ${n(cat.amount)} ${currency} (${p(cat.percentage)})`;
     }
   }
 
   if (context.comparedToLastMonth) {
     contextStr += `\n\n### Compared to Last Month`;
-    contextStr += `\n- Income Change: ${context.comparedToLastMonth.incomeChange > 0 ? '+' : ''}${context.comparedToLastMonth.incomeChange.toFixed(1)}%`;
-    contextStr += `\n- Expense Change: ${context.comparedToLastMonth.expenseChange > 0 ? '+' : ''}${context.comparedToLastMonth.expenseChange.toFixed(1)}%`;
+    contextStr += `\n- Income Change: ${context.comparedToLastMonth.incomeChange > 0 ? '+' : ''}${p(context.comparedToLastMonth.incomeChange)}`;
+    contextStr += `\n- Expense Change: ${context.comparedToLastMonth.expenseChange > 0 ? '+' : ''}${p(context.comparedToLastMonth.expenseChange)}`;
     contextStr += `\n- Trend: ${context.comparedToLastMonth.trend}`;
   }
 
   if (context.goals.length > 0) {
     contextStr += `\n\n### Goals`;
     for (const goal of context.goals) {
-      contextStr += `\n- ${goal.name}: ${goal.currentAmount.toLocaleString()}/${goal.targetAmount.toLocaleString()} ${currency} (${goal.progressPercentage.toFixed(0)}%)`;
+      contextStr += `\n- ${goal.name}: ${n(goal.currentAmount)}/${n(goal.targetAmount)} ${currency} (${p(goal.progressPercentage, 0)})`;
     }
   }
 
   if (context.budget) {
     contextStr += `\n\n### Budget Status`;
-    contextStr += `\n- Monthly Limit: ${context.budget.monthlyLimit.toLocaleString()} ${currency}`;
-    contextStr += `\n- Spent: ${context.budget.spent.toLocaleString()} ${currency}`;
-    contextStr += `\n- Remaining: ${context.budget.remaining.toLocaleString()} ${currency}`;
-    contextStr += `\n- Used: ${context.budget.percentageUsed.toFixed(0)}%`;
+    contextStr += `\n- Monthly Limit: ${n(context.budget.monthlyLimit)} ${currency}`;
+    contextStr += `\n- Spent: ${n(context.budget.spent)} ${currency}`;
+    contextStr += `\n- Remaining: ${n(context.budget.remaining)} ${currency}`;
+    contextStr += `\n- Used: ${p(context.budget.percentageUsed, 0)}`;
     if (context.budget.isOverBudget) {
       contextStr += `\n- ⚠️ Over budget!`;
     }
@@ -368,7 +366,7 @@ function formatUserContext(context: UserFinancialContext, language: 'ar' | 'en')
   if (context.patterns.unusualSpending.length > 0) {
     contextStr += `\n\n### Unusual Spending`;
     for (const unusual of context.patterns.unusualSpending) {
-      contextStr += `\n- ${unusual.category}: ${unusual.deviation.toFixed(0)}% above normal`;
+      contextStr += `\n- ${unusual.category}: ${p(unusual.deviation, 0)} above normal`;
     }
   }
 
