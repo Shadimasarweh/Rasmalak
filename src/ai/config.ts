@@ -17,9 +17,9 @@ export const AI_CONFIG: AIProviderConfig = {
   provider: 'gemini' as AIProvider,
 
   // Which model to use
-  // Gemini: 'gemini-2.5-flash-preview-05-20', 'gemini-2.0-flash-001', 'gemini-1.5-flash'
+  // Gemini: 'gemini-2.5-flash', 'gemini-3-flash-preview'
   // OpenAI: 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'
-  model: 'gemini-2.0-flash-001',
+  model: 'gemini-2.5-flash',
 
   // Maximum tokens in response
   maxTokens: 1000,
