@@ -41,7 +41,7 @@ export function composePrompt(
     conversationHistory: params.conversationHistory,
   };
 
-  const systemPrompt = agent.systemPromptBuilder(agentParams);
+  const basePrompt = agent.systemPromptBuilder(agentParams);
 
   let attachmentInstructions: string | null = null;
   if (params.attachments && params.attachments.length > 0) {
@@ -50,13 +50,27 @@ export function composePrompt(
       : 'The user has attached a file/image. Analyze the attached content and perform the requested task.';
   }
 
-  const tokenEstimate = estimateTokens(systemPrompt) +
-    (attachmentInstructions ? estimateTokens(attachmentInstructions) : 0);
+  const languageEnforcement = `
+
+## FINAL RULE — LANGUAGE (overrides everything above)
+You MUST reply in the SAME language the user's message is written in.
+- If the user writes in Arabic (any dialect), your ENTIRE reply must be in Arabic.
+- If the user writes in English, your ENTIRE reply must be in English.
+- If the user mixes both, you may mix, but default to the dominant language.
+- Match the user's Arabic dialect: Jordanian/Levantine → reply in Levantine, Egyptian → Egyptian, Gulf → Gulf, Fusha → Fusha.
+- The UI language setting or the language of this system prompt does NOT matter — only the user's actual message language matters.
+- NEVER reply in English when the user wrote in Arabic, and vice versa.`;
+
+  const systemPrompt = [
+    basePrompt,
+    attachmentInstructions,
+    languageEnforcement,
+  ].filter(Boolean).join('\n\n');
+
+  const tokenEstimate = estimateTokens(systemPrompt);
 
   return {
-    systemPrompt: attachmentInstructions
-      ? systemPrompt + '\n\n' + attachmentInstructions
-      : systemPrompt,
+    systemPrompt,
     attachmentInstructions,
     tokenEstimate,
   };
