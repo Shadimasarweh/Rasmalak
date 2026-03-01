@@ -9,6 +9,9 @@ import type { AgentDefinition, AgentPromptParams } from './types';
 import type { AIIntent } from '../types';
 
 const SUPPORTED_INTENTS: AIIntent[] = [
+  'analyze_spending',
+  'budget_status',
+  'overspending_alert',
   'savings_advice',
   'goal_planning',
   'goal_progress',

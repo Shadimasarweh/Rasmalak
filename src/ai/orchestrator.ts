@@ -146,9 +146,6 @@ export class AIOrchestrator {
 
     let llmResult = await sendChatCompletionWithRetry(messages, {
       ...(model !== AI_CONFIG.model && { model }),
-      ...(agent.outputSchema && {
-        responseSchema: { name: `${agent.id}Response`, schema: agent.outputSchema },
-      }),
     });
 
     let retried = false;
@@ -183,9 +180,6 @@ export class AIOrchestrator {
 
         const retryResult = await sendChatCompletionWithRetry(retryMessages, {
           ...(model !== AI_CONFIG.model && { model }),
-          ...(agent.outputSchema && {
-            responseSchema: { name: `${agent.id}Response`, schema: agent.outputSchema },
-          }),
         });
 
         if (retryResult.success) {

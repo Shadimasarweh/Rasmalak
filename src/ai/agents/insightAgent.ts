@@ -10,11 +10,7 @@ import type { AgentDefinition, AgentPromptParams } from './types';
 import type { AIIntent } from '../types';
 import { InsightsResponseSchema } from '../schemas';
 
-const SUPPORTED_INTENTS: AIIntent[] = [
-  'analyze_spending',
-  'budget_status',
-  'overspending_alert',
-];
+const SUPPORTED_INTENTS: AIIntent[] = [];
 
 function buildSystemPrompt(params: AgentPromptParams): string {
   const { language, contextSlices, deterministic } = params;
