@@ -306,7 +306,7 @@ export interface ChatResponse {
 // ============================================
 // For swapping between AI providers (OpenAI, Vertex, etc.)
 
-export type AIProvider = 'openai' | 'vertex' | 'local';
+export type AIProvider = 'openai' | 'gemini' | 'vertex' | 'local';
 
 export interface AIProviderConfig {
   provider: AIProvider;

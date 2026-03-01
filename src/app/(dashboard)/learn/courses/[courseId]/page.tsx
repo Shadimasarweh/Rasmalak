@@ -177,6 +177,7 @@ export default function CourseViewerPage() {
             onNextLesson={handleNextLesson}
             onPreviousLesson={handlePreviousLesson}
             onComplete={handleComplete}
+            showHero
           />
         </div>
       </div>

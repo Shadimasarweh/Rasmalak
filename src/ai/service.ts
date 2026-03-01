@@ -20,8 +20,41 @@ import {
   MessageAttachment,
 } from './types';
 import { AI_CONFIG, AI_SAFETY, AI_FEATURES } from './config';
-import { sendChatCompletion, sendChatCompletionWithRetry, formatMessagesForOpenAI, getModelForAttachments } from './providers/openai';
+import {
+  sendChatCompletion as openaiSendCompletion,
+  sendChatCompletionWithRetry as openaiSendCompletionWithRetry,
+  formatMessagesForOpenAI,
+  getModelForAttachments as openaiGetModel,
+} from './providers/openai';
+import {
+  sendChatCompletion as geminiSendCompletion,
+  sendChatCompletionWithRetry as geminiSendCompletionWithRetry,
+  formatMessagesForProvider as geminiFormatMessages,
+  getModelForAttachments as geminiGetModel,
+} from './providers/gemini';
 import { getSystemPrompt, getInsightPrompt, getTaskPrompt } from './prompts';
+
+// ============================================
+// PROVIDER ROUTING
+// ============================================
+
+const isGemini = AI_CONFIG.provider === 'gemini';
+
+function sendChatCompletion(...args: Parameters<typeof openaiSendCompletion>) {
+  return isGemini ? geminiSendCompletion(...args) : openaiSendCompletion(...args);
+}
+
+function sendChatCompletionWithRetry(...args: Parameters<typeof openaiSendCompletionWithRetry>) {
+  return isGemini ? geminiSendCompletionWithRetry(...args) : openaiSendCompletionWithRetry(...args);
+}
+
+function formatMessages(...args: Parameters<typeof formatMessagesForOpenAI>) {
+  return isGemini ? geminiFormatMessages(...args) : formatMessagesForOpenAI(...args);
+}
+
+function getModelForAttachments(...args: Parameters<typeof openaiGetModel>) {
+  return isGemini ? geminiGetModel(...args) : openaiGetModel(...args);
+}
 import { computeContextHash } from './contextHash';
 import { logFinancialAdvice } from './adviceLogger';
 import {
@@ -188,14 +221,13 @@ class RasmalakAIService {
       content: msg.content,
     }));
 
-    const messages = formatMessagesForOpenAI(
+    const messages = formatMessages(
       systemPrompt,
       formattedHistory,
       message,
       attachments
     );
 
-    // Get appropriate model (GPT-4 Vision for images)
     const model = getModelForAttachments(attachments);
 
     // Call AI provider with potentially different model
@@ -273,7 +305,7 @@ class RasmalakAIService {
       JSON.stringify({ score: health.score, band: health.band, components: health.components }, null, 2);
     const prompt = basePrompt + signalsBlock;
 
-    const messages = formatMessagesForOpenAI(prompt, [], 'Generate insights');
+    const messages = formatMessages(prompt, [], 'Generate insights');
 
     const result = await sendChatCompletionWithRetry(messages, {
       max_tokens: 500,
@@ -309,7 +341,7 @@ class RasmalakAIService {
   ): Promise<{ intent: AIIntent; confidence: ConfidenceLevel }> {
     try {
       const taskPrompt = getTaskPrompt('classify_intent', message, language);
-      const messages = formatMessagesForOpenAI(
+      const messages = formatMessages(
         language === 'ar' ? 'أنت مصنف نوايا الرسائل.' : 'You are a message intent classifier.',
         [],
         taskPrompt
@@ -350,7 +382,7 @@ class RasmalakAIService {
 
     try {
       const taskPrompt = getTaskPrompt('extract_entities', message, language);
-      const messages = formatMessagesForOpenAI(
+      const messages = formatMessages(
         language === 'ar' ? 'أنت محلل نصوص مالية.' : 'You are a financial text analyzer.',
         [],
         taskPrompt

@@ -487,9 +487,7 @@ export const useBaseCurrency = () => useStore((state) => state.baseCurrency);
 export const useUserName = () => useStore((state) => state.userName);
 export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);
-export const useAccentColor = () => useStore((state) => state.accentColor);
-
-// Auth selectors - split to avoid SSR hydration issues
+export const useAccentColor = () => useStore((state) => state.accentColor);// Auth selectors - split to avoid SSR hydration issues
 // Use these individual selectors in components instead of a combined hook
 export const useUser = () => useStore((state) => state.user);
 export const useIsAuthenticated = () => useStore((state) => state.isAuthenticated);

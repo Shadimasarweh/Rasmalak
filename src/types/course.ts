@@ -8,7 +8,45 @@ export interface ListBlock {
   items: string[];
 }
 
-export type Block = ParagraphBlock | ListBlock;
+export interface KeyInsightBlock {
+  type: 'key_insight';
+  title: string;
+  text: string;
+}
+
+export interface ExampleBlock {
+  type: 'example';
+  title?: string;
+  rows: { label: string; value: string }[];
+}
+
+export interface ComparisonBlock {
+  type: 'comparison';
+  leftTitle: string;
+  rightTitle: string;
+  leftItems: string[];
+  rightItems: string[];
+}
+
+export interface ActionPromptBlock {
+  type: 'action_prompt';
+  text: string;
+}
+
+export interface CheckpointBlock {
+  type: 'checkpoint';
+  title?: string;
+  items: string[];
+}
+
+export type Block =
+  | ParagraphBlock
+  | ListBlock
+  | KeyInsightBlock
+  | ExampleBlock
+  | ComparisonBlock
+  | ActionPromptBlock
+  | CheckpointBlock;
 
 export interface Section {
   id: string;
@@ -23,11 +61,15 @@ export interface Lesson {
   sections: Section[];
 }
 
+export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
+
 export interface CourseData {
   courseId: string;
   locale: 'en' | 'ar';
   title: string;
   description: string;
+  level?: CourseLevel;
+  estimatedTime?: string;
   lessons: Lesson[];
 }
 

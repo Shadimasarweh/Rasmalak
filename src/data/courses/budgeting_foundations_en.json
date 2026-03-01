@@ -3,6 +3,8 @@
   "locale": "en",
   "title": "Budgeting Foundations",
   "description": "Learn what a budget is, how to build one using the 50/30/20 rule, and how to fix a negative budget balance.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
   "lessons": [
     {
       "lessonId": "budget_intro_en",
@@ -16,6 +18,11 @@
             {
               "type": "p",
               "text": "A budget is a plan that helps you manage your money. It shows you how much money you have, how much money you need to spend on different things, and how much money you can save or use for other goals. A budget can help you make smart decisions with your money and avoid problems like overspending, debt, or running out of money."
+            },
+            {
+              "type": "key_insight",
+              "title": "Key Insight",
+              "text": "A budget is not a restriction — it is a tool that gives you control and visibility over every dollar you earn and spend."
             }
           ]
         },
@@ -26,6 +33,10 @@
             {
               "type": "p",
               "text": "Money is a limited resource, and you probably aren't able to buy everything you want or need with the money you have. It's important to prioritize your expenses and choose what is most important for you and your family. A budget can help!"
+            },
+            {
+              "type": "action_prompt",
+              "text": "Take 2 minutes and think: do you currently know exactly how much you spend each month? If not, that is the first problem a budget solves."
             }
           ]
         },
@@ -70,10 +81,20 @@
             {
               "type": "ul",
               "items": [
-                "Pencil and paper: You can write down your income and expenses on a piece of paper, and subtract your expenses from your income to see how much money you have left. You can also divide your expenses into categories, such as needs, wants, and savings, and decide how much to spend on each one.",
-                "Printable sheets on the internet: You can find many websites that offer free or cheap budget sheets that you can print and fill out. These sheets may have different formats and features, such as charts, graphs, or tips, to help you organize your money and track your progress.",
-                "Spreadsheet: You can use a computer program, such as Excel, Google Sheets, or Numbers, to create a budget spreadsheet. You can enter your income and expenses in different cells, and use formulas and functions to calculate and compare your numbers. You can also customize your spreadsheet with colors, fonts, and styles, and make changes easily.",
-                "Apps: You can download apps on your phone or tablet that can help you create and manage your budget. Apps like Rasmalak, YNAB, or Mobills can connect to your bank account, credit card, or other financial accounts, and automatically update your income and expenses."
+                "Pencil and paper: Write down your income and expenses, and subtract expenses from income to see how much you have left.",
+                "Printable sheets: Many websites offer free budget sheets you can print and fill out with charts and tips.",
+                "Spreadsheet: Use Excel, Google Sheets, or Numbers to create a budget with formulas and customization.",
+                "Apps: Download apps like Rasmalak, YNAB, or Mobills that connect to your accounts and update automatically."
+              ]
+            },
+            {
+              "type": "checkpoint",
+              "title": "Lesson 1 Recap",
+              "items": [
+                "A budget is a financial plan — not a restriction",
+                "It helps you track income, control expenses, and avoid debt",
+                "You can use paper, spreadsheets, or apps to build one",
+                "The best budget is the one you actually use consistently"
               ]
             }
           ]
@@ -90,14 +111,32 @@
           "title": "The 50/30/20 rule",
           "blocks": [
             { "type": "p", "text": "The 50/30/20 rule divides your money into three categories: needs, wants, and savings." },
-            { "type": "p", "text": "The 50/30/20 rule suggests that you spend 50% of your income on your needs, 30% on your wants, and 20% on your savings. This way, you can balance your money and plan for your future." }
+            { "type": "p", "text": "The 50/30/20 rule suggests that you spend 50% of your income on your needs, 30% on your wants, and 20% on your savings. This way, you can balance your money and plan for your future." },
+            {
+              "type": "example",
+              "title": "50/30/20 Breakdown — $2,000 Income",
+              "rows": [
+                { "label": "Needs (50%)", "value": "$1,000" },
+                { "label": "Wants (30%)", "value": "$600" },
+                { "label": "Savings (20%)", "value": "$400" }
+              ]
+            },
+            {
+              "type": "key_insight",
+              "title": "Key Insight",
+              "text": "The 50/30/20 rule is a guideline, not a law. Adjust the percentages based on your situation — the important thing is that you have a structure."
+            }
           ]
         },
         {
           "id": "sec_build_budget_02",
           "title": "Step 1: Know your income",
           "blocks": [
-            { "type": "p", "text": "Your income is the money you earn or receive every month. It can come from a job, an allowance, a gift, or a scholarship. Add up all your income sources and write down the total amount. If your only income is your job, write down the amount you get paid each month. This is your starting point for your budget." }
+            { "type": "p", "text": "Your income is the money you earn or receive every month. It can come from a job, an allowance, a gift, or a scholarship. Add up all your income sources and write down the total amount. If your only income is your job, write down the amount you get paid each month. This is your starting point for your budget." },
+            {
+              "type": "action_prompt",
+              "text": "Open your banking app right now and check your total income for last month. Write it down — this is your budget starting point."
+            }
           ]
         },
         {
@@ -138,7 +177,16 @@
           "id": "sec_build_budget_07",
           "title": "Step 6: Compare your expenses to your budget",
           "blocks": [
-            { "type": "p", "text": "Subtract your expenses from your budget. This is your budget balance. If your budget balance is zero or positive, that means you are living within your means and have some extra money. If your budget balance is negative, that means you are spending more than you should and may have a budgeting problem." }
+            { "type": "p", "text": "Subtract your expenses from your budget. This is your budget balance. If your budget balance is zero or positive, that means you are living within your means and have some extra money. If your budget balance is negative, that means you are spending more than you should and may have a budgeting problem." },
+            {
+              "type": "example",
+              "title": "Budget vs Actual",
+              "rows": [
+                { "label": "Needs budget", "value": "$1,000" },
+                { "label": "Needs actual", "value": "$1,150" },
+                { "label": "Difference", "value": "−$150" }
+              ]
+            }
           ]
         },
         {
@@ -147,7 +195,17 @@
           "blocks": [
             { "type": "p", "text": "If your budget balance is negative in any of the three categories, don't panic. Look at the other categories and see if there is money left in them, and use that extra money to balance or offset the negative balance." },
             { "type": "p", "text": "If there is no extra money, you need to find ways to reduce your expenses or increase your income." },
-            { "type": "p", "text": "If your budget balance is positive, you can decide how to use your extra money. You can spend it on your wants, save it for your goals, or donate it to a cause." }
+            { "type": "p", "text": "If your budget balance is positive, you can decide how to use your extra money. You can spend it on your wants, save it for your goals, or donate it to a cause." },
+            {
+              "type": "checkpoint",
+              "title": "Lesson 2 Recap",
+              "items": [
+                "The 50/30/20 rule splits income into needs, wants, and savings",
+                "Always start with your actual income number",
+                "Compare budget vs actual spending to find gaps",
+                "A negative balance means you need to adjust — not that you failed"
+              ]
+            }
           ]
         }
       ]
@@ -186,7 +244,19 @@
           "title": "Decreasing expenses",
           "blocks": [
             { "type": "p", "text": "Expenses that are the same every month, such as your rent, car payment, insurance, or cell phone bill, are known as fixed expenses." },
-            { "type": "p", "text": "Other expenses, such as some utilities, groceries, or shopping can vary from month-to-month, and are called variable expenses." }
+            { "type": "p", "text": "Other expenses, such as some utilities, groceries, or shopping can vary from month-to-month, and are called variable expenses." },
+            {
+              "type": "comparison",
+              "leftTitle": "Fixed Expenses",
+              "rightTitle": "Variable Expenses",
+              "leftItems": ["Rent", "Car payment", "Insurance", "Phone bill", "Subscriptions"],
+              "rightItems": ["Groceries", "Utilities", "Entertainment", "Shopping", "Dining out"]
+            },
+            {
+              "type": "key_insight",
+              "title": "Key Insight",
+              "text": "Variable expenses are where most budget wins happen. Fixed expenses are harder to change quickly, but variable expenses can be adjusted immediately."
+            }
           ]
         },
         {
@@ -211,7 +281,27 @@
           "id": "sec_balance_05",
           "title": "Shifting the funds",
           "blocks": [
-            { "type": "p", "text": "A short term fix to a negative budget balance is to simply move funds from the budget balance that was positive into the negative one. For example, if your savings budget balance was negative, but your needs budget balance was positive, you can take the extra money from needs and move it onto savings." }
+            { "type": "p", "text": "A short term fix to a negative budget balance is to simply move funds from the budget balance that was positive into the negative one. For example, if your savings budget balance was negative, but your needs budget balance was positive, you can take the extra money from needs and move it onto savings." },
+            {
+              "type": "example",
+              "title": "Fund Shifting Example",
+              "rows": [
+                { "label": "Needs balance", "value": "+$80" },
+                { "label": "Wants balance", "value": "+$20" },
+                { "label": "Savings balance", "value": "−$100" },
+                { "label": "After shifting", "value": "$0" }
+              ]
+            },
+            {
+              "type": "checkpoint",
+              "title": "Course Complete",
+              "items": [
+                "A negative balance is fixable — increase income or cut expenses",
+                "Focus on variable expenses for quick wins",
+                "Shift surplus from one category to cover deficits",
+                "Review and adjust your budget monthly"
+              ]
+            }
           ]
         }
       ]
