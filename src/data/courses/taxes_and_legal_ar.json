@@ -1,0 +1,130 @@
+{
+  "courseId": "taxes_and_legal_ar",
+  "locale": "ar",
+  "title": "الضرائب والقانون",
+  "description": "تعرف على عالم الضرائب، وافهم التزاماتك القانونية، واحمِ حقوقك كمستهلك، وخطط لإرثك المالي.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p7_L87_ar",
+      "title": "فهم الضرائب",
+      "order": 87,
+      "sections": [
+        {
+          "id": "sec_p7_L87",
+          "title": "فهم الضرائب",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L88_ar",
+      "title": "ضرائب الدخل في الدول العربية",
+      "order": 88,
+      "sections": [
+        {
+          "id": "sec_p7_L88",
+          "title": "ضرائب الدخل في الدول العربية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L89_ar",
+      "title": "أساسيات ضريبة القيمة المضافة (VAT)",
+      "order": 89,
+      "sections": [
+        {
+          "id": "sec_p7_L89",
+          "title": "أساسيات ضريبة القيمة المضافة (VAT)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L90_ar",
+      "title": "اشتراكات الضمان الاجتماعي",
+      "order": 90,
+      "sections": [
+        {
+          "id": "sec_p7_L90",
+          "title": "اشتراكات الضمان الاجتماعي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L91_ar",
+      "title": "أساسيات التخطيط الضريبي",
+      "order": 91,
+      "sections": [
+        {
+          "id": "sec_p7_L91",
+          "title": "أساسيات التخطيط الضريبي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L92_ar",
+      "title": "تجنب الغرامات الضريبية",
+      "order": 92,
+      "sections": [
+        {
+          "id": "sec_p7_L92",
+          "title": "تجنب الغرامات الضريبية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L93_ar",
+      "title": "التوثيق المالي",
+      "order": 93,
+      "sections": [
+        {
+          "id": "sec_p7_L93",
+          "title": "التوثيق المالي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L94_ar",
+      "title": "فهم العقود",
+      "order": 94,
+      "sections": [
+        {
+          "id": "sec_p7_L94",
+          "title": "فهم العقود",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L95_ar",
+      "title": "حقوق المستهلك",
+      "order": 95,
+      "sections": [
+        {
+          "id": "sec_p7_L95",
+          "title": "حقوق المستهلك",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L96_ar",
+      "title": "حل النزاعات المالية",
+      "order": 96,
+      "sections": [
+        {
+          "id": "sec_p7_L96",
+          "title": "حل النزاعات المالية",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

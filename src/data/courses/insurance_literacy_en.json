@@ -1,0 +1,130 @@
+{
+  "courseId": "insurance_literacy_en",
+  "locale": "en",
+  "title": "Insurance Literacy",
+  "description": "Understand how insurance protects your finances, compare policy types, and learn to choose the right coverage for your needs.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p6_L77_en",
+      "title": "What is insurance?",
+      "order": 77,
+      "sections": [
+        {
+          "id": "sec_p6_L77",
+          "title": "What is insurance?",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L78_en",
+      "title": "Risk pooling",
+      "order": 78,
+      "sections": [
+        {
+          "id": "sec_p6_L78",
+          "title": "Risk pooling",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L79_en",
+      "title": "Health insurance",
+      "order": 79,
+      "sections": [
+        {
+          "id": "sec_p6_L79",
+          "title": "Health insurance",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L80_en",
+      "title": "Motor insurance",
+      "order": 80,
+      "sections": [
+        {
+          "id": "sec_p6_L80",
+          "title": "Motor insurance",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L81_en",
+      "title": "Life insurance",
+      "order": 81,
+      "sections": [
+        {
+          "id": "sec_p6_L81",
+          "title": "Life insurance",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L82_en",
+      "title": "Property insurance",
+      "order": 82,
+      "sections": [
+        {
+          "id": "sec_p6_L82",
+          "title": "Property insurance",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L83_en",
+      "title": "Travel insurance",
+      "order": 83,
+      "sections": [
+        {
+          "id": "sec_p6_L83",
+          "title": "Travel insurance",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L84_en",
+      "title": "Insurance exclusions",
+      "order": 84,
+      "sections": [
+        {
+          "id": "sec_p6_L84",
+          "title": "Insurance exclusions",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L85_en",
+      "title": "Choosing insurance coverage",
+      "order": 85,
+      "sections": [
+        {
+          "id": "sec_p6_L85",
+          "title": "Choosing insurance coverage",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L86_en",
+      "title": "Avoiding insurance fraud",
+      "order": 86,
+      "sections": [
+        {
+          "id": "sec_p6_L86",
+          "title": "Avoiding insurance fraud",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

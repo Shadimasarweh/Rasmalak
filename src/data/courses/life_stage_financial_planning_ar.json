@@ -1,0 +1,178 @@
+{
+  "courseId": "life_stage_financial_planning_ar",
+  "locale": "ar",
+  "title": "التخطيط المالي المرحلي",
+  "description": "خطط لأموالك في كل مرحلة من حياتك — من راتبك الأول إلى التقاعد والزواج والأطفال وبناء إرث دائم.",
+  "level": "beginner",
+  "estimatedTime": "30 min",
+  "lessons": [
+    {
+      "lessonId": "p10_L127_ar",
+      "title": "إدارة راتبك الأول",
+      "order": 127,
+      "sections": [
+        {
+          "id": "sec_p10_L127",
+          "title": "إدارة راتبك الأول",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L128_ar",
+      "title": "بناء الانضباط المالي",
+      "order": 128,
+      "sections": [
+        {
+          "id": "sec_p10_L128",
+          "title": "بناء الانضباط المالي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L129_ar",
+      "title": "التخطيط المالي للمرتبطين",
+      "order": 129,
+      "sections": [
+        {
+          "id": "sec_p10_L129",
+          "title": "التخطيط المالي للمرتبطين",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L130_ar",
+      "title": "الحسابات المالية المشتركة",
+      "order": 130,
+      "sections": [
+        {
+          "id": "sec_p10_L130",
+          "title": "الحسابات المالية المشتركة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L131_ar",
+      "title": "التخطيط للأطفال",
+      "order": 131,
+      "sections": [
+        {
+          "id": "sec_p10_L131",
+          "title": "التخطيط للأطفال",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L132_ar",
+      "title": "تمويل التعليم",
+      "order": 132,
+      "sections": [
+        {
+          "id": "sec_p10_L132",
+          "title": "تمويل التعليم",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L133_ar",
+      "title": "الشراء مقابل الاستئجار",
+      "order": 133,
+      "sections": [
+        {
+          "id": "sec_p10_L133",
+          "title": "الشراء مقابل الاستئجار",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L134_ar",
+      "title": "التخطيط للرهن العقاري",
+      "order": 134,
+      "sections": [
+        {
+          "id": "sec_p10_L134",
+          "title": "التخطيط للرهن العقاري",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L135_ar",
+      "title": "أساسيات تخطيط التقاعد",
+      "order": 135,
+      "sections": [
+        {
+          "id": "sec_p10_L135",
+          "title": "أساسيات تخطيط التقاعد",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L136_ar",
+      "title": "أنظمة التقاعد في الدول العربية",
+      "order": 136,
+      "sections": [
+        {
+          "id": "sec_p10_L136",
+          "title": "أنظمة التقاعد في الدول العربية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L137_ar",
+      "title": "أساسيات التخطيط للتركة",
+      "order": 137,
+      "sections": [
+        {
+          "id": "sec_p10_L137",
+          "title": "أساسيات التخطيط للتركة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L138_ar",
+      "title": "انتقال الثروة",
+      "order": 138,
+      "sections": [
+        {
+          "id": "sec_p10_L138",
+          "title": "انتقال الثروة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L139_ar",
+      "title": "الوصايا والميراث في السياق العربي",
+      "order": 139,
+      "sections": [
+        {
+          "id": "sec_p10_L139",
+          "title": "الوصايا والميراث في السياق العربي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L140_ar",
+      "title": "الأمان المالي طويل الأمد",
+      "order": 140,
+      "sections": [
+        {
+          "id": "sec_p10_L140",
+          "title": "الأمان المالي طويل الأمد",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

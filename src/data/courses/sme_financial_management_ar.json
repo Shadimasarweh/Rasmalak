@@ -1,0 +1,250 @@
+{
+  "courseId": "sme_financial_management_ar",
+  "locale": "ar",
+  "title": "الإدارة المالية للشركات الصغيرة والمتوسطة",
+  "description": "تعلم أساسيات الإدارة المالية للشركات الصغيرة بما في ذلك التدفق النقدي والتسعير ومسك الدفاتر وتخطيط النمو.",
+  "level": "beginner",
+  "estimatedTime": "45 min",
+  "lessons": [
+    {
+      "lessonId": "p8_L97_ar",
+      "title": "الأساسيات المالية للشركات الصغيرة",
+      "order": 97,
+      "sections": [
+        {
+          "id": "sec_p8_L97",
+          "title": "الأساسيات المالية للشركات الصغيرة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L98_ar",
+      "title": "الإيرادات مقابل الأرباح",
+      "order": 98,
+      "sections": [
+        {
+          "id": "sec_p8_L98",
+          "title": "الإيرادات مقابل الأرباح",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L99_ar",
+      "title": "أساسيات التدفق النقدي",
+      "order": 99,
+      "sections": [
+        {
+          "id": "sec_p8_L99",
+          "title": "أساسيات التدفق النقدي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L100_ar",
+      "title": "قائمة الدخل (الأرباح والخسائر)",
+      "order": 100,
+      "sections": [
+        {
+          "id": "sec_p8_L100",
+          "title": "قائمة الدخل (الأرباح والخسائر)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L101_ar",
+      "title": "الميزانية العمومية",
+      "order": 101,
+      "sections": [
+        {
+          "id": "sec_p8_L101",
+          "title": "الميزانية العمومية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L102_ar",
+      "title": "قائمة التدفقات النقدية",
+      "order": 102,
+      "sections": [
+        {
+          "id": "sec_p8_L102",
+          "title": "قائمة التدفقات النقدية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L103_ar",
+      "title": "ميزانية العمل",
+      "order": 103,
+      "sections": [
+        {
+          "id": "sec_p8_L103",
+          "title": "ميزانية العمل",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L104_ar",
+      "title": "ضبط المصاريف",
+      "order": 104,
+      "sections": [
+        {
+          "id": "sec_p8_L104",
+          "title": "ضبط المصاريف",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L105_ar",
+      "title": "إدارة المخزون",
+      "order": 105,
+      "sections": [
+        {
+          "id": "sec_p8_L105",
+          "title": "إدارة المخزون",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L106_ar",
+      "title": "استراتيجيات التسعير",
+      "order": 106,
+      "sections": [
+        {
+          "id": "sec_p8_L106",
+          "title": "استراتيجيات التسعير",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L107_ar",
+      "title": "هوامش الربح",
+      "order": 107,
+      "sections": [
+        {
+          "id": "sec_p8_L107",
+          "title": "هوامش الربح",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L108_ar",
+      "title": "تحليل نقطة التعادل",
+      "order": 108,
+      "sections": [
+        {
+          "id": "sec_p8_L108",
+          "title": "تحليل نقطة التعادل",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L109_ar",
+      "title": "إدارة الذمم المدينة (أموالك لدى الآخرين)",
+      "order": 109,
+      "sections": [
+        {
+          "id": "sec_p8_L109",
+          "title": "إدارة الذمم المدينة (أموالك لدى الآخرين)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L110_ar",
+      "title": "إدارة الذمم الدائنة (ديونك للموردين)",
+      "order": 110,
+      "sections": [
+        {
+          "id": "sec_p8_L110",
+          "title": "إدارة الذمم الدائنة (ديونك للموردين)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L111_ar",
+      "title": "تمويل رأس المال العامل",
+      "order": 111,
+      "sections": [
+        {
+          "id": "sec_p8_L111",
+          "title": "تمويل رأس المال العامل",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L112_ar",
+      "title": "القروض البنكية للشركات الصغيرة",
+      "order": 112,
+      "sections": [
+        {
+          "id": "sec_p8_L112",
+          "title": "القروض البنكية للشركات الصغيرة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L113_ar",
+      "title": "أساسيات رأس المال المغامر (VC)",
+      "order": 113,
+      "sections": [
+        {
+          "id": "sec_p8_L113",
+          "title": "أساسيات رأس المال المغامر (VC)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L114_ar",
+      "title": "البرامج الحكومية للشركات الصغيرة",
+      "order": 114,
+      "sections": [
+        {
+          "id": "sec_p8_L114",
+          "title": "البرامج الحكومية للشركات الصغيرة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L115_ar",
+      "title": "التمويل البديل",
+      "order": 115,
+      "sections": [
+        {
+          "id": "sec_p8_L115",
+          "title": "التمويل البديل",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L116_ar",
+      "title": "التخطيط المالي لنمو الأعمال",
+      "order": 116,
+      "sections": [
+        {
+          "id": "sec_p8_L116",
+          "title": "التخطيط المالي لنمو الأعمال",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useCourseProgress } from '@/store/courseProgressStore';
 import CourseHero from './CourseHero';
@@ -25,9 +26,16 @@ export default function CourseContent({
 }: CourseContentProps) {
   const intl = useIntl();
   const isRtl = course.locale === 'ar';
-  const { markSectionsComplete, isSectionComplete } = useCourseProgress();
+  const { markSectionsComplete, isSectionComplete, loading } = useCourseProgress();
 
   const lesson = course.lessons[currentLessonIndex];
+
+  useEffect(() => {
+    if (loading || !lesson) return;
+    const sectionIds = lesson.sections.map((s) => s.id);
+    markSectionsComplete(sectionIds);
+  }, [currentLessonIndex, loading, lesson, markSectionsComplete]);
+
   if (!lesson) return null;
 
   const isFirstLesson = currentLessonIndex === 0;

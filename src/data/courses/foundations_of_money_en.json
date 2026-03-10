@@ -1,0 +1,262 @@
+{
+  "courseId": "foundations_of_money_en",
+  "locale": "en",
+  "title": "Foundations of Money",
+  "description": "Understand what money is, the difference between income and wealth, how banks work, and build healthy financial habits from day one.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p1_L1_en",
+      "title": "What is money?",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p1_L1",
+          "title": "What is money?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Money is a tool used as a medium of exchange, a unit of account, and a store of value. It replaced the old \"barter\" system where people traded physical goods like goats for grain, which was often inefficient. Modern money is \"fiat,\" meaning its value is not backed by a physical commodity like gold but is sustained by government decree and the public’s trust in the economy. Understanding this helps you realize that money is essentially a social contract that facilitates trade and growth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Think of money as \"stored energy\"—you trade your time and energy for it now to use its power later."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L2_en",
+      "title": "The difference between income and wealth",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p1_L2",
+          "title": "The difference between income and wealth",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Income is the flow of money you receive on a regular basis, such as a salary, bonus, or business profit. Wealth, however, is the total value of your assets—like savings, property, and stocks—minus your total debts. It is a common mistake to confuse a high lifestyle (income) with financial security (wealth). You can have a very high income but still have zero wealth if your expenses match or exceed what you earn every month."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Focus on converting a specific percentage of your income into wealth-building assets every single month."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L3_en",
+      "title": "Purchasing power and inflation",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p1_L3",
+          "title": "Purchasing power and inflation",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Inflation represents the general rise in prices over time, effectively acting as a silent tax on your cash. Purchasing power is the actual quantity of goods or services that one unit of money can buy. For example, if inflation is 5%, an item costing 100 JOD/SAR today will cost 105 next year, meaning your money has lost 5% of its \"strength.\" If your money stays in a zero-interest jar, you are actually becoming poorer over time even if the number of notes stays the same."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the current inflation rate in your country and compare it to the return you get from your savings account."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L4_en",
+      "title": "How banks work",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p1_L4",
+          "title": "How banks work",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Banks function as the circulatory system of the economy by acting as financial intermediaries. They take deposits from people with excess cash (savers) and lend that capital to people or businesses who need it (borrowers). Banks generate revenue by charging a higher interest rate or fee to borrowers than what they provide to depositors. Understanding this helps you see that the bank uses your money to fuel other economic activities while providing you with safety and liquidity."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify the main services your bank provides and check the fees they charge for maintaining your account."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L5_en",
+      "title": "Types of income",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p1_L5",
+          "title": "Types of income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Income can be categorized into several streams, and relying on only one is often risky. Earned Income is your salary from a job, while Profit Income comes from buying and selling products or services. There is also Interest Income from lending money, and Dividend/Rental Income from owning stocks or property. Diversifying these streams is the key to long-term financial resilience, as it protects you if one source disappears."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List your current income sources. Challenge yourself to think of one new stream you could realistically start this year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L6_en",
+      "title": "Active vs passive income",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_p1_L6",
+          "title": "Active vs passive income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Active income requires your direct presence and effort; if you stop working, the money stops flowing (like a doctor or a freelancer). Passive income is money earned from assets that require little to no daily effort to maintain once they are set up. This includes things like rental properties, high-yield investments, or digital products like e-books and apps. The ultimate financial goal for many is to have their passive income eventually cover all their basic living expenses."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify an asset you could build or buy that would generate money without requiring 40 hours of work a week."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L7_en",
+      "title": "Understanding your salary slip",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_p1_L7",
+          "title": "Understanding your salary slip",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Your salary slip is a vital document that breaks down your \"Gross Salary\" (the total amount before deductions) and your \"Net Salary\" (the \"take-home\" pay). It details various subtractions such as social security, income tax, and health insurance premiums. Sometimes, it may also show bonuses, overtime, or housing allowances. Reviewing this regularly ensures that you are being paid correctly and helps you understand exactly where your hard-earned money is going before it reaches you."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Locate your most recent salary slip and calculate what percentage of your gross pay is being deducted."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L8_en",
+      "title": "Social security deductions in Arab countries",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_p1_L8",
+          "title": "Social security deductions in Arab countries",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Most Arab countries utilize a mandatory Social Security system (like SSC in Jordan or GOSI in KSA) to provide a safety net for citizens. These deductions are a form of forced savings intended to provide you with a monthly pension when you retire or if you become unable to work. Usually, both the employee and the employer contribute a fixed percentage of the salary to this national fund. Understanding your contribution helps you estimate your future financial security and know your rights regarding disability or unemployment benefits."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Log in to your national social security portal to check your total number of contributions and estimated retirement age."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L9_en",
+      "title": "Building healthy money habits",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_p1_L9",
+          "title": "Building healthy money habits",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Financial freedom is less about how much you earn and more about the habits you keep. Small, consistent actions—like tracking your daily spending or automatically transferring 10% of your income to savings—build a massive cumulative effect over time. Bad habits, like impulsive \"retail therapy,\" can drain even the highest salaries. Success comes from automating the good habits so that saving becomes as natural as breathing."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one \"money leak\" (a small, repetitive bad habit) and replace it with a positive habit for the next 7 days."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L10_en",
+      "title": "Emotional vs rational financial decisions",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_p1_L10",
+          "title": "Emotional vs rational financial decisions",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Humans are naturally emotional spenders; we often buy things to seek status, comfort, or relief from stress. Marketing agencies spend billions to trigger these feelings, making you believe a product will change your life. Rational decisions, on the other hand, focus on utility, long-term value, and whether the purchase fits within your budget. Learning to pause and distinguish between a \"feeling\" and a \"need\" is the most powerful tool in your financial arsenal."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Before buying anything non-essential today, ask yourself: \"Am I buying this because I need it, or because of how I feel right now?\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L11_en",
+      "title": "Financial planning basics",
+      "order": 11,
+      "sections": [
+        {
+          "id": "sec_p1_L11",
+          "title": "Financial planning basics",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Financial planning is the process of creating a comprehensive roadmap to achieve your life goals through the proper management of your finances. It starts with a clear assessment of your current situation: what you own (assets) and what you owe (liabilities). From there, you set specific, measurable goals like buying a home or starting a business. Without a plan, you are simply \"hoping\" for a good future; with a plan, you are actively building it."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Write down one financial goal for the next 6 months and one for the next 5 years."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_L12_en",
+      "title": "Setting financial priorities",
+      "order": 12,
+      "sections": [
+        {
+          "id": "sec_p1_L12",
+          "title": "Setting financial priorities",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "You cannot do everything at once, so you must prioritize your money based on the \"Financial Pyramid.\" The foundation is always your basic survival needs (food/rent), followed immediately by building a small emergency fund to prevent future debt. Once the foundation is solid, you can focus on paying off high-interest loans and then finally moving toward long-term investing and wealth building. Trying to invest while you have high-interest credit card debt is like trying to fill a bucket with a hole in the bottom."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at your expenses. Are you spending money on \"Level 4\" (luxury/investing) before securing \"Level 2\" (emergency fund)?"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "courseId": "life_stage_financial_planning_en",
+  "locale": "en",
+  "title": "Life Stage Financial Planning",
+  "description": "Plan your finances through every life stage — from your first salary to retirement, marriage, children, and building a lasting legacy.",
+  "level": "beginner",
+  "estimatedTime": "30 min",
+  "lessons": [
+    {
+      "lessonId": "p10_L127_en",
+      "title": "Managing your first salary",
+      "order": 127,
+      "sections": [
+        {
+          "id": "sec_p10_L127",
+          "title": "Managing your first salary",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L128_en",
+      "title": "Building financial discipline",
+      "order": 128,
+      "sections": [
+        {
+          "id": "sec_p10_L128",
+          "title": "Building financial discipline",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L129_en",
+      "title": "Financial planning for couples",
+      "order": 129,
+      "sections": [
+        {
+          "id": "sec_p10_L129",
+          "title": "Financial planning for couples",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L130_en",
+      "title": "Joint finances",
+      "order": 130,
+      "sections": [
+        {
+          "id": "sec_p10_L130",
+          "title": "Joint finances",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L131_en",
+      "title": "Planning for children",
+      "order": 131,
+      "sections": [
+        {
+          "id": "sec_p10_L131",
+          "title": "Planning for children",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L132_en",
+      "title": "Education funding",
+      "order": 132,
+      "sections": [
+        {
+          "id": "sec_p10_L132",
+          "title": "Education funding",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L133_en",
+      "title": "Buying vs renting",
+      "order": 133,
+      "sections": [
+        {
+          "id": "sec_p10_L133",
+          "title": "Buying vs renting",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L134_en",
+      "title": "Mortgage planning",
+      "order": 134,
+      "sections": [
+        {
+          "id": "sec_p10_L134",
+          "title": "Mortgage planning",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L135_en",
+      "title": "Retirement planning basics",
+      "order": 135,
+      "sections": [
+        {
+          "id": "sec_p10_L135",
+          "title": "Retirement planning basics",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L136_en",
+      "title": "Pension systems in Arab countries",
+      "order": 136,
+      "sections": [
+        {
+          "id": "sec_p10_L136",
+          "title": "Pension systems in Arab countries",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L137_en",
+      "title": "Estate planning basics",
+      "order": 137,
+      "sections": [
+        {
+          "id": "sec_p10_L137",
+          "title": "Estate planning basics",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L138_en",
+      "title": "Wealth transfer",
+      "order": 138,
+      "sections": [
+        {
+          "id": "sec_p10_L138",
+          "title": "Wealth transfer",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L139_en",
+      "title": "Wills and inheritance in Arab contexts",
+      "order": 139,
+      "sections": [
+        {
+          "id": "sec_p10_L139",
+          "title": "Wills and inheritance in Arab contexts",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L140_en",
+      "title": "Long term financial security",
+      "order": 140,
+      "sections": [
+        {
+          "id": "sec_p10_L140",
+          "title": "Long term financial security",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,388 @@
+{
+  "courseId": "investment_fundamentals_en",
+  "locale": "en",
+  "title": "Investment Fundamentals",
+  "description": "Learn the basics of investing in stocks, bonds, and ETFs, understand risk and diversification, and start building long-term wealth.",
+  "level": "beginner",
+  "estimatedTime": "35 min",
+  "lessons": [
+    {
+      "lessonId": "p5_L59_en",
+      "title": "Saving vs investing",
+      "order": 59,
+      "sections": [
+        {
+          "id": "sec_p5_L59",
+          "title": "Saving vs investing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Saving is putting money aside in a safe place for future use, usually in a bank account where the principal is protected. Investing is the act of putting your money into assets like stocks, real estate, or businesses with the expectation that they will generate a profit or grow in value over time. While saving provides safety and liquidity, investing provides the growth necessary to beat inflation and build true wealth. You save for emergencies; you invest for your future dreams."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Decide how much of your current \"extra\" cash should remain in a safe savings account and how much can be moved toward investments."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L60_en",
+      "title": "Risk vs return",
+      "order": 60,
+      "sections": [
+        {
+          "id": "sec_p5_L60",
+          "title": "Risk vs return",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In the world of investing, risk and return are inseparable partners. Generally, the higher the potential return of an investment, the higher the risk that you could lose some or all of your money. Low-risk investments, like government bonds, offer lower returns, while high-risk investments, like startup equity or crypto, offer the possibility of massive gains. Understanding your \"Risk Tolerance\"—how much loss you can stomach without panic—is the most important part of choosing where to put your money."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Rate your risk tolerance on a scale of 1 to 10 (1 being \"I can't lose a single cent\" and 10 being \"I'm okay with high volatility for high growth\")."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L61_en",
+      "title": "Time horizon Your time horizon is the number of years",
+      "order": 61,
+      "sections": [
+        {
+          "id": "sec_p5_L61",
+          "title": "Time horizon Your time horizon is the number of years",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "you plan to keep your money invested before you need to withdraw it. If you need the money in two years (short-term), you should avoid volatile investments like stocks. If you don't need the money for 20 years (long-term), you can afford to ride out the market's ups and downs because time allows your investments to recover and grow. The longer your time horizon, the more risk you can generally afford to take."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Assign a \"Time Horizon\" (e.g., 3 years, 10 years, 25 years) to each of the financial goals you wrote down in Path 2."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L62_en",
+      "title": "Stocks",
+      "order": 62,
+      "sections": [
+        {
+          "id": "sec_p5_L62",
+          "title": "Stocks",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A stock represents a piece of ownership in a company. When you buy a share, you become a \"shareholder,\" meaning you own a tiny part of that business's assets and future earnings. If the company grows and becomes more profitable, the value of your share increases. Some companies also pay out a portion of their profits to shareholders in the form of \"dividends.\" Stocks are historically one of the best ways to grow wealth, but they can be volatile in the short term."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research one famous company you use daily and look up its \"Stock Price History\" over the last 5 years."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L63_en",
+      "title": "Bonds A bond is essentially a loan you give to",
+      "order": 63,
+      "sections": [
+        {
+          "id": "sec_p5_L63",
+          "title": "Bonds A bond is essentially a loan you give to",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "a government or a corporation for a set period. In exchange, the borrower promises to pay you a fixed interest rate (called a \"coupon\") and return your original principal at the end of the term. Bonds are generally considered safer than stocks and provide a steady stream of income. They are often used by investors to balance out the higher risk of their stock portfolio."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look up the difference between \"Government Bonds\" and \"Corporate Bonds\" to see which fits your risk profile."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L64_en",
+      "title": "Mutual funds",
+      "order": 64,
+      "sections": [
+        {
+          "id": "sec_p5_L64",
+          "title": "Mutual funds",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A mutual fund is a pool of money collected from many investors to invest in a diversified group of stocks, bonds, or other assets. It is managed by a professional fund manager who decides which assets to buy and sell. This allows a small investor to own a diversified portfolio without having to pick individual stocks themselves. However, mutual funds often come with management fees (expense ratios) that can eat into your profits over time."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check if your local bank offers mutual funds and ask for the \"Fact Sheet\" to see the annual management fees."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L65_en",
+      "title": "ETFs (Exchange Traded Funds) ETFs are similar to mutual funds",
+      "order": 65,
+      "sections": [
+        {
+          "id": "sec_p5_L65",
+          "title": "ETFs (Exchange Traded Funds) ETFs are similar to mutual funds",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "in that they hold a basket of assets, but they trade on a stock exchange just like individual stocks. Most ETFs are \"passive,\" meaning they simply track an index (like the top 50 companies in a country) rather than being actively managed by a human. Because of this, they usually have much lower fees than mutual funds. ETFs are an excellent tool for beginners to get instant diversification with very low costs."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Search for an ETF that tracks the \"S&P 500\" or a regional MENA index to see how it works."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L66_en",
+      "title": "Diversification Diversification is the practice of spreading your investments across",
+      "order": 66,
+      "sections": [
+        {
+          "id": "sec_p5_L66",
+          "title": "Diversification Diversification is the practice of spreading your investments across",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "different asset classes, industries, and countries to reduce risk. As the saying goes, \"Don't put all your eggs in one basket.\" If you only own one stock and that company fails, you lose everything. If you own 100 stocks across different sectors, one company's failure will have a minimal impact on your total wealth. Diversification is the only \"free lunch\" in investing."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at your current investments (if any) and see if they are all in one industry or one country."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L67_en",
+      "title": "Asset allocation Asset allocation is the strategy of deciding how",
+      "order": 67,
+      "sections": [
+        {
+          "id": "sec_p5_L67",
+          "title": "Asset allocation Asset allocation is the strategy of deciding how",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "much of your portfolio goes into different categories like stocks, bonds, cash, and real estate. This is the primary driver of your portfolio's risk and return. A common rule of thumb is \"100 minus your age\" equals the percentage of your portfolio that should be in stocks. For example, a 30-year-old might have 70% in stocks and 30% in safer bonds. Your allocation should change as you get closer to your goal."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Use the \"100 minus age\" rule to calculate what your theoretical asset allocation should be today."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L68_en",
+      "title": "Risk tolerance Your risk tolerance is a combination of your",
+      "order": 68,
+      "sections": [
+        {
+          "id": "sec_p5_L68",
+          "title": "Risk tolerance Your risk tolerance is a combination of your",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "financial ability to lose money and your emotional reaction to market drops. Some people lose sleep when their portfolio drops 5%, while others remain calm even during a 30% crash. If you take on more risk than you can emotionally handle, you are likely to sell at the wrong time (the bottom). An honest assessment of your temperament is key to long-term investing success."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Imagine your investment drops 20% tomorrow. Would you sell in a panic, or would you see it as a \"sale\" and buy more?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L69_en",
+      "title": "Long term investing Long-term investing is about staying in the",
+      "order": 69,
+      "sections": [
+        {
+          "id": "sec_p5_L69",
+          "title": "Long term investing Long-term investing is about staying in the",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "market for years or decades, regardless of short-term news or economic cycles. Historically, the stock market has always gone up over long periods despite temporary crashes. By focusing on the \"long game,\" you allow the power of compound growth to do the heavy lifting for you. Successful investing is often \"boring\"—it requires patience and the discipline to do nothing when the media is screaming about a crisis."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at a 20-year chart of a major stock market index to see the long-term upward trend despite many \"crises.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L70_en",
+      "title": "Dollar cost averaging (DCA) Dollar Cost",
+      "order": 70,
+      "sections": [
+        {
+          "id": "sec_p5_L70",
+          "title": "Dollar cost averaging (DCA) Dollar Cost",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Averaging is the practice of investing a fixed amount of money at regular intervals (e.g., $100 every month), regardless of the price. When prices are high, your $100 buys fewer shares; when prices are low, your $100 buys more shares. Over time, this lowers your average cost per share and removes the stress of trying to \"time the market.\" DCA is the perfect strategy for consistent wealth building using your monthly salary."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Commit to a small, fixed amount you can invest every single month starting next month."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L71_en",
+      "title": "Market volatility Volatility refers to the",
+      "order": 71,
+      "sections": [
+        {
+          "id": "sec_p5_L71",
+          "title": "Market volatility Volatility refers to the",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "price swings of an investment. It is often confused with risk, but they are not the same. Volatility is simply the \"price of admission\" for getting higher returns in the stock market. High volatility can be scary, but for a long-term investor, it is actually an opportunity to buy assets at a discount. Learning to embrace volatility rather than fearing it is what separates wealthy investors from the rest."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check the \"VIX\" index (the market's fear gauge) to see how volatile the global markets are currently."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L72_en",
+      "title": "Emotional investing Fear and greed are the two biggest enemies",
+      "order": 72,
+      "sections": [
+        {
+          "id": "sec_p5_L72",
+          "title": "Emotional investing Fear and greed are the two biggest enemies",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "of an investor. Greed makes people buy at the top when everyone is talking about a \"sure thing,\" and fear makes them sell at the bottom when the news is bad. This \"herd behavior\" usually results in buying high and selling low—the opposite of how wealth is built. To succeed, you must create a plan when you are calm and stick to it when you are emotional."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one time you bought something (not just an investment) because of \"FOMO\" (Fear Of Missing Out)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L73_en",
+      "title": "Market bubbles",
+      "order": 73,
+      "sections": [
+        {
+          "id": "sec_p5_L73",
+          "title": "Market bubbles",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A market bubble occurs when the price of an asset rises far above its actual value, usually driven by irrational excitement and speculation. Eventually, the bubble \"bursts,\" and prices crash back to reality. Examples include the Dot-com bubble or certain crypto crazes. If an investment seems too good to be true, or if \"everyone\" is getting rich quickly, it’s often a sign of a bubble. True wealth is built through value, not hype."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the \"Tulip Mania\" to see the earliest example of a market bubble in history."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L74_en",
+      "title": "Avoiding speculation Investing is based on data, fundamentals, and long-term",
+      "order": 74,
+      "sections": [
+        {
+          "id": "sec_p5_L74",
+          "title": "Avoiding speculation Investing is based on data, fundamentals, and long-term",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "growth; speculation is essentially gambling on short-term price movements. If you are buying an asset only because you hope the price will go up tomorrow so you can sell it to someone else, you are speculating. While speculation can lead to quick wins, it more often leads to fast losses. A solid financial foundation is built on investments, not \"get rich quick\" schemes."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Before your next investment, ask: \"If the market closed for 5 years and I couldn't sell this, would I still be happy to own it?\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L75_en",
+      "title": "Long term wealth building Wealth building is a marathon, not",
+      "order": 75,
+      "sections": [
+        {
+          "id": "sec_p5_L75",
+          "title": "Long term wealth building Wealth building is a marathon, not",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "a sprint. It is the result of three factors: the amount of money you invest, the rate of return, and—most importantly—time. Because of compounding, the money you invest in your 20s is much more powerful than the money you invest in your 40s. Consistency is more important than brilliance; a person who invests small amounts regularly for 30 years will almost always beat a person who tries to \"pick winners\" for 5 years."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Use a \"Compound Interest Calculator\" to see what $100 a month turns into over 30 years at an 8% return."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_L76_en",
+      "title": "Evaluating investment opportunities Before putting your money into any opportunity,",
+      "order": 76,
+      "sections": [
+        {
+          "id": "sec_p5_L76",
+          "title": "Evaluating investment opportunities Before putting your money into any opportunity,",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "you must perform \"due diligence.\" This means understanding how the business makes money, what the risks are, and what the fees are. Never invest in something you don't understand, no matter who recommends it. Ask questions: Is this regulated? What is the exit strategy? Does this fit my overall asset allocation? Being a skeptical and informed investor is your best defense against loss."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a \"checklist\" for future investments (e.g., Is it regulated? Is the fee below 1%? Do I understand it?)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

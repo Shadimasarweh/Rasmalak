@@ -1,0 +1,130 @@
+{
+  "courseId": "taxes_and_legal_en",
+  "locale": "en",
+  "title": "Taxes & Legal",
+  "description": "Navigate the world of taxes, understand your legal obligations, protect your rights as a consumer, and plan your financial legacy.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p7_L87_en",
+      "title": "Understanding taxation",
+      "order": 87,
+      "sections": [
+        {
+          "id": "sec_p7_L87",
+          "title": "Understanding taxation",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L88_en",
+      "title": "Income taxes in Arab countries",
+      "order": 88,
+      "sections": [
+        {
+          "id": "sec_p7_L88",
+          "title": "Income taxes in Arab countries",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L89_en",
+      "title": "VAT basics",
+      "order": 89,
+      "sections": [
+        {
+          "id": "sec_p7_L89",
+          "title": "VAT basics",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L90_en",
+      "title": "Social security contributions",
+      "order": 90,
+      "sections": [
+        {
+          "id": "sec_p7_L90",
+          "title": "Social security contributions",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L91_en",
+      "title": "Tax planning basics",
+      "order": 91,
+      "sections": [
+        {
+          "id": "sec_p7_L91",
+          "title": "Tax planning basics",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L92_en",
+      "title": "Avoiding tax penalties",
+      "order": 92,
+      "sections": [
+        {
+          "id": "sec_p7_L92",
+          "title": "Avoiding tax penalties",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L93_en",
+      "title": "Financial documentation",
+      "order": 93,
+      "sections": [
+        {
+          "id": "sec_p7_L93",
+          "title": "Financial documentation",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L94_en",
+      "title": "Understanding contracts",
+      "order": 94,
+      "sections": [
+        {
+          "id": "sec_p7_L94",
+          "title": "Understanding contracts",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L95_en",
+      "title": "Consumer rights",
+      "order": 95,
+      "sections": [
+        {
+          "id": "sec_p7_L95",
+          "title": "Consumer rights",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p7_L96_en",
+      "title": "Financial dispute resolution",
+      "order": 96,
+      "sections": [
+        {
+          "id": "sec_p7_L96",
+          "title": "Financial dispute resolution",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

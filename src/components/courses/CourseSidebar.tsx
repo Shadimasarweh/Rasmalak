@@ -63,7 +63,7 @@ export default function CourseSidebar({
         </svg>
       </button>
 
-      {/* Click-away area (transparent, only on mobile) */}
+      {/* Click-away area (mobile only — on desktop the sidebar coexists with content) */}
       {open && (
         <div
           onClick={onToggle}
@@ -72,10 +72,17 @@ export default function CourseSidebar({
             position: 'absolute',
             inset: 0,
             zIndex: 9,
-            background: 'transparent',
+            background: 'rgba(0,0,0,0.15)',
           }}
         />
       )}
+      <style>{`
+        @media (min-width: 768px) {
+          .course-sidebar-backdrop {
+            display: none !important;
+          }
+        }
+      `}</style>
 
       {/* Drawer panel */}
       <aside

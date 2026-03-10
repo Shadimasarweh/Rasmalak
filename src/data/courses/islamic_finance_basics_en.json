@@ -1,0 +1,130 @@
+{
+  "courseId": "islamic_finance_basics_en",
+  "locale": "en",
+  "title": "Islamic Finance Basics",
+  "description": "Understand the principles of Islamic finance, Sharia-compliant products, and ethical money management in accordance with Islamic values.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p9_L117_en",
+      "title": "Principles of Islamic finance",
+      "order": 117,
+      "sections": [
+        {
+          "id": "sec_p9_L117",
+          "title": "Principles of Islamic finance",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L118_en",
+      "title": "Riba vs profit sharing",
+      "order": 118,
+      "sections": [
+        {
+          "id": "sec_p9_L118",
+          "title": "Riba vs profit sharing",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L119_en",
+      "title": "Murabaha financing",
+      "order": 119,
+      "sections": [
+        {
+          "id": "sec_p9_L119",
+          "title": "Murabaha financing",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L120_en",
+      "title": "Ijara leasing",
+      "order": 120,
+      "sections": [
+        {
+          "id": "sec_p9_L120",
+          "title": "Ijara leasing",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L121_en",
+      "title": "Sukuk bonds",
+      "order": 121,
+      "sections": [
+        {
+          "id": "sec_p9_L121",
+          "title": "Sukuk bonds",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L122_en",
+      "title": "Halal investing",
+      "order": 122,
+      "sections": [
+        {
+          "id": "sec_p9_L122",
+          "title": "Halal investing",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L123_en",
+      "title": "Islamic banking products",
+      "order": 123,
+      "sections": [
+        {
+          "id": "sec_p9_L123",
+          "title": "Islamic banking products",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L124_en",
+      "title": "Zakat and financial planning",
+      "order": 124,
+      "sections": [
+        {
+          "id": "sec_p9_L124",
+          "title": "Zakat and financial planning",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L125_en",
+      "title": "Islamic wealth management",
+      "order": 125,
+      "sections": [
+        {
+          "id": "sec_p9_L125",
+          "title": "Islamic wealth management",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L126_en",
+      "title": "Ethical investing",
+      "order": 126,
+      "sections": [
+        {
+          "id": "sec_p9_L126",
+          "title": "Ethical investing",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

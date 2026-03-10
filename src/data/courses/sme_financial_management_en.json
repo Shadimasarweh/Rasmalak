@@ -1,0 +1,250 @@
+{
+  "courseId": "sme_financial_management_en",
+  "locale": "en",
+  "title": "SME Financial Management",
+  "description": "Learn essential financial management for small businesses including cash flow, pricing, bookkeeping, and growth planning.",
+  "level": "beginner",
+  "estimatedTime": "45 min",
+  "lessons": [
+    {
+      "lessonId": "p8_L97_en",
+      "title": "Financial fundamentals for small businesses",
+      "order": 97,
+      "sections": [
+        {
+          "id": "sec_p8_L97",
+          "title": "Financial fundamentals for small businesses",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L98_en",
+      "title": "Revenue vs profit",
+      "order": 98,
+      "sections": [
+        {
+          "id": "sec_p8_L98",
+          "title": "Revenue vs profit",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L99_en",
+      "title": "Cash flow basics",
+      "order": 99,
+      "sections": [
+        {
+          "id": "sec_p8_L99",
+          "title": "Cash flow basics",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L100_en",
+      "title": "Income statement (P&L)",
+      "order": 100,
+      "sections": [
+        {
+          "id": "sec_p8_L100",
+          "title": "Income statement (P&L)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L101_en",
+      "title": "Balance sheet",
+      "order": 101,
+      "sections": [
+        {
+          "id": "sec_p8_L101",
+          "title": "Balance sheet",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L102_en",
+      "title": "Cash flow statement",
+      "order": 102,
+      "sections": [
+        {
+          "id": "sec_p8_L102",
+          "title": "Cash flow statement",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L103_en",
+      "title": "Business budgeting",
+      "order": 103,
+      "sections": [
+        {
+          "id": "sec_p8_L103",
+          "title": "Business budgeting",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L104_en",
+      "title": "Expense control",
+      "order": 104,
+      "sections": [
+        {
+          "id": "sec_p8_L104",
+          "title": "Expense control",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L105_en",
+      "title": "Inventory management",
+      "order": 105,
+      "sections": [
+        {
+          "id": "sec_p8_L105",
+          "title": "Inventory management",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L106_en",
+      "title": "Pricing strategies",
+      "order": 106,
+      "sections": [
+        {
+          "id": "sec_p8_L106",
+          "title": "Pricing strategies",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L107_en",
+      "title": "Profit margins",
+      "order": 107,
+      "sections": [
+        {
+          "id": "sec_p8_L107",
+          "title": "Profit margins",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L108_en",
+      "title": "Break-even analysis",
+      "order": 108,
+      "sections": [
+        {
+          "id": "sec_p8_L108",
+          "title": "Break-even analysis",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L109_en",
+      "title": "Managing receivables (Money Owed to You)",
+      "order": 109,
+      "sections": [
+        {
+          "id": "sec_p8_L109",
+          "title": "Managing receivables (Money Owed to You)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L110_en",
+      "title": "Managing payables (Money You Owe)",
+      "order": 110,
+      "sections": [
+        {
+          "id": "sec_p8_L110",
+          "title": "Managing payables (Money You Owe)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L111_en",
+      "title": "Financing working capital",
+      "order": 111,
+      "sections": [
+        {
+          "id": "sec_p8_L111",
+          "title": "Financing working capital",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L112_en",
+      "title": "Bank loans for SMEs",
+      "order": 112,
+      "sections": [
+        {
+          "id": "sec_p8_L112",
+          "title": "Bank loans for SMEs",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L113_en",
+      "title": "Venture capital basics",
+      "order": 113,
+      "sections": [
+        {
+          "id": "sec_p8_L113",
+          "title": "Venture capital basics",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L114_en",
+      "title": "Government SME programs",
+      "order": 114,
+      "sections": [
+        {
+          "id": "sec_p8_L114",
+          "title": "Government SME programs",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L115_en",
+      "title": "Alternative financing",
+      "order": 115,
+      "sections": [
+        {
+          "id": "sec_p8_L115",
+          "title": "Alternative financing",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_L116_en",
+      "title": "Financial planning for business growth",
+      "order": 116,
+      "sections": [
+        {
+          "id": "sec_p8_L116",
+          "title": "Financial planning for business growth",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

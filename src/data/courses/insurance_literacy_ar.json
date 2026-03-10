@@ -1,0 +1,130 @@
+{
+  "courseId": "insurance_literacy_ar",
+  "locale": "ar",
+  "title": "ثقافة التأمين",
+  "description": "افهم كيف يحمي التأمين أموالك، وقارن بين أنواع الوثائق، وتعلم اختيار التغطية المناسبة لاحتياجاتك.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p6_L77_ar",
+      "title": "ما هو التأمين؟",
+      "order": 77,
+      "sections": [
+        {
+          "id": "sec_p6_L77",
+          "title": "ما هو التأمين؟",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L78_ar",
+      "title": "تجميع المخاطر",
+      "order": 78,
+      "sections": [
+        {
+          "id": "sec_p6_L78",
+          "title": "تجميع المخاطر",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L79_ar",
+      "title": "التأمين الصحي",
+      "order": 79,
+      "sections": [
+        {
+          "id": "sec_p6_L79",
+          "title": "التأمين الصحي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L80_ar",
+      "title": "تأمين المركبات",
+      "order": 80,
+      "sections": [
+        {
+          "id": "sec_p6_L80",
+          "title": "تأمين المركبات",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L81_ar",
+      "title": "التأمين على الحياة",
+      "order": 81,
+      "sections": [
+        {
+          "id": "sec_p6_L81",
+          "title": "التأمين على الحياة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L82_ar",
+      "title": "تأمين الممتلكات",
+      "order": 82,
+      "sections": [
+        {
+          "id": "sec_p6_L82",
+          "title": "تأمين الممتلكات",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L83_ar",
+      "title": "تأمين السفر",
+      "order": 83,
+      "sections": [
+        {
+          "id": "sec_p6_L83",
+          "title": "تأمين السفر",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L84_ar",
+      "title": "استثناءات التأمين",
+      "order": 84,
+      "sections": [
+        {
+          "id": "sec_p6_L84",
+          "title": "استثناءات التأمين",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L85_ar",
+      "title": "اختيار التغطية التأمينية",
+      "order": 85,
+      "sections": [
+        {
+          "id": "sec_p6_L85",
+          "title": "اختيار التغطية التأمينية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_L86_ar",
+      "title": "تجنب الاحتيال التأميني",
+      "order": 86,
+      "sections": [
+        {
+          "id": "sec_p6_L86",
+          "title": "تجنب الاحتيال التأميني",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

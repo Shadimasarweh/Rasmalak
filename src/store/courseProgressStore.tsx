@@ -48,20 +48,31 @@ export function CourseProgressProvider({
         return;
       }
 
+      const baseCourseId = course.courseId.replace(/_(en|ar)$/, '');
+      const otherLocale = course.locale === 'en' ? 'ar' : 'en';
+      const otherCourseId = `${baseCourseId}_${otherLocale}`;
+
       const { data, error } = await supabase
         .from('course_progress')
         .select('completed_section_ids, completed_at')
         .eq('user_id', user.id)
-        .eq('course_id', course.courseId)
-        .eq('locale', course.locale)
-        .maybeSingle();
+        .in('course_id', [course.courseId, otherCourseId]);
 
       if (error) {
         console.error('[CourseProgress] Failed to fetch progress:', error.message);
       }
 
-      setCompletedSectionIds(data?.completed_section_ids ?? []);
-      setCompletedAt(data?.completed_at ?? null);
+      const merged = new Set<string>();
+      let foundCompletedAt: string | null = null;
+      for (const row of data ?? []) {
+        for (const id of row.completed_section_ids ?? []) {
+          merged.add(id);
+        }
+        if (row.completed_at) foundCompletedAt = row.completed_at;
+      }
+
+      setCompletedSectionIds(Array.from(merged));
+      setCompletedAt(foundCompletedAt);
       setLoading(false);
     };
 

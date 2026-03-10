@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useIntl } from 'react-intl';
 import { getCourse } from '@/data/courses';
@@ -16,9 +16,16 @@ export default function CourseViewerPage() {
 
   const course = getCourse(courseId);
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('courseSidebarOpen') === 'true';
+  });
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    localStorage.setItem('courseSidebarOpen', String(sidebarOpen));
+  }, [sidebarOpen]);
 
   const activeSectionId = useMemo(() => {
     if (!course) return null;
@@ -33,7 +40,9 @@ export default function CourseViewerPage() {
         const lesson = course.lessons[li];
         if (lesson.sections.some((s) => s.id === sectionId)) {
           setCurrentLessonIndex(li);
-          setSidebarOpen(false);
+          if (window.innerWidth < 768) {
+            setSidebarOpen(false);
+          }
           scrollRef.current?.scrollTo({ top: 0 });
           return;
         }

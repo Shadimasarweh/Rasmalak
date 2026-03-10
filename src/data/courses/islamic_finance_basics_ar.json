@@ -1,0 +1,130 @@
+{
+  "courseId": "islamic_finance_basics_ar",
+  "locale": "ar",
+  "title": "أساسيات التمويل الإسلامي",
+  "description": "افهم مبادئ التمويل الإسلامي، والمنتجات المتوافقة مع الشريعة، والإدارة الأخلاقية للمال وفقاً للقيم الإسلامية.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p9_L117_ar",
+      "title": "مبادئ التمويل الإسلامي",
+      "order": 117,
+      "sections": [
+        {
+          "id": "sec_p9_L117",
+          "title": "مبادئ التمويل الإسلامي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L118_ar",
+      "title": "الربا مقابل تقاسم الأرباح",
+      "order": 118,
+      "sections": [
+        {
+          "id": "sec_p9_L118",
+          "title": "الربا مقابل تقاسم الأرباح",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L119_ar",
+      "title": "التمويل بالمرابحة",
+      "order": 119,
+      "sections": [
+        {
+          "id": "sec_p9_L119",
+          "title": "التمويل بالمرابحة",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L120_ar",
+      "title": "الإجارة (التأجير التمويلي)",
+      "order": 120,
+      "sections": [
+        {
+          "id": "sec_p9_L120",
+          "title": "الإجارة (التأجير التمويلي)",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L121_ar",
+      "title": "الصكوك",
+      "order": 121,
+      "sections": [
+        {
+          "id": "sec_p9_L121",
+          "title": "الصكوك",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L122_ar",
+      "title": "الاستثمار الحلال",
+      "order": 122,
+      "sections": [
+        {
+          "id": "sec_p9_L122",
+          "title": "الاستثمار الحلال",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L123_ar",
+      "title": "المنتجات المصرفية الإسلامية",
+      "order": 123,
+      "sections": [
+        {
+          "id": "sec_p9_L123",
+          "title": "المنتجات المصرفية الإسلامية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L124_ar",
+      "title": "الزكاة والتخطيط المالي",
+      "order": 124,
+      "sections": [
+        {
+          "id": "sec_p9_L124",
+          "title": "الزكاة والتخطيط المالي",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L125_ar",
+      "title": "إدارة الثروات الإسلامية",
+      "order": 125,
+      "sections": [
+        {
+          "id": "sec_p9_L125",
+          "title": "إدارة الثروات الإسلامية",
+          "blocks": []
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L126_ar",
+      "title": "الاستثمار الأخلاقي",
+      "order": 126,
+      "sections": [
+        {
+          "id": "sec_p9_L126",
+          "title": "الاستثمار الأخلاقي",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}
