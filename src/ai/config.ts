@@ -107,3 +107,4 @@ export function validateConfig(): { valid: boolean; errors: string[] } {
     errors,
   };
 }
+

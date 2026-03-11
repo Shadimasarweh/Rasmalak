@@ -103,5 +103,7 @@ export default {
   'course.available_courses': 'الدورات المتاحة',
   'course.next_section': 'القسم التالي',
   'course.previous_section': 'القسم السابق',
+  'course.next': 'التالي',
+  'course.previous': 'السابق',
   'course.complete_course': 'إكمال الدورة',
 };

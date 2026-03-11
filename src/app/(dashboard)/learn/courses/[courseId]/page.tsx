@@ -16,22 +16,37 @@ export default function CourseViewerPage() {
 
   const course = getCourse(courseId);
 
+  const lessonsPerPage = useMemo(() => {
+    if (!course) return 1;
+    return Math.max(1, Math.round(course.lessons.length / 4));
+  }, [course]);
+
+  const totalPages = useMemo(() => {
+    if (!course) return 1;
+    return Math.ceil(course.lessons.length / lessonsPerPage);
+  }, [course, lessonsPerPage]);
+
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('courseSidebarOpen') === 'true';
   });
-  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     localStorage.setItem('courseSidebarOpen', String(sidebarOpen));
   }, [sidebarOpen]);
 
+  const currentPageLessons = useMemo(() => {
+    if (!course) return [];
+    const start = currentPage * lessonsPerPage;
+    return course.lessons.slice(start, start + lessonsPerPage);
+  }, [course, currentPage, lessonsPerPage]);
+
   const activeSectionId = useMemo(() => {
-    if (!course) return null;
-    const lesson = course.lessons[currentLessonIndex];
-    return lesson?.sections[0]?.id ?? null;
-  }, [course, currentLessonIndex]);
+    if (currentPageLessons.length === 0) return null;
+    return currentPageLessons[0]?.sections[0]?.id ?? null;
+  }, [currentPageLessons]);
 
   const handleSectionClick = useCallback(
     (sectionId: string) => {
@@ -39,7 +54,8 @@ export default function CourseViewerPage() {
       for (let li = 0; li < course.lessons.length; li++) {
         const lesson = course.lessons[li];
         if (lesson.sections.some((s) => s.id === sectionId)) {
-          setCurrentLessonIndex(li);
+          const targetPage = Math.floor(li / lessonsPerPage);
+          setCurrentPage(targetPage);
           if (window.innerWidth < 768) {
             setSidebarOpen(false);
           }
@@ -48,17 +64,16 @@ export default function CourseViewerPage() {
         }
       }
     },
-    [course]
+    [course, lessonsPerPage]
   );
 
-  const handleNextLesson = useCallback(() => {
-    if (!course) return;
-    setCurrentLessonIndex((prev) => Math.min(prev + 1, course.lessons.length - 1));
+  const handleNextPage = useCallback(() => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
     scrollRef.current?.scrollTo({ top: 0 });
-  }, [course]);
+  }, [totalPages]);
 
-  const handlePreviousLesson = useCallback(() => {
-    setCurrentLessonIndex((prev) => Math.max(prev - 1, 0));
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
     scrollRef.current?.scrollTo({ top: 0 });
   }, []);
 
@@ -182,9 +197,11 @@ export default function CourseViewerPage() {
         <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto' }}>
           <CourseContent
             course={course}
-            currentLessonIndex={currentLessonIndex}
-            onNextLesson={handleNextLesson}
-            onPreviousLesson={handlePreviousLesson}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            lessonsPerPage={lessonsPerPage}
+            onNextPage={handleNextPage}
+            onPreviousPage={handlePreviousPage}
             onComplete={handleComplete}
             showHero
           />

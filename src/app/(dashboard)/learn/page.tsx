@@ -932,10 +932,13 @@ function AchievementBadge({
 
 /* ===== MODE CONTENT COMPONENTS ===== */
 
-/* ----- Learning Paths Content ----- */
+/* ----- Learning Paths Content (now includes courses) ----- */
 function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
+      {/* Courses */}
+      <AvailableCoursesSection intl={intl} />
+
       {/* Current Path (In Progress) */}
       <div>
         <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
@@ -1134,6 +1137,93 @@ function AchievementsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ===== RECOMMENDED COURSE SECTION (Home Mode) ===== */
+function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }) {
+  const router = useRouter();
+  const language = useStore((s) => s.language);
+  const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
+
+  const courses = getAllCourses(language);
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!initialized || !user) return;
+
+    const fetchProgress = async () => {
+      const { data } = await supabase
+        .from('course_progress')
+        .select('course_id, completed_section_ids, locale')
+        .eq('user_id', user.id)
+        .eq('locale', language);
+
+      if (!data) return;
+
+      const map: Record<string, number> = {};
+      for (const row of data) {
+        const course = courses.find((c) => c.courseId === row.course_id);
+        if (course) {
+          const total = getTotalSections(course);
+          const done = (row.completed_section_ids as string[])?.length ?? 0;
+          map[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+        }
+      }
+      setProgressMap(map);
+    };
+
+    fetchProgress();
+  }, [initialized, user, language, courses]);
+
+  const hasStartedAnyCourse = Object.values(progressMap).some((p) => p > 0);
+  const firstCourse = courses[0];
+
+  const recommendedCourse = hasStartedAnyCourse
+    ? courses.find((c) => {
+        const p = progressMap[c.courseId] ?? 0;
+        return p > 0 && p < 100;
+      }) || firstCourse
+    : firstCourse;
+
+  if (!recommendedCourse) return null;
+
+  const progress = progressMap[recommendedCourse.courseId] ?? 0;
+
+  return (
+    <div style={{ marginTop: 'var(--spacing-3)' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          marginBottom: 'var(--spacing-2)',
+        }}
+      >
+        <span style={{ color: '#F59E0B', flexShrink: 0 }}>
+          <LightbulbIcon />
+        </span>
+        <span
+          style={{
+            fontSize: '0.6875rem',
+            fontWeight: 600,
+            color: '#F59E0B',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {intl.formatMessage({ id: 'learn.recommended', defaultMessage: 'Recommended for you' })}
+        </span>
+      </div>
+
+      <CourseCard
+        course={recommendedCourse}
+        progress={progress}
+        intl={intl}
+        onClick={() => router.push(`/learn/courses/${recommendedCourse.courseId}`)}
+      />
     </div>
   );
 }
@@ -1485,10 +1575,10 @@ export default function LearnPage() {
         </div>
       </div>
 
-      {/* ===== HOME MODE CONTENT: Courses, Featured & Recommended ===== */}
+      {/* ===== HOME MODE CONTENT: Recommended + Featured ===== */}
       {isHomeMode && (
         <>
-          <AvailableCoursesSection intl={intl} />
+          <RecommendedCourseSection intl={intl} />
           <FeaturedContent intl={intl} />
           <RecommendedContent intl={intl} />
         </>

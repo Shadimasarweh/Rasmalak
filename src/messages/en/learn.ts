@@ -103,5 +103,7 @@ export default {
   'course.available_courses': 'Available Courses',
   'course.next_section': 'Next Section',
   'course.previous_section': 'Previous Section',
+  'course.next': 'Next',
+  'course.previous': 'Previous',
   'course.complete_course': 'Complete Course',
 };

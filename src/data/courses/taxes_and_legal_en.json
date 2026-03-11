@@ -14,7 +14,16 @@
         {
           "id": "sec_p7_L87",
           "title": "Understanding taxation",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Taxation is the process by which governments collect money from individuals and businesses to fund public services like healthcare, education, infrastructure, and defense. Taxes come in many forms: income tax (on earnings), sales tax or VAT (on purchases), property tax (on real estate), and customs duties (on imports). Understanding the types of taxes that apply to you is the first step in managing your finances effectively. While taxes are a legal obligation, the way you structure your finances can significantly affect how much you owe — which is why tax literacy is a critical financial skill."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify all the types of taxes you currently pay — directly and indirectly — and estimate what percentage of your total income goes toward taxes."
+            }
+          ]
         }
       ]
     },
@@ -26,7 +35,16 @@
         {
           "id": "sec_p7_L88",
           "title": "Income taxes in Arab countries",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Income tax policies vary significantly across Arab countries. Gulf Cooperation Council (GCC) states like the UAE, Saudi Arabia, Qatar, and Kuwait have historically imposed zero personal income tax, which is a major draw for expatriates and businesses. However, other Arab countries like Jordan, Egypt, Lebanon, Tunisia, and Morocco do levy personal income tax at progressive rates — meaning higher earners pay a larger percentage. It is important to understand the tax landscape of the country you live and work in, as this directly impacts your net take-home pay and financial planning. Even in zero-income-tax countries, other levies like social security contributions, VAT, and municipal fees still reduce your disposable income."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look up the current personal income tax rate (if any) in your country and calculate how it affects your annual take-home pay."
+            }
+          ]
         }
       ]
     },
@@ -38,7 +56,16 @@
         {
           "id": "sec_p7_L89",
           "title": "VAT basics",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Value Added Tax (VAT) is a consumption tax charged at each stage of a product's supply chain, from raw materials to final sale. The end consumer ultimately bears the full cost. In the GCC, VAT was introduced at 5% in the UAE and Saudi Arabia in 2018 (Saudi Arabia later raised it to 15%), while other GCC states have been gradually implementing it. VAT applies to most goods and services, though essential items like basic food, healthcare, and education may be zero-rated or exempt. For individuals, VAT increases the cost of everyday purchases. For business owners, it requires proper record-keeping and regular filing with tax authorities."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check the VAT rate in your country and identify which of your regular purchases are subject to VAT and which are exempt."
+            }
+          ]
         }
       ]
     },
@@ -50,7 +77,16 @@
         {
           "id": "sec_p7_L90",
           "title": "Social security contributions",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Social security contributions are mandatory payments that fund government programs for retirement pensions, disability benefits, unemployment support, and sometimes healthcare. In most Arab countries, both the employee and employer contribute a fixed percentage of the employee's salary. For example, in Jordan, employees contribute about 7.5% while employers add roughly 14.25%. In Saudi Arabia, Saudi nationals pay 9.75% with an equal employer contribution to GOSI. These contributions build up over your career and determine the pension you will receive upon retirement. Understanding your contribution rate, vesting period (minimum contribution years), and expected benefits is essential for long-term financial planning."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Log in to your country's social security portal and check your total contributions, years of service, and projected retirement benefits."
+            }
+          ]
         }
       ]
     },
@@ -62,7 +98,16 @@
         {
           "id": "sec_p7_L91",
           "title": "Tax planning basics",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Tax planning is the legal process of organizing your financial affairs to minimize your tax liability within the bounds of the law. This is different from tax evasion, which is illegal. Basic tax planning strategies include: making full use of available deductions and exemptions (such as education expenses, charitable donations, or mortgage interest in countries where these apply), timing income and expenses strategically, choosing tax-efficient investment vehicles, and maintaining proper records to support your claims. Even in countries with low or no income tax, planning around VAT, customs duties, and social security can save you significant money over time."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review whether you are taking advantage of all available tax deductions and exemptions in your country — many people leave money on the table simply because they are unaware of them."
+            }
+          ]
         }
       ]
     },
@@ -74,7 +119,16 @@
         {
           "id": "sec_p7_L92",
           "title": "Avoiding tax penalties",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Tax penalties are fines and interest charges imposed when you fail to file tax returns on time, underreport your income, or fail to pay the tax you owe. In many Arab countries, VAT penalties can be severe — late registration, late filing, or late payment can each trigger substantial fines. In countries with income tax, failing to file your annual return by the deadline can result in escalating penalties and interest on unpaid amounts. The best way to avoid penalties is to know your filing deadlines, maintain accurate records throughout the year, set aside money for tax payments in advance, and file on time even if you cannot pay the full amount immediately (partial payment with a filing is usually treated more leniently than non-filing)."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Mark all your tax filing deadlines on your calendar and set reminders two weeks before each one to ensure you have time to prepare."
+            }
+          ]
         }
       ]
     },
@@ -86,7 +140,16 @@
         {
           "id": "sec_p7_L93",
           "title": "Financial documentation",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Proper financial documentation is the foundation of both personal financial management and legal compliance. Key documents to maintain include: bank statements, salary slips, tax returns and payment receipts, insurance policies, loan agreements, property deeds, investment records, and receipts for major purchases. These records serve multiple purposes — they help you track your net worth, support tax filings, provide evidence in legal disputes, and are often required when applying for loans or visas. Experts recommend keeping physical or digital copies of financial documents for at least 7 years. A well-organized filing system (even a simple folder structure on cloud storage) saves enormous time and stress when you need to locate a document."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a simple digital filing system for your financial documents with folders for bank statements, taxes, insurance, and investments — then gather and scan your most important current documents."
+            }
+          ]
         }
       ]
     },
@@ -98,7 +161,16 @@
         {
           "id": "sec_p7_L94",
           "title": "Understanding contracts",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A contract is a legally binding agreement between two or more parties that creates enforceable obligations. In personal finance, you encounter contracts constantly: employment contracts, rental agreements, loan agreements, insurance policies, and service subscriptions. Key elements to review in any contract include: the parties involved, the term (duration), payment obligations, termination clauses (how and when you can exit), penalty clauses, dispute resolution mechanisms, and any auto-renewal provisions. Never sign a contract you have not read completely. If anything is unclear, ask questions or seek legal advice before signing. A few minutes of careful reading can prevent months of legal disputes."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Pull out one active contract you have signed (rental agreement, employment contract, or loan) and re-read the termination and penalty clauses to make sure you fully understand your obligations."
+            }
+          ]
         }
       ]
     },
@@ -110,7 +182,16 @@
         {
           "id": "sec_p7_L95",
           "title": "Consumer rights",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Consumer protection laws exist in every Arab country to safeguard buyers from unfair business practices, defective products, misleading advertising, and price gouging. Your basic rights as a consumer typically include: the right to accurate information about products and services, the right to return defective goods, the right to fair pricing, protection against deceptive marketing, and the right to file complaints with consumer protection authorities. In many GCC countries, dedicated consumer protection agencies handle complaints and can impose penalties on businesses that violate regulations. Knowing your rights empowers you to demand fair treatment and seek refunds or compensation when businesses fail to deliver what they promised."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Find the consumer protection authority in your country and save their complaint hotline number in your phone for future reference."
+            }
+          ]
         }
       ]
     },
@@ -122,7 +203,16 @@
         {
           "id": "sec_p7_L96",
           "title": "Financial dispute resolution",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Financial disputes can arise with banks, insurance companies, employers, landlords, or other parties. Before escalating to courts, most jurisdictions offer alternative dispute resolution (ADR) mechanisms that are faster and less expensive. These include: filing a complaint with the relevant regulatory authority (like the central bank for banking disputes), mediation (where a neutral third party helps both sides reach an agreement), and arbitration (where an arbitrator makes a binding decision). Many countries also have specialized financial courts or tribunals. The key steps in resolving any financial dispute are: document everything, communicate in writing, escalate through official channels, and seek legal advice if the amount at stake justifies it. Prevention is always better than cure — clear contracts and written agreements reduce the chance of disputes arising."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify the proper channels for filing a financial complaint in your country — whether it is the central bank, a consumer authority, or a specialized tribunal — so you are prepared if a dispute ever arises."
+            }
+          ]
         }
       ]
     }

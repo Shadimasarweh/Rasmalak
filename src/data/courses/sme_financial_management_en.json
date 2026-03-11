@@ -14,7 +14,16 @@
         {
           "id": "sec_p8_L97",
           "title": "Financial fundamentals for small businesses",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Running a small business without understanding financial fundamentals is like driving without a dashboard — you have no idea how fast you are going or when you will run out of fuel. Every business owner must understand three core financial concepts: revenue (money coming in from sales), expenses (money going out for operations), and profit (what remains after subtracting expenses from revenue). Many small businesses fail not because they lack customers, but because their owners do not track these numbers closely enough. Separating personal and business finances from day one — with a dedicated business bank account — is the single most important first step."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Open a dedicated business bank account if you have not already, and commit to never mixing personal and business expenses."
+            }
+          ]
         }
       ]
     },
@@ -26,7 +35,16 @@
         {
           "id": "sec_p8_L98",
           "title": "Revenue vs profit",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Revenue (or sales) is the total amount of money your business earns from selling products or services before any expenses are deducted. Profit is what remains after subtracting all costs. There are two types of profit: Gross Profit (revenue minus the direct cost of goods sold) and Net Profit (revenue minus all expenses including rent, salaries, utilities, marketing, and taxes). A business can have impressive revenue but still lose money if expenses are too high. The famous saying 'revenue is vanity, profit is sanity, cash is king' captures this perfectly. Always focus on profitability, not just top-line sales numbers."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your business's gross profit margin (gross profit divided by revenue) and net profit margin for the last month — these ratios tell you how efficiently your business operates."
+            }
+          ]
         }
       ]
     },
@@ -38,7 +56,16 @@
         {
           "id": "sec_p8_L99",
           "title": "Cash flow basics",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Cash flow is the movement of money in and out of your business over time. Positive cash flow means more money is coming in than going out; negative cash flow means the opposite. A profitable business can still fail if it runs out of cash — for example, if you have large invoices outstanding but rent and salaries are due now. Cash flow management involves timing: ensuring you collect payments from customers quickly while negotiating longer payment terms with suppliers. Maintaining a cash flow forecast — a simple projection of expected inflows and outflows for the next 3-6 months — helps you anticipate and prevent cash shortages before they become emergencies."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a simple cash flow forecast for the next three months listing all expected income and expenses by week — identify any weeks where cash might run short."
+            }
+          ]
         }
       ]
     },
@@ -50,7 +77,16 @@
         {
           "id": "sec_p8_L100",
           "title": "Income statement (P&L)",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The income statement (also called the Profit and Loss statement or P&L) summarizes your business's revenues, costs, and expenses over a specific period (monthly, quarterly, or annually). It starts with total revenue at the top, subtracts the cost of goods sold (COGS) to show gross profit, then subtracts operating expenses (rent, salaries, marketing, utilities) to show operating profit, and finally accounts for taxes and interest to arrive at net profit (or loss). Reading your P&L regularly is like checking your business's vital signs — it tells you whether you are making or losing money and where the biggest costs are. Every business owner should review their P&L at least monthly."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Generate or create a simple income statement for your business for the last month and identify your three largest expense categories."
+            }
+          ]
         }
       ]
     },
@@ -62,7 +98,16 @@
         {
           "id": "sec_p8_L101",
           "title": "Balance sheet",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The balance sheet provides a snapshot of your business's financial position at a specific point in time. It is organized into three sections: Assets (what your business owns — cash, inventory, equipment, receivables), Liabilities (what your business owes — loans, unpaid bills, taxes due), and Owner's Equity (the difference between assets and liabilities, representing the owner's stake). The fundamental equation is: Assets = Liabilities + Equity. A healthy balance sheet shows growing assets, manageable liabilities, and positive equity. Lenders and investors always examine the balance sheet to assess the financial strength of a business before providing funding."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List all your business assets and liabilities to create a simple balance sheet — calculate your owner's equity to see the true value of your business."
+            }
+          ]
         }
       ]
     },
@@ -74,7 +119,16 @@
         {
           "id": "sec_p8_L102",
           "title": "Cash flow statement",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The cash flow statement tracks the actual movement of cash through your business during a period, organized into three categories: Operating Activities (cash from day-to-day business operations like sales collections and expense payments), Investing Activities (cash spent on or received from buying/selling long-term assets like equipment or property), and Financing Activities (cash from loans, investor contributions, or debt repayments). Unlike the income statement which can include non-cash items like depreciation, the cash flow statement shows exactly how much cash your business actually generated or consumed. It answers the critical question: 'Where did the money actually go?'"
+            },
+            {
+              "type": "action_prompt",
+              "text": "Track every cash inflow and outflow in your business for one week, then categorize each item as operating, investing, or financing activity."
+            }
+          ]
         }
       ]
     },
@@ -86,7 +140,16 @@
         {
           "id": "sec_p8_L103",
           "title": "Business budgeting",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A business budget is a financial plan that estimates your expected revenue and expenses for a future period, typically a year broken down by month. It serves as a roadmap for financial decision-making and a benchmark against which you measure actual performance. Start by projecting realistic revenue based on historical data and market conditions. Then list all fixed costs (rent, salaries, insurance — costs that stay the same regardless of sales) and variable costs (materials, shipping, commissions — costs that fluctuate with sales volume). Build in a contingency buffer of 10-15% for unexpected expenses. Review your budget vs. actual results monthly and adjust as needed."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a simple monthly budget for your business with projected revenue, fixed costs, variable costs, and a contingency reserve."
+            }
+          ]
         }
       ]
     },
@@ -98,7 +161,16 @@
         {
           "id": "sec_p8_L104",
           "title": "Expense control",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Expense control is about systematically reducing costs without sacrificing quality or growth potential. Start by categorizing all expenses as essential (directly related to generating revenue), important (support operations but could be optimized), or discretionary (nice-to-have but not critical). Common areas for cost reduction include: negotiating better rates with suppliers, reducing waste in production, switching to more cost-effective tools and software, eliminating subscriptions you no longer use, and optimizing staffing levels. The goal is not to cut everything to zero — that kills growth — but to ensure every dirham spent generates value. Regular expense audits (quarterly) help you catch cost creep before it erodes your profits."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review all your business expenses from the last month and categorize each as essential, important, or discretionary — then identify three specific costs you can reduce."
+            }
+          ]
         }
       ]
     },
@@ -110,7 +182,16 @@
         {
           "id": "sec_p8_L105",
           "title": "Inventory management",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For product-based businesses, inventory is often the largest asset and the biggest source of cash flow problems. Too much inventory ties up cash and risks obsolescence or spoilage; too little means lost sales and disappointed customers. Effective inventory management balances availability with cost efficiency. Key concepts include: reorder point (the inventory level at which you place a new order), safety stock (extra inventory kept as a buffer against unexpected demand), and inventory turnover ratio (how many times you sell and replace your stock in a period — higher is generally better). Simple tools like spreadsheets or affordable inventory apps can help you track stock levels and identify slow-moving items that are consuming your capital."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your inventory turnover ratio (cost of goods sold divided by average inventory value) and identify your slowest-moving products that are tying up cash."
+            }
+          ]
         }
       ]
     },
@@ -122,7 +203,16 @@
         {
           "id": "sec_p8_L106",
           "title": "Pricing strategies",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Pricing is one of the most powerful levers in business — a small price increase often has a larger impact on profit than the same percentage increase in sales volume. Common pricing strategies include: Cost-Plus (adding a fixed markup to your cost), Value-Based (pricing based on the perceived value to the customer rather than your cost), Competitive (matching or undercutting competitor prices), and Penetration (starting low to gain market share, then increasing). The right strategy depends on your market, competition, and brand positioning. Always know your floor price (the minimum price at which you cover all costs) and test different price points to find the sweet spot where volume and margin optimize total profit."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate the true total cost of your best-selling product or service (including all overhead), then evaluate whether your current price provides an adequate profit margin."
+            }
+          ]
         }
       ]
     },
@@ -134,7 +224,16 @@
         {
           "id": "sec_p8_L107",
           "title": "Profit margins",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Profit margin is the percentage of revenue that remains as profit after costs are deducted. Gross margin measures profitability after direct costs (COGS), while net margin measures profitability after all expenses. For example, if you sell a product for 100 and the direct cost is 60, your gross margin is 40%. If total expenses (including rent, salaries, marketing) bring your net profit to 15, your net margin is 15%. Healthy margins vary by industry — retail typically runs 2-5% net margin, while services and software can achieve 15-30%+. Tracking your margins monthly helps you spot trends: declining margins signal rising costs or pricing pressure that need immediate attention."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate both your gross and net profit margins for the past three months — are they stable, improving, or declining? Investigate any downward trend."
+            }
+          ]
         }
       ]
     },
@@ -146,7 +245,16 @@
         {
           "id": "sec_p8_L108",
           "title": "Break-even analysis",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Break-even analysis tells you the minimum amount of revenue or number of units you need to sell to cover all your costs — the point where you stop losing money and start making profit. The formula is: Break-Even Point = Fixed Costs / (Price per Unit - Variable Cost per Unit). For example, if your fixed costs are 10,000/month, you sell at 50/unit, and each unit costs 30 to produce, your break-even is 10,000 / (50-30) = 500 units per month. This is an essential planning tool for new businesses (to set realistic sales targets), for evaluating new products (to assess viability), and for understanding how changes in price, volume, or costs affect profitability."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate the break-even point for your main product or service — how many units or how much revenue do you need each month to cover all your costs?"
+            }
+          ]
         }
       ]
     },
@@ -158,7 +266,16 @@
         {
           "id": "sec_p8_L109",
           "title": "Managing receivables (Money Owed to You)",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Accounts receivable (AR) is money that customers owe you for goods or services already delivered. Poorly managed receivables are one of the top reasons small businesses face cash flow crises — you have done the work and spent the money, but the payment has not arrived. Best practices include: setting clear payment terms upfront (e.g., 'Net 15' means payment due within 15 days), sending invoices immediately upon delivery, offering early payment discounts (e.g., 2% discount if paid within 10 days), following up on overdue invoices promptly and systematically, and requiring deposits or partial payment upfront for large orders. Track your Days Sales Outstanding (DSO) — the average number of days it takes to collect payment — and work to reduce it."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review all outstanding invoices in your business right now — follow up on any that are overdue and implement a system for tracking payment deadlines."
+            }
+          ]
         }
       ]
     },
@@ -170,7 +287,16 @@
         {
           "id": "sec_p8_L110",
           "title": "Managing payables (Money You Owe)",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Accounts payable (AP) is the money your business owes to suppliers, vendors, and service providers. Strategic payables management means using the full payment terms available to you (if a supplier gives you 30 days, do not pay in 5 unless there is a discount) while maintaining good relationships and never damaging your credit reputation with late payments. Prioritize payments based on the consequences of delay: payroll and taxes should never be late, key supplier payments protect your supply chain, and discretionary payments can be scheduled last. Keep a payables calendar showing exactly when each bill is due, and batch payments on specific days to maintain better control over your cash flow."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a payables calendar listing all bills due in the next 30 days with their amounts and due dates — prioritize them by importance."
+            }
+          ]
         }
       ]
     },
@@ -182,7 +308,16 @@
         {
           "id": "sec_p8_L111",
           "title": "Financing working capital",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Working capital is the money available for day-to-day business operations, calculated as current assets (cash, receivables, inventory) minus current liabilities (payables, short-term loans). Insufficient working capital means you cannot pay bills, buy inventory, or meet payroll even if your business is profitable on paper. Options for financing working capital include: maintaining adequate cash reserves, negotiating longer payment terms with suppliers, offering incentives for faster customer payments, using a business line of credit (which you draw on only when needed and repay quickly), invoice factoring (selling outstanding invoices at a discount for immediate cash), and short-term business loans. The cheapest option is always to improve your cash conversion cycle before borrowing."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your current working capital (current assets minus current liabilities) — if it is negative or tight, identify which financing option would be most appropriate for your situation."
+            }
+          ]
         }
       ]
     },
@@ -194,7 +329,16 @@
         {
           "id": "sec_p8_L112",
           "title": "Bank loans for SMEs",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Bank loans are the most traditional form of SME financing. They typically come as term loans (a lump sum repaid in fixed installments over a set period) or lines of credit (a flexible borrowing limit you can draw and repay as needed). Banks evaluate loan applications based on: the business's financial statements, years in operation, revenue stability, existing debt levels, the owner's personal credit history, and available collateral. In many Arab countries, banks have dedicated SME lending departments with products tailored to small businesses. To improve your chances of approval: maintain clean financial records, prepare a solid business plan, demonstrate consistent revenue, and be ready to provide personal guarantees or collateral."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you need financing, prepare a one-page summary of your business financials (revenue, profit, assets, existing debt) and visit two banks to compare their SME lending products."
+            }
+          ]
         }
       ]
     },
@@ -206,7 +350,16 @@
         {
           "id": "sec_p8_L113",
           "title": "Venture capital basics",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Venture capital (VC) is equity financing where investors provide capital to high-growth startups in exchange for an ownership stake in the company. Unlike loans, VC does not need to be repaid — instead, the investor shares in the company's future success (or failure). VCs typically look for businesses with large addressable markets, scalable business models, strong founding teams, and the potential for 10x+ returns. The Arab region has seen rapid growth in its VC ecosystem, with active investors in hubs like Dubai, Riyadh, Cairo, and Amman. However, taking VC funding means giving up some control and ownership. It is best suited for businesses planning rapid expansion, not for lifestyle businesses or those with moderate growth ambitions."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Assess whether your business is a fit for venture capital — does it have the potential for rapid, scalable growth that would justify giving up equity?"
+            }
+          ]
         }
       ]
     },
@@ -218,7 +371,16 @@
         {
           "id": "sec_p8_L114",
           "title": "Government SME programs",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Most Arab governments have established programs to support small and medium enterprises as part of their economic diversification strategies. These programs offer various forms of support including: subsidized loans with below-market interest rates, grants and matching funds, loan guarantee programs (where the government guarantees a portion of a bank loan, reducing the bank's risk), training and mentorship programs, access to co-working spaces and incubators, and preferential treatment in government procurement contracts. For example, Saudi Arabia's Monsha'at, UAE's Khalifa Fund, Jordan's Jordan Enterprise Development Corporation (JEDCO), and Egypt's Micro, Small and Medium Enterprise Development Agency (MSMEDA) all provide dedicated SME support. Many entrepreneurs are unaware of these programs and miss out on valuable free or subsidized resources."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the government SME support programs available in your country and check if you qualify for any grants, subsidized loans, or training opportunities."
+            }
+          ]
         }
       ]
     },
@@ -230,7 +392,16 @@
         {
           "id": "sec_p8_L115",
           "title": "Alternative financing",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Beyond traditional bank loans and venture capital, several alternative financing options exist for SMEs. Crowdfunding platforms allow you to raise small amounts from many people (reward-based or equity-based). Peer-to-peer (P2P) lending connects borrowers directly with individual lenders through online platforms, often at competitive rates. Invoice financing lets you borrow against outstanding invoices for immediate cash. Microfinance institutions specialize in smaller loans for very small businesses. Angel investors are wealthy individuals who invest their personal funds in early-stage businesses, often providing mentorship alongside capital. Revenue-based financing ties repayments to a percentage of your monthly revenue, reducing pressure during slow months. Each option has different costs, terms, and implications — choose based on your specific situation."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify which alternative financing option best fits your business needs and stage — then research at least one specific provider available in your market."
+            }
+          ]
         }
       ]
     },
@@ -242,7 +413,16 @@
         {
           "id": "sec_p8_L116",
           "title": "Financial planning for business growth",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Growing a business requires careful financial planning because growth consumes cash — you need to hire people, buy inventory, invest in marketing, and expand capacity before the additional revenue arrives. A growth financial plan should include: realistic revenue projections based on market data, a detailed budget for growth investments (new hires, equipment, marketing), cash flow forecasts showing when you will need additional funding, identification of financing sources to bridge cash gaps, key financial milestones and metrics to track progress, and contingency plans if growth is slower than expected. The most common cause of business failure during growth is expanding too fast without adequate financial reserves. Sustainable growth means growing at a pace your finances can support."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a simple 12-month financial growth plan with projected revenue, required investments, expected cash flow, and the specific metrics you will track monthly to stay on course."
+            }
+          ]
         }
       ]
     }

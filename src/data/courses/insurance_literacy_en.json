@@ -14,7 +14,16 @@
         {
           "id": "sec_p6_L77",
           "title": "What is insurance?",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Insurance is a financial contract where you pay a regular amount called a \"premium\" to an insurance company, and in return, they agree to compensate you financially if a specific negative event occurs—such as an accident, illness, or theft. It works on the principle of transferring risk: instead of bearing the entire financial burden of an unexpected event yourself, you share that risk with a large pool of other policyholders. Think of it as a safety net that prevents a single bad event from wiping out your savings or putting you into debt."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List three risks in your life that could cause serious financial damage if they happened tomorrow without any coverage."
+            }
+          ]
         }
       ]
     },
@@ -26,7 +35,16 @@
         {
           "id": "sec_p6_L78",
           "title": "Risk pooling",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Risk pooling is the foundational concept behind all insurance. A large group of people each contribute small premiums into a shared fund. When one member of the pool experiences a covered loss, the fund pays out their claim. Because only a fraction of members will actually experience a loss in any given year, the collected premiums are sufficient to cover those claims while the insurer keeps a portion as profit. This is why insurance becomes cheaper per person as more people join the pool—the risk is spread more thinly across a larger group."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Consider why younger, healthier people often pay lower premiums—their statistical risk of filing a claim is lower, benefiting the pool."
+            }
+          ]
         }
       ]
     },
@@ -38,7 +56,16 @@
         {
           "id": "sec_p6_L79",
           "title": "Health insurance",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Health insurance covers the cost of medical treatment including doctor visits, hospital stays, surgeries, prescription medications, and sometimes dental and optical care. In many Arab countries, employers are required to provide health insurance for their employees. Policies differ in their coverage limits, network of approved hospitals, co-payment amounts (the portion you pay out of pocket), and whether they cover pre-existing conditions. A single hospital stay without insurance can cost tens of thousands, making health coverage one of the most essential forms of financial protection."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your current health insurance policy and note your co-payment percentage, annual coverage limit, and which hospitals are in your network."
+            }
+          ]
         }
       ]
     },
@@ -50,7 +77,16 @@
         {
           "id": "sec_p6_L80",
           "title": "Motor insurance",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Motor insurance protects you against financial losses resulting from vehicle accidents, theft, or damage. There are generally two types: Third-Party Liability (the legal minimum in most countries, covering damage you cause to other people or their property) and Comprehensive Coverage (which also covers damage to your own vehicle, theft, fire, and natural disasters). Premiums are determined by factors like your driving history, vehicle value, age, and the level of coverage you choose. In most Arab countries, driving without at least third-party insurance is illegal."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Compare your current motor insurance premium with at least two other providers to see if you are overpaying for the same coverage level."
+            }
+          ]
         }
       ]
     },
@@ -62,7 +98,16 @@
         {
           "id": "sec_p6_L81",
           "title": "Life insurance",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Life insurance provides a financial payout to your designated beneficiaries (family members) if you pass away during the policy term. Its primary purpose is to ensure that the people who depend on your income—your spouse, children, or aging parents—are not left in financial hardship. Term Life insurance covers you for a specific period (e.g., 20 years) and is generally affordable. Whole Life insurance covers you for your entire lifetime and includes a savings component, but is significantly more expensive. For most people, a term policy that covers their working years is the most cost-effective choice."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate how many years of your family's living expenses a life insurance payout should cover if something happened to you."
+            }
+          ]
         }
       ]
     },
@@ -74,7 +119,16 @@
         {
           "id": "sec_p6_L82",
           "title": "Property insurance",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Property insurance (also called homeowner's or renter's insurance) protects your home, its contents, and your personal belongings against risks like fire, flooding, theft, and natural disasters. For homeowners, the policy typically covers the structure of the building itself as well as personal items inside. Renters can purchase a separate contents-only policy to cover their possessions. If you have a mortgage, your bank will almost certainly require you to maintain property insurance as a condition of the loan. The cost depends on the property's value, location, construction type, and the level of coverage you select."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Make a quick inventory of the valuable items in your home and estimate their total replacement cost to determine how much coverage you need."
+            }
+          ]
         }
       ]
     },
@@ -86,7 +140,16 @@
         {
           "id": "sec_p6_L83",
           "title": "Travel insurance",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Travel insurance provides coverage for unexpected events that occur while you are travelling, including medical emergencies abroad, trip cancellation or interruption, lost or delayed luggage, and flight delays. Medical treatment in a foreign country can be extremely expensive—a simple emergency room visit in the US or Europe can cost thousands of dollars. Many Schengen-zone countries require proof of travel insurance before issuing a visa. Even for trips where it is not mandatory, the small premium (often just a few dollars per day) can save you from catastrophic out-of-pocket expenses."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Before your next trip, compare three travel insurance providers and check whether your credit card already offers any built-in travel protection."
+            }
+          ]
         }
       ]
     },
@@ -98,7 +161,16 @@
         {
           "id": "sec_p6_L84",
           "title": "Insurance exclusions",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Every insurance policy has exclusions—specific situations, conditions, or events that are not covered. Common exclusions include pre-existing medical conditions (in health insurance), intentional damage or fraud, acts of war, and wear-and-tear damage (in property or motor insurance). Many people discover these exclusions only when they try to file a claim, leading to frustrating denials. The exclusions section is arguably the most important part of any policy document because it tells you exactly when the insurer will refuse to pay. Always read this section carefully before purchasing any policy."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Pull out any insurance policy you currently hold and read the exclusions section. Note any surprises that you were not previously aware of."
+            }
+          ]
         }
       ]
     },
@@ -110,7 +182,16 @@
         {
           "id": "sec_p6_L85",
           "title": "Choosing insurance coverage",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Choosing the right insurance coverage involves balancing the premium cost against the financial risk you face. Start by identifying your biggest risks: if you are the sole breadwinner, life insurance is critical; if you drive daily, comprehensive motor insurance makes sense. Compare quotes from multiple providers and look beyond the premium—check the coverage limits, deductible amounts (the portion you pay before insurance kicks in), claim settlement reputation, and customer service quality. Avoid both under-insuring (which leaves you exposed) and over-insuring (which wastes money on coverage you do not need)."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Rank your personal risks from highest to lowest financial impact. Make sure your most critical risks have adequate insurance coverage."
+            }
+          ]
         }
       ]
     },
@@ -122,7 +203,16 @@
         {
           "id": "sec_p6_L86",
           "title": "Avoiding insurance fraud",
-          "blocks": []
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Insurance fraud occurs when someone deliberately deceives an insurance company to receive a payout they are not entitled to. This includes exaggerating the value of a claim, staging accidents, or providing false information on an application to get lower premiums. While it may seem like a victimless crime, fraud increases premiums for all honest policyholders because insurers pass the cost of fraudulent claims on to everyone. Beyond the ethical issues, insurance fraud is a criminal offense in most countries and can result in policy cancellation, fines, or imprisonment. Always be truthful in your applications and claims."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your insurance applications to ensure all information provided is accurate and up to date—honesty protects both your coverage and your reputation."
+            }
+          ]
         }
       ]
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useCourseProgress } from '@/store/courseProgressStore';
 import CourseHero from './CourseHero';
@@ -9,18 +9,22 @@ import type { CourseData } from '@/types/course';
 
 interface CourseContentProps {
   course: CourseData;
-  currentLessonIndex: number;
-  onNextLesson: () => void;
-  onPreviousLesson: () => void;
+  currentPage: number;
+  totalPages: number;
+  lessonsPerPage: number;
+  onNextPage: () => void;
+  onPreviousPage: () => void;
   onComplete: () => void;
   showHero: boolean;
 }
 
 export default function CourseContent({
   course,
-  currentLessonIndex,
-  onNextLesson,
-  onPreviousLesson,
+  currentPage,
+  totalPages,
+  lessonsPerPage,
+  onNextPage,
+  onPreviousPage,
   onComplete,
   showHero,
 }: CourseContentProps) {
@@ -28,35 +32,40 @@ export default function CourseContent({
   const isRtl = course.locale === 'ar';
   const { markSectionsComplete, isSectionComplete, loading } = useCourseProgress();
 
-  const lesson = course.lessons[currentLessonIndex];
+  const pageLessons = useMemo(() => {
+    const start = currentPage * lessonsPerPage;
+    return course.lessons.slice(start, start + lessonsPerPage);
+  }, [course, currentPage, lessonsPerPage]);
 
   useEffect(() => {
-    if (loading || !lesson) return;
-    const sectionIds = lesson.sections.map((s) => s.id);
+    if (loading || pageLessons.length === 0) return;
+    const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
     markSectionsComplete(sectionIds);
-  }, [currentLessonIndex, loading, lesson, markSectionsComplete]);
+  }, [currentPage, loading, pageLessons, markSectionsComplete]);
 
-  if (!lesson) return null;
+  if (pageLessons.length === 0) return null;
 
-  const isFirstLesson = currentLessonIndex === 0;
-  const isLastLesson = currentLessonIndex === course.lessons.length - 1;
+  const isFirstPage = currentPage === 0;
+  const isLastPage = currentPage === totalPages - 1;
+
+  const startLessonIndex = currentPage * lessonsPerPage;
 
   const handleNext = () => {
-    markSectionsComplete(lesson.sections.map((s) => s.id));
-    onNextLesson();
+    const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
+    markSectionsComplete(sectionIds);
+    onNextPage();
   };
 
   const handleComplete = () => {
-    markSectionsComplete(lesson.sections.map((s) => s.id));
+    const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
+    markSectionsComplete(sectionIds);
     onComplete();
   };
 
   return (
     <div style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
-      {/* Course hero -- shown on the first lesson */}
-      {showHero && isFirstLesson && <CourseHero course={course} />}
+      {showHero && isFirstPage && <CourseHero course={course} />}
 
-      {/* Lesson container */}
       <div
         style={{
           maxWidth: '800px',
@@ -64,51 +73,56 @@ export default function CourseContent({
           padding: 'var(--spacing-6) var(--spacing-4)',
         }}
       >
-        {/* Lesson header */}
-        <div
-          style={{
-            marginBottom: 'var(--spacing-5)',
-            paddingBottom: 'var(--spacing-3)',
-            borderBottom: '2px solid var(--color-accent-growth)',
-          }}
-        >
-          <span
-            style={{
-              fontSize: '0.6875rem',
-              fontWeight: 600,
-              color: 'var(--color-accent-growth)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            {isRtl
-              ? `الدرس ${currentLessonIndex + 1} من ${course.lessons.length}`
-              : `Lesson ${currentLessonIndex + 1} of ${course.lessons.length}`}
-          </span>
-          <h2
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: 'var(--color-text-primary)',
-              marginTop: '4px',
-              lineHeight: 1.3,
-            }}
-          >
-            {lesson.title}
-          </h2>
-        </div>
+        {pageLessons.map((lesson, pageIdx) => {
+          const globalIndex = startLessonIndex + pageIdx;
+          return (
+            <div key={lesson.lessonId} style={{ marginBottom: 'var(--spacing-6)' }}>
+              <div
+                style={{
+                  marginBottom: 'var(--spacing-5)',
+                  paddingBottom: 'var(--spacing-3)',
+                  borderBottom: '2px solid var(--color-accent-growth)',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '0.6875rem',
+                    fontWeight: 600,
+                    color: 'var(--color-accent-growth)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {isRtl
+                    ? `الدرس ${globalIndex + 1} من ${course.lessons.length}`
+                    : `Lesson ${globalIndex + 1} of ${course.lessons.length}`}
+                </span>
+                <h2
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 700,
+                    color: 'var(--color-text-primary)',
+                    marginTop: '4px',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {lesson.title}
+                </h2>
+              </div>
 
-        {/* All sections in this lesson -- continuous scroll */}
-        {lesson.sections.map((section, idx) => (
-          <LessonSectionContainer
-            key={section.id}
-            section={section}
-            sectionIndex={idx}
-            isRtl={isRtl}
-            completed={isSectionComplete(section.id)}
-            alternateBackground={idx % 2 === 1}
-          />
-        ))}
+              {lesson.sections.map((section, idx) => (
+                <LessonSectionContainer
+                  key={section.id}
+                  section={section}
+                  sectionIndex={idx}
+                  isRtl={isRtl}
+                  completed={isSectionComplete(section.id)}
+                  alternateBackground={idx % 2 === 1}
+                />
+              ))}
+            </div>
+          );
+        })}
 
         {/* Navigation buttons */}
         <div
@@ -121,7 +135,7 @@ export default function CourseContent({
             borderTop: '2px solid var(--color-border-subtle)',
           }}
         >
-          {isLastLesson ? (
+          {isLastPage ? (
             <button
               type="button"
               onClick={handleComplete}
@@ -166,17 +180,17 @@ export default function CourseContent({
                 gap: '8px',
               }}
             >
-              {intl.formatMessage({ id: 'learn.course.next_section', defaultMessage: 'Next Section' })}
+              {intl.formatMessage({ id: 'learn.course.next', defaultMessage: 'Next' })}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points={isRtl ? '15 18 9 12 15 6' : '9 18 15 12 9 6'} />
               </svg>
             </button>
           )}
 
-          {!isFirstLesson && (
+          {!isFirstPage && (
             <button
               type="button"
-              onClick={onPreviousLesson}
+              onClick={onPreviousPage}
               style={{
                 width: '100%',
                 padding: '12px 24px',
@@ -196,7 +210,7 @@ export default function CourseContent({
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points={isRtl ? '9 18 15 12 9 6' : '15 18 9 12 15 6'} />
               </svg>
-              {intl.formatMessage({ id: 'learn.course.previous_section', defaultMessage: 'Previous Section' })}
+              {intl.formatMessage({ id: 'learn.course.previous', defaultMessage: 'Previous' })}
             </button>
           )}
         </div>
