@@ -120,7 +120,6 @@ export default function CourseViewerPage() {
 
   return (
     <CourseProgressProvider course={course}>
-      {/* Course page wrapper -- position:relative so sidebar is scoped here */}
       <div
         style={{
           position: 'relative',
@@ -132,7 +131,7 @@ export default function CourseViewerPage() {
         }}
         className="course-viewer-responsive"
       >
-        {/* Sidebar drawer -- positioned within this container */}
+        {/* Sidebar drawer */}
         <CourseSidebar
           course={course}
           activeSectionId={activeSectionId}
@@ -141,7 +140,7 @@ export default function CourseViewerPage() {
           onToggle={() => setSidebarOpen((o) => !o)}
         />
 
-        {/* Top bar */}
+        {/* Top bar with sidebar toggle */}
         <div
           style={{
             display: 'flex',
@@ -151,29 +150,64 @@ export default function CourseViewerPage() {
             borderBottom: '1px solid var(--color-border-subtle)',
             background: 'var(--color-bg-surface-1)',
             flexShrink: 0,
-            zIndex: 1,
+            zIndex: 11,
+            position: 'relative',
           }}
         >
-          <button
-            type="button"
-            onClick={() => router.push('/learn')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-text-secondary)',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              cursor: 'pointer',
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points={isRtl ? '9 18 15 12 9 6' : '15 18 9 12 15 6'} />
-            </svg>
-            {intl.formatMessage({ id: 'learn.course.back_to_courses', defaultMessage: 'Back to Learn' })}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Sidebar toggle button -- always visible in the top bar */}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((o) => !o)}
+              aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '36px',
+                height: '36px',
+                background: sidebarOpen ? 'var(--color-accent-growth-subtle)' : 'var(--color-divider)',
+                border: sidebarOpen ? '1px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={sidebarOpen ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {sidebarOpen ? (
+                  <path d="M18 6L6 18M6 6l12 12" />
+                ) : (
+                  <>
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                  </>
+                )}
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/learn')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-text-secondary)',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points={isRtl ? '9 18 15 12 9 6' : '15 18 9 12 15 6'} />
+              </svg>
+              {intl.formatMessage({ id: 'learn.course.back_to_courses', defaultMessage: 'Back to Learn' })}
+            </button>
+          </div>
 
           <button
             type="button"

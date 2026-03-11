@@ -11,6 +11,7 @@ import type { CourseData } from '@/types/course';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/store/authStore';
 import { useStore } from '@/store/useStore';
+import { getAllLocalProgress } from '@/store/courseProgressStore';
 
 /* ============================================
    LEARN PAGE
@@ -1152,27 +1153,49 @@ function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    const map: Record<string, number> = {};
+    const localProgress = getAllLocalProgress();
+    for (const course of courses) {
+      const localData = localProgress[course.courseId];
+      if (localData) {
+        const total = getTotalSections(course);
+        const done = localData.completedSectionIds?.length ?? 0;
+        map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
+      }
+    }
+    setProgressMap((prev) => ({ ...prev, ...map }));
+
     if (!initialized || !user) return;
 
     const fetchProgress = async () => {
-      const { data } = await supabase
-        .from('course_progress')
-        .select('course_id, completed_section_ids, locale')
-        .eq('user_id', user.id)
-        .eq('locale', language);
+      try {
+        const { data } = await supabase
+          .from('course_progress')
+          .select('course_id, completed_section_ids, locale')
+          .eq('user_id', user.id)
+          .eq('locale', language);
 
-      if (!data) return;
+        if (!data) return;
 
-      const map: Record<string, number> = {};
-      for (const row of data) {
-        const course = courses.find((c) => c.courseId === row.course_id);
-        if (course) {
-          const total = getTotalSections(course);
-          const done = (row.completed_section_ids as string[])?.length ?? 0;
-          map[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+        const supaMap: Record<string, number> = {};
+        for (const row of data) {
+          const course = courses.find((c) => c.courseId === row.course_id);
+          if (course) {
+            const total = getTotalSections(course);
+            const done = (row.completed_section_ids as string[])?.length ?? 0;
+            supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+          }
         }
+        setProgressMap((prev) => {
+          const merged = { ...prev };
+          for (const [k, v] of Object.entries(supaMap)) {
+            merged[k] = Math.max(merged[k] ?? 0, v);
+          }
+          return merged;
+        });
+      } catch {
+        // Supabase unavailable; localStorage data already loaded
       }
-      setProgressMap(map);
     };
 
     fetchProgress();
@@ -1327,27 +1350,49 @@ function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> })
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    const map: Record<string, number> = {};
+    const localProgress = getAllLocalProgress();
+    for (const course of courses) {
+      const localData = localProgress[course.courseId];
+      if (localData) {
+        const total = getTotalSections(course);
+        const done = localData.completedSectionIds?.length ?? 0;
+        map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
+      }
+    }
+    setProgressMap((prev) => ({ ...prev, ...map }));
+
     if (!initialized || !user) return;
 
     const fetchProgress = async () => {
-      const { data } = await supabase
-        .from('course_progress')
-        .select('course_id, completed_section_ids, locale')
-        .eq('user_id', user.id)
-        .eq('locale', language);
+      try {
+        const { data } = await supabase
+          .from('course_progress')
+          .select('course_id, completed_section_ids, locale')
+          .eq('user_id', user.id)
+          .eq('locale', language);
 
-      if (!data) return;
+        if (!data) return;
 
-      const map: Record<string, number> = {};
-      for (const row of data) {
-        const course = courses.find((c) => c.courseId === row.course_id);
-        if (course) {
-          const total = getTotalSections(course);
-          const done = (row.completed_section_ids as string[])?.length ?? 0;
-          map[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+        const supaMap: Record<string, number> = {};
+        for (const row of data) {
+          const course = courses.find((c) => c.courseId === row.course_id);
+          if (course) {
+            const total = getTotalSections(course);
+            const done = (row.completed_section_ids as string[])?.length ?? 0;
+            supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+          }
         }
+        setProgressMap((prev) => {
+          const merged = { ...prev };
+          for (const [k, v] of Object.entries(supaMap)) {
+            merged[k] = Math.max(merged[k] ?? 0, v);
+          }
+          return merged;
+        });
+      } catch {
+        // Supabase unavailable; localStorage data already loaded
       }
-      setProgressMap(map);
     };
 
     fetchProgress();

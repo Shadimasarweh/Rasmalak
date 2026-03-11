@@ -25,45 +25,7 @@ export default function CourseSidebar({
 
   return (
     <>
-      {/* Toggle button */}
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-label={open ? 'Close sidebar' : 'Open sidebar'}
-        style={{
-          position: 'absolute',
-          top: '8px',
-          [isRtl ? 'right' : 'left']: open ? '280px' : '0',
-          zIndex: 12,
-          width: '36px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--color-bg-surface-1)',
-          border: '1px solid var(--color-border-subtle)',
-          borderRadius: isRtl
-            ? 'var(--radius-sm) 0 0 var(--radius-sm)'
-            : '0 var(--radius-sm) var(--radius-sm) 0',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          boxShadow: 'var(--shadow-md)',
-        }}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          {open ? (
-            <path d="M18 6L6 18M6 6l12 12" />
-          ) : (
-            <>
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </>
-          )}
-        </svg>
-      </button>
-
-      {/* Click-away area (mobile only — on desktop the sidebar coexists with content) */}
+      {/* Mobile-only backdrop -- on desktop the sidebar coexists with content */}
       {open && (
         <div
           onClick={onToggle}
