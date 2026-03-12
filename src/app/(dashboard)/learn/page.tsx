@@ -1163,7 +1163,12 @@ function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }
         map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
       }
     }
-    setProgressMap((prev) => ({ ...prev, ...map }));
+    if (Object.keys(map).length > 0) {
+      setProgressMap((prev) => {
+        const hasChanges = Object.entries(map).some(([k, v]) => prev[k] !== v);
+        return hasChanges ? { ...prev, ...map } : prev;
+      });
+    }
 
     if (!initialized || !user) return;
 
@@ -1175,7 +1180,7 @@ function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }
           .eq('user_id', user.id)
           .eq('locale', language);
 
-        if (!data) return;
+        if (!data || data.length === 0) return;
 
         const supaMap: Record<string, number> = {};
         for (const row of data) {
@@ -1186,12 +1191,18 @@ function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }
             supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
           }
         }
+        if (Object.keys(supaMap).length === 0) return;
         setProgressMap((prev) => {
+          let changed = false;
           const merged = { ...prev };
           for (const [k, v] of Object.entries(supaMap)) {
-            merged[k] = Math.max(merged[k] ?? 0, v);
+            const best = Math.max(merged[k] ?? 0, v);
+            if (merged[k] !== best) {
+              merged[k] = best;
+              changed = true;
+            }
           }
-          return merged;
+          return changed ? merged : prev;
         });
       } catch {
         // Supabase unavailable; localStorage data already loaded
@@ -1360,7 +1371,12 @@ function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> })
         map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
       }
     }
-    setProgressMap((prev) => ({ ...prev, ...map }));
+    if (Object.keys(map).length > 0) {
+      setProgressMap((prev) => {
+        const hasChanges = Object.entries(map).some(([k, v]) => prev[k] !== v);
+        return hasChanges ? { ...prev, ...map } : prev;
+      });
+    }
 
     if (!initialized || !user) return;
 
@@ -1372,7 +1388,7 @@ function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> })
           .eq('user_id', user.id)
           .eq('locale', language);
 
-        if (!data) return;
+        if (!data || data.length === 0) return;
 
         const supaMap: Record<string, number> = {};
         for (const row of data) {
@@ -1383,12 +1399,18 @@ function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> })
             supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
           }
         }
+        if (Object.keys(supaMap).length === 0) return;
         setProgressMap((prev) => {
+          let changed = false;
           const merged = { ...prev };
           for (const [k, v] of Object.entries(supaMap)) {
-            merged[k] = Math.max(merged[k] ?? 0, v);
+            const best = Math.max(merged[k] ?? 0, v);
+            if (merged[k] !== best) {
+              merged[k] = best;
+              changed = true;
+            }
           }
-          return merged;
+          return changed ? merged : prev;
         });
       } catch {
         // Supabase unavailable; localStorage data already loaded
