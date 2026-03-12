@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useRouter } from 'next/navigation';
 import { FilterPanel } from '@/components/filters';
@@ -1149,7 +1149,7 @@ function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
 
-  const courses = getAllCourses(language);
+  const courses = useMemo(() => getAllCourses(language), [language]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -1346,7 +1346,7 @@ function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> })
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
 
-  const courses = getAllCourses(language);
+  const courses = useMemo(() => getAllCourses(language), [language]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
