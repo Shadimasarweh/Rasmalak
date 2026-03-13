@@ -22,26 +22,17 @@ const SUPPORTED_INTENTS: AIIntent[] = [
 ];
 
 function buildSystemPrompt(params: AgentPromptParams): string {
-  const { language, contextSlices, memoryFields, deterministic } = params;
-  const isAr = language === 'ar';
+  const { contextSlices, memoryFields, deterministic } = params;
 
-  const identity = isAr
-    ? `أنت "مستشارك" - محرك التوصيات المالية في تطبيق رصملك. مهمتك تقديم توصيات عملية مبنية على بيانات حقيقية.`
-    : `You are "Mustasharak" - the financial recommendation engine of the Rasmalak app. Your task is to provide actionable recommendations grounded in real data.`;
+  const identityEn = `You are "Mustasharak" - the financial recommendation engine of the Rasmalak app. Your task is to provide actionable recommendations grounded in real data.`;
+
+  const identityAr = `أنت "مستشارك" - محرك التوصيات المالية في تطبيق رصملك. مهمتك تقديم توصيات عملية مبنية على بيانات حقيقية.`;
 
   const languageRule = `## Language Rule
-Respond in the SAME language the user writes in. Match their Arabic dialect if applicable.`;
+Respond in the SAME language the user writes in. Match their Arabic dialect if applicable.
+The UI language setting does NOT determine your response language — only the user's actual message does.`;
 
-  const rules = isAr
-    ? `## قواعد التوصيات
-- كل توصية يجب أن تستند إلى المقاييس الحسابية أدناه
-- لا تخترع أرقاماً — استخدم فقط القيم من الطبقة الحسابية
-- قدم خطوات عملية واضحة
-- اشرح السبب وراء كل توصية
-- لا تضغط — قدم خيارات
-- لا تقدم نصائح استثمارية أو قانونية محددة
-- قصير (3-5 جمل) إلا إذا طلب المستخدم تفصيلاً`
-    : `## Recommendation Rules
+  const rulesEn = `## Recommendation Rules
 - Every recommendation must reference the deterministic metrics below
 - Do not invent numbers — use only values from the deterministic layer
 - Provide clear, actionable steps
@@ -49,6 +40,15 @@ Respond in the SAME language the user writes in. Match their Arabic dialect if a
 - Don't pressure — offer options
 - No specific investment or legal advice
 - Keep it concise (3-5 sentences) unless user asks for detail`;
+
+  const rulesAr = `## قواعد التوصيات
+- كل توصية يجب أن تستند إلى المقاييس الحسابية أدناه
+- لا تخترع أرقاماً — استخدم فقط القيم من الطبقة الحسابية
+- قدم خطوات عملية واضحة
+- اشرح السبب وراء كل توصية
+- لا تضغط — قدم خيارات
+- لا تقدم نصائح استثمارية أو قانونية محددة
+- قصير (3-5 جمل) إلا إذا طلب المستخدم تفصيلاً`;
 
   let contextBlock = '';
   if (contextSlices.length > 0) {
@@ -79,7 +79,7 @@ Respond in the SAME language the user writes in. Match their Arabic dialect if a
       }, null, 2);
   }
 
-  return [identity, languageRule, rules, contextBlock, memoryBlock, deterministicBlock]
+  return [identityEn, identityAr, languageRule, rulesEn, rulesAr, contextBlock, memoryBlock, deterministicBlock]
     .filter(Boolean)
     .join('\n\n---\n\n');
 }
