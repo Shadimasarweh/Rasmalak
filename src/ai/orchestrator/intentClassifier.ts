@@ -198,6 +198,26 @@ const PATTERN_RULES: PatternRule[] = [
     confidence: 0.75,
   },
 
+  // General financial knowledge & education
+  {
+    intent: 'general_financial_knowledge',
+    patterns: [
+      /what (is|are|does|do)\b.*\b(apr|apy|roi|etf|ipo|gdp|p\/e|fico|kyc|aml)\b/i,
+      /what (is|are|does|do)\b.*\b(interest|dividend|mortgage|equity|bond|stock|asset|liability|portfolio|annuity|amortization|depreciation|capital|collateral|credit|debit|deductible|premium|principal|yield|liquidity|solvency|leverage|hedge|derivative|commodity|security|insurance|pension|retirement|trust|escrow|lien|foreclosure|bankruptcy|refinanc)/i,
+      /what (is|are|does|do)\b.*\b(mutual fund|index fund|hedge fund|exchange.traded|money market|certificate of deposit|treasury|checking account|savings account|fixed deposit|credit card|debit card|overdraft|line of credit|balance sheet|income statement|cash flow|net worth|compound interest|simple interest|risk tolerance|asset allocation|dollar cost|emergency fund|sinking fund|bear market|bull market|market cap|blue chip|penny stock)/i,
+      /how (do|does|can|should|would)\b.*\b(interest|mortgage|loan|credit|insurance|tax|invest|stock|bond|dividend|inflation|budget|retire|pension|annuit|amortiz|refinanc|diversif|compound|depreciat)/i,
+      /how (do|does|can|should|would)\b.*\b(credit card|bank|saving|mutual fund|index fund|balance sheet|stock market|real estate|financial plan)/i,
+      /(difference|differ)\b.*\b(between|and)\b.*\b(stock|bond|saving|checking|debit|credit|roth|traditional|fixed|variable|simple|compound|asset|liability|etf|mutual|term|whole|401k|ira)/i,
+      /(teach|learn|understand|know about|educate|guide|tutor|help me understand|can you explain|could you explain|please explain|tell me about|talk about|walk me through)\b.*\b(financ|money|invest|saving|budget|credit|debt|loan|tax|insurance|retire|pension|stock|bond|mutual fund|interest|inflation|economy|banking|mortgage|portfolio|risk|wealth|income|expense|asset|capital)/i,
+      /(كيف|شلون|ازاي) (تعمل|يعمل|تشتغل|يشتغل|بتشتغل|بيشتغل) (ال)?(فائدة|بطاقة|ائتمان|بنك|تأمين|ضريبة|استثمار|سهم|سند|صندوق|قرض|رهن)/i,
+      /(شو|ايش|ما) هو (ال)?(تنويع|تحوط|سيولة|رافعة|مشتقات|سلع|أوراق مالية|تأمين|تقاعد|أسهم|سندات|صناديق|عائد|ربح|خسارة|مخاطر|محفظة|فائدة بسيطة|فائدة مركبة|تضخم|انكماش|ركود|كساد)/i,
+      /(tips?|advice|strategies|ways|methods|steps|basics|fundamentals|guide|introduction|intro) (for|to|on|about|of)\b.*\b(financ|money|invest|saving|budget|credit|debt|loan|retire|insurance|tax|wealth|personal finance)/i,
+      /(نصائح|نصيحة|طرق|أساسيات|مبادئ|أسس|مقدمة|دليل) (في|عن|حول|لل|ل)(الاستثمار|التوفير|الادخار|المال|التقاعد|التأمين|الضرائب|الديون|القروض|الائتمان|المالية|إدارة الأموال)/i,
+      /\b(pros? and cons?|advantages? and disadvantages?|benefits? and risks?)\b.*\b(invest|saving|loan|mortgage|insurance|credit|stock|bond|fund|annuit|lease|rent)/i,
+    ],
+    confidence: 0.75,
+  },
+
   // Learning recommendation
   {
     intent: 'learning_recommendation',
@@ -256,9 +276,25 @@ export function classifyIntent(message: string): IntentClassification {
     };
   }
 
-  // Out of scope detection
-  const financialKeywords = /\b(مال|فلوس|مصاري|دفع|صرف|ادخر|وفر|ميزانية|راتب|هدف|money|spend|save|budget|salary|goal|income|expense|debt|loan|invest)\b/i;
+  // Out of scope detection — broad financial vocabulary so educational
+  // questions about finance are NOT treated as out-of-scope.
+  const financialKeywords = /\b(مال|فلوس|مصاري|دفع|صرف|ادخر|وفر|ميزانية|راتب|هدف|ضريب|تأمين|استثمار|تقاعد|سهم|سند|صندوق|رهن|ائتمان|فائدة|تضخم|ديون|قرض|ربح|خسارة|مخاطر|محفظة|بنك|عقار|إيجار|تنويع|أصول|رأس مال|دخل|نفقات|عائد|سيولة|money|spend|save|budget|salary|goal|income|expense|debt|loan|invest|credit|interest|mortgage|tax|insurance|retire|pension|stock|bond|fund|dividend|inflation|finance|financial|bank|asset|liability|equity|portfolio|wealth|capital|amortiz|compound|apr|apy|roi|etf|ipo|annuit|premium|deductible|escrow|foreclos|refinanc|diversif|liquidity|leverage|hedge|derivative|commodity|security|yield|principal|collateral|net worth|cash flow|balance sheet|mutual fund|index fund|real estate|credit card|debit card|checking|savings account|certificate|treasury|overdraft|depreciat|solvenc|bankrupt)\b/i;
+
   if (!financialKeywords.test(trimmed)) {
+    // Also check for educational question patterns about any topic
+    // that might be financial in nature
+    const educationalPattern = /\b(what is|what are|what does|how does|how do|explain|define|meaning of|tell me about|teach me|help me understand|شو يعني|ايش يعني|كيف يعمل|كيف تعمل|اشرح|فسر|علمني)\b/i;
+
+    if (educationalPattern.test(trimmed)) {
+      return {
+        intent: 'general_financial_knowledge',
+        confidence: 'low',
+        confidenceScore: 0.5,
+        entities: [],
+        needsClarification: false,
+      };
+    }
+
     return {
       intent: 'out_of_scope',
       confidence: 'medium',
@@ -269,11 +305,10 @@ export function classifyIntent(message: string): IntentClassification {
   }
 
   return {
-    intent: 'unclear',
+    intent: 'general_financial_knowledge',
     confidence: 'low',
-    confidenceScore: 0.4,
+    confidenceScore: 0.5,
     entities: [],
-    needsClarification: true,
-    clarificationQuestion: 'Can you tell me more about what you need?',
+    needsClarification: false,
   };
 }
