@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+rasmalak-app/node_modules
+rasmalak-app/.next
 /.pnp
 .pnp.*
 .yarn/*

@@ -1,0 +1,110 @@
+{
+  "courseId": "budgeting_money_management_advanced_en",
+  "locale": "en",
+  "title": "Budgeting & Money Management",
+  "description": "Master zero-based budgeting, cash flow analysis, sinking funds, and impulse control strategies.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p2_adv_L1_en",
+      "title": "The Wealth-Flow Architecture",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p2_adv_L1",
+          "title": "The Wealth-Flow Architecture",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At this level, you treat personal finance like a corporation. You establish a \"Primary Liquidity Layer\" for operations (cash), a \"Strategic Growth Layer\" for expansion (equities and private business), and a \"Legacy Layer\" for preservation (real estate and trusts). Your budget is not about restriction; it is about \"Capital Allocation.\""
+            },
+            {
+              "type": "p",
+              "text": "Advanced users implement a Fixed Savings Rate that is automated to exit the spending account the moment income arrives. You don't manage expenses; you manage the \"spread\" between your cost of living and your total capital production. By optimizing this flow, you ensure that every riyal or dinar you earn is routed through the most tax-efficient and high-growth channels possible before it is ever considered for consumption."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Map out your \"Wealth-Flow\" diagram from income through tax-advantaged accounts into asset layers."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_adv_L2_en",
+      "title": "Managing Black Swan Risks",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p2_adv_L2",
+          "title": "Managing Black Swan Risks",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced planning accounts for \"Black Swans\"—rare, unpredictable events with catastrophic impacts, such as sudden currency collapses or global geopolitical shifts. Standard budgets assume the world will continue as it is today; advanced budgets assume that everything could change tomorrow. This requires a \"Tail Risk\" strategy, ensuring that you have a \"Lifeboat\" of assets that are completely uncorrelated to the local economy."
+            },
+            {
+              "type": "p",
+              "text": "This lifeboat should include highly liquid assets like physical gold or offshore stablecoins held in jurisdictions with strong legal protections. This is not about being a \"doomsday prepper\"; it is about institutional-grade resilience. By ensuring your family can survive even if the local banking system freezes or the local currency devalues by 50%, you gain the psychological peace of mind to take bigger, calculated risks in your primary business."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Stress test your budget: if income vanished for 18 months and currency devalued by 50%, which assets would save you?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_adv_L3_en",
+      "title": "Hedging Your Cost of Living",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p2_adv_L3",
+          "title": "Hedging Your Cost of Living",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If your future major expenses are in foreign currency—such as sending children to university in the UK or USA—your budget is at the mercy of exchange rates. A move from 1.4 to 1.2 in a currency pair could cost you tens of thousands in extra tuition. Advanced budgeting involves \"matching\" your assets to your future liabilities."
+            },
+            {
+              "type": "p",
+              "text": "This strategy, used by pension funds, involves holding a portion of your budget in the currency or asset class of your future expense. By buying GBP or USD denominated bonds or property now, you \"lock in\" the cost of that future education today. You effectively remove the \"Exchange Rate Risk\" from your life, ensuring that no matter what happens to your local currency, your child's education and your family's future are already paid for."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List your top three future \"Life Milestone\" expenses and calculate your exchange rate exposure."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_adv_L4_en",
+      "title": "Tax-Loss Harvesting and Fiscal Optimization",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p2_adv_L4",
+          "title": "Tax-Loss Harvesting and Fiscal Optimization",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In an advanced budget, taxes are a variable cost, not a fixed one. Tax-loss harvesting is the strategic act of selling an investment that is currently at a loss to \"offset\" the capital gains taxes you owe on your winning investments. This is a common practice among high-net-worth investors to lower their effective tax rate while keeping their portfolio's risk profile the same."
+            },
+            {
+              "type": "p",
+              "text": "By realizing losses at the end of a fiscal year, you can reduce your total tax bill to near zero, effectively keeping more capital in your wealth flow for reinvestment. You can then immediately buy a similar (but not identical) asset to maintain your market position. This turns a temporary market downturn into a permanent tax advantage, accelerating the compounding effect of your wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your portfolio for \"underwater\" positions and calculate potential tax savings."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

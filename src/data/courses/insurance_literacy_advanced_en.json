@@ -1,0 +1,110 @@
+{
+  "courseId": "insurance_literacy_advanced_en",
+  "locale": "en",
+  "title": "Insurance Literacy",
+  "description": "Understand key person insurance, parametric coverage, captive entities, and estate tax planning.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p6_adv_L1_en",
+      "title": "Key Person Insurance and Buy-Sell Agreements",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p6_adv_L1",
+          "title": "Key Person Insurance and Buy-Sell Agreements",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For business owners and SMEs, the greatest risk is often the loss of a \"Key Person\"—a founder or lead engineer whose absence would cripple the company. Key Person Insurance provides a cash injection to the business to cover the loss of profits and the cost of finding a replacement. It ensures the company's survival during a crisis."
+            },
+            {
+              "type": "p",
+              "text": "Furthermore, advanced partners use Buy-Sell Agreements funded by life insurance. If one partner passes away, the insurance payout allows the surviving partner to buy out the deceased partner’s shares from their heirs at a fair price. This prevents the heirs (who may not know the business) from becoming accidental owners and ensures the business continues to operate smoothly without legal battles over ownership."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you have business partners, check if your current legal agreements specify what happens to shares in the event of death or disability."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_adv_L2_en",
+      "title": "Reinsurance and Parametric Insurance",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p6_adv_L2",
+          "title": "Reinsurance and Parametric Insurance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the advanced level, you look at how the insurance industry itself manages risk through Reinsurance. More importantly for high-stakes projects, Parametric Insurance is a modern tool that pays out a pre-defined amount based on a specific trigger—like a specific earthquake magnitude or a drop in hotel occupancy—rather than an assessment of actual damage."
+            },
+            {
+              "type": "p",
+              "text": "This provides immediate liquidity without the months of legal waiting and adjusting typical of standard claims. For a business in the MENA region, parametric insurance can protect against \"Climate Risk\" or \"Geopolitical Tourism Drops.\" This is \"High-Speed Risk Management\" for the global elite, ensuring that your business has the cash it needs the moment a pre-defined disaster occurs."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"Parametric Insurance\" providers in the MENA region and see if there is a specific trigger relevant to your industry."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_adv_L3_en",
+      "title": "Captive Insurance for Multi-National Assets",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p6_adv_L3",
+          "title": "Captive Insurance for Multi-National Assets",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For ultra-high-net-worth individuals or large SMEs, standard insurance is often too restrictive or expensive. Advanced strategy involves setting up a Captive Insurance Company—your own licensed insurance company that insures your other businesses. This allows you to customize the coverage exactly to your needs and keep the underwriting profits that would otherwise go to an external insurer."
+            },
+            {
+              "type": "p",
+              "text": "Captives are often housed in tax-efficient jurisdictions and can provide a powerful way to manage global risks across different countries. It turns \"Insurance Expense\" into \"Corporate Wealth.\" By managing your own risk pool, you can significantly lower your total cost of risk and create a new profit center within your family or business empire. It is the gold standard of corporate financial engineering."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the \"Minimum Capital Requirements\" for setting up a captive insurance entity in a hub like the UAE or Bermuda."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p6_adv_L4_en",
+      "title": "Advanced Estate Tax Insurance Strategies",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p6_adv_L4",
+          "title": "Advanced Estate Tax Insurance Strategies",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In many jurisdictions, \"Death Taxes\" or \"Inheritance Taxes\" can take up to 40% of a large estate. Advanced planning uses life insurance placed inside an Irrevocable Trust to pay these taxes. This ensures that your heirs don't have to sell the family business or prime real estate just to pay the government."
+            },
+            {
+              "type": "p",
+              "text": "By using the insurance payout to \"liquify\" the tax bill, the estate remains intact for the next generation. This is a crucial step in \"Generational Wealth Preservation.\" Even in regions without direct inheritance tax, these structures can be used to manage \"Zakat\" obligations on large portfolios or to ensure that specific heirs are taken care of without disrupting the primary business holdings."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Consult with a trust lawyer or estate planner. Estimate the potential \"liquidity crunch\" your heirs would face if they had to pay all inheritance obligations within 6 months."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

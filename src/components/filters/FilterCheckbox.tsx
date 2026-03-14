@@ -12,6 +12,10 @@ interface FilterCheckboxProps {
 export function FilterCheckbox({ label, checked, onChange, icon }: FilterCheckboxProps) {
   return (
     <label
+      onClick={(e) => {
+        e.preventDefault();
+        onChange();
+      }}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -31,12 +35,8 @@ export function FilterCheckbox({ label, checked, onChange, icon }: FilterCheckbo
           : 'transparent';
       }}
     >
-      {/* Custom checkbox */}
+      {/* Custom checkbox - label onClick handles toggle for whole row */}
       <span
-        onClick={(e) => {
-          e.preventDefault();
-          onChange();
-        }}
         style={{
           display: 'inline-flex',
           alignItems: 'center',

@@ -1,0 +1,123 @@
+{
+  "courseId": "saving_emergency_planning_intermediate_en",
+  "locale": "en",
+  "title": "Saving & Emergency Planning",
+  "description": "Optimize your savings with high-yield accounts, tiered emergency funds, and opportunity cost analysis.",
+  "level": "intermediate",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p3_int_L1_en",
+      "title": "High-Yield Savings and Money Market Funds",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p3_int_L1",
+          "title": "High-Yield Savings and Money Market Funds",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Once you have a basic savings habit, the next step is maximizing the yield on your liquid cash. Intermediate savers move beyond standard savings accounts—which often offer near-zero returns—and explore High-Yield Savings Accounts (HYSA) or Money Market Funds (MMF). These instruments provide higher interest or profit-sharing rates while maintaining the \"liquidity\" needed for an emergency fund. By earning an extra 2% to 4% on your cash, you significantly reduce the amount inflation \"steals\" from your safety net every year."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Compare the annual profit rate of your current savings account with at least two Money Market Funds or High-Yield options available in your region."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_int_L2_en",
+      "title": "Tiering Your Emergency Fund",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p3_int_L2",
+          "title": "Tiering Your Emergency Fund",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A 6-month emergency fund is a large amount of cash to keep in one place. Intermediate planning involves \"tiering\" this fund. You keep 1 month of expenses in a standard instant-access account for immediate crises. The remaining 5 months can be placed in slightly less liquid but higher-earning instruments, like short-term Certificates of Deposit (CDs) or Term Deposits. This strategy ensures you have \"cash under the mattress\" for tonight's emergency while the rest of your safety net works harder for your future."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Decide on a \"Tier 1\" amount (immediate cash) and a \"Tier 2\" amount (higher-earning) for your total emergency fund."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_int_L3_en",
+      "title": "Opportunity Cost of Over-Saving",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p3_int_L3",
+          "title": "Opportunity Cost of Over-Saving",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Believe it or not, you can save too much. If your emergency fund covers 24 months of expenses but sits in a low-interest account, you are suffering from a high \"Opportunity Cost.\" That excess cash could be invested in stocks or real estate where it might earn 7% to 10% annually. Intermediate savers learn to find the \"Sweet Spot\"—having enough for security, but not so much that they miss out on the long-term wealth created by investing."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If your emergency fund exceeds 6 months of expenses, calculate how much that \"excess\" would be worth in 10 years if it were invested in a diversified stock index instead."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_int_L4_en",
+      "title": "High-Yield Savings and Money Market Funds",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p3_int_L4",
+          "title": "High-Yield Savings and Money Market Funds",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Once you have a basic savings habit, the next step is maximizing the yield on your liquid cash. Intermediate savers move beyond standard savings accounts—which often offer near-zero returns—and explore High-Yield Savings Accounts (HYSA) or Money Market Funds (MMF). These instruments provide higher interest or profit-sharing rates while maintaining the \"liquidity\" needed for an emergency fund. By earning an extra 2% to 4% on your cash, you significantly reduce the amount inflation \"steals\" from your safety net every year."
+            },
+            {
+              "type": "p",
+              "text": "Furthermore, MMFs are professional-grade tools that invest in short-term government debt and high-quality corporate bonds. They offer a balance between safety and return that is superior to standard banking products. By shifting your emergency fund into these vehicles, you ensure that your \"safety net\" is not just a passive bucket of cash, but an active asset that grows while remaining available for immediate withdrawal."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Compare the annual profit rate of your current savings account with at least two Money Market Funds or High-Yield options available in your region."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_int_L5_en",
+      "title": "Tiering Your Emergency Fund",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p3_int_L5",
+          "title": "Tiering Your Emergency Fund",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A 6-month emergency fund is a large amount of cash to keep in one place. Intermediate planning involves \"tiering\" this fund to optimize both accessibility and growth. You keep 1 month of expenses in a standard instant-access account for immediate crises—like a car repair or medical bill. The remaining 5 months can be placed in slightly less liquid but higher-earning instruments, like short-term Certificates of Deposit (CDs) or Term Deposits."
+            },
+            {
+              "type": "p",
+              "text": "This strategy ensures you have \"cash under the mattress\" for tonight's emergency while the rest of your safety net works harder for your future. If a true catastrophe occurs (like job loss), you have 30 days of breathing room to break the term deposits without feeling a liquidity crunch. Tiering prevents the \"Opportunity Cost\" of leaving large sums of money in low-interest accounts, allowing your security layer to contribute to your overall wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Decide on a \"Tier 1\" amount (immediate cash) and a \"Tier 2\" amount (higher-earning) for your total emergency fund."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

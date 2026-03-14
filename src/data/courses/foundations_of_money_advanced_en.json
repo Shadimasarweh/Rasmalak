@@ -1,0 +1,110 @@
+{
+  "courseId": "foundations_of_money_advanced_en",
+  "locale": "en",
+  "title": "Foundations of Money",
+  "description": "Deepen your understanding of macroeconomic forces, time value of money, and advanced financial psychology.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p1_adv_L1_en",
+      "title": "Macroeconomic Indicators and Personal Strategy",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p1_adv_L1",
+          "title": "Macroeconomic Indicators and Personal Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced financial mastery requires reading global \"economic weather.\" You must move beyond local prices to understand Fiscal Policy (government spending and taxation) and Monetary Policy (central bank interest rates and money supply). In the MENA region, understanding the \"USD Peg\" is critical; since many local currencies are fixed to the Dollar, if the US Federal Reserve raises rates, your local cost of borrowing follows regardless of local economic health."
+            },
+            {
+              "type": "p",
+              "text": "An advanced thinker positions their wealth ahead of these macro cycles. This involves moving into \"Defensive Assets\" like gold or short-term bonds when indicators suggest a recession is looming, and shifting back into \"Aggressive Assets\" like equities or private equity at the first sign of a recovery. By understanding the lag between a policy change and its impact on the ground, you can protect your principal while others are blindsided by market volatility."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your Central Bank’s latest report. Identify if current policy is \"Expansionary\" or \"Contractionary.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_adv_L2_en",
+      "title": "The Cantillon Effect and Asset Inflation",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p1_adv_L2",
+          "title": "The Cantillon Effect and Asset Inflation",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Cantillon Effect describes how the first recipients of \"new money\"—typically big banks and large institutions—benefit more than those who receive it much later, such as employees and small savers. This happens because the early recipients can spend the money before prices have risen across the economy. By the time the money reaches the average consumer, the prices of goods and assets have already inflated, effectively transferring wealth from the \"late recipients\" to the \"early recipients.\""
+            },
+            {
+              "type": "p",
+              "text": "Advanced users recognize that holding labor-based income (salary) is a losing strategy during periods of high money supply. To preserve your family's multi-generational wealth, you must convert \"soft\" currency into \"hard\" assets—like prime real estate, Bitcoin, or shares in productive companies—that the government cannot easily devalue through printing. This approach ensures that you are standing on the side of asset inflation rather than being crushed by it."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Compare local housing growth over 10 years to the average salary increase in your industry."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_adv_L3_en",
+      "title": "The Triffin Dilemma and Global Reserve Currencies",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p1_adv_L3",
+          "title": "The Triffin Dilemma and Global Reserve Currencies",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Triffin Dilemma explains the inherent conflict between domestic objectives and international requirements for countries whose currencies serve as global reserves. For the US Dollar to function as the world's reserve currency, the US must run constant trade deficits, which leads to systemic debt. For a MENA investor, this means recognizing that while the Dollar is the current \"Safe Haven,\" the sheer scale of global debt creates a long-term risk of a \"monetary reset\" or significant devaluation."
+            },
+            {
+              "type": "p",
+              "text": "To hedge against this systemic risk, advanced strategists build a basket of \"Sovereign Assets\" that exist outside the traditional banking system. This includes physical gold stored in neutral jurisdictions, land with productive value, and decentralized digital assets. By diversifying your \"store of value\" across different monetary regimes, you ensure that your wealth survives even if the current global financial order undergoes a major structural shift."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"BRICS+\" impact on the petrodollar and map how a 20% shift away from USD would affect your portfolio."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_adv_L4_en",
+      "title": "Asymmetric Information and Market Efficiency",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p1_adv_L4",
+          "title": "Asymmetric Information and Market Efficiency",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In advanced markets, the \"Efficient Market Hypothesis\"—the idea that all known info is reflected in prices—is often tested by asymmetric information. This occurs when one party in a transaction has significantly better data than the other. Professional investors pay millions for \"Alternative Data,\" such as satellite imagery of oil tankers or real-time shipping lane congestion, to gain an edge before the news reaches the public."
+            },
+            {
+              "type": "p",
+              "text": "Advanced money management is about identifying \"information gaps\" where the market has mispriced an asset. This requires deep, sector-specific knowledge or access to proprietary research. By focusing on niche markets or complex instruments that the general public finds too difficult to understand, you can enter positions at a discount. The goal is to move from being a \"market taker\" to a \"market maker,\" using information as a lever to generate superior returns."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one \"insider metric\" in your industry that the general public ignores and track its trend."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

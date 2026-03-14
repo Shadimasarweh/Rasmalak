@@ -1,0 +1,123 @@
+{
+  "courseId": "debt_and_credit_intermediate_en",
+  "locale": "en",
+  "title": "Debt and Credit",
+  "description": "Learn financial leverage, credit optimization, arbitrage concepts, and debt-to-income management.",
+  "level": "intermediate",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p4_int_L1_en",
+      "title": "The Concept of Financial Leverage",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p4_int_L1",
+          "title": "The Concept of Financial Leverage",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Leverage is the use of borrowed money to increase the potential return of an investment. For example, using a mortgage to buy a rental property allows you to control a large asset with a small amount of your own cash. If the property value goes up, your return is calculated on the total value, not just your down payment. However, leverage is a double-edged sword; it amplifies gains but also amplifies losses. Intermediate users learn to use leverage strategically and only for productive assets."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research a \"buy-to-let\" scenario. Calculate the return on investment (ROI) if you bought a property with 100% cash versus buying it with a 25% down payment and a mortgage."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_int_L2_en",
+      "title": "Credit Utilization Ratio and Your Score",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p4_int_L2",
+          "title": "Credit Utilization Ratio and Your Score",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Your credit score isn't just about paying on time; it's also about your \"Credit Utilization Ratio.\" This is the amount of credit you are using compared to your total limit. For example, if you have a 10,000 limit and carry a 9,000 balance, your ratio is 90%, which signals high risk to banks and lowers your score. Intermediate users aim to keep this ratio below 30%. Lowering your utilization is the fastest way to \"boost\" your score without needing more income."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Divide your total current credit card balances by your total credit limits. If the result is over 30%, create a plan to pay it down to improve your score."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_int_L3_en",
+      "title": "Arbitrage: Borrowing to Earn",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p4_int_L3",
+          "title": "Arbitrage: Borrowing to Earn",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Arbitrage is the practice of taking advantage of a price or interest rate difference between two markets. In finance, this could mean taking a low-interest loan (e.g., 3%) and investing that money in a guaranteed or high-probability asset that pays more (e.g., 6%). The 3% difference is your profit. This is an advanced-intermediate move that requires high discipline and certain market conditions. It should never be attempted with high-risk \"destructive\" debt."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at the interest rate of a low-cost personal loan and compare it to the current yield of a low-risk government bond or a reliable dividend fund."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_int_L4_en",
+      "title": "Credit Utilization Ratio and Your Score",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p4_int_L4",
+          "title": "Credit Utilization Ratio and Your Score",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Your credit score isn't just about paying on time; it's also about your \"Credit Utilization Ratio.\" This is the amount of credit you are using compared to your total limit. For example, if you have a 10,000 limit and carry a 9,000 balance, your ratio is 90%, which signals high risk to banks and lowers your score significantly."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate users aim to keep this ratio below 30%. Lowering your utilization is the fastest way to \"boost\" your score without needing more income. By strategically paying down cards or requesting limit increases (without spending more), you improve your creditworthiness, which allows you to access much lower interest rates on future home or business loans."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Divide your total current credit card balances by your total credit limits. If the result is over 30%, create a plan to pay it down to improve your score."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_int_L5_en",
+      "title": "The Debt-to-Income (DTI) Ceiling",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p4_int_L5",
+          "title": "The Debt-to-Income (DTI) Ceiling",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Banks use the Debt-to-Income (DTI) ratio to decide if you are \"over-leveraged.\" This is the percentage of your gross monthly income that goes toward paying debts. Most lenders have a strict ceiling—typically between 35% and 43%. If you are above this, you will be rejected for even the best investment loans."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate mastery involves managing your DTI proactively. By keeping your debt payments well below the ceiling, you maintain \"Financial Agility.\" This means that when a great real estate or business opportunity arises, you have the \"borrowing capacity\" to act quickly. Debt should be viewed as a limited resource; using it all up on consumer items means you have none left for wealth-building assets."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your DTI: (Total Monthly Debt Payments / Gross Monthly Income) x 100. If it's over 35%, prioritize debt reduction before seeking new loans."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

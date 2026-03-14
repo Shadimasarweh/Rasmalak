@@ -1,0 +1,110 @@
+{
+  "courseId": "sme_financial_management_advanced_en",
+  "locale": "en",
+  "title": "SME Financial Management",
+  "description": "Optimize capital structure (WACC), plan exit strategies, manage treasury, and design equity incentive plans.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p8_adv_L1_en",
+      "title": "Capital Structure Optimization (WACC)",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p8_adv_L1",
+          "title": "Capital Structure Optimization (WACC)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced SME owners don't just \"take a loan\"; they optimize their Weighted Average Cost of Capital (WACC). This is the average rate a business pays to finance its assets, calculated by weighing equity and debt. Since debt is often cheaper than equity (and usually tax-deductible), an advanced manager \"leverages\" the business to lower the WACC. However, too much debt increases the risk of bankruptcy."
+            },
+            {
+              "type": "p",
+              "text": "Finding the \"Optimal Capital Structure\" is the mathematical science of balancing cheap debt with stable equity to maximize the company's valuation. By lowering your WACC, you increase the \"Net Present Value\" (NPV) of your future projects, making your business more valuable and attractive to buyers. It is the move from \"managing a shop\" to \"engineering a financial vehicle.\""
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your company's WACC. If your cost of equity is 15% and your cost of debt is 6%, how would changing your debt-to-equity ratio impact your company's total value?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_adv_L2_en",
+      "title": "Exit Strategy: EBITDA Multiples and M&A",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p8_adv_L2",
+          "title": "Exit Strategy: EBITDA Multiples and M&A",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "An advanced entrepreneur builds a business with the intent to sell it. The valuation of your SME is usually based on a Multiple of EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization). Different industries have different \"standard multiples\"—for example, Tech might be 10x, while Manufacturing might be 4x."
+            },
+            {
+              "type": "p",
+              "text": "To maximize your exit price, you must clean up your financial \"hygiene\" years in advance, ensuring your EBITDA is transparent and growing. Understanding Mergers & Acquisitions (M&A) allows you to position your company as a \"strategic acquisition\" for a larger player, which often pays a \"synergy premium\" far higher than a simple sale. This is the \"Payday\" that turns a decade of hard work into generational wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the average \"EBITDA Multiple\" for your specific industry. Calculate your theoretical \"Exit Value\" based on last year's performance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_adv_L3_en",
+      "title": "Sophisticated Treasury Management and Hedging",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p8_adv_L3",
+          "title": "Sophisticated Treasury Management and Hedging",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For an SME doing international business, \"Treasury Management\" is a profit center. This involves managing the company's cash to maximize interest income while hedging against currency and commodity price risks. Advanced managers use \"Forward Contracts\" or \"Swaps\" to lock in prices for their raw materials or their export revenue."
+            },
+            {
+              "type": "p",
+              "text": "This ensures that a sudden 10% move in the price of oil or the value of the Euro doesn't wipe out the year's profits. By professionalizing your treasury, you protect your margins from external shocks that you cannot control. It is about creating a \"Predictable Profit Engine\" that can withstand the volatility of the global markets, ensuring that your business remains stable while competitors are struggling with fluctuating costs."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify your company's biggest external price risk (e.g., Fuel, Raw Materials, or Exchange Rates). Find one hedging tool that would allow you to lock in that price for the next 6 months."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p8_adv_L4_en",
+      "title": "Equity Incentive Plans and Talent Retention",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p8_adv_L4",
+          "title": "Equity Incentive Plans and Talent Retention",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the advanced tier, the \"capital\" you manage is not just financial, but human. To attract and retain world-class talent, you must use sophisticated Equity Incentive Plans, such as ESOPs (Employee Stock Option Plans) or Phantom Stock. This aligns the interests of your key employees with the long-term growth of the company—if the company's value increases, they become wealthy alongside you."
+            },
+            {
+              "type": "p",
+              "text": "Designing these plans requires careful legal and tax structuring to ensure they are motivating for the employee and protective for the founder. It turns your staff into \"partners,\" creating a culture of ownership where everyone is focused on the \"exit value\" of the firm. This is how the most successful SMEs in the world scale from a small team to a global powerhouse."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"Vesting Schedules\" for employee stock options. Draft a one-page \"Term Sheet\" for how an equity plan could be offered to your top three employees."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

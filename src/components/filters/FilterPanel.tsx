@@ -17,9 +17,10 @@ const EMPTY_FILTERS: Record<string, string[]> = {};
 
 interface FilterPanelProps {
   config: FilterConfig;
+  defaultOpen?: boolean;
 }
 
-function FilterPanelInner({ config }: FilterPanelProps) {
+function FilterPanelInner({ config, defaultOpen = false }: FilterPanelProps) {
   const { pageId, sections } = config;
   const intl = useIntl();
   const filters = useFilterStore(
@@ -31,7 +32,7 @@ function FilterPanelInner({ config }: FilterPanelProps) {
 
   useFilterURL(config);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [isMobile, setIsMobile] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const [panelHeight, setPanelHeight] = useState(0);

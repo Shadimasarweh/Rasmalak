@@ -3,41 +3,44 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useRouter } from 'next/navigation';
-import { FilterPanel } from '@/components/filters';
+import { useShallow } from 'zustand/react/shallow';
+import { FilterPanel, useFilterStore } from '@/components/filters';
 import type { FilterConfig } from '@/components/filters';
-import { getAllCourses, getCourseIdForLocale } from '@/data/courses';
+import { getAllCourses } from '@/data/courses';
 import { getTotalSections } from '@/types/course';
-import type { CourseData } from '@/types/course';
+import type { CourseData, CourseLevel } from '@/types/course';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/store/authStore';
 import { useStore } from '@/store/useStore';
 import { getAllLocalProgress } from '@/store/courseProgressStore';
 
-/* ============================================
-   LEARN PAGE
-   State-driven architecture with mode selectors
-   ============================================ */
-
 /* ===== TYPES ===== */
 type LearningMode = 'home' | 'paths' | 'articles' | 'videos' | 'topics' | 'achievements';
-type PageState = 'default' | 'mode-selected' | 'resume';
 
-/* ===== PLACEHOLDER/MOCK: User Progress State ===== */
-// In production, this would come from user data/API
-// Set to true to simulate a first-time user with zero progress
-const USER_HAS_ZERO_PROGRESS = true;
+/* ===== LEVEL BADGE CONFIG ===== */
+const LEVEL_COLORS: Record<CourseLevel, { color: string; bg: string }> = {
+  beginner: { color: 'var(--color-accent-growth)', bg: 'var(--color-accent-growth-subtle)' },
+  intermediate: { color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.1)' },
+  advanced: { color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.1)' },
+};
+
+const LEVEL_LABELS: Record<CourseLevel, { en: string; ar: string }> = {
+  beginner: { en: 'Beginner', ar: 'مبتدئ' },
+  intermediate: { en: 'Intermediate', ar: 'متوسط' },
+  advanced: { en: 'Advanced', ar: 'متقدم' },
+};
 
 /* ===== ICONS ===== */
-const CheckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
 const ArrowRightIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="5" y1="12" x2="19" y2="12" />
     <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
@@ -129,12 +132,6 @@ const TrophyIcon = () => (
   </svg>
 );
 
-const StarIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-  </svg>
-);
-
 const HomeIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -152,23 +149,10 @@ const LEARNING_MODES: { id: LearningMode; labelKey: string; labelDefault: string
   { id: 'achievements', labelKey: 'learn.mode.achievements', labelDefault: 'Achievements', icon: <TrophyIcon /> },
 ];
 
-/* ===== LEARN FILTER CONFIG ===== */
+/* ===== LEARN FILTER CONFIG (level only -- contentType removed, duplicated by mode tabs) ===== */
 const LEARN_FILTER_CONFIG: FilterConfig = {
   pageId: 'learn',
   sections: [
-    {
-      key: 'contentType',
-      titleKey: 'learn.filter.content_type',
-      titleDefault: 'Content Type',
-      type: 'multi',
-      options: [
-        { value: 'paths', labelKey: 'learn.mode.paths', labelDefault: 'Learning Paths' },
-        { value: 'articles', labelKey: 'learn.mode.articles', labelDefault: 'Articles' },
-        { value: 'videos', labelKey: 'learn.mode.videos', labelDefault: 'Videos' },
-        { value: 'topics', labelKey: 'learn.mode.topics', labelDefault: 'Topics & Skills' },
-        { value: 'achievements', labelKey: 'learn.mode.achievements', labelDefault: 'Achievements' },
-      ],
-    },
     {
       key: 'level',
       titleKey: 'learn.filter.level',
@@ -183,9 +167,78 @@ const LEARN_FILTER_CONFIG: FilterConfig = {
   ],
 };
 
+/* ===== SHARED PROGRESS HOOK ===== */
+function useCourseProgress(courses: CourseData[]) {
+  const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
+  const language = useStore((s) => s.language);
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const map: Record<string, number> = {};
+    const localProgress = getAllLocalProgress();
+    for (const course of courses) {
+      const localData = localProgress[course.courseId];
+      if (localData) {
+        const total = getTotalSections(course);
+        const done = localData.completedSectionIds?.length ?? 0;
+        map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
+      }
+    }
+    if (Object.keys(map).length > 0) {
+      setProgressMap((prev) => {
+        const hasChanges = Object.entries(map).some(([k, v]) => prev[k] !== v);
+        return hasChanges ? { ...prev, ...map } : prev;
+      });
+    }
+
+    if (!initialized || !user) return;
+
+    const fetchProgress = async () => {
+      try {
+        const { data } = await supabase
+          .from('course_progress')
+          .select('course_id, completed_section_ids, locale')
+          .eq('user_id', user.id)
+          .eq('locale', language);
+
+        if (!data || data.length === 0) return;
+
+        const supaMap: Record<string, number> = {};
+        for (const row of data) {
+          const course = courses.find((c) => c.courseId === row.course_id);
+          if (course) {
+            const total = getTotalSections(course);
+            const done = (row.completed_section_ids as string[])?.length ?? 0;
+            supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+          }
+        }
+        if (Object.keys(supaMap).length === 0) return;
+        setProgressMap((prev) => {
+          let changed = false;
+          const merged = { ...prev };
+          for (const [k, v] of Object.entries(supaMap)) {
+            const best = Math.max(merged[k] ?? 0, v);
+            if (merged[k] !== best) {
+              merged[k] = best;
+              changed = true;
+            }
+          }
+          return changed ? merged : prev;
+        });
+      } catch {
+        // Supabase unavailable; localStorage data already loaded
+      }
+    };
+
+    fetchProgress();
+  }, [initialized, user, language, courses]);
+
+  return progressMap;
+}
+
 /* ===== REUSABLE COMPONENTS ===== */
 
-/* ----- Mode Selector Button ----- */
 function ModeSelector({
   mode,
   isActive,
@@ -226,7 +279,6 @@ function ModeSelector({
   );
 }
 
-/* ----- Hero Section (Top Box) ----- */
 function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useIntl>; hasStartedCourses: boolean }) {
   return (
     <div
@@ -243,7 +295,6 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
       }}
     >
       <div style={{ flex: 1 }}>
-        {/* Greeting */}
         <h3
           style={{
             fontSize: '1.25rem',
@@ -257,8 +308,6 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
             : intl.formatMessage({ id: 'learn.featured_title', defaultMessage: 'Start Your Financial Journey' })
           }
         </h3>
-        
-        {/* Description - only show for new users */}
         {!hasStartedCourses && (
           <p
             style={{
@@ -272,8 +321,6 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
             {intl.formatMessage({ id: 'learn.featured_desc', defaultMessage: 'Begin with our beginner-friendly Financial Foundations path and build your knowledge step by step.' })}
           </p>
         )}
-        
-        {/* Get Started / Continue Button */}
         <button
           type="button"
           style={{
@@ -295,7 +342,6 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
         </button>
       </div>
 
-      {/* Financial Literacy Score */}
       <div
         style={{
           display: 'flex',
@@ -335,57 +381,148 @@ function HeroSection({ intl, hasStartedCourses }: { intl: ReturnType<typeof useI
   );
 }
 
-/* ----- Featured Content Section (Home Only) ----- */
-function FeaturedContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
+/* ===== LEVEL BADGE ===== */
+function LevelBadge({ level, locale }: { level: CourseLevel; locale: string }) {
+  const colors = LEVEL_COLORS[level];
+  const label = LEVEL_LABELS[level][locale === 'ar' ? 'ar' : 'en'];
   return (
-    <div style={{ marginTop: 'var(--spacing-3)' }}>
-      {/* Featured Label */}
-      <div
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          fontSize: '0.6875rem',
-          fontWeight: 600,
-          color: '#6366F1',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginBottom: 'var(--spacing-2)',
-        }}
-      >
-        <StarIcon />
-        {intl.formatMessage({ id: 'learn.featured', defaultMessage: 'Featured' })}
-      </div>
-      
-      {/* Featured placeholder cards */}
-      <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            style={{
-              flex: 1,
-              background: 'var(--color-divider)',
-              border: '1px solid var(--color-border-subtle)',
-              borderRadius: 'var(--radius-xl)',
-              padding: 'var(--spacing-2)',
-              height: '100px',
-            }}
-          >
-            <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'var(--color-divider)', marginBottom: '8px' }} />
-            <div style={{ width: '70%', height: '12px', borderRadius: '4px', background: 'var(--color-divider)', marginBottom: '6px' }} />
-            <div style={{ width: '50%', height: '8px', borderRadius: '4px', background: 'var(--color-divider)' }} />
-          </div>
-        ))}
-      </div>
-    </div>
+    <span
+      style={{
+        fontSize: '0.75rem',
+        fontWeight: 700,
+        color: colors.color,
+        background: colors.bg,
+        padding: '4px 10px',
+        borderRadius: 'var(--radius-pill)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        flexShrink: 0,
+        lineHeight: 1.4,
+        border: `1px solid ${colors.color}40`,
+      }}
+    >
+      {label}
+    </span>
   );
 }
 
-/* ----- Recommended Content Section (Home Only) ----- */
-function RecommendedContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
+/* ===== COURSE CARD ===== */
+function CourseCard({
+  course,
+  progress,
+  intl,
+  onClick,
+}: {
+  course: CourseData;
+  progress: number;
+  intl: ReturnType<typeof useIntl>;
+  onClick: () => void;
+}) {
+  const total = getTotalSections(course);
+  const completedCount = Math.round((progress / 100) * total);
+  const isRtl = course.locale === 'ar';
+  const level = course.level || 'beginner';
+  const levelColors = LEVEL_COLORS[level];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="ds-card"
+      style={{
+        cursor: 'pointer',
+        textAlign: isRtl ? 'right' : 'left',
+        width: '100%',
+        border: '1px solid var(--color-border-subtle)',
+        borderInlineStartWidth: '4px',
+        borderInlineStartColor: levelColors.color,
+        transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+            <span style={{ color: 'var(--color-accent-growth)', flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </span>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              {course.title}
+            </h3>
+          </div>
+          <div style={{ marginBottom: '4px' }}>
+            <LevelBadge level={level} locale={course.locale} />
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, marginBottom: 'var(--spacing-2)' }}>
+            {course.description}
+          </p>
+        </div>
+        {progress === 100 && (
+          <span style={{ color: 'var(--color-success)', flexShrink: 0, marginInlineStart: '8px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+            </svg>
+          </span>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
+        <div style={{ flex: 1, height: '4px', background: 'var(--color-border-subtle)', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${progress}%`, background: progress === 100 ? 'var(--color-success)' : 'var(--color-accent-growth)', borderRadius: 'var(--radius-pill)', transition: 'width 0.3s ease' }} />
+        </div>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+          {progress > 0
+            ? `${completedCount}/${total}`
+            : intl.formatMessage({ id: 'learn.course.sections_count', defaultMessage: '{count} sections' }, { count: total })
+          }
+        </span>
+      </div>
+
+      <div style={{ marginTop: 'var(--spacing-2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent-growth)' }}>
+          {progress === 100
+            ? intl.formatMessage({ id: 'learn.course.course_complete', defaultMessage: 'Course Complete!' })
+            : progress > 0
+            ? intl.formatMessage({ id: 'learn.course.continue', defaultMessage: 'Continue' })
+            : intl.formatMessage({ id: 'learn.course.start_course', defaultMessage: 'Start Course' })
+          }
+        </span>
+        {progress < 100 && (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-growth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        )}
+      </div>
+    </button>
+  );
+}
+
+/* ===== RECOMMENDED COURSE SECTION (Home Mode) ===== */
+function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }) {
+  const router = useRouter();
+  const language = useStore((s) => s.language);
+  const courses = useMemo(() => getAllCourses(language), [language]);
+  const progressMap = useCourseProgress(courses);
+
+  const hasStartedAnyCourse = Object.values(progressMap).some((p) => p > 0);
+  const firstCourse = courses[0];
+
+  const recommendedCourse = hasStartedAnyCourse
+    ? courses.find((c) => {
+        const p = progressMap[c.courseId] ?? 0;
+        return p > 0 && p < 100;
+      }) || firstCourse
+    : firstCourse;
+
+  if (!recommendedCourse) return null;
+
+  const progress = progressMap[recommendedCourse.courseId] ?? 0;
+
   return (
     <div style={{ marginTop: 'var(--spacing-3)' }}>
-      {/* Recommended Label */}
       <div
         style={{
           display: 'flex',
@@ -409,66 +546,127 @@ function RecommendedContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           {intl.formatMessage({ id: 'learn.recommended', defaultMessage: 'Recommended for you' })}
         </span>
       </div>
-      
-      {/* Recommendation card */}
-      <div
-        style={{
-          background: 'rgba(245, 158, 11, 0.08)',
-          border: '1px solid rgba(245, 158, 11, 0.15)',
-          borderRadius: 'var(--radius-xl)',
-          padding: 'var(--spacing-2)',
-          maxWidth: '400px',
-        }}
-      >
-        <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-          {intl.formatMessage({ id: 'learn.recommendation_text', defaultMessage: 'Based on your profile, start with Budgeting 101.' })}
-        </p>
-      </div>
+
+      <CourseCard
+        course={recommendedCourse}
+        progress={progress}
+        intl={intl}
+        onClick={() => router.push(`/learn/courses/${recommendedCourse.courseId}`)}
+      />
     </div>
   );
 }
 
-/* ----- Financial Literacy Score (Placeholder) ----- */
-function LiteracyScorePlaceholder({ intl }: { intl: ReturnType<typeof useIntl> }) {
+/* ===== AVAILABLE COURSES SECTION (with level filtering) ===== */
+function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> }) {
+  const router = useRouter();
+  const language = useStore((s) => s.language);
+
+  const courses = useMemo(() => getAllCourses(language), [language]);
+  const progressMap = useCourseProgress(courses);
+
+  const levelFilters = useFilterStore(
+    useShallow((s) => s.filters['learn']?.level ?? [])
+  );
+
+  const filteredCourses = useMemo(() => {
+    if (levelFilters.length === 0) return courses;
+    return courses.filter((c) => levelFilters.includes(c.level || 'beginner'));
+  }, [courses, levelFilters]);
+
+  const groupedCourses = useMemo(() => {
+    const groups: Record<CourseLevel, CourseData[]> = { beginner: [], intermediate: [], advanced: [] };
+    for (const c of filteredCourses) {
+      const lvl = c.level || 'beginner';
+      groups[lvl].push(c);
+    }
+    return groups;
+  }, [filteredCourses]);
+
+  const clearFilters = useFilterStore((s) => s.clearAll);
+
+  if (filteredCourses.length === 0) {
+    const hasFilters = levelFilters.length > 0;
+    return (
+      <div style={{ marginTop: 'var(--spacing-3)', textAlign: 'center', padding: 'var(--spacing-4)' }}>
+        <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: hasFilters ? 'var(--spacing-2)' : 0 }}>
+          {intl.formatMessage({ id: 'learn.course.no_courses', defaultMessage: 'No courses match the selected filters.' })}
+        </p>
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => clearFilters('learn')}
+            style={{
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              color: 'var(--color-accent-growth)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px 16px',
+              textDecoration: 'underline',
+            }}
+          >
+            {intl.formatMessage({ id: 'filters.clear_all', defaultMessage: 'Clear All' })}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const levelOrder: CourseLevel[] = ['beginner', 'intermediate', 'advanced'];
+
   return (
-    <div
-      style={{
-        background: 'var(--color-divider)',
-        border: '1px solid var(--color-border-subtle)',
-        borderRadius: 'var(--radius-xl)',
-        padding: 'var(--spacing-2)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--spacing-2)',
-      }}
-    >
-      <div
-        style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          background: 'rgba(99, 102, 241, 0.1)',
-          border: '3px solid rgba(99, 102, 241, 0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-secondary)' }}>--</span>
-      </div>
-      <div>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
-          {intl.formatMessage({ id: 'learn.literacy_score', defaultMessage: 'Financial Literacy Score' })}
-        </p>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
-          {intl.formatMessage({ id: 'learn.score_placeholder', defaultMessage: 'Complete lessons to unlock' })}
-        </p>
-      </div>
+    <div style={{ marginTop: 'var(--spacing-3)' }}>
+      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
+        {intl.formatMessage({ id: 'learn.course.available_courses', defaultMessage: 'Available Courses' })}
+      </h2>
+
+      {levelOrder.map((level) => {
+        const group = groupedCourses[level];
+        if (group.length === 0) return null;
+        const colors = LEVEL_COLORS[level];
+        const label = LEVEL_LABELS[level][language === 'ar' ? 'ar' : 'en'];
+
+        return (
+          <div key={level} style={{ marginBottom: 'var(--spacing-3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
+              <div style={{ width: '3px', height: '16px', borderRadius: '2px', background: colors.color }} />
+              <h3 style={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                {label}
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                ({group.length})
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+              {group.map((course) => (
+                <CourseCard
+                  key={course.courseId}
+                  course={course}
+                  progress={progressMap[course.courseId] ?? 0}
+                  intl={intl}
+                  onClick={() => router.push(`/learn/courses/${course.courseId}`)}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-/* ----- Topic Card ----- */
+/* ===== MODE CONTENT COMPONENTS ===== */
+
+function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
+      <AvailableCoursesSection intl={intl} />
+    </div>
+  );
+}
+
 function TopicCard({
   icon,
   iconBg,
@@ -513,267 +711,13 @@ function TopicCard({
       >
         {title}
       </h3>
-      <p
-        style={{
-          fontSize: '0.75rem',
-          color: 'var(--color-text-muted)',
-        }}
-      >
+      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
         {intl.formatMessage({ id: 'learn.lessons_count', defaultMessage: '{count} Lessons' }, { count: lessons })} • {duration}
       </p>
     </div>
   );
 }
 
-/* ----- Learning Path Card ----- */
-function LearningPathCard({
-  badge,
-  badgeColor,
-  moduleInfo,
-  title,
-  progress,
-  lessons,
-  completedLabel,
-  currentDescription,
-  startLabel,
-}: {
-  badge: string;
-  badgeColor: string;
-  moduleInfo: string;
-  title: string;
-  progress: number;
-  lessons: { title: string; duration: string; completed: boolean; current?: boolean }[];
-  completedLabel: string;
-  currentDescription: string;
-  startLabel: string;
-}) {
-  return (
-    <div className="ds-card">
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          marginBottom: 'var(--spacing-2)',
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <span
-              style={{
-                fontSize: '0.625rem',
-                fontWeight: 600,
-                color: badgeColor,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {badge}
-            </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-              {moduleInfo}
-            </span>
-          </div>
-          <h3
-            style={{
-              fontSize: '1.125rem',
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            {title}
-          </h3>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <p
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            {progress}%
-          </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{completedLabel}</p>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div
-        style={{
-          height: '6px',
-          background: 'var(--color-border-subtle)',
-          borderRadius: 'var(--radius-pill)',
-          marginBottom: 'var(--spacing-2)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            height: '100%',
-            width: `${progress}%`,
-            background: 'var(--color-accent-growth)',
-            borderRadius: 'var(--radius-pill)',
-          }}
-        />
-      </div>
-
-      {/* Lesson List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        {lessons.map((lesson, index) => (
-          <LessonRow
-            key={index}
-            title={lesson.title}
-            duration={lesson.duration}
-            completed={lesson.completed}
-            current={lesson.current}
-            currentDescription={lesson.current ? currentDescription : undefined}
-            startLabel={lesson.current ? startLabel : undefined}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ----- Lesson Row ----- */
-function LessonRow({
-  title,
-  duration,
-  completed,
-  current = false,
-  currentDescription,
-  startLabel,
-}: {
-  title: string;
-  duration: string;
-  completed: boolean;
-  current?: boolean;
-  currentDescription?: string;
-  startLabel?: string;
-}) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 0',
-        borderBottom: '1px solid var(--color-divider)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span
-          style={{
-            color: completed ? 'var(--color-accent-growth)' : 'var(--color-border)',
-          }}
-        >
-          {completed ? <CheckCircleIcon /> : <CircleIcon />}
-        </span>
-        <div>
-          <p
-            style={{
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              color: completed ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
-              textDecoration: completed ? 'line-through' : 'none',
-            }}
-          >
-            {title}
-          </p>
-          {current && currentDescription && (
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-              {currentDescription}
-            </p>
-          )}
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{duration}</span>
-        {current && startLabel && (
-          <button
-            style={{
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              color: '#FFFFFF',
-              background: 'var(--color-info)',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              padding: '6px 12px',
-              cursor: 'pointer',
-            }}
-          >
-            {startLabel}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ----- Path Preview Card ----- */
-function PathPreviewCard({
-  icon,
-  iconBg,
-  iconColor,
-  badge,
-  badgeColor,
-  title,
-  modules,
-  duration,
-  progress,
-  intl,
-}: {
-  icon: React.ReactNode;
-  iconBg: string;
-  iconColor: string;
-  badge: string;
-  badgeColor: string;
-  title: string;
-  modules: number;
-  duration: string;
-  progress: number;
-  intl: ReturnType<typeof useIntl>;
-}) {
-  return (
-    <div className="ds-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: 'var(--radius-sm)',
-            background: iconBg,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: iconColor,
-          }}
-        >
-          {icon}
-        </div>
-        <div>
-          <p style={{ fontSize: '0.625rem', fontWeight: 600, color: badgeColor, textTransform: 'uppercase' }}>
-            {badge}
-          </p>
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-            {title}
-          </h3>
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{intl.formatMessage({ id: 'learn.modules_count', defaultMessage: '{count} Modules' }, { count: modules })} • {duration}</span>
-        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>{progress}%</span>
-      </div>
-      <div style={{ height: '4px', background: 'var(--color-border-subtle)', borderRadius: 'var(--radius-pill)' }}>
-        <div style={{ height: '100%', width: `${progress}%`, background: badgeColor, borderRadius: 'var(--radius-pill)' }} />
-      </div>
-    </div>
-  );
-}
-
-/* ----- Article Row ----- */
 function ArticleRow({
   category,
   categoryColor,
@@ -808,7 +752,6 @@ function ArticleRow({
   );
 }
 
-/* ----- Video Card ----- */
 function VideoCard({
   title,
   duration,
@@ -871,7 +814,6 @@ function VideoCard({
   );
 }
 
-/* ----- Achievement Badge ----- */
 function AchievementBadge({
   name,
   description,
@@ -931,87 +873,6 @@ function AchievementBadge({
   );
 }
 
-/* ===== MODE CONTENT COMPONENTS ===== */
-
-/* ----- Learning Paths Content (now includes courses) ----- */
-function LearningPathsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
-      {/* Courses */}
-      <AvailableCoursesSection intl={intl} />
-
-      {/* Current Path (In Progress) */}
-      <div>
-        <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
-          {intl.formatMessage({ id: 'learn.current_path', defaultMessage: 'Continue Your Path' })}
-        </h2>
-        <LearningPathCard
-          badge={intl.formatMessage({ id: 'learn.beginner_path', defaultMessage: 'Beginner Path' })}
-          badgeColor="#6366F1"
-          moduleInfo={intl.formatMessage({ id: 'learn.module_of', defaultMessage: 'Module {current} of {total}' }, { current: 1, total: 4 })}
-          title={intl.formatMessage({ id: 'learn.financial_foundations', defaultMessage: 'Financial Foundations' })}
-          progress={40}
-          completedLabel={intl.formatMessage({ id: 'learn.completed', defaultMessage: 'Completed' })}
-          currentDescription={intl.formatMessage({ id: 'learn.needs_vs_wants_desc', defaultMessage: 'Learn how to prioritize spending efficiently.' })}
-          startLabel={intl.formatMessage({ id: 'learn.start', defaultMessage: 'Start' })}
-          lessons={[
-            { title: intl.formatMessage({ id: 'learn.intro_personal_finance', defaultMessage: 'Introduction to Personal Finance' }), duration: '5m', completed: true },
-            { title: intl.formatMessage({ id: 'learn.setting_smart_goals', defaultMessage: 'Setting SMART Goals' }), duration: '8m', completed: true },
-            { title: intl.formatMessage({ id: 'learn.needs_vs_wants', defaultMessage: 'Understanding Needs vs. Wants' }), duration: '', completed: false, current: true },
-            { title: intl.formatMessage({ id: 'learn.creating_first_budget', defaultMessage: 'Creating Your First Budget' }), duration: '12m', completed: false },
-          ]}
-        />
-      </div>
-
-      {/* Available Paths */}
-      <div>
-        <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
-          {intl.formatMessage({ id: 'learn.available_paths', defaultMessage: 'Available Paths' })}
-        </h2>
-        <div className="responsive-grid-3">
-          <PathPreviewCard
-            icon={<TrendIcon />}
-            iconBg="rgba(59, 130, 246, 0.1)"
-            iconColor="#3B82F6"
-            badge={intl.formatMessage({ id: 'learn.intermediate', defaultMessage: 'Intermediate' })}
-            badgeColor="#3B82F6"
-            title={intl.formatMessage({ id: 'learn.investment_basics', defaultMessage: 'Investment Basics' })}
-            modules={6}
-            duration="4h 30m"
-            progress={0}
-            intl={intl}
-          />
-          <PathPreviewCard
-            icon={<ShieldIcon />}
-            iconBg="rgba(139, 92, 246, 0.1)"
-            iconColor="#8B5CF6"
-            badge={intl.formatMessage({ id: 'learn.advanced', defaultMessage: 'Advanced' })}
-            badgeColor="#8B5CF6"
-            title={intl.formatMessage({ id: 'learn.wealth_building', defaultMessage: 'Wealth Building' })}
-            modules={8}
-            duration="6h 15m"
-            progress={0}
-            intl={intl}
-          />
-          <PathPreviewCard
-            icon={<BookIcon />}
-            iconBg="rgba(6, 182, 212, 0.1)"
-            iconColor="#06B6D4"
-            badge={intl.formatMessage({ id: 'learn.specialized', defaultMessage: 'Specialized' })}
-            badgeColor="#06B6D4"
-            title={intl.formatMessage({ id: 'learn.islamic_finance', defaultMessage: 'Islamic Finance' })}
-            modules={5}
-            duration="3h 45m"
-            progress={0}
-            intl={intl}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ----- Articles Content ----- */
 function ArticlesContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   const articles = [
     { category: intl.formatMessage({ id: 'learn.budgeting', defaultMessage: 'Budgeting' }), categoryColor: '#10B981', title: intl.formatMessage({ id: 'learn.budget_rule_title', defaultMessage: 'The 50/30/20 Budget Rule Explained' }), readTime: intl.formatMessage({ id: 'learn.min_read', defaultMessage: '{min} min read' }, { min: 5 }) },
@@ -1041,7 +902,6 @@ function ArticlesContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   );
 }
 
-/* ----- Videos Content ----- */
 function VideosContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   const videos = [
     { title: intl.formatMessage({ id: 'learn.budgeting_for_beginners', defaultMessage: 'Budgeting for Beginners' }), duration: '8:24', color: '#10B981' },
@@ -1064,7 +924,6 @@ function VideosContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   );
 }
 
-/* ----- Topics Content ----- */
 function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   return (
     <div>
@@ -1113,7 +972,6 @@ function TopicsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   );
 }
 
-/* ----- Achievements Content ----- */
 function AchievementsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   const badges = [
     { name: intl.formatMessage({ id: 'learn.first_steps', defaultMessage: 'First Steps' }), desc: intl.formatMessage({ id: 'learn.first_steps_desc', defaultMessage: 'Completed your first lesson' }), earned: true, color: '#10B981' },
@@ -1142,455 +1000,17 @@ function AchievementsContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   );
 }
 
-/* ===== RECOMMENDED COURSE SECTION (Home Mode) ===== */
-function RecommendedCourseSection({ intl }: { intl: ReturnType<typeof useIntl> }) {
-  const router = useRouter();
-  const language = useStore((s) => s.language);
-  const user = useAuthStore((s) => s.user);
-  const initialized = useAuthStore((s) => s.initialized);
-
-  const courses = useMemo(() => getAllCourses(language), [language]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    const map: Record<string, number> = {};
-    const localProgress = getAllLocalProgress();
-    for (const course of courses) {
-      const localData = localProgress[course.courseId];
-      if (localData) {
-        const total = getTotalSections(course);
-        const done = localData.completedSectionIds?.length ?? 0;
-        map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
-      }
-    }
-    if (Object.keys(map).length > 0) {
-      setProgressMap((prev) => {
-        const hasChanges = Object.entries(map).some(([k, v]) => prev[k] !== v);
-        return hasChanges ? { ...prev, ...map } : prev;
-      });
-    }
-
-    if (!initialized || !user) return;
-
-    const fetchProgress = async () => {
-      try {
-        const { data } = await supabase
-          .from('course_progress')
-          .select('course_id, completed_section_ids, locale')
-          .eq('user_id', user.id)
-          .eq('locale', language);
-
-        if (!data || data.length === 0) return;
-
-        const supaMap: Record<string, number> = {};
-        for (const row of data) {
-          const course = courses.find((c) => c.courseId === row.course_id);
-          if (course) {
-            const total = getTotalSections(course);
-            const done = (row.completed_section_ids as string[])?.length ?? 0;
-            supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
-          }
-        }
-        if (Object.keys(supaMap).length === 0) return;
-        setProgressMap((prev) => {
-          let changed = false;
-          const merged = { ...prev };
-          for (const [k, v] of Object.entries(supaMap)) {
-            const best = Math.max(merged[k] ?? 0, v);
-            if (merged[k] !== best) {
-              merged[k] = best;
-              changed = true;
-            }
-          }
-          return changed ? merged : prev;
-        });
-      } catch {
-        // Supabase unavailable; localStorage data already loaded
-      }
-    };
-
-    fetchProgress();
-  }, [initialized, user, language, courses]);
-
-  const hasStartedAnyCourse = Object.values(progressMap).some((p) => p > 0);
-  const firstCourse = courses[0];
-
-  const recommendedCourse = hasStartedAnyCourse
-    ? courses.find((c) => {
-        const p = progressMap[c.courseId] ?? 0;
-        return p > 0 && p < 100;
-      }) || firstCourse
-    : firstCourse;
-
-  if (!recommendedCourse) return null;
-
-  const progress = progressMap[recommendedCourse.courseId] ?? 0;
-
-  return (
-    <div style={{ marginTop: 'var(--spacing-3)' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          marginBottom: 'var(--spacing-2)',
-        }}
-      >
-        <span style={{ color: '#F59E0B', flexShrink: 0 }}>
-          <LightbulbIcon />
-        </span>
-        <span
-          style={{
-            fontSize: '0.6875rem',
-            fontWeight: 600,
-            color: '#F59E0B',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}
-        >
-          {intl.formatMessage({ id: 'learn.recommended', defaultMessage: 'Recommended for you' })}
-        </span>
-      </div>
-
-      <CourseCard
-        course={recommendedCourse}
-        progress={progress}
-        intl={intl}
-        onClick={() => router.push(`/learn/courses/${recommendedCourse.courseId}`)}
-      />
-    </div>
-  );
-}
-
-/* ===== COURSE CATALOG SECTION ===== */
-function CourseCard({
-  course,
-  progress,
-  intl,
-  onClick,
-}: {
-  course: CourseData;
-  progress: number;
-  intl: ReturnType<typeof useIntl>;
-  onClick: () => void;
-}) {
-  const total = getTotalSections(course);
-  const completedCount = Math.round((progress / 100) * total);
-  const isRtl = course.locale === 'ar';
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="ds-card"
-      style={{
-        cursor: 'pointer',
-        textAlign: isRtl ? 'right' : 'left',
-        width: '100%',
-        border: '1px solid var(--color-border-subtle)',
-        transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <span style={{ color: 'var(--color-accent-growth)', flexShrink: 0 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              </svg>
-            </span>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              {course.title}
-            </h3>
-          </div>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, marginBottom: 'var(--spacing-2)' }}>
-            {course.description}
-          </p>
-        </div>
-        {progress === 100 && (
-          <span style={{ color: 'var(--color-success)', flexShrink: 0, marginInlineStart: '8px' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-            </svg>
-          </span>
-        )}
-      </div>
-
-      {/* Progress bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
-        <div style={{ flex: 1, height: '4px', background: 'var(--color-border-subtle)', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progress}%`, background: progress === 100 ? 'var(--color-success)' : 'var(--color-accent-growth)', borderRadius: 'var(--radius-pill)', transition: 'width 0.3s ease' }} />
-        </div>
-        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-          {progress > 0
-            ? `${completedCount}/${total}`
-            : intl.formatMessage({ id: 'learn.course.sections_count', defaultMessage: '{count} sections' }, { count: total })
-          }
-        </span>
-      </div>
-
-      {/* Action label */}
-      <div style={{ marginTop: 'var(--spacing-2)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent-growth)' }}>
-          {progress === 100
-            ? intl.formatMessage({ id: 'learn.course.course_complete', defaultMessage: 'Course Complete!' })
-            : progress > 0
-            ? intl.formatMessage({ id: 'learn.course.continue', defaultMessage: 'Continue' })
-            : intl.formatMessage({ id: 'learn.course.start_course', defaultMessage: 'Start Course' })
-          }
-        </span>
-        {progress < 100 && (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-growth)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        )}
-      </div>
-    </button>
-  );
-}
-
-function AvailableCoursesSection({ intl }: { intl: ReturnType<typeof useIntl> }) {
-  const router = useRouter();
-  const language = useStore((s) => s.language);
-  const user = useAuthStore((s) => s.user);
-  const initialized = useAuthStore((s) => s.initialized);
-
-  const courses = useMemo(() => getAllCourses(language), [language]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    const map: Record<string, number> = {};
-    const localProgress = getAllLocalProgress();
-    for (const course of courses) {
-      const localData = localProgress[course.courseId];
-      if (localData) {
-        const total = getTotalSections(course);
-        const done = localData.completedSectionIds?.length ?? 0;
-        map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
-      }
-    }
-    if (Object.keys(map).length > 0) {
-      setProgressMap((prev) => {
-        const hasChanges = Object.entries(map).some(([k, v]) => prev[k] !== v);
-        return hasChanges ? { ...prev, ...map } : prev;
-      });
-    }
-
-    if (!initialized || !user) return;
-
-    const fetchProgress = async () => {
-      try {
-        const { data } = await supabase
-          .from('course_progress')
-          .select('course_id, completed_section_ids, locale')
-          .eq('user_id', user.id)
-          .eq('locale', language);
-
-        if (!data || data.length === 0) return;
-
-        const supaMap: Record<string, number> = {};
-        for (const row of data) {
-          const course = courses.find((c) => c.courseId === row.course_id);
-          if (course) {
-            const total = getTotalSections(course);
-            const done = (row.completed_section_ids as string[])?.length ?? 0;
-            supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
-          }
-        }
-        if (Object.keys(supaMap).length === 0) return;
-        setProgressMap((prev) => {
-          let changed = false;
-          const merged = { ...prev };
-          for (const [k, v] of Object.entries(supaMap)) {
-            const best = Math.max(merged[k] ?? 0, v);
-            if (merged[k] !== best) {
-              merged[k] = best;
-              changed = true;
-            }
-          }
-          return changed ? merged : prev;
-        });
-      } catch {
-        // Supabase unavailable; localStorage data already loaded
-      }
-    };
-
-    fetchProgress();
-  }, [initialized, user, language, courses]);
-
-  if (courses.length === 0) return null;
-
-  return (
-    <div style={{ marginTop: 'var(--spacing-3)' }}>
-      <h2 className="ds-title-section" style={{ marginBottom: 'var(--spacing-2)' }}>
-        {intl.formatMessage({ id: 'learn.course.available_courses', defaultMessage: 'Available Courses' })}
-      </h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-        {courses.map((course) => (
-          <CourseCard
-            key={course.courseId}
-            course={course}
-            progress={progressMap[course.courseId] ?? 0}
-            intl={intl}
-            onClick={() => router.push(`/learn/courses/${course.courseId}`)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ===== ZERO-PROGRESS STATE COMPONENTS ===== */
-
-/* ----- Skeleton Card (Generic Placeholder) ----- */
-function SkeletonCard({ height = '100px' }: { height?: string }) {
-  return (
-    <div
-      style={{
-        background: 'var(--color-divider)',
-        border: '1px solid var(--color-border-subtle)',
-        borderRadius: 'var(--radius-xl)',
-        height,
-        display: 'flex',
-        flexDirection: 'column',
-        padding: 'var(--spacing-2)',
-        gap: '8px',
-      }}
-    >
-      {/* Skeleton icon */}
-      <div
-        style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: 'var(--radius-sm)',
-          background: 'var(--color-divider)',
-        }}
-      />
-      {/* Skeleton title line */}
-      <div
-        style={{
-          width: '70%',
-          height: '12px',
-          borderRadius: '4px',
-          background: 'var(--color-divider)',
-        }}
-      />
-      {/* Skeleton subtitle line */}
-      <div
-        style={{
-          width: '50%',
-          height: '8px',
-          borderRadius: '4px',
-          background: 'var(--color-divider)',
-        }}
-      />
-    </div>
-  );
-}
-
-/* ----- Recently Added Section (Zero-Progress Only) ----- */
-function RecentlyAddedPlaceholder({ intl }: { intl: ReturnType<typeof useIntl> }) {
-  return (
-    <div style={{ marginTop: 'var(--spacing-3)' }}>
-      <p
-        style={{
-          fontSize: '0.75rem',
-          fontWeight: 500,
-          color: 'var(--color-text-muted)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginBottom: 'var(--spacing-1)',
-        }}
-      >
-        {intl.formatMessage({ id: 'learn.recently_added', defaultMessage: 'Recently added' })}
-      </p>
-      <div
-        style={{
-          display: 'flex',
-          gap: 'var(--spacing-2)',
-          overflowX: 'hidden',
-        }}
-      >
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} style={{ flex: '0 0 200px' }}>
-            <SkeletonCard height="90px" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ----- Featured Row Placeholder (Single Card) ----- */
-function FeaturedRowPlaceholder({
-  label,
-}: {
-  label: string;
-}) {
-  return (
-    <div style={{ marginTop: 'var(--spacing-2)' }}>
-      <p
-        style={{
-          fontSize: '0.6875rem',
-          fontWeight: 500,
-          color: 'var(--color-text-muted)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
-          marginBottom: '8px',
-        }}
-      >
-        {label}
-      </p>
-      <div style={{ maxWidth: '280px' }}>
-        <SkeletonCard height="72px" />
-      </div>
-    </div>
-  );
-}
-
-/* ----- Zero Progress Content Section ----- */
-function ZeroProgressContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
-  return (
-    <>
-      {/* Recently Added - Horizontal Row */}
-      <RecentlyAddedPlaceholder intl={intl} />
-
-      {/* Featured Placeholder Rows */}
-      <div style={{ marginTop: 'var(--spacing-3)' }}>
-        <FeaturedRowPlaceholder
-          label={intl.formatMessage({ id: 'learn.featured_articles', defaultMessage: 'Featured Articles' })}
-        />
-        <FeaturedRowPlaceholder
-          label={intl.formatMessage({ id: 'learn.featured_videos', defaultMessage: 'Featured Videos' })}
-        />
-        <FeaturedRowPlaceholder
-          label={intl.formatMessage({ id: 'learn.featured_courses', defaultMessage: 'Featured Courses' })}
-        />
-      </div>
-    </>
-  );
-}
-
 /* ===== MAIN PAGE ===== */
 export default function LearnPage() {
   const intl = useIntl();
-  // Home is selected by default
   const [selectedMode, setSelectedMode] = useState<LearningMode>('home');
+  const language = useStore((s) => s.language);
+  const courses = useMemo(() => getAllCourses(language), [language]);
+  const progressMap = useCourseProgress(courses);
+  const hasStartedCourses = Object.values(progressMap).some((p) => p > 0);
 
-  // User progress state (would come from API in production)
-  const hasStartedCourses = !USER_HAS_ZERO_PROGRESS;
-
-  // Check if Home is the active mode
   const isHomeMode = selectedMode === 'home';
 
-  // Handle mode selection
-  const handleModeSelect = (mode: LearningMode) => {
-    setSelectedMode(mode);
-  };
-
-  // Render content based on selected mode
   const renderModeContent = () => {
     switch (selectedMode) {
       case 'paths':
@@ -1610,48 +1030,37 @@ export default function LearnPage() {
 
   return (
     <div className="ds-page">
-      {/* ===== HERO SECTION (Always visible) ===== */}
       <HeroSection intl={intl} hasStartedCourses={hasStartedCourses} />
 
-      {/* ===== MODE SELECTORS + FILTERS ===== */}
+      {/* Mode Selectors */}
       <div style={{ marginTop: 'var(--spacing-3)' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-2)',
-          }}
-        >
-          {/* Mode Selector Buttons */}
-          <div style={{ display: 'flex', gap: 'var(--spacing-2)', flex: 1, overflowX: 'auto', paddingBottom: '0.5rem' }}>
-            {LEARNING_MODES.map((mode) => (
-              <ModeSelector
-                key={mode.id}
-                mode={mode}
-                isActive={selectedMode === mode.id}
-                onClick={() => handleModeSelect(mode.id)}
-                intl={intl}
-              />
-            ))}
-          </div>
+        <div style={{ display: 'flex', gap: 'var(--spacing-2)', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+          {LEARNING_MODES.map((mode) => (
+            <ModeSelector
+              key={mode.id}
+              mode={mode}
+              isActive={selectedMode === mode.id}
+              onClick={() => setSelectedMode(mode.id)}
+              intl={intl}
+            />
+          ))}
         </div>
 
-        {/* Filters */}
+        {/* Level Filter - open by default so users can filter courses */}
         <div style={{ marginTop: 'var(--spacing-2)' }}>
-          <FilterPanel config={LEARN_FILTER_CONFIG} />
+          <FilterPanel config={LEARN_FILTER_CONFIG} defaultOpen />
         </div>
       </div>
 
-      {/* ===== HOME MODE CONTENT: Recommended + Featured ===== */}
+      {/* Home Mode: Recommended + All Courses */}
       {isHomeMode && (
         <>
           <RecommendedCourseSection intl={intl} />
-          <FeaturedContent intl={intl} />
-          <RecommendedContent intl={intl} />
+          <AvailableCoursesSection intl={intl} />
         </>
       )}
 
-      {/* ===== CATEGORY MODE CONTENT ===== */}
+      {/* Other Modes */}
       {!isHomeMode && (
         <div style={{ marginTop: 'var(--spacing-3)' }}>
           {renderModeContent()}

@@ -1,0 +1,110 @@
+{
+  "courseId": "islamic_finance_basics_advanced_en",
+  "locale": "en",
+  "title": "Islamic Finance Basics",
+  "description": "Distinguish Mudaraba from Musharaka, learn income purification, and apply advanced Islamic finance principles.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p9_adv_L1_en",
+      "title": "Sharia-Compliant Structured Products and Hedging",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p9_adv_L1",
+          "title": "Sharia-Compliant Structured Products and Hedging",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the advanced level, you move beyond simple stocks to Structured Products—complex financial instruments that provide customized risk-return profiles. This includes Islamic Derivatives like \"Arbun\" or \"Wa’d\" which allow for hedging against market volatility or currency fluctuations without violating the prohibition on gambling (Maysir) or uncertainty (Gharar)."
+            },
+            {
+              "type": "p",
+              "text": "These tools allow a Sharia-compliant investor to protect their portfolio in a way that was historically difficult. By using \"Islamic Profit Rate Swaps,\" you can manage interest rate risks on your business debt. It requires a deep understanding of both modern finance and Fiqh al-Muamalat (Islamic commercial law) to ensure that the contracts are structured as real trades of assets rather than mere bets on price movements."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"Islamic Profit Rate Swaps.\" Identify a scenario where your business could use this to lock in a profit rate on a variable-rate financing agreement."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_adv_L2_en",
+      "title": "Waqf (Endowments) and Institutional Philanthropy",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p9_adv_L2",
+          "title": "Waqf (Endowments) and Institutional Philanthropy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The ultimate level of Islamic wealth management is the creation of a Waqf—a permanent endowment where the principal is held in perpetuity and the returns are used for a specific charitable or social purpose. Advanced strategists use Waqf not just for charity, but as a tool for \"Social Capital Engineering.\""
+            },
+            {
+              "type": "p",
+              "text": "A well-structured Waqf can fund family education, support local startups, or build sustainable community infrastructure for centuries. It is the Islamic version of a \"Perpetual Foundation.\" By dedicating a portion of your wealth to a Waqf, you create a legacy that outlives you, providing a continuous flow of \"Sadaqah Jariyah\" (ongoing charity) while serving as a permanent anchor for your family's values in the community."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Draft a \"Statement of Purpose\" for a potential family Waqf. What one social or family problem would you want this permanent fund to solve over the next 100 years?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_adv_L3_en",
+      "title": "Sukuk Engineering and Capital Markets",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p9_adv_L3",
+          "title": "Sukuk Engineering and Capital Markets",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced investors move from being buyers of Sukuk to being \"Issuers.\" If you have a large-scale real estate or infrastructure project, you can use Sukuk Engineering to raise capital from the global Islamic markets. This involves \"securitizing\" your assets—turning them into certificates that investors can buy and sell."
+            },
+            {
+              "type": "p",
+              "text": "This provides access to a massive pool of liquidity that is often cheaper than a traditional bank loan. Understanding the different Sukuk structures (Ijarah, Musharaka, Wakala) allows you to choose the one that best fits your asset's cash flow profile. It is the pinnacle of Islamic financial engineering, allowing you to fund multi-million dollar expansions while providing Sharia-compliant returns to a global audience."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research a recent Sukuk issuance by a major corporation in your region. Identify the underlying asset and the profit-sharing structure used."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_adv_L4_en",
+      "title": "Islamic Wealth Protection and Takaful Layering",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p9_adv_L4",
+          "title": "Islamic Wealth Protection and Takaful Layering",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced wealth protection involves \"Takaful Layering\"—using different levels of Islamic insurance to protect complex global assets. Takaful is based on the principle of \"Ta'awun\" (mutual assistance). In the advanced tier, you don't just buy a policy; you may participate in a \"Retakaful\" (reinsurance) pool or a \"Wakala\" based commercial Takaful for your SME."
+            },
+            {
+              "type": "p",
+              "text": "This ensures that your risk management is entirely \"Riba-free\" from the smallest health claim to the largest industrial risk. By aligning your entire protection layer with Islamic principles, you ensure the integrity of your wealth. It provides a moral and ethical framework for risk-taking, allowing you to expand your business empire with the peace of mind that your safety net is as pure as your investments."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your current insurance policies. Identify any \"Conventional\" elements and find a Takaful alternative for each that provides the same level of global coverage."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

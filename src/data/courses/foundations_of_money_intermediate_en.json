@@ -1,0 +1,123 @@
+{
+  "courseId": "foundations_of_money_intermediate_en",
+  "locale": "en",
+  "title": "Foundations of Money",
+  "description": "Deepen your understanding of macroeconomic forces, time value of money, and advanced financial psychology.",
+  "level": "intermediate",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p1_int_L1_en",
+      "title": "The Time Value of Money (TVM)",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p1_int_L1",
+          "title": "The Time Value of Money (TVM)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Time Value of Money is the concept that a dinar or riyal today is worth more than the same amount in the future. This is because money available now can be invested to earn a return, and also because inflation erodes future purchasing power. Understanding TVM is essential for making decisions about loans, investments, and retirement. It teaches you that delaying an investment doesn't just cost you the amount you didn't save, but also the \"compounded growth\" that money would have earned over time."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Use an online calculator to see how much 1,000 JOD/SAR would be worth in 10 years if invested at a 7% annual return versus sitting in cash."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_int_L2_en",
+      "title": "Opportunity Cost in Finance",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p1_int_L2",
+          "title": "Opportunity Cost in Finance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Every financial choice has an \"Opportunity Cost\"—the value of the next best alternative you give up when making a decision. For example, if you spend 5,000 on a luxury watch, the opportunity cost isn't just the 5,000; it is the potential profit that money could have earned if invested in a business or stocks. Intermediate financial thinkers don't just ask \"Can I afford this?\" they ask \"What am I giving up in the future by buying this today?\""
+            },
+            {
+              "type": "action_prompt",
+              "text": "Think of your last major purchase. Calculate how much that money would have grown to in 5 years if it had been invested at a 5% return instead."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_int_L3_en",
+      "title": "Nominal vs. Real Interest Rates",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p1_int_L3",
+          "title": "Nominal vs. Real Interest Rates",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "When a bank tells you that you are earning 4% interest, that is the Nominal Rate. However, to find your true profit, you must subtract the inflation rate to find the Real Interest Rate. If you earn 4% but inflation is 5%, your \"Real\" return is -1%, meaning you are losing purchasing power. Intermediate users track the Real Rate to ensure their wealth is actually expanding in value, not just increasing in numbers on a screen."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Subtract your country’s current inflation rate from the interest rate on your savings account to find your \"Real\" return."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_int_L4_en",
+      "title": "Velocity of Money and Economic Circulation",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p1_int_L4",
+          "title": "Velocity of Money and Economic Circulation",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The \"Velocity of Money\" measures the frequency with which a unit of currency is used to purchase goods and services within a given time period. In a healthy economy, money moves rapidly through various hands, stimulating growth. However, when the velocity drops—often due to a lack of consumer confidence—the economy stagnates even if the total money supply is high. For an individual, increasing your personal \"money velocity\" means ensuring your capital isn't sitting idle in low-interest accounts, but is instead constantly moving into productive assets or used to clear high-interest liabilities."
+            },
+            {
+              "type": "p",
+              "text": "Strategically, you should view your bank balance not as a \"trophy\" but as a \"tool.\" If your money is not moving toward a specific goal or earning a return that beats inflation, it is technically dying. By identifying stagnant pockets of cash and reallocating them into liquid investments or debt repayment, you create a dynamic financial ecosystem that supports your lifestyle while building long-term security."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your bank accounts and identify \"stagnant capital\"—money that has been idle for over 6 months without serving an emergency or investment purpose."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p1_int_L5_en",
+      "title": "The Psychology of Sunk Costs",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p1_int_L5",
+          "title": "The Psychology of Sunk Costs",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A \"Sunk Cost\" is money already spent that cannot be recovered. In finance, humans often make the mistake of continuing to invest in a failing project or keeping a bad asset just because they've already put money into it. This is a cognitive bias that clouds rational judgment; the brain mistakenly believes that more investment will somehow \"save\" the initial loss. Intermediate mastery involves ignoring past losses and making decisions based only on the future potential of the capital you have remaining today."
+            },
+            {
+              "type": "p",
+              "text": "To overcome this, you must adopt a \"Day Zero\" mindset. Ask yourself: \"If I didn't already own this asset or subscription, would I buy it right now at its current price?\" If the answer is no, then the only reason you are keeping it is a psychological attachment to a sunk cost. Cutting your losses early allows you to redirect that capital toward opportunities with higher growth potential, effectively turning a mistake into a learning experience rather than a permanent drain on your wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one subscription or investment you are keeping only because you \"already paid for it.\" Decide today whether to cut it."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

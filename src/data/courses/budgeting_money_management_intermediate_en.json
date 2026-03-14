@@ -1,0 +1,123 @@
+{
+  "courseId": "budgeting_money_management_intermediate_en",
+  "locale": "en",
+  "title": "Budgeting & Money Management",
+  "description": "Master zero-based budgeting, cash flow analysis, sinking funds, and impulse control strategies.",
+  "level": "intermediate",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p2_int_L1_en",
+      "title": "The Zero-Based Budgeting Method",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p2_int_L1",
+          "title": "The Zero-Based Budgeting Method",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Zero-based budgeting is an advanced strategy where you assign every single unit of currency to a specific category until your \"Income minus Expenses\" equals exactly zero. This doesn't mean you have zero money; it means every riyal has a job (e.g., 500 for rent, 200 for gold, 100 for charity). This method is superior to basic tracking because it forces you to prioritize your financial goals at the start of the month, leaving no room for \"mysterious\" leaks or impulsive spending."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_int_L2_en",
+      "title": "Budgeting for Sinking Funds",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p2_int_L2",
+          "title": "Budgeting for Sinking Funds",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A \"Sinking Fund\" is a way to save for a known future expense by breaking it down into smaller, manageable monthly payments. Unlike an emergency fund, which is for the unknown, a sinking fund is for the expected (e.g., car insurance, home maintenance, or a wedding). By creating separate sinking funds within your budget, you eliminate the stress of \"big bills\" because the money is already set aside. This is the secret to a smooth financial life without sudden spikes in spending."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_int_L3_en",
+      "title": "Analyzing Personal Cash Flow Trends",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p2_int_L3",
+          "title": "Analyzing Personal Cash Flow Trends",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate budgeting moves beyond monthly snapshots to trend analysis. By comparing your spending over 6 to 12 months, you can identify seasonal patterns—such as higher utility bills in the summer or increased gift spending during holidays. Understanding these trends allows you to build a \"buffer\" in your budget during low-expense months to cover high-expense months. This proactive approach ensures your financial plan remains robust throughout the entire year."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_int_L4_en",
+      "title": "Analyzing Personal Cash Flow Trends",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p2_int_L4",
+          "title": "Analyzing Personal Cash Flow Trends",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate budgeting moves beyond monthly snapshots to trend analysis. By comparing spending over 12 months, you can identify seasonal patterns—like higher utility bills in summer or increased gift spending during holidays. Most people feel \"poor\" during expensive months like Ramadan or Eid because they haven't accounted for the surge."
+            },
+            {
+              "type": "p",
+              "text": "By identifying these peaks, you can build a \"buffer\" in your budget during low-expense months to cover the high-expense ones. This turns your budget into a proactive tool rather than a reactive one. Understanding your \"Seasonal Burn Rate\" allows you to keep your lifestyle steady and avoid the stress of sudden financial spikes, ensuring your long-term plan remains robust throughout the entire year."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your reports from the last 6 months and identify which category has fluctuated the most."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_int_L5_en",
+      "title": "The 1% Rule for Impulse Control",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p2_int_L5",
+          "title": "The 1% Rule for Impulse Control",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For intermediate spenders, the \"1% Rule\" is a powerful psychological guardrail. It suggests that for any non-essential purchase exceeding 1% of your annual gross income, you must wait one full week before completing the transaction. This cooling-off period allows the \"dopamine hit\" of the potential purchase to fade, enabling you to make a rational decision based on your actual needs and long-term goals."
+            },
+            {
+              "type": "p",
+              "text": "Lifestyle inflation often happens through \"death by a thousand cuts\"—small, impulsive upgrades that feel manageable individually but together drain your capital. By implementing the 1% Rule, you force yourself to justify large outflows. This ensures that your money is being directed toward assets that build wealth rather than consumables that lose value the moment they are purchased."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

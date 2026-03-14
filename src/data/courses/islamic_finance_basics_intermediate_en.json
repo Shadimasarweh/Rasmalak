@@ -1,0 +1,102 @@
+{
+  "courseId": "islamic_finance_basics_intermediate_en",
+  "locale": "en",
+  "title": "Islamic Finance Basics",
+  "description": "Distinguish Mudaraba from Musharaka, learn income purification, and apply advanced Islamic finance principles.",
+  "level": "intermediate",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p9_int_L1_en",
+      "title": "Understanding Mudaraba vs. Musharaka",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p9_int_L1",
+          "title": "Understanding Mudaraba vs. Musharaka",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides the capital (Rab-ul-Mal) and the other provides the labor/expertise (Mudarib). If the business loses money, the capital provider loses their cash, while the expert loses their time and effort. In Musharaka, both parties provide capital and both share in the management. Understanding these differences is vital when entering into a business partnership or choosing a private equity investment that aligns with Sharia."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you were to start a business with a partner today, decide if a Mudaraba (you provide expertise) or Musharaka (you both provide cash and work) is more appropriate."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_int_L2_en",
+      "title": "Purification of Investment Income",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p9_int_L2",
+          "title": "Purification of Investment Income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts. To keep your wealth \"pure,\" you must calculate this non-compliant portion (often found in the fund’s annual report) and donate it to charity. This ensures that your growth is ethically clean and that your portfolio adheres strictly to the spirit of Islamic finance."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund you are interested in and calculate how much you would need to donate based on a 1,000-unit investment."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_int_L3_en",
+      "title": "Understanding Mudaraba vs. Musharaka",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p9_int_L3",
+          "title": "Understanding Mudaraba vs. Musharaka",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides the capital (Rab-ul-Mal) and the other provides the labor and expertise (Mudarib). If the business loses money, the capital provider loses their cash, while the expert loses their time. In Musharaka, both parties provide capital and both share in the management."
+            },
+            {
+              "type": "p",
+              "text": "Understanding these differences is vital when entering into a business partnership or choosing a private equity investment. It allows you to align the structure with the risk profile of each partner. For example, if you are an investor wanting a passive role, Mudaraba is ideal; if you want to be actively involved in the day-to-day operations, Musharaka is the correct legal and religious framework."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you were to start a business with a partner today, decide if a Mudaraba (you provide expertise) or Musharaka (you both provide cash and work) is more appropriate."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_int_L4_en",
+      "title": "Purification of Investment Income",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p9_int_L4",
+          "title": "Purification of Investment Income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts or have minor non-compliant activities. To keep your wealth \"pure,\" you must calculate this non-compliant portion and donate it to charity."
+            },
+            {
+              "type": "p",
+              "text": "This ensures that your growth is ethically clean and that your portfolio adheres strictly to the spirit of Islamic finance. Most Sharia-compliant mutual funds provide a \"Purification Ratio\" in their annual reports. By proactively managing this, you demonstrate a higher level of financial stewardship, ensuring that your wealth is not just growing, but \"blessed\" (Barakah) according to your religious values."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund you are interested in and calculate how much you would need to donate based on a 1,000 unit investment."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

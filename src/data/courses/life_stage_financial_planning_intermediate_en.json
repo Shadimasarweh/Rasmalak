@@ -1,0 +1,123 @@
+{
+  "courseId": "life_stage_financial_planning_intermediate_en",
+  "locale": "en",
+  "title": "Life Stage Financial Planning",
+  "description": "Leverage human capital, navigate the sandwich generation, and plan retirement withdrawal strategies.",
+  "level": "intermediate",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p10_int_L1_en",
+      "title": "Career Capital and Human Capital",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p10_int_L1",
+          "title": "Career Capital and Human Capital",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate planning looks at you as an asset. Human Capital is the total value of your future earnings. When you are young, your human capital is high, but your financial capital (savings) is low. As you age, you convert human capital into financial capital. To maximize this, you must invest in Career Capital—the rare and valuable skills that allow you to command higher pay. Instead of just saving money, intermediate users actively spend on certifications, networking, and high-level training to increase the value of their biggest asset: themselves."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one skill in your industry that is in high demand and low supply. Research the cost of a certification or course to master it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_int_L2_en",
+      "title": "The Sandwich Generation Dilemma",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p10_int_L2",
+          "title": "The Sandwich Generation Dilemma",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Many intermediate users enter the \"Sandwich Generation\" stage—where they are financially supporting both their growing children and their aging parents. This requires a complex balancing act. Intermediate planning involves creating \"Sinking Funds\" for parents' healthcare while simultaneously funding children's education. It is vital to prioritize your own retirement savings during this stage; if you sacrifice your retirement for others, you risk becoming a financial burden on your children later, continuing the cycle."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Estimate the potential healthcare costs for your parents over the next 5 years and discuss with siblings how a shared family fund could be structured."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_int_L3_en",
+      "title": "Retirement Withdrawal Strategies",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p10_int_L3",
+          "title": "Retirement Withdrawal Strategies",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Once you have a nest egg, you must plan how to take the money out. Intermediate planning moves beyond the \"4% Rule\" to consider Tax-Efficient Withdrawals and Sequence of Returns Risk. This means knowing which accounts to empty first to minimize taxes and understanding that a market crash in the first few years of retirement is much more dangerous than a crash later on. Learning to adjust your spending based on market performance (the \"Guardrails\" approach) ensures your money lasts through your entire life."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the \"Sequence of Returns Risk\" and see how a 20% market drop in Year 1 of retirement impacts a portfolio differently than a 20% drop in Year 15."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_int_L4_en",
+      "title": "Career Capital and Human Capital",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p10_int_L4",
+          "title": "Career Capital and Human Capital",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate planning looks at you as an asset. Human Capital is the total value of your future earnings. When you are young, your human capital is high, but your financial capital is low. To maximize your lifetime wealth, you must invest in Career Capital—the rare and valuable skills that allow you to command higher pay or start more successful businesses."
+            },
+            {
+              "type": "p",
+              "text": "Instead of just saving money, intermediate users actively spend on certifications, networking, and high-level training to increase the \"Value per Hour\" of their biggest asset: themselves. This is the most efficient investment you can make; a 10% increase in your salary through a new skill often provides a higher return than a 10% return on a small stock portfolio."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one skill in your industry that is in high demand and low supply. Research the cost of a certification or course to master it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_int_L5_en",
+      "title": "The Sandwich Generation Dilemma",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p10_int_L5",
+          "title": "The Sandwich Generation Dilemma",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Many intermediate users enter the \"Sandwich Generation\" stage—where they are financially supporting both their children and their aging parents. This requires a complex balancing act. Intermediate planning involves creating \"Sinking Funds\" for parents' healthcare while simultaneously funding children's education and your own retirement."
+            },
+            {
+              "type": "p",
+              "text": "It is vital to prioritize your own retirement savings during this stage; if you sacrifice your retirement for others, you risk becoming a financial burden on your children later, continuing the cycle of the sandwich generation. Learning to set \"Financial Boundaries\" with family while providing compassionate support is the hallmark of a mature financial leader."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Estimate the potential healthcare costs for your parents over the next 5 years and discuss with siblings how a shared family fund could be structured."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

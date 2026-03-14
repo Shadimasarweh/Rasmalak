@@ -1,0 +1,110 @@
+{
+  "courseId": "investment_fundamentals_advanced_en",
+  "locale": "en",
+  "title": "Investment Fundamentals",
+  "description": "Explore portfolio theory, options hedging, private equity access, and global macro strategies.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p5_adv_L1_en",
+      "title": "Modern Portfolio Theory (MPT) and the Efficient Frontier",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p5_adv_L1",
+          "title": "Modern Portfolio Theory (MPT) and the Efficient Frontier",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Modern Portfolio Theory (MPT) is a mathematical framework for assembling a portfolio of assets such that the expected return is maximized for a given level of risk. Advanced investors use the Efficient Frontier—a set of optimal portfolios that offer the highest expected return for a defined level of risk. By calculating the \"Standard Deviation\" (volatility) of each asset and their correlations, you can build a portfolio where the assets offset each other's losses."
+            },
+            {
+              "type": "p",
+              "text": "This allows you to achieve \"Alpha\" (excess return) without increasing your \"Beta\" (market risk). In practice, this means adding assets like gold, real estate, or international stocks that don't all move in the same direction at the same time. The goal is \"Optimization\"—creating a portfolio that gives you the smoothest ride possible toward your financial goals while minimizing the impact of any single market crash."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your portfolio's \"Sharpe Ratio,\" which measures your return per unit of risk. Aim to increase this ratio by adding assets that have low correlation to your primary holdings."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_adv_L2_en",
+      "title": "Options Strategies for Hedging and Income",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p5_adv_L2",
+          "title": "Options Strategies for Hedging and Income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced investors use Derivatives, specifically Options, to manage risk and generate extra yield. A \"Covered Call\" involves selling the right for someone else to buy your stocks at a higher price; you collect a \"premium\" (cash) immediately. This provides a steady income stream even if the market stays flat. A \"Protective Put\" acts like an insurance policy; you pay a small fee for the right to sell your stocks at a specific price even if the market crashes."
+            },
+            {
+              "type": "p",
+              "text": "Mastering these tools allows you to remain \"Long\" on the market while being protected from short-term \"Tail Risks.\" You can effectively \"insure\" your portfolio against a 20% drop for a small cost, or \"rent out\" your stocks to other investors to increase your annual yield. It is the ultimate level of active portfolio management, allowing you to profit in up, down, or sideways markets."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the \"Greeks\" in options trading (Delta, Theta, Gamma). Calculate how much a 5% drop in the market would impact your portfolio if you held a protective put."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_adv_L3_en",
+      "title": "Private Equity and Venture Capital Access",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p5_adv_L3",
+          "title": "Private Equity and Venture Capital Access",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The highest returns are often found in the private markets before a company goes public. Advanced investors seek access to Private Equity (PE) and Venture Capital (VC). These investments involve buying ownership in private companies at an early stage. While they are highly illiquid and carry more risk, the potential for a 10x or 100x return (a \"Unicorn\" exit) is what builds dynastic wealth."
+            },
+            {
+              "type": "p",
+              "text": "This level of investing requires a \"Accredited Investor\" status and a long time horizon—often 7 to 10 years. By investing in the \"engines of the future\" (AI, biotech, fintech), you diversify away from the public stock market and participate in the primary wealth creation stage of the global economy. It is the move from being a consumer of products to being an owner of the systems that create them."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"Angel Investing\" groups or private equity syndicates in your region. Identify the minimum capital requirements for a first-tier private investment."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_adv_L4_en",
+      "title": "Macro-Trading and Global Macro Strategy",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p5_adv_L4",
+          "title": "Macro-Trading and Global Macro Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Global Macro is an investment strategy that bases its holdings primarily on the overall economic and political views of various countries or their macroeconomic principles. Advanced macro-traders look at interest rate differentials, trade balances, and geopolitical stability to place massive bets on currencies, commodities, or entire national stock markets. This is the realm of the \"Macro Fund\" manager."
+            },
+            {
+              "type": "p",
+              "text": "By anticipating shifts in global power or economic policy (like a sudden change in China's growth or a US election result), you can position your wealth to benefit from large-scale tectonic shifts in the financial world. It requires a deep understanding of history and economics. When done correctly, global macro strategy allows you to profit from the \"chaos\" of the world by being on the right side of history's largest financial trends."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one major global geopolitical event happening this year. Predict how it will impact two different asset classes (e.g., Oil and the Euro)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
