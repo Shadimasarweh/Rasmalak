@@ -470,6 +470,47 @@ html, body {
   }
 }
 
+/* Learn page accordion */
+.learn-accordion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-4);
+}
+@media (max-width: 768px) {
+  .learn-accordion-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@keyframes learnAccordionIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.learn-topics-grid,
+.learn-achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4);
+}
+@media (max-width: 1024px) {
+  .learn-topics-grid,
+  .learn-achievements-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .learn-topics-grid,
+  .learn-achievements-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .ds-section-header {
   display: flex;
   align-items: center;
