@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getAllCourses } from '@/data/courses';
 import { getTotalSections } from '@/types/course';
 import type { CourseData, CourseLevel } from '@/types/course';
@@ -477,20 +477,17 @@ function AccordionCourseCard({
   course,
   progress,
   intl,
-  onClick,
 }: {
   course: CourseData;
   progress: number;
   intl: ReturnType<typeof useIntl>;
-  onClick: () => void;
 }) {
   const total = getTotalSections(course);
   const isRtl = course.locale === 'ar';
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Link
+      href={`/learn/courses/${course.courseId}`}
       style={{
         textAlign: isRtl ? 'right' : 'left',
         background: '#FFFFFF',
@@ -498,10 +495,11 @@ function AccordionCourseCard({
         borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
         boxShadow: 'var(--shadow-sm)',
-        cursor: 'pointer',
         padding: 0,
         width: '100%',
         transition: 'box-shadow 0.2s ease',
+        textDecoration: 'none',
+        display: 'block',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = 'var(--shadow-md)';
@@ -564,7 +562,7 @@ function AccordionCourseCard({
           />
         </div>
       )}
-    </button>
+    </Link>
   );
 }
 
@@ -586,7 +584,6 @@ function LevelAccordion({
   onToggle: () => void;
   language: string;
 }) {
-  const router = useRouter();
   const config = LEVEL_CONFIG[level];
   const label = language === 'ar' ? config.labelAr : config.labelEn;
 
@@ -660,7 +657,6 @@ function LevelAccordion({
                 course={course}
                 progress={progressMap[course.courseId] ?? 0}
                 intl={intl}
-                onClick={() => router.push(`/learn/courses/${course.courseId}`)}
               />
             ))}
           </div>

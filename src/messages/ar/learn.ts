@@ -1,5 +1,6 @@
 export default {
   title: 'تعلّم',
+  subtitle: 'أتقن مستقبلك المالي',
   welcome_back: 'أهلاً بعودتك، {name}!',
   progress_message: 'تقدمك رائع. كمّل دروسك عشان تحصل على نصائح مالية مخصصة.',
   continue_learning: 'كمّل التعلم',
@@ -65,6 +66,17 @@ export default {
   'mode.videos': 'فيديوهات',
   'mode.topics': 'المواضيع',
   'mode.achievements': 'الإنجازات',
+  // Tab switcher (learn page)
+  'tab.home': 'الرئيسية',
+  'tab.articles': 'مقالات',
+  'tab.videos': 'فيديوهات',
+  'tab.topics': 'المواضيع والمهارات',
+  'tab.achievements': 'الإنجازات',
+  // Accordion / course cards
+  sections_count: '{count} أقسام',
+  continue: 'متابعة',
+  start_course: 'ابدأ الدورة',
+  courses_count: '{count} دورات',
   // Hero section
   featured_title: 'ابدأ رحلتك المالية',
   featured_desc: 'ابدأ بمسار أساسيات المال وابنِ معرفتك خطوة بخطوة.',

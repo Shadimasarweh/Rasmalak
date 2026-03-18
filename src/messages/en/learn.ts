@@ -1,5 +1,6 @@
 export default {
   title: 'Learn',
+  subtitle: 'Master your financial future',
   welcome_back: 'Welcome back to your learning journey, {name}!',
   progress_message: "You're making great progress. Continue your lessons to unlock more financial insights tailored for you.",
   continue_learning: 'Continue Learning',
@@ -65,6 +66,17 @@ export default {
   'mode.videos': 'Videos',
   'mode.topics': 'Topics & Skills',
   'mode.achievements': 'Achievements',
+  // Tab switcher (learn page)
+  'tab.home': 'Home',
+  'tab.articles': 'Articles',
+  'tab.videos': 'Videos',
+  'tab.topics': 'Topics & Skills',
+  'tab.achievements': 'Achievements',
+  // Accordion / course cards
+  sections_count: '{count} sections',
+  continue: 'Continue',
+  start_course: 'Start Course',
+  courses_count: '{count} courses',
   // Hero section
   featured_title: 'Start Your Financial Journey',
   featured_desc: 'Begin with our beginner-friendly Financial Foundations path and build your knowledge step by step.',
