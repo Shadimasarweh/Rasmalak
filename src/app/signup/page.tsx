@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSignup, useIsAuthenticated, useHasCompletedOnboarding } from '@/store/useStore';
 import { useIntl } from 'react-intl';
 import { Button, Input } from '@/components/ui';
+import { ThemeLanguageSwitcher } from '@/components';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -79,7 +80,12 @@ export default function SignupPage() {
   ];
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      {/* Theme and Language Switcher */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <ThemeLanguageSwitcher />
+      </div>
+
       {/* Left Side - Visual Panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-10 relative overflow-hidden" style={{ backgroundColor: 'var(--color-sidebar-bg)' }}>
         {/* Logo */}

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
 import { useCurrency } from '@/store/useStore';
 import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/lib/supabaseClient';
 import { styledNum } from '@/components/StyledNumber';
 
 /* ============================================
@@ -217,6 +218,17 @@ export default function AddIncomePage() {
   const initialized = useAuthStore((state) => state.initialized);
   const user = useAuthStore((state) => state.user);
   const isAuthReady = initialized && !!user;
+
+  // Recover session if auth store lost the user (e.g. transient refresh failure)
+  useEffect(() => {
+    if (initialized && !user) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session?.user) {
+          useAuthStore.getState().setSession(data.session);
+        }
+      });
+    }
+  }, [initialized, user]);
 
   // Form state
   const [amount, setAmount] = useState('');

@@ -49,16 +49,17 @@ export interface FinancialAdviceRow {
  * into one of those two buckets.
  */
 function normalizeTargetMetric(value: string | null | undefined): string {
-  if (value == null) return 'spending'; // fallback — column is NOT NULL
+  if (value == null) return 'spending';
 
-  const v = value.toLowerCase();
+  const v = String(value).trim().toLowerCase();
+  if (!v) return 'spending';
 
   // Savings-family: goals, savings, saving
   if (v === 'savings' || v === 'saving' || v === 'goals' || v === 'goal') {
     return 'savings';
   }
 
-  // Everything else is spending-family: spending, budget, cashflow, general, …
+  // Everything else → spending (budget, cashflow, general, income, etc.)
   return 'spending';
 }
 
@@ -108,11 +109,12 @@ export async function logFinancialAdvice(row: FinancialAdviceRow): Promise<void>
       });
 
     if (error) {
-      console.error('[AdviceLogger] Insert failed:', error.message);
+      // warn: audit logging is best-effort; console.error triggers Next.js dev overlay
+      console.warn('[AdviceLogger] Insert failed:', error.message);
     }
   } catch (err) {
-    // Network or unexpected errors — log and move on
-    console.error('[AdviceLogger] Unexpected error:', err);
+    // Network or unexpected errors — log and move on (e.g. "Failed to fetch", offline)
+    console.warn('[AdviceLogger] Unexpected error:', err);
   }
 }
 

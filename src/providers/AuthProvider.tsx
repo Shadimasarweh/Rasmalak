@@ -68,14 +68,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         console.log('[AuthProvider] Session:', session ? 'exists' : 'null', 'User ID:', session?.user?.id);
         
-        // If no session, try to refresh — but handle stale/revoked tokens gracefully
+        // If no session, try to refresh once.
+        // IMPORTANT: Do NOT call signOut on failure — that destroys the
+        // local refresh token and makes recovery impossible.  Supabase's
+        // autoRefreshToken (enabled in supabaseClient.ts) will keep
+        // retrying in the background and fire onAuthStateChange when it
+        // succeeds, which syncSessionToStores will pick up automatically.
         if (!session) {
           const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
           if (refreshError) {
-            // Stale refresh token (e.g. after logout) — clear it from localStorage
-            // so the error doesn't recur on subsequent loads
-            console.log('[AuthProvider] Refresh failed, clearing stale session:', refreshError.message);
-            await supabase.auth.signOut({ scope: 'local' });
+            console.warn('[AuthProvider] Refresh failed (will auto-retry):', refreshError.message);
           } else if (refreshData.session) {
             console.log('[AuthProvider] Session refreshed successfully');
             syncSessionToStores(refreshData.session, setSession);

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
 import { useCurrency } from '@/store/useStore';
 import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/lib/supabaseClient';
 import { styledNum } from '@/components/StyledNumber';
 
 /* ============================================
@@ -220,8 +221,19 @@ export default function AddExpensePage() {
   const initialized = useAuthStore((state) => state.initialized);
   const user = useAuthStore((state) => state.user);
   const isAuthReady = initialized && !!user;
-  
-  console.log('[AddExpense] initialized:', initialized, 'user:', user?.id, 'isAuthReady:', isAuthReady);
+
+  // If auth store says no user but we're initialized, try to recover the
+  // Supabase session once.  This handles the case where onAuthStateChange
+  // fires TOKEN_REFRESHED after the initial getSession returned null.
+  useEffect(() => {
+    if (initialized && !user) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session?.user) {
+          useAuthStore.getState().setSession(data.session);
+        }
+      });
+    }
+  }, [initialized, user]);
 
   // Form state
   const [amount, setAmount] = useState('');
