@@ -142,3 +142,28 @@ export function getCourseIdForLocale(baseCourseId: string, locale: string): stri
   const withoutLocale = baseCourseId.replace(/_(?:en|ar)$/, '');
   return `${withoutLocale}_${locale}`;
 }
+
+const SUBJECT_ORDER = [
+  'foundations_of_money',
+  'budgeting_money_management',
+  'saving_emergency_planning',
+  'debt_and_credit',
+  'investment_fundamentals',
+  'insurance_literacy',
+  'taxes_and_legal',
+  'sme_financial_management',
+  'islamic_finance_basics',
+  'life_stage_financial_planning',
+];
+
+/**
+ * Returns the 1-based course number for a given courseId.
+ * Strips locale and level suffixes to find the base subject.
+ */
+export function getCourseNumber(courseId: string): number {
+  const base = courseId
+    .replace(/_(?:en|ar)$/, '')
+    .replace(/_(?:beginner|intermediate|advanced)$/, '');
+  const idx = SUBJECT_ORDER.indexOf(base);
+  return idx >= 0 ? idx + 1 : 1;
+}

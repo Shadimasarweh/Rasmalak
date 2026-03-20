@@ -3,10 +3,11 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useIntl } from 'react-intl';
-import { getCourse } from '@/data/courses';
+import { getCourse, getCourseNumber } from '@/data/courses';
 import { CourseProgressProvider } from '@/store/courseProgressStore';
 import CourseSidebar from '@/components/courses/CourseSidebar';
 import CourseContent from '@/components/courses/CourseContent';
+import CourseTutorChat from '@/components/courses/CourseTutorChat';
 
 export default function CourseViewerPage() {
   const params = useParams();
@@ -31,6 +32,7 @@ export default function CourseViewerPage() {
     return localStorage.getItem('courseSidebarOpen') === 'true';
   });
   const [currentPage, setCurrentPage] = useState(0);
+  const [tutorOpen, setTutorOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -117,6 +119,7 @@ export default function CourseViewerPage() {
   }
 
   const isRtl = course.locale === 'ar';
+  const courseNumber = getCourseNumber(courseId);
 
   return (
     <CourseProgressProvider course={course}>
@@ -228,9 +231,10 @@ export default function CourseViewerPage() {
         </div>
 
         {/* Scrollable content */}
-        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto' }}>
+        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', paddingRight: tutorOpen ? '400px' : undefined }}>
           <CourseContent
             course={course}
+            courseNumber={courseNumber}
             currentPage={currentPage}
             totalPages={totalPages}
             lessonsPerPage={lessonsPerPage}
@@ -242,10 +246,21 @@ export default function CourseViewerPage() {
         </div>
       </div>
 
+      <CourseTutorChat
+        courseTitle={course.title}
+        currentLessons={currentPageLessons}
+        onOpenChange={setTutorOpen}
+      />
+
       <style>{`
         @media (min-width: 640px) {
           .course-viewer-responsive {
             margin: calc(-1 * 1.5rem) !important;
+          }
+        }
+        @media (max-width: 900px) {
+          .course-viewer-responsive > div[style*="paddingRight"] {
+            padding-right: 0 !important;
           }
         }
       `}</style>

@@ -42,6 +42,7 @@ function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
 interface LessonSectionContainerProps {
   section: Section;
   sectionIndex: number;
+  lessonLabel: string;
   isRtl: boolean;
   completed: boolean;
   alternateBackground: boolean;
@@ -49,13 +50,11 @@ interface LessonSectionContainerProps {
 
 export default function LessonSectionContainer({
   section,
-  sectionIndex,
+  lessonLabel,
   isRtl,
   completed,
   alternateBackground,
 }: LessonSectionContainerProps) {
-  const indexStr = String(sectionIndex + 1).padStart(2, '0');
-
   return (
     <div
       style={{
@@ -82,7 +81,7 @@ export default function LessonSectionContainer({
         }}
       />
 
-      {/* Section index + title row */}
+      {/* Lesson number + title row */}
       <div
         style={{
           display: 'flex',
@@ -91,7 +90,7 @@ export default function LessonSectionContainer({
           marginBottom: 'var(--spacing-4)',
         }}
       >
-        {/* Large index number */}
+        {/* Big grey lesson number */}
         <span
           style={{
             fontSize: '1.75rem',
@@ -107,7 +106,7 @@ export default function LessonSectionContainer({
             transition: 'color 0.4s ease, opacity 0.4s ease',
           }}
         >
-          {indexStr}
+          {lessonLabel}
         </span>
 
         <div style={{ flex: 1 }}>

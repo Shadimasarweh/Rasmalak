@@ -9,6 +9,7 @@ import type { CourseData } from '@/types/course';
 
 interface CourseContentProps {
   course: CourseData;
+  courseNumber: number;
   currentPage: number;
   totalPages: number;
   lessonsPerPage: number;
@@ -20,6 +21,7 @@ interface CourseContentProps {
 
 export default function CourseContent({
   course,
+  courseNumber,
   currentPage,
   totalPages,
   lessonsPerPage,
@@ -84,19 +86,6 @@ export default function CourseContent({
                   borderBottom: '2px solid var(--color-accent-growth)',
                 }}
               >
-                <span
-                  style={{
-                    fontSize: '0.6875rem',
-                    fontWeight: 600,
-                    color: 'var(--color-accent-growth)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {isRtl
-                    ? `الدرس ${globalIndex + 1} من ${course.lessons.length}`
-                    : `Lesson ${globalIndex + 1} of ${course.lessons.length}`}
-                </span>
                 <h2
                   style={{
                     fontSize: '1.5rem',
@@ -115,6 +104,7 @@ export default function CourseContent({
                   key={section.id}
                   section={section}
                   sectionIndex={idx}
+                  lessonLabel={`${courseNumber}.${globalIndex + 1}`}
                   isRtl={isRtl}
                   completed={isSectionComplete(section.id)}
                   alternateBackground={idx % 2 === 1}
