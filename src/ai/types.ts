@@ -35,6 +35,7 @@ export type AIIntent =
   // Learning & Education
   | 'explain_concept'         // "شو يعني تدفق نقدي؟" - What is cash flow?
   | 'learning_recommendation' // "شو لازم أتعلم؟" - What should I learn?
+  | 'general_financial_knowledge' // "How do credit cards work?" - General financial education
   
   // General
   | 'greeting'                // "مرحبا" - Hello

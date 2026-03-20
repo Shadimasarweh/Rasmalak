@@ -73,6 +73,7 @@ const ALL_INTENTS = [
   'simulate_scenario',
   'forecast_savings',
   'explain_concept',
+  'general_financial_knowledge',
   'learning_recommendation',
   'greeting',
   'gratitude',

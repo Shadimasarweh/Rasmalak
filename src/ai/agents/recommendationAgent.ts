@@ -25,12 +25,15 @@ function buildSystemPrompt(params: AgentPromptParams): string {
   const { language, contextSlices, memoryFields, deterministic } = params;
   const isAr = language === 'ar';
 
-  const identity = isAr
-    ? `أنت "مستشارك" - محرك التوصيات المالية في تطبيق رصملك. مهمتك تقديم توصيات عملية مبنية على بيانات حقيقية.`
-    : `You are "Mustasharak" - the financial recommendation engine of the Rasmalak app. Your task is to provide actionable recommendations grounded in real data.`;
+  const languageRule = `## RULE #1 — RESPONSE LANGUAGE (HIGHEST PRIORITY)
+You MUST respond in the SAME language as the user's message.
+- User writes in English → reply ENTIRELY in English.
+- User writes in Arabic → reply ENTIRELY in Arabic.
+- NEVER switch languages mid-response.`;
 
-  const languageRule = `## Language Rule
-Respond in the SAME language the user writes in. Match their Arabic dialect if applicable.`;
+  const identity = isAr
+    ? `أنت "مستشارك" (Mustasharak) - محرك التوصيات المالية في تطبيق رصملك. مهمتك تقديم توصيات عملية مبنية على بيانات حقيقية.`
+    : `You are "Mustasharak" (مستشارك) - the financial recommendation engine of the Rasmalak app. Your task is to provide actionable recommendations grounded in real data.`;
 
   const rules = isAr
     ? `## قواعد التوصيات
@@ -79,7 +82,7 @@ Respond in the SAME language the user writes in. Match their Arabic dialect if a
       }, null, 2);
   }
 
-  return [identity, languageRule, rules, contextBlock, memoryBlock, deterministicBlock]
+  return [languageRule, identity, rules, contextBlock, memoryBlock, deterministicBlock]
     .filter(Boolean)
     .join('\n\n---\n\n');
 }
