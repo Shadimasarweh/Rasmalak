@@ -178,6 +178,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: 'var(--color-accent-growth)',
     category: 'budgeting',
     countries: ['all'],
+    href: '/calculators/compound-savings',
   },
   {
     id: 'rent-vs-buy',
