@@ -4,7 +4,7 @@ export default {
   completed: '{percent}% Completed',
   step1_title: "Let's personalize your experience",
   step1_subtitle: "To give you the best advice, we need to know what you're aiming for.",
-  step1_question: 'What is your primary financial goal?',
+  step1_question: 'What are your financial goals?',
   step2_title: 'Tell us about yourself',
   step2_subtitle: 'This helps us tailor recommendations to your situation.',
   step2_question: 'Which best describes you?',

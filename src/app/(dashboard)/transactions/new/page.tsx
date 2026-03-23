@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
-import { useCurrency } from '@/store/useStore';
+import { useCurrency, useLanguage } from '@/store/useStore';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabaseClient';
 import { styledNum } from '@/components/StyledNumber';
@@ -124,7 +124,7 @@ function TransactionTypeToggle({ intl }: { intl: ReturnType<typeof useIntl> }) {
           fontWeight: 500,
           borderRadius: 'var(--radius-pill)',
           background: 'var(--color-bg-surface-1)',
-          color: 'var(--color-error)',
+          color: 'var(--ds-error)',
           boxShadow: '0 1px 3px rgb(0 0 0 / 0.1)',
           textAlign: 'center',
           cursor: 'default',
@@ -141,7 +141,7 @@ function TransactionTypeToggle({ intl }: { intl: ReturnType<typeof useIntl> }) {
           fontWeight: 500,
           borderRadius: 'var(--radius-pill)',
           background: 'transparent',
-          color: 'var(--color-text-muted)',
+          color: 'var(--ds-text-muted)',
           textAlign: 'center',
           textDecoration: 'none',
           cursor: 'pointer',
@@ -176,9 +176,9 @@ function CategoryItem({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 'var(--spacing-2)',
-        borderRadius: 'var(--radius-sm)',
-        border: selected ? '2px solid var(--color-error)' : '1px solid var(--color-border)',
-        background: selected ? 'rgba(239, 68, 68, 0.08)' : 'var(--color-bg-surface-1)',
+        borderRadius: '8px',
+        border: selected ? '0.5px solid var(--ds-error)' : '0.5px solid var(--ds-border)',
+        background: selected ? 'rgba(220, 38, 38, 0.06)' : 'var(--ds-bg-card)',
         cursor: 'pointer',
         gap: '8px',
         minHeight: '80px',
@@ -192,16 +192,16 @@ function CategoryItem({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: selected ? 'var(--color-error)' : 'var(--color-text-muted)',
+          color: selected ? 'var(--ds-error)' : 'var(--ds-text-muted)',
         }}
       >
         {icon}
       </div>
       <span
         style={{
-          fontSize: '0.75rem',
+          fontSize: '12px',
           fontWeight: 500,
-          color: selected ? 'var(--color-error)' : 'var(--color-text-secondary)',
+          color: selected ? 'var(--ds-error)' : 'var(--ds-text-muted)',
         }}
       >
         {label}
@@ -216,7 +216,9 @@ export default function AddExpensePage() {
   const router = useRouter();
   const { addTransaction } = useTransactions();
   const currency = useCurrency();
-  
+  const language = useLanguage();
+  const isRtl = language === 'ar';
+
   // Auth state - gate form submission until auth is ready
   const initialized = useAuthStore((state) => state.initialized);
   const user = useAuthStore((state) => state.user);
@@ -312,6 +314,8 @@ export default function AddExpensePage() {
         justifyContent: 'center',
         paddingTop: 'var(--spacing-2)',
         paddingBottom: 'var(--spacing-4)',
+        paddingInline: '20px',
+        direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
       <div style={{ width: '100%', maxWidth: '500px' }}>
@@ -333,11 +337,11 @@ export default function AddExpensePage() {
           <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-3)' }}>
             <p
               style={{
-                fontSize: '0.75rem',
+                fontSize: '12px',
                 fontWeight: 500,
-                color: 'var(--color-text-muted)',
+                color: 'var(--ds-text-muted)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.04em',
                 marginBottom: 'var(--spacing-1)',
               }}
             >
@@ -362,7 +366,7 @@ export default function AddExpensePage() {
                 style={{
                   fontSize: '3rem',
                   fontWeight: 300,
-                  color: amount ? 'var(--color-error)' : 'var(--color-text-muted)',
+                  color: amount ? 'var(--ds-error)' : 'var(--ds-text-muted)',
                   letterSpacing: '-0.02em',
                   background: 'transparent',
                   border: 'none',
@@ -374,16 +378,16 @@ export default function AddExpensePage() {
               {/* Locale-aware currency display */}
               <span
                 style={{
-                  fontSize: '1.25rem',
+                  fontSize: '18px',
                   fontWeight: 500,
-                  color: amount ? 'var(--color-error)' : 'var(--color-text-muted)',
+                  color: amount ? 'var(--ds-error)' : 'var(--ds-text-muted)',
                 }}
               >
                 {formattedAmount}
               </span>
             </div>
             {errors.amount && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                 {errors.amount}
               </p>
             )}
@@ -393,16 +397,16 @@ export default function AddExpensePage() {
           <div style={{ marginBottom: 'var(--spacing-3)' }}>
             <p
               style={{
-                fontSize: '0.875rem',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
                 marginBottom: 'var(--spacing-1)',
               }}
             >
               {intl.formatMessage({ id: 'transactions.select_category', defaultMessage: 'Select Category' })}
             </p>
             {errors.category && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginBottom: '8px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginBottom: '8px' }}>
                 {errors.category}
               </p>
             )}
@@ -430,9 +434,9 @@ export default function AddExpensePage() {
           <div style={{ marginBottom: 'var(--spacing-2)' }}>
             <p
               style={{
-                fontSize: '0.875rem',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
                 marginBottom: '6px',
               }}
             >
@@ -445,20 +449,20 @@ export default function AddExpensePage() {
                 onChange={(e) => setDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '12px',
-                  fontSize: '0.875rem',
-                  color: 'var(--color-text-primary)',
-                  background: 'var(--color-bg-input)',
+                  padding: '10px 14px',
+                  fontSize: '14px',
+                  color: 'var(--ds-text-heading)',
+                  background: 'var(--ds-bg-input)',
                   border: errors.date
-                    ? '1px solid var(--color-error)'
-                    : '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
+                    ? '0.5px solid var(--ds-error)'
+                    : '0.5px solid var(--ds-border)',
+                  borderRadius: '8px',
                   outline: 'none',
                 }}
               />
             </div>
             {errors.date && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                 {errors.date}
               </p>
             )}
@@ -468,9 +472,9 @@ export default function AddExpensePage() {
           <div style={{ marginBottom: 'var(--spacing-3)' }}>
             <p
               style={{
-                fontSize: '0.875rem',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
                 marginBottom: '6px',
               }}
             >
@@ -483,12 +487,12 @@ export default function AddExpensePage() {
               rows={2}
               style={{
                 width: '100%',
-                padding: '12px',
-                fontSize: '0.875rem',
-                color: 'var(--color-text-primary)',
-                background: 'var(--color-bg-input)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
+                padding: '10px 14px',
+                fontSize: '14px',
+                color: 'var(--ds-text-heading)',
+                background: 'var(--ds-bg-input)',
+                border: '0.5px solid var(--ds-border)',
+                borderRadius: '8px',
                 outline: 'none',
                 resize: 'none',
               }}
@@ -502,16 +506,16 @@ export default function AddExpensePage() {
               alignItems: 'center',
               justifyContent: 'space-between',
               paddingTop: 'var(--spacing-2)',
-              borderTop: '1px solid var(--color-divider)',
+              borderTop: '0.5px solid var(--ds-border)',
             }}
           >
             <button
               type="button"
               onClick={handleCancel}
               style={{
-                fontSize: '0.875rem',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: 'var(--color-text-secondary)',
+                color: 'var(--ds-text-muted)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -529,13 +533,13 @@ export default function AddExpensePage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontSize: '0.875rem',
+                fontSize: '13px',
                 fontWeight: 500,
                 color: '#FFFFFF',
-                background: isAuthReady ? 'var(--color-error)' : 'var(--color-text-muted)',
+                background: isAuthReady ? 'var(--ds-error)' : 'var(--ds-text-muted)',
                 border: 'none',
-                borderRadius: 'var(--radius-md)',
-                padding: '12px 24px',
+                borderRadius: '8px',
+                padding: '9px 18px',
                 cursor: isAuthReady ? 'pointer' : 'not-allowed',
                 opacity: isAuthReady ? 1 : 0.6,
               }}

@@ -77,6 +77,8 @@ export default function CreditCardCalculatorPage() {
   const [result, setResult] = useState<CreditCardResult | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [calcBtnHover, setCalcBtnHover] = useState(false);
+  const [pdfBtnHover, setPdfBtnHover] = useState(false);
 
   const t = (key: string, defaultMessage: string) =>
     intl.formatMessage({ id: `tools.${key}`, defaultMessage });
@@ -144,28 +146,28 @@ export default function CreditCardCalculatorPage() {
   const inputFieldStyle = (hasError: boolean): React.CSSProperties => ({
     width: '100%',
     padding: '10px 14px',
-    fontSize: '0.9375rem',
-    border: `1.5px solid ${hasError ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-    borderRadius: 'var(--radius-md)',
-    backgroundColor: 'var(--color-bg-input)',
-    color: 'var(--color-text-primary)',
+    fontSize: '14px',
+    border: `0.5px solid ${hasError ? 'var(--ds-error)' : 'var(--ds-border)'}`,
+    borderRadius: '8px',
+    backgroundColor: 'var(--ds-bg-input)',
+    color: 'var(--ds-text-heading)',
     outline: 'none',
     direction: 'ltr',
     textAlign: isRTL ? 'right' : 'left',
   });
 
-  const labelStyle = {
-    display: 'block' as const,
-    fontSize: '0.8125rem',
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: '13px',
     fontWeight: 500,
-    color: 'var(--color-text-secondary)',
+    color: 'var(--ds-text-heading)',
     marginBottom: '6px',
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', padding: 'var(--spacing-3)', direction: isRTL ? 'rtl' : 'ltr' }}>
       {/* Back Link */}
-      <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-accent-growth)', textDecoration: 'none', marginBottom: 'var(--spacing-2)' }} className="hover:underline">
+      <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-muted)', textDecoration: 'none', marginBottom: 'var(--spacing-2)' }}>
         <span style={{ transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex' }}><ArrowLeftIcon /></span>
         {t('credit_card_back_to_tools', 'Back to Tools')}
       </Link>
@@ -173,14 +175,14 @@ export default function CreditCardCalculatorPage() {
       {/* Header */}
       <div style={{ marginBottom: 'var(--spacing-3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)', flexShrink: 0 }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ds-primary)', flexShrink: 0 }}>
             <CreditCardIcon />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
+            <h1 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', lineHeight: 1.2, fontFeatureSettings: '"kern" 1' }}>
               {t('credit_card_title', 'Credit Card Payment Calculator')}
             </h1>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, marginTop: '4px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', lineHeight: 1.6, marginTop: '4px' }}>
               {t('credit_card_subtitle', 'See how long it will take to pay off your credit card and how much interest you will pay.')}
             </p>
           </div>
@@ -191,10 +193,10 @@ export default function CreditCardCalculatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Form */}
         <div className="col-span-1 lg:col-span-5">
-          <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+          <div style={{ background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px', padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ color: 'var(--color-accent-growth)' }}><CalculatorIcon /></span>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              <span style={{ color: 'var(--ds-primary)' }}><CalculatorIcon /></span>
+              <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
                 {t('credit_card_enter_values', 'Enter Card Details')}
               </h2>
             </div>
@@ -204,7 +206,7 @@ export default function CreditCardCalculatorPage() {
               <label style={labelStyle}>{t('credit_card_current_balance', 'Current Balance')} ({currencySymbol})</label>
               <input type="number" value={balance} onChange={e => setBalance(e.target.value)}
                 placeholder={t('credit_card_balance_placeholder', 'e.g. 17000')} style={inputFieldStyle(!!errors.balance)} />
-              {errors.balance && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.balance}</p>}
+              {errors.balance && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.balance}</p>}
             </div>
 
             {/* Interest Rate */}
@@ -212,7 +214,7 @@ export default function CreditCardCalculatorPage() {
               <label style={labelStyle}>{t('credit_card_interest_rate', 'Annual Interest Rate (%)')}</label>
               <input type="number" step="0.01" value={rate} onChange={e => setRate(e.target.value)}
                 placeholder={t('credit_card_rate_placeholder', 'e.g. 21')} style={inputFieldStyle(!!errors.rate)} />
-              {errors.rate && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.rate}</p>}
+              {errors.rate && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.rate}</p>}
             </div>
 
             {/* Min Payment % */}
@@ -220,7 +222,7 @@ export default function CreditCardCalculatorPage() {
               <label style={labelStyle}>{t('credit_card_min_payment_percent', 'Min Payment % of Balance')}</label>
               <input type="number" step="0.1" value={minPct} onChange={e => setMinPct(e.target.value)}
                 placeholder={t('credit_card_min_pct_placeholder', 'e.g. 5')} style={inputFieldStyle(!!errors.minPct)} />
-              {errors.minPct && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.minPct}</p>}
+              {errors.minPct && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.minPct}</p>}
             </div>
 
             {/* Plus Interest? */}
@@ -238,7 +240,7 @@ export default function CreditCardCalculatorPage() {
               <label style={labelStyle}>{t('credit_card_min_payment_floor', 'Min Payment for Low Balance')} ({currencySymbol})</label>
               <input type="number" value={floor} onChange={e => setFloor(e.target.value)}
                 placeholder={t('credit_card_floor_placeholder', 'e.g. 25')} style={inputFieldStyle(!!errors.floor)} />
-              {errors.floor && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.floor}</p>}
+              {errors.floor && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.floor}</p>}
             </div>
 
             {/* Fixed Payment */}
@@ -256,15 +258,15 @@ export default function CreditCardCalculatorPage() {
             </div>
 
             {/* Buttons */}
-            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
               <button type="button" onClick={handleCalculate}
-                style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 24px', background: 'var(--color-accent-growth)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
-                className="hover:opacity-90 transition-opacity">
+                onMouseEnter={() => setCalcBtnHover(true)}
+                onMouseLeave={() => setCalcBtnHover(false)}
+                style={{ flex: '1 1 auto', minWidth: '140px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '9px 18px', background: calcBtnHover ? 'var(--ds-primary-hover)' : 'var(--ds-primary)', color: '#FFFFFF', fontSize: '13px', fontWeight: 500, border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background 0.15s ease' }}>
                 <CalculatorIcon /> {t('credit_card_calculate', 'Calculate')}
               </button>
               <button type="button" onClick={handleReset}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 20px', background: 'transparent', color: 'var(--color-text-secondary)', fontSize: '0.875rem', fontWeight: 500, border: '1.5px solid var(--color-border-input)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
-                className="hover:opacity-80 transition-opacity">
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '9px 18px', background: 'transparent', color: 'var(--ds-text-body)', fontSize: '13px', fontWeight: 500, border: '0.5px solid var(--ds-border)', borderRadius: '8px', cursor: 'pointer' }}>
                 {t('credit_card_reset', 'Reset')}
               </button>
             </div>
@@ -275,37 +277,52 @@ export default function CreditCardCalculatorPage() {
         <div className="col-span-1 lg:col-span-7">
           {result ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-              <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: 'var(--color-accent-growth)' }}><CheckCircleIcon /></span>
+              {/* Dark glass results card */}
+              <div style={{ background: 'var(--ds-bg-card-dark)', border: '0.5px solid var(--ds-dark-card-border)', borderRadius: '16px', padding: '20px 24px', boxShadow: 'var(--ds-dark-card-glow)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+                <h2 style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-dark-card-body)', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <span style={{ color: 'var(--ds-primary-glow)' }}><CheckCircleIcon /></span>
                   {t('credit_card_summary', 'Payoff Summary')}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <SummaryItem label={t('credit_card_first_payment', 'First Payment')} value={formatCurrencyValue(result.summary.firstPayment)} highlight />
                   <SummaryItem label={t('credit_card_max_payment', 'Max Payment')} value={formatCurrencyValue(result.summary.maxPayment)} />
                   <SummaryItem label={t('credit_card_months_to_payoff', 'Months to Pay Off')} value={`${result.summary.monthsToPayOff}`} />
-                  <SummaryItem label={t('credit_card_years_to_payoff', 'Years to Pay Off')} value={`${result.summary.yearsToPayOff} ${t('credit_card_years', 'years')}`} accent />
+                  <SummaryItem label={t('credit_card_years_to_payoff', 'Years to Pay Off')} value={`${result.summary.yearsToPayOff} ${t('credit_card_years', 'years')}`} highlight />
                   <SummaryItem label={t('credit_card_total_interest', 'Total Interest Paid')} value={formatCurrencyValue(result.summary.totalInterestPaid)} />
                   <SummaryItem label={t('credit_card_total_paid', 'Total Amount Paid')} value={formatCurrencyValue(result.summary.totalAmountPaid)} />
                 </div>
               </div>
 
+              {/* PDF download button — inside dark context, use green accent style */}
               <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', background: isGeneratingPDF ? 'var(--color-text-muted)' : 'var(--color-accent-growth)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%' }}
-                className="hover:opacity-90 transition-opacity">
+                onMouseEnter={() => setPdfBtnHover(true)}
+                onMouseLeave={() => setPdfBtnHover(false)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                  padding: '8px 16px',
+                  background: isGeneratingPDF ? '#9CA3AF' : pdfBtnHover ? 'rgba(34,197,94,0.1)' : 'transparent',
+                  color: isGeneratingPDF ? '#FFFFFF' : 'var(--ds-primary-glow)',
+                  fontSize: '13px', fontWeight: 500,
+                  border: isGeneratingPDF ? 'none' : '1.5px solid rgba(74,222,128,0.3)',
+                  borderRadius: '8px',
+                  cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
+                  width: '100%',
+                  opacity: isGeneratingPDF ? 0.5 : 1,
+                  transition: 'background 0.15s ease',
+                }}>
                 <DownloadIcon />
                 {isGeneratingPDF ? t('credit_card_generating', 'Generating...') : t('credit_card_download_report', 'Download PDF Report')}
               </button>
             </div>
           ) : (
-            <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-xl)', background: 'rgba(239, 68, 68, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error)' }}>
+            <div style={{ background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px', padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '8px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ds-primary)' }}>
                 <CreditCardIcon />
               </div>
-              <p style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+              <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-heading)', textAlign: 'center' }}>
                 {t('credit_card_enter_values', 'Enter Card Details')}
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
                 {t('credit_card_subtitle', 'See how long it will take to pay off your credit card and how much interest you will pay.')}
               </p>
             </div>
@@ -316,12 +333,11 @@ export default function CreditCardCalculatorPage() {
   );
 }
 
-function SummaryItem({ label, value, highlight, accent }: { label: string; value: React.ReactNode; highlight?: boolean; accent?: boolean }) {
+function SummaryItem({ label, value, highlight }: { label: string; value: React.ReactNode; highlight?: boolean }) {
   return (
-    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(var(--accent-color-rgb), 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)' }}>
-      <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>
-      <p style={{ fontSize: highlight ? '1.25rem' : '1rem', fontWeight: 600, color: highlight ? 'var(--color-accent-growth)' : accent ? '#6366F1' : 'var(--color-text-primary)', lineHeight: 1.3 }}>{value}</p>
+    <div style={{ padding: '12px', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+      <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-dark-card-body)', marginBottom: '4px', lineHeight: 1.3 }}>{label}</p>
+      <p style={{ fontSize: '20px', fontWeight: 600, color: highlight ? 'var(--ds-primary-glow)' : 'var(--ds-dark-card-heading)', lineHeight: 1.3 }}>{value}</p>
     </div>
   );
 }
-

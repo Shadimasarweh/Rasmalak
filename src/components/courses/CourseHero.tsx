@@ -9,19 +9,26 @@ const LEVEL_LABELS: Record<CourseLevel, { en: string; ar: string }> = {
   advanced: { en: 'Advanced', ar: 'متقدم' },
 };
 
+const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; border: string }> = {
+  beginner: { background: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: '0.5px solid var(--ds-success-border)' },
+  intermediate: { background: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)', border: '0.5px solid var(--ds-warning-border)' },
+  advanced: { background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: '0.5px solid var(--ds-error-border)' },
+};
+
 export default function CourseHero({ course }: { course: CourseData }) {
   const isRtl = course.locale === 'ar';
   const totalSections = getTotalSections(course);
   const totalLessons = course.lessons.length;
   const level = course.level || 'beginner';
   const levelLabel = LEVEL_LABELS[level][course.locale];
+  const badgeColor = BADGE_COLORS[level];
 
   return (
     <div
       style={{
         background: 'var(--color-bg-surface-1)',
         padding: 'var(--spacing-6) var(--spacing-4)',
-        borderBottom: '1px solid var(--color-border-subtle)',
+        borderBottom: '0.5px solid var(--ds-border)',
         direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
@@ -39,14 +46,17 @@ export default function CourseHero({ course }: { course: CourseData }) {
           {/* Level badge */}
           <span
             style={{
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              color: 'var(--color-accent-growth)',
+              fontSize: '10px',
+              fontWeight: 500,
+              color: badgeColor.color,
               textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              background: 'var(--color-accent-growth-subtle)',
-              padding: '3px 10px',
-              borderRadius: 'var(--radius-pill)',
+              letterSpacing: '0.04em',
+              background: badgeColor.background,
+              padding: '2px 8px',
+              borderRadius: '4px',
+              border: badgeColor.border,
+              display: 'inline-flex',
+              alignItems: 'center',
             }}
           >
             {levelLabel}
@@ -59,8 +69,8 @@ export default function CourseHero({ course }: { course: CourseData }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
-                fontSize: '0.75rem',
-                color: 'var(--color-text-muted)',
+                fontSize: '12px',
+                color: 'var(--ds-text-muted)',
                 fontWeight: 500,
               }}
             >
@@ -78,8 +88,8 @@ export default function CourseHero({ course }: { course: CourseData }) {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              fontSize: '0.75rem',
-              color: 'var(--color-text-muted)',
+              fontSize: '12px',
+              color: 'var(--ds-text-muted)',
               fontWeight: 500,
             }}
           >
@@ -97,11 +107,12 @@ export default function CourseHero({ course }: { course: CourseData }) {
         {/* Title */}
         <h1
           style={{
-            fontSize: '1.75rem',
-            fontWeight: 800,
+            fontSize: '24px',
+            fontWeight: 600,
             color: 'var(--color-text-primary)',
-            lineHeight: 1.25,
+            lineHeight: 1.3,
             marginBottom: 'var(--spacing-2)',
+            fontFeatureSettings: '"kern" 1',
           }}
         >
           {course.title}
@@ -110,9 +121,9 @@ export default function CourseHero({ course }: { course: CourseData }) {
         {/* Description */}
         <p
           style={{
-            fontSize: '0.9375rem',
+            fontSize: '14px',
             lineHeight: 1.7,
-            color: 'var(--color-text-secondary)',
+            color: 'var(--ds-text-body)',
             maxWidth: '640px',
             margin: 0,
           }}

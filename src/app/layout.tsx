@@ -43,6 +43,11 @@ const initScript = `
 (function() {
   try {
     var stored = localStorage.getItem('rasmalak-storage');
+    if (!stored) {
+      // DEV: default to English for visual review
+      stored = JSON.stringify({state:{language:'en',theme:'light'}});
+      localStorage.setItem('rasmalak-storage', stored);
+    }
     if (stored) {
       var data = JSON.parse(stored);
       var state = data.state || {};

@@ -95,22 +95,26 @@ export default function CourseViewerPage() {
           gap: 'var(--spacing-3)',
         }}
       >
-        <p style={{ fontSize: '1.125rem', color: 'var(--color-text-secondary)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--ds-text-body)' }}>
           {intl.formatMessage({ id: 'learn.course.not_found', defaultMessage: 'Course not found' })}
         </p>
         <button
           type="button"
           onClick={() => router.push('/learn')}
           style={{
-            padding: '10px 20px',
-            background: 'var(--color-accent-growth)',
+            padding: '10px 18px',
+            background: 'var(--ds-primary)',
             color: '#FFFFFF',
             border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '0.875rem',
-            fontWeight: 600,
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 500,
+            minHeight: '44px',
             cursor: 'pointer',
+            transition: 'background-color 150ms ease',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
         >
           {intl.formatMessage({ id: 'learn.course.back_to_courses', defaultMessage: 'Back to Learn' })}
         </button>
@@ -149,9 +153,11 @@ export default function CourseViewerPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '8px',
             padding: 'var(--spacing-2) var(--spacing-4)',
-            borderBottom: '1px solid var(--color-border-subtle)',
-            background: 'var(--color-bg-surface-1)',
+            borderBottom: '0.5px solid var(--ds-border)',
+            background: 'var(--ds-bg-card)',
             flexShrink: 0,
             zIndex: 11,
             position: 'relative',
@@ -167,17 +173,17 @@ export default function CourseViewerPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '36px',
-                height: '36px',
-                background: sidebarOpen ? 'var(--color-accent-growth-subtle)' : 'var(--color-divider)',
-                border: sidebarOpen ? '1px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-sm)',
+                width: '44px',
+                height: '44px',
+                background: sidebarOpen ? 'rgba(45, 106, 79, 0.08)' : 'var(--ds-bg-tinted)',
+                border: sidebarOpen ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 flexShrink: 0,
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={sidebarOpen ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={sidebarOpen ? '#2D6A4F' : '#374151'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {sidebarOpen ? (
                   <path d="M18 6L6 18M6 6l12 12" />
                 ) : (
@@ -199,9 +205,10 @@ export default function CourseViewerPage() {
                 gap: '6px',
                 background: 'none',
                 border: 'none',
-                color: 'var(--color-text-secondary)',
-                fontSize: '0.8125rem',
+                color: 'var(--ds-text-muted)',
+                fontSize: '13px',
                 fontWeight: 500,
+                minHeight: '44px',
                 cursor: 'pointer',
               }}
             >
@@ -216,13 +223,14 @@ export default function CourseViewerPage() {
             type="button"
             onClick={() => router.push('/learn')}
             style={{
-              padding: '6px 16px',
-              background: 'none',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--color-text-secondary)',
-              fontSize: '0.8125rem',
+              padding: '10px 16px',
+              background: 'transparent',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
+              color: 'var(--ds-text-muted)',
+              fontSize: '13px',
               fontWeight: 500,
+              minHeight: '44px',
               cursor: 'pointer',
             }}
           >
@@ -231,7 +239,7 @@ export default function CourseViewerPage() {
         </div>
 
         {/* Scrollable content */}
-        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', paddingRight: tutorOpen ? '400px' : undefined }}>
+        <div ref={scrollRef} className={tutorOpen ? 'course-content-with-tutor' : undefined} style={{ flex: 1, overflowY: 'auto' }}>
           <CourseContent
             course={course}
             courseNumber={courseNumber}
@@ -253,13 +261,16 @@ export default function CourseViewerPage() {
       />
 
       <style>{`
+        .course-content-with-tutor {
+          padding-right: 400px;
+        }
         @media (min-width: 640px) {
           .course-viewer-responsive {
             margin: calc(-1 * 1.5rem) !important;
           }
         }
         @media (max-width: 900px) {
-          .course-viewer-responsive > div[style*="paddingRight"] {
+          .course-content-with-tutor {
             padding-right: 0 !important;
           }
         }

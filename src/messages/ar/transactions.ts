@@ -47,4 +47,45 @@ export default {
   error_amount_required: 'المبلغ لازم يكون رقم أكبر من صفر',
   error_category_required: 'اختر فئة',
   error_date_required: 'التاريخ مطلوب',
+
+  // التحليل المالي
+  savings_rate: 'معدل الادخار',
+  spending_breakdown: 'توزيع الإنفاق',
+  income_vs_expenses: 'الدخل مقابل المصروفات',
+  monthly_comparison: 'المقارنة الشهرية',
+  this_vs_last: 'هذا الشهر مقارنة بالشهر الماضي',
+  last_month: 'الشهر الماضي',
+  this_month: 'هذا الشهر',
+  savings_calculator: 'حاسبة الادخار',
+  ask_mustasharak: 'اسأل مستشارك',
+  ai_insight: 'تحليل ذكي',
+  based_on_data: 'بناءً على بيانات إنفاقك',
+  get_advice: 'احصل على نصيحة',
+  learn_budgeting: 'تعلّم الميزانية',
+  savings_goals: 'أهداف الادخار',
+  manage_goals: 'إدارة الأهداف',
+  income_label: 'الدخل',
+  expenses_label: 'المصروفات',
+  monthly_income: 'الدخل',
+  monthly_expenses: 'المصروفات',
+
+  // حالة فارغة
+  empty_state_subtitle: 'Record your transactions',
+  empty_add_expense: 'أضف مصروف',
+  empty_add_income: 'أضف دخل',
+
+  // شريط الفلترة
+  search_placeholder: 'ابحث في المعاملات...',
+  date_this_month: 'هذا الشهر',
+  date_last_month: 'الشهر الماضي',
+  date_three_months: 'آخر ٣ أشهر',
+  date_all_time: 'كل الأوقات',
+  filtered_count: '{filtered} من {total} معاملة',
+  no_results: 'لا توجد معاملات تطابق فلاترك',
+  clear_filters: 'مسح جميع الفلاتر',
+
+  // الرسوم المتكررة
+  recurring_charges: 'الرسوم المتكررة',
+  recurring_auto_detected: 'تم اكتشافها تلقائياً من مصروفاتك',
+  annual_total: 'المجموع السنوي',
 };

@@ -9,6 +9,10 @@ import type { Transaction } from '@/store/transactionStore';
 import { useBudget } from '@/store/budgetStore';
 import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Toast } from '@/components/ui/Toast';
+import { useGoals } from '@/store/goalsStore';
+import { calculateHealthScore } from '@/lib/healthScore';
 
 /* ===== ICONS (module scope — Fault Log F-007) ===== */
 const ArrowLeftIcon = () => (
@@ -65,9 +69,9 @@ function CategoryBudgetRow({
         flexDirection: 'column',
         gap: '8px',
         padding: '12px',
-        borderRadius: 'var(--radius-sm)',
-        backgroundColor: 'var(--color-bg-input)',
-        border: '1px solid var(--color-border)',
+        borderRadius: '8px',
+        backgroundColor: 'var(--ds-bg-input)',
+        border: '0.5px solid var(--ds-border)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -85,16 +89,16 @@ function CategoryBudgetRow({
         <span
           style={{
             flex: 1,
-            fontSize: '0.875rem',
+            fontSize: '13px',
             fontWeight: 500,
-            color: 'var(--color-text-primary)',
+            color: 'var(--ds-text-heading)',
           }}
         >
           {name}
         </span>
         {/* Budget input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '130px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+          <span style={{ fontSize: '12px', color: 'var(--ds-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
           <input
@@ -105,12 +109,12 @@ function CategoryBudgetRow({
             style={{
               width: '100%',
               padding: '6px 8px',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              border: '1px solid var(--color-border-input)',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--color-bg-surface-1)',
-              color: 'var(--color-text-primary)',
+              fontSize: '14px',
+              fontWeight: 500,
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--ds-bg-card)',
+              color: 'var(--ds-text-heading)',
               outline: 'none',
               direction: 'ltr',
               textAlign: isRTL ? 'right' : 'left',
@@ -124,9 +128,9 @@ function CategoryBudgetRow({
         <div>
           <div
             style={{
-              height: '6px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--color-border)',
+              height: '4px',
+              borderRadius: '4px',
+              backgroundColor: 'var(--ds-bg-tinted)',
               overflow: 'hidden',
             }}
           >
@@ -134,8 +138,8 @@ function CategoryBudgetRow({
               style={{
                 height: '100%',
                 width: `${percentage}%`,
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: isOver ? 'var(--color-danger-text)' : color,
+                borderRadius: '4px',
+                backgroundColor: isOver ? 'var(--ds-error)' : color,
                 transition: 'width 0.3s ease',
               }}
             />
@@ -145,8 +149,8 @@ function CategoryBudgetRow({
               display: 'flex',
               justifyContent: 'space-between',
               marginTop: '4px',
-              fontSize: '0.6875rem',
-              color: isOver ? 'var(--color-danger-text)' : 'var(--color-text-muted)',
+              fontSize: '11px',
+              color: isOver ? 'var(--ds-error)' : 'var(--ds-text-muted)',
             }}
           >
             <span>{currencySymbol} {styledNum(fmtNumber(spent))}</span>
@@ -158,6 +162,16 @@ function CategoryBudgetRow({
   );
 }
 
+function getOrdinalSuffix(day: number): string {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
 /* ===== MAIN PAGE ===== */
 export default function BudgetsPage() {
   const intl = useIntl();
@@ -165,7 +179,32 @@ export default function BudgetsPage() {
   const currency = useCurrency();
   const isRTL = language === 'ar';
   const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
-  const { transactions } = useTransactions();
+  const { transactions: realTransactions } = useTransactions();
+
+  // TEMP: fake transactions for visual testing — DELETE before production
+  const _fakeTransactions: Transaction[] = [
+    { id: 'f1', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date().toISOString(), description: 'Salary', user_id: '' },
+    { id: 'f2', type: 'expense', amount: 450, currency: 'JOD', category: 'food-dining', date: new Date().toISOString(), description: 'Groceries', user_id: '' },
+    { id: 'f3', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date().toISOString(), description: 'Rent', user_id: '' },
+    { id: 'f4', type: 'expense', amount: 200, currency: 'JOD', category: 'transportation', date: new Date().toISOString(), description: 'Gas', user_id: '' },
+    { id: 'f5', type: 'expense', amount: 150, currency: 'JOD', category: 'entertainment', date: new Date().toISOString(), description: 'Movies', user_id: '' },
+    { id: 'f6', type: 'expense', amount: 120, currency: 'JOD', category: 'shopping', date: new Date().toISOString(), description: 'Clothes', user_id: '' },
+    { id: 'f7', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: new Date().toISOString(), description: 'Pharmacy', user_id: '' },
+    { id: 'f8', type: 'expense', amount: 380, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 15).toISOString(), description: 'Last month groceries', user_id: '' },
+    { id: 'f9', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month rent', user_id: '' },
+    { id: 'f10', type: 'expense', amount: 300, currency: 'JOD', category: 'transportation', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 10).toISOString(), description: 'Last month gas', user_id: '' },
+    { id: 'f11', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month salary', user_id: '' },
+    { id: 'f12', type: 'expense', amount: 90, currency: 'JOD', category: 'entertainment', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 20).toISOString(), description: 'Last month movies', user_id: '' },
+    { id: 'f13', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago salary', user_id: '' },
+    { id: 'f14', type: 'expense', amount: 600, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 10).toISOString(), description: '2 months ago food', user_id: '' },
+    { id: 'f15', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago rent', user_id: '' },
+    { id: 'f16', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago salary', user_id: '' },
+    { id: 'f17', type: 'expense', amount: 500, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 12).toISOString(), description: '3 months ago food', user_id: '' },
+    { id: 'f18', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago rent', user_id: '' },
+  ];
+  const transactions = realTransactions.length > 0 ? realTransactions : _fakeTransactions;
+
+  const { savingsGoals } = useGoals();
 
   const currencyInfo = CURRENCIES.find((c) => c.code === currency);
   const currencySymbol = isRTL
@@ -217,6 +256,140 @@ export default function BudgetsPage() {
   const displayBudget = monthlyBudgetValue > 0 ? monthlyBudgetValue : totalCategoryBudget;
   const totalSpent = Object.values(spendingByCategory).reduce((s, v) => s + v, 0);
 
+  // Health score computation
+  const healthScore = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const daysInMonth = endOfMonth.getDate();
+    let mIncome = 0;
+    let mExpenses = 0;
+    const loggedDays = new Set<string>();
+    transactions.forEach((tx: Transaction) => {
+      const d = new Date(tx.date);
+      if (d >= startOfMonth && d <= endOfMonth) {
+        if (tx.type === 'income') mIncome += Math.abs(tx.amount);
+        else mExpenses += Math.abs(tx.amount);
+        loggedDays.add(tx.date);
+      }
+    });
+    let categoriesOverBudget = 0;
+    let totalCatsWithBudget = 0;
+    DEFAULT_EXPENSE_CATEGORIES.forEach(cat => {
+      const limit = parseFloat(tempBudgets[cat.id]) || categoryBudgets[cat.id] || 0;
+      if (limit > 0) {
+        totalCatsWithBudget++;
+        if ((spendingByCategory[cat.id] || 0) > limit) categoriesOverBudget++;
+      }
+    });
+    const emergencyGoal = savingsGoals.find(g =>
+      g.name.toLowerCase().includes('emergency') || g.name.includes('طوارئ')
+    );
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+    let totalExp3m = 0;
+    transactions.forEach((tx: Transaction) => {
+      const d = new Date(tx.date);
+      if (tx.type === 'expense' && d >= threeMonthsAgo && d <= endOfMonth) {
+        totalExp3m += Math.abs(tx.amount);
+      }
+    });
+    const goalsOnTrack = savingsGoals.filter(g => {
+      if (g.targetAmount <= 0) return false;
+      return g.currentAmount / g.targetAmount > 0;
+    }).length;
+    return calculateHealthScore({
+      monthlyIncome: mIncome,
+      monthlyExpenses: mExpenses,
+      budgetLimit: displayBudget,
+      budgetSpent: totalSpent,
+      categoriesOverBudget,
+      totalCategories: totalCatsWithBudget,
+      emergencyFundCurrent: emergencyGoal ? emergencyGoal.currentAmount : 0,
+      averageMonthlyExpenses: totalExp3m / 3,
+      goalsOnTrack,
+      totalGoals: savingsGoals.length,
+      daysLoggedThisMonth: loggedDays.size,
+      daysInMonth,
+      coursesCompleted: 0,
+      totalCourses: 30,
+    });
+  }, [transactions, savingsGoals, spendingByCategory, categoryBudgets, tempBudgets, displayBudget, totalSpent]);
+
+  // Recurring transaction detection
+  interface RecurringPattern {
+    id: string;
+    description: string;
+    amount: number;
+    amountVaries: boolean;
+    amountMin: number;
+    amountMax: number;
+    frequency: 'monthly' | 'weekly';
+    approximateDay: number;
+    occurrences: number;
+    annualCost: number;
+    confirmed: boolean;
+    dismissed: boolean;
+  }
+
+  const [confirmedPatterns, setConfirmedPatterns] = useState<Record<string, boolean>>({});
+
+  const recurringPatterns = useMemo(() => {
+    const expenses = transactions.filter((tx: Transaction) => tx.type === 'expense');
+    const groups: Record<string, Transaction[]> = {};
+    expenses.forEach((tx: Transaction) => {
+      const key = (tx.description || tx.category || 'unknown').toLowerCase().trim();
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(tx);
+    });
+    const patterns: RecurringPattern[] = [];
+    Object.entries(groups).forEach(([key, txs]) => {
+      if (txs.length < 2) return;
+      const sorted = [...txs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      let isMonthly = true;
+      for (let i = 1; i < sorted.length; i++) {
+        const daysBetween = Math.abs(
+          (new Date(sorted[i].date).getTime() - new Date(sorted[i - 1].date).getTime())
+          / (1000 * 60 * 60 * 24)
+        );
+        if (daysBetween < 20 || daysBetween > 40) { isMonthly = false; break; }
+      }
+      if (!isMonthly) return;
+      const amounts = sorted.map(tx => Math.abs(tx.amount));
+      const avgAmount = amounts.reduce((s, a) => s + a, 0) / amounts.length;
+      const minAmount = Math.min(...amounts);
+      const maxAmount = Math.max(...amounts);
+      const amountVaries = (maxAmount - minAmount) / avgAmount > 0.05;
+      const days = sorted.map(tx => new Date(tx.date).getDate());
+      const avgDay = Math.round(days.reduce((s, d) => s + d, 0) / days.length);
+      const id = key.replace(/\s+/g, '_');
+      patterns.push({
+        id,
+        description: sorted[0].description || sorted[0].category || key,
+        amount: Math.round(avgAmount),
+        amountVaries,
+        amountMin: Math.round(minAmount),
+        amountMax: Math.round(maxAmount),
+        frequency: 'monthly',
+        approximateDay: avgDay,
+        occurrences: sorted.length,
+        annualCost: Math.round(avgAmount * 12),
+        confirmed: confirmedPatterns[id] === true,
+        dismissed: confirmedPatterns[id] === false,
+      });
+    });
+    return patterns.filter(p => !p.dismissed).sort((a, b) => b.annualCost - a.annualCost);
+  }, [transactions, confirmedPatterns]);
+
+  const totalAnnualRecurring = recurringPatterns.reduce((sum, p) => sum + p.annualCost, 0);
+
+  const handleConfirmPattern = (id: string) => {
+    setConfirmedPatterns(prev => ({ ...prev, [id]: true }));
+  };
+
+  const handleDismissPattern = (id: string) => {
+    setConfirmedPatterns(prev => ({ ...prev, [id]: false }));
+  };
+
   const handleSave = () => {
     // Save monthly budget
     setMonthlyBudget(monthlyBudgetValue);
@@ -254,9 +427,9 @@ export default function BudgetsPage() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '6px',
-          fontSize: '0.875rem',
+          fontSize: '13px',
           fontWeight: 500,
-          color: 'var(--color-accent-growth)',
+          color: 'var(--ds-text-muted)',
           textDecoration: 'none',
           marginBottom: 'var(--spacing-2)',
         }}
@@ -272,18 +445,19 @@ export default function BudgetsPage() {
       <div style={{ marginBottom: 'var(--spacing-3)' }}>
         <h1
           style={{
-            fontSize: '1.75rem',
-            fontWeight: 700,
-            color: 'var(--color-text-primary)',
+            fontSize: '24px',
+            fontWeight: 600,
+            color: 'var(--ds-text-heading)',
             lineHeight: 1.2,
+            fontFeatureSettings: '"kern" 1',
           }}
         >
           {t('budgets', 'Budgets')}
         </h1>
         <p
           style={{
-            fontSize: '0.9375rem',
-            color: 'var(--color-text-secondary)',
+            fontSize: '14px',
+            color: 'var(--ds-text-body)',
             lineHeight: 1.6,
             marginTop: '4px',
           }}
@@ -304,18 +478,19 @@ export default function BudgetsPage() {
       >
         <h2
           style={{
-            fontSize: '1rem',
+            fontSize: '18px',
             fontWeight: 600,
-            color: 'var(--color-text-primary)',
+            color: 'var(--ds-text-heading)',
+            fontFeatureSettings: '"kern" 1',
           }}
         >
           {intl.formatMessage({ id: 'dashboard.budgets_monthly_budget', defaultMessage: 'Monthly Budget' })}
         </h2>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '-8px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginTop: '-8px' }}>
           {intl.formatMessage({ id: 'dashboard.budgets_monthly_budget_desc', defaultMessage: 'Total monthly spending limit (regardless of categories)' })}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-muted)', flexShrink: 0 }}>
+          <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
           <input
@@ -326,12 +501,12 @@ export default function BudgetsPage() {
             style={{
               flex: 1,
               padding: '12px 14px',
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              border: '1px solid var(--color-border-input)',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--color-bg-input)',
-              color: 'var(--color-text-primary)',
+              fontSize: '20px',
+              fontWeight: 600,
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--ds-bg-input)',
+              color: 'var(--ds-text-heading)',
               outline: 'none',
               direction: 'ltr',
               textAlign: isRTL ? 'right' : 'left',
@@ -340,53 +515,267 @@ export default function BudgetsPage() {
         </div>
       </div>
 
-      {/* Summary card */}
-      <div
-        className="ds-card"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          padding: '1rem 1.25rem',
-          marginBottom: 'var(--spacing-2)',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
+      {/* ===== FINANCIAL HEALTH SCORE ===== */}
+      <div style={{
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
+        padding: '20px 24px',
+        boxShadow: 'var(--ds-shadow-card)',
+        marginBottom: '16px',
+        direction: isRTL ? 'rtl' : 'ltr',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          {/* Score ring */}
+          {(() => {
+            const r = 30;
+            const circ = 2 * Math.PI * r;
+            const offset = circ * (1 - healthScore.overall / 100);
+            const ringColor = healthScore.overall >= 70 ? 'var(--ds-primary-glow)' : healthScore.overall >= 40 ? 'var(--ds-accent-gold)' : 'var(--ds-error)';
+            return (
+              <div style={{ position: 'relative', width: '72px', height: '72px', flexShrink: 0 }}>
+                <svg width="72" height="72" viewBox="0 0 72 72">
+                  <circle cx="36" cy="36" r={r} fill="none" stroke="var(--ds-border)" strokeWidth="4" />
+                  <circle cx="36" cy="36" r={r} fill="none"
+                    stroke={ringColor} strokeWidth="4"
+                    strokeDasharray={circ} strokeDashoffset={offset}
+                    strokeLinecap="round" transform="rotate(-90 36 36)"
+                    style={{ transition: 'stroke-dashoffset 600ms ease-out' }} />
+                </svg>
+                <span style={{
+                  position: 'absolute', inset: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)',
+                }}>
+                  {intl.formatNumber(healthScore.overall)}
+                </span>
+              </div>
+            );
+          })()}
+
+          {/* Info */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+              <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.health_score', defaultMessage: 'Financial health score' })}
+              </p>
+              {(() => {
+                const rc: Record<string, { bg: string; color: string; border: string; en: string; ar: string }> = {
+                  excellent: { bg: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: 'var(--ds-success-border)', en: 'EXCELLENT', ar: 'ممتاز' },
+                  good: { bg: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: 'var(--ds-success-border)', en: 'GOOD', ar: 'جيد' },
+                  fair: { bg: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)', border: 'var(--ds-warning-border)', en: 'FAIR', ar: 'مقبول' },
+                  needs_work: { bg: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: 'var(--ds-error-border)', en: 'NEEDS WORK', ar: 'يحتاج تحسين' },
+                };
+                const r = rc[healthScore.rating];
+                return (
+                  <span style={{
+                    fontSize: '10px', fontWeight: 500, padding: '2px 8px', borderRadius: '4px',
+                    background: r.bg, color: r.color, border: `0.5px solid ${r.border}`,
+                    letterSpacing: '0.04em',
+                  }}>
+                    {isRTL ? r.ar : r.en}
+                  </span>
+                );
+              })()}
+            </div>
+
+            {/* Factor breakdown — all 6 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px', marginTop: '12px' }}>
+              {healthScore.factors.map(f => {
+                const names: Record<string, { en: string; ar: string }> = {
+                  savings_rate: { en: 'Savings Rate', ar: 'معدل الادخار' },
+                  budget_adherence: { en: 'Budget', ar: 'الميزانية' },
+                  emergency_fund: { en: 'Emergency Fund', ar: 'صندوق الطوارئ' },
+                  goal_progress: { en: 'Goals', ar: 'الأهداف' },
+                  consistency: { en: 'Consistency', ar: 'الانتظام' },
+                  literacy: { en: 'Literacy', ar: 'الثقافة المالية' },
+                };
+                const name = names[f.id] || { en: f.id, ar: f.id };
+                const barColor = f.status === 'good' ? 'var(--ds-primary-glow)' : f.status === 'fair' ? 'var(--ds-accent-gold)' : 'var(--ds-error)';
+                return (
+                  <div key={f.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--ds-text-muted)' }}>
+                        {isRTL ? name.ar : name.en}
+                      </span>
+                      <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-heading)' }}>
+                        {intl.formatNumber(f.score)}
+                      </span>
+                    </div>
+                    <div style={{ height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${f.score}%`, height: '100%', background: barColor, borderRadius: '4px', transition: 'width 600ms ease-out' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== RECURRING CHARGES ===== */}
+      {recurringPatterns.length > 0 && (
+        <div style={{
+          background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px',
+          padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', marginBottom: '16px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+            <div>
+              <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_recurring_charges', defaultMessage: 'Recurring charges' })}
+              </p>
+              <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', margin: '2px 0 0 0' }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_recurring_auto_detected', defaultMessage: 'Auto-detected from your transactions' })}
+              </p>
+            </div>
+            <div style={{ textAlign: isRTL ? 'left' : 'right' }}>
+              <p style={{ fontSize: '11px', color: 'var(--ds-text-muted)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_annual_total', defaultMessage: 'Annual total' })}
+              </p>
+              <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-error)', margin: '2px 0 0 0' }}>
+                {currencySymbol} {styledNum(intl.formatNumber(totalAnnualRecurring))}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {recurringPatterns.map((pattern, idx) => (
+              <div key={pattern.id} style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: !pattern.confirmed ? '12px 24px' : '12px 0',
+                borderBottom: idx < recurringPatterns.length - 1 ? '0.5px solid var(--ds-border)' : 'none',
+                background: !pattern.confirmed ? 'rgba(217,119,6,0.03)' : 'transparent',
+                margin: !pattern.confirmed ? '0 -24px' : '0',
+                flexWrap: 'wrap',
+              }}>
+                {/* Icon */}
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '8px',
+                  background: pattern.confirmed ? 'rgba(45,106,79,0.1)' : 'rgba(217,119,6,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: pattern.confirmed ? 'var(--ds-primary)' : 'var(--ds-accent-gold)',
+                  flexShrink: 0,
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10z" />
+                    <line x1="9" y1="7" x2="15" y2="7" />
+                    <line x1="9" y1="11" x2="15" y2="11" />
+                    <line x1="9" y1="15" x2="12" y2="15" />
+                  </svg>
+                </div>
+
+                {/* Details */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {pattern.description}
+                    </p>
+                    <span style={{
+                      fontSize: '10px', fontWeight: 500, padding: '2px 8px', borderRadius: '4px',
+                      letterSpacing: '0.04em',
+                      background: pattern.confirmed ? 'var(--ds-success-bg)' : 'var(--ds-warning-bg)',
+                      color: pattern.confirmed ? 'var(--ds-success-text)' : 'var(--ds-warning-text)',
+                      border: `0.5px solid ${pattern.confirmed ? 'var(--ds-success-border)' : 'var(--ds-warning-border)'}`,
+                    }}>
+                      {pattern.confirmed
+                        ? (isRTL ? 'مؤكد' : 'CONFIRMED')
+                        : (isRTL ? 'مكتشف' : 'DETECTED')}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: '2px 0 0 0' }}>
+                    {pattern.amountVaries
+                      ? (isRTL
+                          ? `~شهرياً، المبلغ يتراوح (${currencySymbol} ${intl.formatNumber(pattern.amountMin)}-${intl.formatNumber(pattern.amountMax)})`
+                          : `~Monthly, amount varies (${currencySymbol} ${intl.formatNumber(pattern.amountMin)}-${intl.formatNumber(pattern.amountMax)})`)
+                      : (isRTL
+                          ? `شهرياً في حوالي ${intl.formatNumber(pattern.approximateDay)} من كل شهر`
+                          : `Monthly on the ~${intl.formatNumber(pattern.approximateDay)}${getOrdinalSuffix(pattern.approximateDay)}`)}
+                  </p>
+                </div>
+
+                {/* Amount + annual */}
+                <div style={{ textAlign: isRTL ? 'left' : 'right', flexShrink: 0 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                    {pattern.amountVaries ? '~' : ''}{currencySymbol} {styledNum(intl.formatNumber(pattern.amount))}
+                  </p>
+                  <p style={{ fontSize: '11px', color: 'var(--ds-text-muted)', margin: '2px 0 0 0' }}>
+                    {currencySymbol} {styledNum(intl.formatNumber(pattern.annualCost))}/{isRTL ? 'سنة' : 'yr'}
+                  </p>
+                </div>
+
+                {/* Confirm/dismiss buttons for unconfirmed patterns */}
+                {!pattern.confirmed && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flexShrink: 0 }}>
+                    <button onClick={() => handleConfirmPattern(pattern.id)} style={{
+                      padding: '4px 8px', background: 'var(--ds-bg-tinted)', border: '0.5px solid var(--ds-border-tinted)',
+                      borderRadius: '4px', fontSize: '10px', color: 'var(--ds-primary)', fontWeight: 500, cursor: 'pointer',
+                    }}>
+                      {isRTL ? 'نعم' : 'Yes'}
+                    </button>
+                    <button onClick={() => handleDismissPattern(pattern.id)} style={{
+                      padding: '4px 8px', background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)',
+                      borderRadius: '4px', fontSize: '10px', color: 'var(--ds-text-muted)', fontWeight: 500, cursor: 'pointer',
+                    }}>
+                      {isRTL ? 'لا' : 'No'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginTop: '16px', paddingTop: '12px', borderTop: '0.5px solid var(--ds-border)',
+            flexWrap: 'wrap', gap: '8px',
+          }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0 }}>
+              {isRTL
+                ? `${intl.formatNumber(recurringPatterns.length)} رسوم متكررة مكتشفة`
+                : `${intl.formatNumber(recurringPatterns.length)} recurring charge${recurringPatterns.length !== 1 ? 's' : ''} detected`}
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--ds-text-muted)' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: 'var(--ds-success-bg)', border: '0.5px solid var(--ds-success-border)', display: 'inline-block' }} />
+                {isRTL ? 'مؤكد' : 'Confirmed'}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--ds-text-muted)' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: 'var(--ds-warning-bg)', border: '0.5px solid var(--ds-warning-border)', display: 'inline-block' }} />
+                {isRTL ? 'يحتاج مراجعة' : 'Needs review'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Budget Summary */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px',
+        background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px',
+        padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', marginBottom: '16px',
+      }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 4px 0' }}>
             {intl.formatMessage({ id: 'dashboard.budgets_total_budget', defaultMessage: 'Total Budget' })}
           </p>
-          <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+          <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
             {currencySymbol} {styledNum(intl.formatNumber(displayBudget))}
           </p>
         </div>
-        <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
-            {t('spent', 'Spent')}
+          <p style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 4px 0' }}>
+            {intl.formatMessage({ id: 'dashboard.spent', defaultMessage: 'Spent' })}
           </p>
-          <p
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: totalSpent > displayBudget && displayBudget > 0 ? 'var(--color-danger-text)' : 'var(--color-text-primary)',
-            }}
-          >
+          <p style={{ fontSize: '20px', fontWeight: 600, margin: 0, color: totalSpent > displayBudget && displayBudget > 0 ? 'var(--ds-error)' : 'var(--ds-text-heading)' }}>
             {currencySymbol} {styledNum(intl.formatNumber(totalSpent))}
           </p>
         </div>
-        <div style={{ width: '1px', backgroundColor: 'var(--color-border)', alignSelf: 'stretch' }} />
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
-            {t('left', 'Left')}
+          <p style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 4px 0' }}>
+            {intl.formatMessage({ id: 'dashboard.left', defaultMessage: 'Left' })}
           </p>
-          <p
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: displayBudget - totalSpent >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)',
-            }}
-          >
+          <p style={{ fontSize: '20px', fontWeight: 600, margin: 0, color: displayBudget - totalSpent >= 0 ? 'var(--ds-primary)' : 'var(--ds-error)' }}>
             {currencySymbol} {styledNum(intl.formatNumber(Math.abs(displayBudget - totalSpent)))}
           </p>
         </div>
@@ -404,10 +793,11 @@ export default function BudgetsPage() {
       >
         <h2
           style={{
-            fontSize: '1rem',
+            fontSize: '18px',
             fontWeight: 600,
-            color: 'var(--color-text-primary)',
+            color: 'var(--ds-text-heading)',
             marginBottom: '8px',
+            fontFeatureSettings: '"kern" 1',
           }}
         >
           {intl.formatMessage({ id: 'dashboard.budgets_category_budgets', defaultMessage: 'Category Budgets' })}
@@ -438,16 +828,16 @@ export default function BudgetsPage() {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '8px',
-          padding: '14px 28px',
-          background: isSaved ? '#6366F1' : 'var(--color-accent-growth)',
+          padding: '9px 18px',
+          background: isSaved ? 'var(--ds-primary-hover)' : 'var(--ds-primary)',
           color: '#FFFFFF',
-          fontSize: '0.9375rem',
-          fontWeight: 600,
+          fontSize: '13px',
+          fontWeight: 500,
           border: 'none',
-          borderRadius: 'var(--radius-sm)',
+          borderRadius: '8px',
           cursor: 'pointer',
           width: '100%',
-          transition: 'background 0.2s',
+          transition: 'background-color 150ms ease',
         }}
         className="hover:opacity-90 transition-opacity"
       >

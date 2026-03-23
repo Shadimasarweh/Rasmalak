@@ -5,6 +5,7 @@ import { AuthGuard, Sidebar, Header } from '@/components';
 import { TransactionProvider } from '@/store/transactionStore';
 import { BudgetProvider } from '@/store/budgetStore';
 import { GoalsProvider } from '@/store/goalsStore';
+import QuickAddFAB from '@/components/QuickAddFAB';
 
 export default function DashboardLayout({
   children,
@@ -34,6 +35,7 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
+      <QuickAddFAB />
       </GoalsProvider>
       </BudgetProvider>
       </TransactionProvider>

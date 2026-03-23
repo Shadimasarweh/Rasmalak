@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Bell, Settings, Search, LogOut, Menu } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useUserName, useUser, useLogout } from '@/store/useStore';
+import { useRouter, usePathname } from 'next/navigation';
+import { useUserName, useUser, useLogout, useLanguage, useStore } from '@/store/useStore';
+import { Moon, Sun } from 'lucide-react';
+import { useNotificationStore } from '@/store/notificationStore';
+import NotificationPanel from '@/components/NotificationPanel';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -13,10 +16,56 @@ interface HeaderProps {
 export default function Header({ onMenuToggle }: HeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const unreadCount = useNotificationStore(state => state.unreadCount());
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const userName = useUserName();
   const user = useUser();
   const logout = useLogout();
   const router = useRouter();
+  const pathname = usePathname();
+  const language = useLanguage();
+
+  const PAGE_TITLES: Record<string, { ar: string; en: string }> = {
+    '/': { ar: 'الرئيسية', en: 'Dashboard' },
+    '/transactions': { ar: 'المعاملات', en: 'Transactions' },
+    '/budgets': { ar: 'الميزانيات', en: 'Budgets' },
+    '/budget': { ar: 'الميزانية', en: 'Budget' },
+    '/learn': { ar: 'تعلّم', en: 'Learn' },
+    '/chat': { ar: 'مستشارك', en: 'Mustasharak' },
+    '/tools': { ar: 'الأدوات', en: 'Tools' },
+    '/calculators': { ar: 'الحاسبات', en: 'Calculators' },
+    '/goals': { ar: 'الأهداف', en: 'Goals' },
+    '/settings': { ar: 'الإعدادات', en: 'Settings' },
+    '/community': { ar: 'المجتمع', en: 'Community' },
+  };
+
+  const getPageTitle = () => {
+    if (PAGE_TITLES[pathname]) {
+      return language === 'ar' ? PAGE_TITLES[pathname].ar : PAGE_TITLES[pathname].en;
+    }
+    const base = Object.keys(PAGE_TITLES).find(key => key !== '/' && pathname.startsWith(key));
+    if (base) {
+      return language === 'ar' ? PAGE_TITLES[base].ar : PAGE_TITLES[base].en;
+    }
+    return null;
+  };
+
+  const pageTitle = getPageTitle();
+
+  const theme = useStore((s) => s.theme);
+  const toggleTheme = useStore((s) => s.toggleTheme);
+  const setLanguage = useStore((s) => s.setLanguage);
 
   const displayName = user?.name || userName;
 
@@ -44,6 +93,20 @@ export default function Header({ onMenuToggle }: HeaderProps) {
           <Menu className="w-5 h-5" />
         </button>
 
+        {/* Current page title — visible on mobile and tablet, hidden on desktop where sidebar shows */}
+        {pageTitle && (
+          <span
+            className="lg:hidden"
+            style={{
+              fontSize: '15px',
+              fontWeight: 500,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            {pageTitle}
+          </span>
+        )}
+
         {/* Search */}
         <div className="flex-1 max-w-md hidden sm:block">
           <div className="relative">
@@ -55,7 +118,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
             </div>
             <input
               type="search"
-              placeholder="Search transactions, tools..."
+              placeholder={language === 'ar' ? 'ابحث في المعاملات، الأدوات...' : 'Search transactions, tools...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoComplete="off"
@@ -82,23 +145,34 @@ export default function Header({ onMenuToggle }: HeaderProps) {
         {/* Right Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)' }}>
           {/* Notifications */}
-          <button
-            className="relative"
-            style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)' }}
-          >
-            <Bell className="w-5 h-5" />
-            <span
-              className="absolute"
+          <div ref={notifRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowNotifications(prev => !prev)}
               style={{
-                top: '0.375rem',
-                insetInlineEnd: '0.375rem',
-                width: '0.5rem',
-                height: '0.5rem',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'var(--color-danger-text)',
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                position: 'relative', padding: '6px', borderRadius: '8px',
+                color: 'var(--color-text-secondary)',
               }}
-            />
-          </button>
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <div style={{
+                  position: 'absolute', top: '2px', right: '2px',
+                  minWidth: '18px', height: '18px', borderRadius: '50%',
+                  background: '#DC2626',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 4px',
+                }}>
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: '#FFFFFF' }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                </div>
+              )}
+            </button>
+            {showNotifications && (
+              <NotificationPanel onClose={() => setShowNotifications(false)} />
+            )}
+          </div>
 
           {/* Settings - visible on mobile only */}
           <Link
@@ -109,14 +183,37 @@ export default function Header({ onMenuToggle }: HeaderProps) {
             <Settings className="w-5 h-5" />
           </Link>
 
-          {/* Theme Toggle - desktop only */}
+          {/* Language Toggle */}
           <button
-            className="hidden lg:block"
-            style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)' }}
+            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+            style={{
+              padding: '4px 10px',
+              borderRadius: '8px',
+              background: 'none',
+              border: '0.5px solid var(--color-border)',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'var(--color-text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 150ms ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-bg-surface-2, #F0F7F4)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
+            {language === 'ar' ? 'EN' : 'ع'}
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? (language === 'ar' ? 'التبديل إلى الوضع الفاتح' : 'Switch to light mode') : (language === 'ar' ? 'التبديل إلى الوضع الداكن' : 'Switch to dark mode')}
+            style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)', color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
           {/* User Avatar */}
@@ -164,7 +261,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                   }}
                 >
                   <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {displayName || 'User'}
+                    {displayName || (language === 'ar' ? 'مستخدم' : 'User')}
                   </p>
                   {user?.email && (
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 'var(--spacing-0_5)' }}>
@@ -187,7 +284,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                   }}
                 >
                   <Settings className="w-4 h-4" />
-                  Settings
+                  {language === 'ar' ? 'الإعدادات' : 'Settings'}
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -206,7 +303,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                   }}
                 >
                   <LogOut className="w-4 h-4" />
-                  Logout
+                  {language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
                 </button>
               </div>
             </>

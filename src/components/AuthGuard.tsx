@@ -7,12 +7,16 @@ import { useIsAuthenticated } from '@/store/useStore';
 const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
+  // TODO: TEMP BYPASS — remove this before production
+  const DEV_BYPASS_AUTH = true;
+
   const router = useRouter();
   const pathname = usePathname();
   const isAuthenticated = useIsAuthenticated();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    if (DEV_BYPASS_AUTH) { setIsChecking(false); return; }
     // Small delay to ensure store is hydrated
     const timer = setTimeout(() => {
       setIsChecking(false);
@@ -29,7 +33,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, pathname, router]);
 
   // Show loading while checking auth
-  if (isChecking || (!isAuthenticated && !PUBLIC_ROUTES.includes(pathname))) {
+  if (!DEV_BYPASS_AUTH && (isChecking || (!isAuthenticated && !PUBLIC_ROUTES.includes(pathname)))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg-primary)]">
         <div className="text-center">

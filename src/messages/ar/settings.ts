@@ -118,7 +118,7 @@ export default {
   delete_account: 'حذف الحساب',
   delete_account_confirm_title: 'تحذف حسابك؟',
   delete_account_confirm_desc: 'رح ينحذف حسابك وكل بياناته نهائياً. ما يمكن التراجع.',
-  delete_account_type_confirm: 'اكتب DELETE للتأكيد',
+  delete_account_type_confirm: 'اكتب حذف للتأكيد',
   delete_account_reauth: 'أدخل كلمة المرور للتأكيد',
   delete_account_success: 'تم حذف الحساب',
   delete_account_failed: 'فشل حذف الحساب',

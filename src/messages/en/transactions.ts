@@ -50,4 +50,24 @@ export default {
   error_amount_required: 'Amount must be a positive number',
   error_category_required: 'Please select a category',
   error_date_required: 'Date is required',
+
+  // Empty state coaching
+  empty_state_subtitle: 'سجّل معاملاتك المالية',
+  empty_add_expense: 'Add expense',
+  empty_add_income: 'Add income',
+
+  // Filter bar
+  search_placeholder: 'Search transactions...',
+  date_this_month: 'This month',
+  date_last_month: 'Last month',
+  date_three_months: 'Last 3 months',
+  date_all_time: 'All time',
+  filtered_count: '{filtered} of {total} transactions',
+  no_results: 'No transactions match your filters',
+  clear_filters: 'Clear all filters',
+
+  // Recurring charges
+  recurring_charges: 'Recurring charges',
+  recurring_auto_detected: 'Auto-detected from your expenses',
+  annual_total: 'Annual total',
 };

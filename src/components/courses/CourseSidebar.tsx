@@ -56,8 +56,8 @@ export default function CourseSidebar({
           [isRtl ? 'right' : 'left']: 0,
           zIndex: 10,
           background: 'var(--color-bg-surface-1)',
-          borderRight: isRtl ? 'none' : '1px solid var(--color-border-subtle)',
-          borderLeft: isRtl ? '1px solid var(--color-border-subtle)' : 'none',
+          borderRight: isRtl ? 'none' : '0.5px solid var(--ds-border)',
+          borderLeft: isRtl ? '0.5px solid var(--ds-border)' : 'none',
           display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
@@ -74,15 +74,15 @@ export default function CourseSidebar({
         <div
           style={{
             padding: 'var(--spacing-4) var(--spacing-3)',
-            borderBottom: '1px solid var(--color-border-subtle)',
+            borderBottom: '0.5px solid var(--ds-border)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
             <h2
               style={{
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: 'var(--color-text-primary)',
+                fontSize: '15px',
+                fontWeight: 500,
+                color: 'var(--ds-text-heading)',
                 lineHeight: 1.4,
                 flex: 1,
               }}
@@ -97,7 +97,7 @@ export default function CourseSidebar({
                 border: 'none',
                 cursor: 'pointer',
                 padding: '4px',
-                color: 'var(--color-text-muted)',
+                color: 'var(--ds-text-muted)',
                 flexShrink: 0,
               }}
             >
@@ -112,9 +112,9 @@ export default function CourseSidebar({
             <div
               style={{
                 flex: 1,
-                height: '6px',
-                background: 'var(--color-border-subtle)',
-                borderRadius: 'var(--radius-pill)',
+                height: '4px',
+                background: 'var(--ds-bg-tinted)',
+                borderRadius: '4px',
                 overflow: 'hidden',
               }}
             >
@@ -122,28 +122,28 @@ export default function CourseSidebar({
                 style={{
                   height: '100%',
                   width: `${completionPercent}%`,
-                  background: completionPercent === 100 ? 'var(--color-success)' : 'var(--color-accent-growth)',
-                  borderRadius: 'var(--radius-pill)',
+                  background: completionPercent === 100 ? 'var(--color-success)' : 'var(--ds-primary-glow)',
+                  borderRadius: '4px',
                   transition: 'width 0.4s ease',
                 }}
               />
             </div>
             <span
               style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: completionPercent === 100 ? 'var(--color-success)' : 'var(--color-text-muted)',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: completionPercent === 100 ? 'var(--color-success)' : 'var(--ds-primary)',
                 flexShrink: 0,
                 minWidth: '32px',
                 textAlign: 'end',
               }}
             >
-              {completionPercent}%
+              {intl.formatNumber(completionPercent)}%
             </span>
           </div>
 
           {completionPercent === 100 && (
-            <p style={{ fontSize: '0.6875rem', color: 'var(--color-success)', fontWeight: 600, marginTop: '6px' }}>
+            <p style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 500, marginTop: '6px' }}>
               {intl.formatMessage({ id: 'learn.course.course_complete', defaultMessage: 'Course Complete!' })}
             </p>
           )}
@@ -156,9 +156,9 @@ export default function CourseSidebar({
               <div
                 style={{
                   padding: 'var(--spacing-2) var(--spacing-3)',
-                  fontSize: '0.6875rem',
-                  fontWeight: 700,
-                  color: 'var(--color-text-muted)',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  color: 'var(--ds-text-muted)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
                 }}
@@ -204,7 +204,7 @@ export default function CourseSidebar({
 
                     <span
                       style={{
-                        fontSize: '0.8125rem',
+                        fontSize: '13px',
                         fontWeight: active ? 600 : 400,
                         color: completed
                           ? 'var(--color-text-muted)'

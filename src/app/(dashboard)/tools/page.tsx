@@ -4,10 +4,20 @@ import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Link from 'next/link';
 import { useShallow } from 'zustand/react/shallow';
+import { useLanguage } from '@/store/useStore';
 import { FilterPanel, useFilterStore, applyFilters } from '@/components/filters';
 import type { FilterConfig } from '@/components/filters';
 
 const EMPTY_FILTERS: Record<string, string[]> = {};
+
+const COUNTRY_CODES: Record<string, string> = {
+  all: '',
+  jordan: 'JO',
+  uae: 'AE',
+  ksa: 'SA',
+  egypt: 'EG',
+  iraq: 'IQ',
+};
 
 /* ============================================
    FINANCIAL TOOLS PAGE
@@ -148,7 +158,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate and compare interest rates across different loan types to find the best financing option for your needs.',
     icon: <CreditCardIcon />,
     iconBg: 'rgba(239, 68, 68, 0.1)',
-    iconColor: 'var(--color-error)',
+    iconColor: '#EF4444',
     category: 'credit',
     countries: ['all'],
     href: '/calculators/simple-loan',
@@ -161,7 +171,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Plan your credit card debt payoff strategy and see how long it will take to become debt-free.',
     icon: <CreditCardIcon />,
     iconBg: 'rgba(239, 68, 68, 0.1)',
-    iconColor: 'var(--color-error)',
+    iconColor: '#EF4444',
     category: 'credit',
     countries: ['all'],
     href: '/calculators/credit-card',
@@ -174,8 +184,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.compound_savings_desc',
     descDefault: 'See how your savings grow over time with compound interest and plan your wealth-building journey.',
     icon: <PiggyIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'budgeting',
     countries: ['all'],
     href: '/calculators/compound-savings',
@@ -187,8 +197,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.rent_vs_buy_desc',
     descDefault: 'Compare the financial implications of renting versus buying a home to make an informed decision.',
     icon: <HomeIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'budgeting',
     countries: ['all'],
   },
@@ -199,8 +209,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.mortgage_affordability_desc',
     descDefault: 'Determine how much home you can afford based on your income, debts, and down payment.',
     icon: <HomeIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'budgeting',
     countries: ['all'],
     href: '/calculators/home-affordability',
@@ -212,8 +222,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.mortgage_payoff_desc',
     descDefault: 'Calculate how extra payments can help you pay off your mortgage faster and save on interest.',
     icon: <HomeIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'budgeting',
     countries: ['all'],
     href: '/calculators/mortgage-payoff',
@@ -225,8 +235,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.retirement_planner_desc',
     descDefault: 'Plan your retirement savings and see if you\'re on track to meet your retirement goals.',
     icon: <RetirementIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'budgeting',
     countries: ['all'],
   },
@@ -238,8 +248,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.fixed_vs_variable_auto_desc',
     descDefault: 'Compare fixed and variable interest rates for auto loans to choose the best option for your situation.',
     icon: <CarIcon />,
-    iconBg: 'rgba(99, 102, 241, 0.1)',
-    iconColor: 'var(--color-info)',
+    iconBg: 'rgba(14, 116, 144, 0.1)',
+    iconColor: '#0E7490',
     category: 'auto',
     countries: ['all'],
   },
@@ -250,8 +260,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.leasing_vs_buying_desc',
     descDefault: 'Analyze whether leasing or buying a vehicle makes more financial sense for your needs.',
     icon: <CarIcon />,
-    iconBg: 'rgba(99, 102, 241, 0.1)',
-    iconColor: 'var(--color-info)',
+    iconBg: 'rgba(14, 116, 144, 0.1)',
+    iconColor: '#0E7490',
     category: 'auto',
     countries: ['all'],
   },
@@ -264,7 +274,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate your personal income tax liability based on Jordanian tax brackets and regulations.',
     icon: <ReceiptIcon />,
     iconBg: 'rgba(245, 158, 11, 0.1)',
-    iconColor: 'var(--color-warning)',
+    iconColor: '#F59E0B',
     category: 'tax',
     countries: ['jordan'],
   },
@@ -275,8 +285,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.jordan_social_security_desc',
     descDefault: 'Estimate your social security contributions and benefits under Jordanian social security law.',
     icon: <ShieldIcon />,
-    iconBg: 'rgba(99, 102, 241, 0.1)',
-    iconColor: 'var(--color-info)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'social',
     countries: ['jordan'],
   },
@@ -288,8 +298,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.uae_gratuity_desc',
     descDefault: 'Calculate your end of service benefits and gratuity entitlements under UAE labor law.',
     icon: <ShieldIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'social',
     countries: ['uae'],
   },
@@ -301,8 +311,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.ksa_zakat_desc',
     descDefault: 'Calculate your annual Zakat obligation based on your assets and Saudi Arabian Zakat regulations.',
     icon: <ZakatIcon />,
-    iconBg: 'rgba(var(--accent-color-rgb), 0.1)',
-    iconColor: 'var(--color-accent-growth)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'tax',
     countries: ['ksa'],
   },
@@ -313,8 +323,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.ksa_end_of_service_desc',
     descDefault: 'Calculate your end of service benefits based on Saudi Arabian labor law requirements.',
     icon: <ShieldIcon />,
-    iconBg: 'rgba(99, 102, 241, 0.1)',
-    iconColor: 'var(--color-info)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'social',
     countries: ['ksa'],
   },
@@ -327,7 +337,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate your personal income tax based on Egyptian tax brackets and current regulations.',
     icon: <ReceiptIcon />,
     iconBg: 'rgba(245, 158, 11, 0.1)',
-    iconColor: 'var(--color-warning)',
+    iconColor: '#F59E0B',
     category: 'tax',
     countries: ['egypt'],
   },
@@ -338,8 +348,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.egypt_social_security_desc',
     descDefault: 'Estimate your social insurance contributions and benefits under Egyptian social security law.',
     icon: <ShieldIcon />,
-    iconBg: 'rgba(99, 102, 241, 0.1)',
-    iconColor: 'var(--color-info)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'social',
     countries: ['egypt'],
   },
@@ -352,7 +362,7 @@ const TOOLS_DATA: Tool[] = [
     descDefault: 'Calculate your personal income tax liability based on Iraqi tax regulations and brackets.',
     icon: <ReceiptIcon />,
     iconBg: 'rgba(245, 158, 11, 0.1)',
-    iconColor: 'var(--color-warning)',
+    iconColor: '#F59E0B',
     category: 'tax',
     countries: ['iraq'],
   },
@@ -363,8 +373,8 @@ const TOOLS_DATA: Tool[] = [
     descKey: 'tools.iraq_social_security_desc',
     descDefault: 'Estimate your social security contributions and pension benefits under Iraqi labor law.',
     icon: <ShieldIcon />,
-    iconBg: 'rgba(99, 102, 241, 0.1)',
-    iconColor: 'var(--color-info)',
+    iconBg: 'rgba(45, 106, 79, 0.1)',
+    iconColor: '#2D6A4F',
     category: 'social',
     countries: ['iraq'],
   },
@@ -376,11 +386,13 @@ function FeaturedToolCard({
   title,
   description,
   buttonText,
+  isRtl,
 }: {
   badge: string;
   title: string;
   description: string;
   buttonText: string;
+  isRtl: boolean;
 }) {
   return (
     <div
@@ -390,7 +402,10 @@ function FeaturedToolCard({
         gridTemplateColumns: '1fr',
         gap: 'var(--spacing-3)',
         alignItems: 'center',
+        transition: 'box-shadow 200ms ease',
       }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--ds-shadow-card)'; }}
     >
       {/* Left Content */}
       <div>
@@ -400,11 +415,11 @@ function FeaturedToolCard({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '0.6875rem',
-            fontWeight: 600,
-            color: 'var(--color-accent-growth)',
+            fontSize: '10px',
+            fontWeight: 500,
+            color: 'var(--ds-primary)',
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
+            letterSpacing: '0.04em',
             marginBottom: 'var(--spacing-1)',
           }}
         >
@@ -415,10 +430,11 @@ function FeaturedToolCard({
         {/* Title */}
         <h3
           style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: 'var(--color-text-primary)',
+            fontSize: '18px',
+            fontWeight: 600,
+            color: 'var(--ds-text-heading)',
             marginBottom: '8px',
+            fontFeatureSettings: '"kern" 1',
           }}
         >
           {title}
@@ -427,8 +443,8 @@ function FeaturedToolCard({
         {/* Description */}
         <p
           style={{
-            fontSize: '0.9375rem',
-            color: 'var(--color-text-secondary)',
+            fontSize: '14px',
+            color: 'var(--ds-text-body)',
             lineHeight: 1.6,
             marginBottom: 'var(--spacing-2)',
             maxWidth: '480px',
@@ -444,15 +460,20 @@ function FeaturedToolCard({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '12px 24px',
-            background: 'var(--color-accent-growth)',
+            padding: '9px 18px',
+            background: 'var(--ds-primary)',
             color: '#FFFFFF',
-            fontSize: '0.875rem',
-            fontWeight: 600,
+            fontSize: '13px',
+            fontWeight: 500,
             border: 'none',
-            borderRadius: 'var(--radius-sm)',
+            borderRadius: '8px',
             cursor: 'pointer',
+            transition: 'background 150ms ease, transform 100ms ease',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
         >
           <TrendUpIcon />
           {buttonText}
@@ -464,7 +485,7 @@ function FeaturedToolCard({
         className="hidden md:flex"
         style={{
           height: '180px',
-          borderRadius: 'var(--radius-sm)',
+          borderRadius: '8px',
           background: 'linear-gradient(135deg, rgba(245, 208, 140, 0.4) 0%, rgba(245, 208, 140, 0.2) 100%)',
           alignItems: 'center',
           justifyContent: 'center',
@@ -490,20 +511,20 @@ function FeaturedToolCard({
                 to right,
                 transparent 0%,
                 transparent 10%,
-                var(--color-accent-growth) 10%,
-                var(--color-accent-growth) 11%,
+                #2D6A4F 10%,
+                #2D6A4F 11%,
                 transparent 11%,
                 transparent 30%,
-                var(--color-accent-growth) 30%,
-                var(--color-accent-growth) 31%,
+                #2D6A4F 30%,
+                #2D6A4F 31%,
                 transparent 31%,
                 transparent 50%,
-                var(--color-accent-growth) 50%,
-                var(--color-accent-growth) 51%,
+                #2D6A4F 50%,
+                #2D6A4F 51%,
                 transparent 51%,
                 transparent 70%,
-                var(--color-accent-growth) 70%,
-                var(--color-accent-growth) 71%,
+                #2D6A4F 70%,
+                #2D6A4F 71%,
                 transparent 71%
               )`,
               clipPath: 'polygon(0% 100%, 10% 80%, 30% 90%, 50% 50%, 70% 60%, 90% 20%, 100% 10%, 100% 100%)',
@@ -519,7 +540,7 @@ function FeaturedToolCard({
             width: '40px',
             height: '40px',
             borderRadius: '50%',
-            background: 'var(--color-accent-growth)',
+            background: 'var(--ds-primary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -543,6 +564,8 @@ function ToolCard({
   description,
   launchLabel,
   href,
+  countries,
+  isRtl,
 }: {
   icon: React.ReactNode;
   iconBg: string;
@@ -551,7 +574,13 @@ function ToolCard({
   description: string;
   launchLabel: string;
   href?: string;
+  countries?: Country[];
+  isRtl: boolean;
 }) {
+  const countryCode = countries && !countries.includes('all') && countries.length > 0
+    ? COUNTRY_CODES[countries[0]] || null
+    : null;
+
   const actionButton = href ? (
     <Link
       href={href}
@@ -562,17 +591,23 @@ function ToolCard({
         gap: '6px',
         padding: '10px 20px',
         background: 'transparent',
-        color: 'var(--color-accent-growth)',
-        fontSize: '0.8125rem',
-        fontWeight: 600,
-        border: '1.5px solid var(--color-accent-growth)',
-        borderRadius: 'var(--radius-sm)',
+        color: 'var(--ds-primary)',
+        fontSize: '13px',
+        fontWeight: 500,
+        border: '1.5px solid var(--ds-btn-secondary-border)',
+        borderRadius: '8px',
         cursor: 'pointer',
         textDecoration: 'none',
+        transition: 'transform 100ms ease',
       }}
+      onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+      onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
     >
       {launchLabel}
-      <ArrowRightIcon />
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points={isRtl ? '12 19 5 12 12 5' : '12 5 19 12 12 19'} />
+      </svg>
     </Link>
   ) : (
     <button
@@ -584,16 +619,15 @@ function ToolCard({
         gap: '6px',
         padding: '10px 20px',
         background: 'transparent',
-        color: 'var(--color-accent-growth)',
-        fontSize: '0.8125rem',
-        fontWeight: 600,
-        border: '1.5px solid var(--color-accent-growth)',
-        borderRadius: 'var(--radius-sm)',
-        cursor: 'pointer',
+        color: 'var(--ds-primary)',
+        fontSize: '13px',
+        fontWeight: 500,
+        border: '1.5px solid var(--ds-btn-secondary-border)',
+        borderRadius: '8px',
+        cursor: 'default',
       }}
     >
-      {launchLabel}
-      <ArrowRightIcon />
+      {isRtl ? 'قريباً' : 'Coming soon'}
     </button>
   );
 
@@ -604,31 +638,58 @@ function ToolCard({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        transition: 'box-shadow 200ms ease',
       }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--ds-shadow-card)'; }}
     >
-      {/* Icon Container */}
+      {/* Icon + Country Badge Row */}
       <div
         style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: 'var(--radius-sm)',
-          background: iconBg,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: iconColor,
+          gap: '8px',
           marginBottom: 'var(--spacing-2)',
         }}
       >
-        {icon}
+        {/* Icon Container */}
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '8px',
+            background: iconBg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: iconColor,
+            flexShrink: 0,
+          }}
+        >
+          {icon}
+        </div>
+        {countryCode && (
+          <span style={{
+            background: 'var(--ds-bg-tinted)',
+            color: 'var(--ds-primary)',
+            fontSize: '10px',
+            fontWeight: 500,
+            padding: '2px 8px',
+            borderRadius: '4px',
+            border: '0.5px solid var(--ds-border-tinted)',
+            letterSpacing: '0.04em',
+          }}>
+            {countryCode}
+          </span>
+        )}
       </div>
 
       {/* Title */}
       <h4
         style={{
-          fontSize: '1rem',
-          fontWeight: 600,
-          color: 'var(--color-text-primary)',
+          fontSize: '15px',
+          fontWeight: 500,
+          color: 'var(--ds-text-heading)',
           marginBottom: '8px',
           lineHeight: 1.3,
         }}
@@ -639,8 +700,8 @@ function ToolCard({
       {/* Description */}
       <p
         style={{
-          fontSize: '0.8125rem',
-          color: 'var(--color-text-secondary)',
+          fontSize: '13px',
+          color: 'var(--ds-text-muted)',
           lineHeight: 1.5,
           flex: 1,
           marginBottom: 'var(--spacing-2)',
@@ -699,6 +760,8 @@ const TOOLS_MATCHERS: Record<string, (tool: Tool, values: string[]) => boolean> 
 /* ===== MAIN PAGE ===== */
 export default function FinancialToolsPage() {
   const intl = useIntl();
+  const language = useLanguage();
+  const isRtl = language === 'ar';
   const filters = useFilterStore(
     useShallow((s) => s.filters['tools'] ?? EMPTY_FILTERS),
   );
@@ -721,6 +784,7 @@ export default function FinancialToolsPage() {
         flexDirection: 'column',
         minHeight: 'calc(100vh - 80px)',
         padding: 'var(--spacing-3)',
+        direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
       {/* Page Content (grows to push footer down) */}
@@ -729,18 +793,19 @@ export default function FinancialToolsPage() {
         <div style={{ marginBottom: 'var(--spacing-2)' }}>
           <h1
             style={{
-              fontSize: '1.75rem',
-              fontWeight: 700,
-              color: 'var(--color-text-primary)',
+              fontSize: '24px',
+              fontWeight: 600,
+              color: 'var(--ds-text-heading)',
               marginBottom: '8px',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'tools.title', defaultMessage: 'Financial Tools' })}
           </h1>
           <p
             style={{
-              fontSize: '0.9375rem',
-              color: 'var(--color-text-secondary)',
+              fontSize: '14px',
+              color: 'var(--ds-text-body)',
               maxWidth: '600px',
               lineHeight: 1.6,
             }}
@@ -761,6 +826,7 @@ export default function FinancialToolsPage() {
             title={intl.formatMessage({ id: 'tools.net_worth_tracker', defaultMessage: 'Net Worth Tracker' })}
             description={intl.formatMessage({ id: 'tools.net_worth_tracker_desc', defaultMessage: 'Visualize your financial growth over time. Track your assets versus liabilities in one centralized dashboard to make informed decisions about your future wealth.' })}
             buttonText={intl.formatMessage({ id: 'tools.track_progress', defaultMessage: 'Track Progress' })}
+            isRtl={isRtl}
           />
         </div>
 
@@ -780,9 +846,10 @@ export default function FinancialToolsPage() {
               </span>
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.credit_debt', defaultMessage: 'Credit & Debt' })}
@@ -799,6 +866,8 @@ export default function FinancialToolsPage() {
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
                   href={tool.href}
+                  countries={tool.countries}
+                  isRtl={isRtl}
                 />
               ))}
             </div>
@@ -816,14 +885,15 @@ export default function FinancialToolsPage() {
                 marginBottom: 'var(--spacing-2)',
               }}
             >
-              <span style={{ color: 'rgba(var(--accent-color-rgb), 0.6)' }}>
+              <span style={{ color: 'rgba(45, 106, 79, 0.6)' }}>
                 <PiggyIcon />
               </span>
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.budgeting_saving', defaultMessage: 'Budgeting & Saving' })}
@@ -840,6 +910,8 @@ export default function FinancialToolsPage() {
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
                   href={tool.href}
+                  countries={tool.countries}
+                  isRtl={isRtl}
                 />
               ))}
             </div>
@@ -857,14 +929,15 @@ export default function FinancialToolsPage() {
                 marginBottom: 'var(--spacing-2)',
               }}
             >
-              <span style={{ color: 'rgba(99, 102, 241, 0.6)' }}>
+              <span style={{ color: 'rgba(14, 116, 144, 0.6)' }}>
                 <CarIcon />
               </span>
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.auto_loans', defaultMessage: 'Auto Loans' })}
@@ -881,6 +954,8 @@ export default function FinancialToolsPage() {
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
                   href={tool.href}
+                  countries={tool.countries}
+                  isRtl={isRtl}
                 />
               ))}
             </div>
@@ -903,9 +978,10 @@ export default function FinancialToolsPage() {
               </span>
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.tax_zakat', defaultMessage: 'Tax & Zakat' })}
@@ -922,6 +998,8 @@ export default function FinancialToolsPage() {
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
                   href={tool.href}
+                  countries={tool.countries}
+                  isRtl={isRtl}
                 />
               ))}
             </div>
@@ -939,14 +1017,15 @@ export default function FinancialToolsPage() {
                 marginBottom: 'var(--spacing-2)',
               }}
             >
-              <span style={{ color: 'rgba(99, 102, 241, 0.6)' }}>
+              <span style={{ color: 'rgba(45, 106, 79, 0.6)' }}>
                 <ShieldIcon />
               </span>
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
                 }}
               >
                 {intl.formatMessage({ id: 'tools.section.social_security', defaultMessage: 'Social Security & Benefits' })}
@@ -963,6 +1042,8 @@ export default function FinancialToolsPage() {
                   description={intl.formatMessage({ id: tool.descKey, defaultMessage: tool.descDefault })}
                   launchLabel={intl.formatMessage({ id: 'tools.launch_tool', defaultMessage: 'Launch Tool' })}
                   href={tool.href}
+                  countries={tool.countries}
+                  isRtl={isRtl}
                 />
               ))}
             </div>
@@ -975,7 +1056,7 @@ export default function FinancialToolsPage() {
             style={{
               textAlign: 'center',
               padding: 'var(--spacing-4)',
-              color: 'var(--color-text-muted)',
+              color: 'var(--ds-text-muted)',
             }}
           >
             <p style={{ fontSize: '1rem' }}>
@@ -992,18 +1073,20 @@ export default function FinancialToolsPage() {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: 'var(--spacing-2)',
-          borderTop: '1px solid var(--color-border)',
+          borderTop: '1px solid var(--ds-border)',
           marginTop: 'var(--spacing-2)',
+          flexWrap: 'wrap' as const,
+          gap: '8px',
         }}
       >
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--ds-text-muted)' }}>
           {intl.formatMessage({ id: 'tools.copyright', defaultMessage: '© {year} Rasmalak AI. All rights reserved.' }, { year: 2024 })}
         </p>
-        <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', gap: 'var(--spacing-2)', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--ds-text-muted)', cursor: 'pointer' }}>
             {intl.formatMessage({ id: 'tools.privacy_policy', defaultMessage: 'Privacy Policy' })}
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--ds-text-muted)', cursor: 'pointer' }}>
             {intl.formatMessage({ id: 'tools.terms_of_service', defaultMessage: 'Terms of Service' })}
           </span>
         </div>

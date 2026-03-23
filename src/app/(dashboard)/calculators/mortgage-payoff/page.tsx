@@ -88,6 +88,8 @@ export default function MortgagePayoffCalculatorPage() {
   const [resultWithoutExtra, setResultWithoutExtra] = useState<MortgagePayoffResult | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [calcBtnHover, setCalcBtnHover] = useState(false);
+  const [pdfBtnHover, setPdfBtnHover] = useState(false);
 
   // Helper to get message
   const t = (key: string, defaultMessage: string, values?: Record<string, string | number>) => {
@@ -193,6 +195,20 @@ export default function MortgagePayoffCalculatorPage() {
     return styledNum(intl.formatNumber(value, { style: 'currency', currency }));
   };
 
+  /* ===== shared input style builder ===== */
+  const inputStyle = (hasError?: boolean): React.CSSProperties => ({
+    width: '100%',
+    padding: '10px 14px',
+    fontSize: '14px',
+    border: `0.5px solid ${hasError ? 'var(--ds-error)' : 'var(--ds-border)'}`,
+    borderRadius: '8px',
+    background: 'var(--ds-bg-input)',
+    color: 'var(--ds-text-heading)',
+    outline: 'none',
+    direction: 'ltr' as const,
+    textAlign: (isRTL ? 'right' : 'left') as React.CSSProperties['textAlign'],
+  });
+
   return (
     <div
       style={{
@@ -210,13 +226,12 @@ export default function MortgagePayoffCalculatorPage() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '6px',
-          fontSize: '0.875rem',
+          fontSize: '13px',
           fontWeight: 500,
-          color: 'var(--color-accent-growth)',
+          color: 'var(--ds-text-muted)',
           textDecoration: 'none',
           marginBottom: 'var(--spacing-2)',
         }}
-        className="hover:underline"
       >
         <span style={{ transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex' }}>
           <ArrowLeftIcon />
@@ -231,12 +246,12 @@ export default function MortgagePayoffCalculatorPage() {
             style={{
               width: '48px',
               height: '48px',
-              borderRadius: 'var(--radius-sm)',
-              background: 'rgba(var(--accent-color-rgb), 0.1)',
+              borderRadius: '8px',
+              background: 'var(--ds-bg-tinted)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--color-accent-growth)',
+              color: 'var(--ds-primary)',
               flexShrink: 0,
             }}
           >
@@ -245,18 +260,19 @@ export default function MortgagePayoffCalculatorPage() {
           <div>
             <h1
               style={{
-                fontSize: '1.75rem',
-                fontWeight: 700,
-                color: 'var(--color-text-primary)',
+                fontSize: '18px',
+                fontWeight: 600,
+                color: 'var(--ds-text-heading)',
                 lineHeight: 1.2,
+                fontFeatureSettings: '"kern" 1',
               }}
             >
               {t('mortgage_payoff_title', 'Mortgage Payoff Calculator')}
             </h1>
             <p
               style={{
-                fontSize: '0.9375rem',
-                color: 'var(--color-text-secondary)',
+                fontSize: '13px',
+                color: 'var(--ds-text-muted)',
                 lineHeight: 1.6,
                 marginTop: '4px',
               }}
@@ -272,8 +288,12 @@ export default function MortgagePayoffCalculatorPage() {
         {/* ===== INPUT FORM ===== */}
         <div className="col-span-1 lg:col-span-5">
           <div
-            className="ds-card"
             style={{
+              background: 'var(--ds-bg-card)',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '16px',
+              padding: '20px 24px',
+              boxShadow: 'var(--ds-shadow-card)',
               display: 'flex',
               flexDirection: 'column',
               gap: 'var(--spacing-2)',
@@ -281,14 +301,15 @@ export default function MortgagePayoffCalculatorPage() {
           >
             {/* Form Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ color: 'var(--color-accent-growth)' }}>
+              <span style={{ color: 'var(--ds-primary)' }}>
                 <CalculatorIcon />
               </span>
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
                 }}
               >
                 {t('mortgage_payoff_enter_values', 'Enter Values')}
@@ -300,9 +321,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -313,21 +334,10 @@ export default function MortgagePayoffCalculatorPage() {
                 value={loanAmount}
                 onChange={(e) => setLoanAmount(e.target.value)}
                 placeholder={t('mortgage_payoff_loan_amount_placeholder', 'e.g. 200000')}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: `1.5px solid ${errors.loanAmount ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
-                  outline: 'none',
-                  direction: 'ltr',
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
+                style={inputStyle(!!errors.loanAmount)}
               />
               {errors.loanAmount && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                   {errors.loanAmount}
                 </p>
               )}
@@ -338,9 +348,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -352,21 +362,10 @@ export default function MortgagePayoffCalculatorPage() {
                 value={interestRate}
                 onChange={(e) => setInterestRate(e.target.value)}
                 placeholder={t('mortgage_payoff_interest_rate_placeholder', 'e.g. 5')}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: `1.5px solid ${errors.annualInterestRate ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
-                  outline: 'none',
-                  direction: 'ltr',
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
+                style={inputStyle(!!errors.annualInterestRate)}
               />
               {errors.annualInterestRate && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                   {errors.annualInterestRate}
                 </p>
               )}
@@ -377,9 +376,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -390,21 +389,10 @@ export default function MortgagePayoffCalculatorPage() {
                 value={loanTerm}
                 onChange={(e) => setLoanTerm(e.target.value)}
                 placeholder={t('mortgage_payoff_loan_term_placeholder', 'e.g. 30')}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: `1.5px solid ${errors.loanTermYears ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
-                  outline: 'none',
-                  direction: 'ltr',
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
+                style={inputStyle(!!errors.loanTermYears)}
               />
               {errors.loanTermYears && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                   {errors.loanTermYears}
                 </p>
               )}
@@ -415,9 +403,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -429,11 +417,11 @@ export default function MortgagePayoffCalculatorPage() {
                 style={{
                   width: '100%',
                   padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: `1.5px solid ${errors.paymentsPerYear ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
+                  fontSize: '14px',
+                  border: `0.5px solid ${errors.paymentsPerYear ? 'var(--ds-error)' : 'var(--ds-border)'}`,
+                  borderRadius: '8px',
+                  background: 'var(--ds-bg-input)',
+                  color: 'var(--ds-text-heading)',
                   outline: 'none',
                   cursor: 'pointer',
                 }}
@@ -446,7 +434,7 @@ export default function MortgagePayoffCalculatorPage() {
                 <option value="1">{isRTL ? '1 (سنوي)' : '1 (Annually)'}</option>
               </select>
               {errors.paymentsPerYear && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                   {errors.paymentsPerYear}
                 </p>
               )}
@@ -457,9 +445,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -470,18 +458,12 @@ export default function MortgagePayoffCalculatorPage() {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: `1.5px solid ${errors.startDate ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
-                  outline: 'none',
+                  ...inputStyle(!!errors.startDate),
+                  textAlign: undefined,
                 }}
               />
               {errors.startDate && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
                   {errors.startDate}
                 </p>
               )}
@@ -492,9 +474,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -505,19 +487,11 @@ export default function MortgagePayoffCalculatorPage() {
                 value={extraPayment}
                 onChange={(e) => setExtraPayment(e.target.value)}
                 placeholder={t('mortgage_payoff_extra_payment_placeholder', 'e.g. 200')}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: '1.5px solid var(--color-border-input)',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
-                  outline: 'none',
-                  direction: 'ltr',
-                  textAlign: isRTL ? 'right' : 'left',
-                }}
+                style={inputStyle()}
               />
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '4px' }}>
+                {t('mortgage_payoff_extra_hint', 'Leave blank or 0 for no extra payment')}
+              </p>
             </div>
 
             {/* Lender Name */}
@@ -525,9 +499,9 @@ export default function MortgagePayoffCalculatorPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: '0.8125rem',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '6px',
                 }}
               >
@@ -539,39 +513,37 @@ export default function MortgagePayoffCalculatorPage() {
                 onChange={(e) => setLenderName(e.target.value)}
                 placeholder={t('mortgage_payoff_lender_placeholder', 'e.g. Your Bank')}
                 style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '0.9375rem',
-                  border: '1.5px solid var(--color-border-input)',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-bg-input)',
-                  color: 'var(--color-text-primary)',
-                  outline: 'none',
+                  ...inputStyle(),
+                  textAlign: undefined,
                 }}
               />
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={handleCalculate}
+                onMouseEnter={() => setCalcBtnHover(true)}
+                onMouseLeave={() => setCalcBtnHover(false)}
                 style={{
-                  flex: 1,
+                  flex: '1 1 auto',
+                  minWidth: '140px',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  padding: '12px 24px',
-                  background: 'var(--color-accent-growth)',
+                  padding: '9px 18px',
+                  background: calcBtnHover ? 'var(--ds-primary-hover)' : 'var(--ds-primary)',
                   color: '#FFFFFF',
-                  fontSize: '0.9375rem',
-                  fontWeight: 600,
+                  fontSize: '13px',
+                  fontWeight: 500,
                   border: 'none',
-                  borderRadius: 'var(--radius-sm)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
+                  width: '100%',
+                  transition: 'background 0.15s ease',
                 }}
-                className="hover:opacity-90 transition-opacity"
               >
                 <CalculatorIcon />
                 {t('mortgage_payoff_calculate', 'Calculate')}
@@ -583,16 +555,15 @@ export default function MortgagePayoffCalculatorPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  padding: '12px 20px',
+                  padding: '9px 18px',
                   background: 'transparent',
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '0.875rem',
+                  color: 'var(--ds-text-body)',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  border: '1.5px solid var(--color-border-input)',
-                  borderRadius: 'var(--radius-sm)',
+                  border: '0.5px solid var(--ds-border)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
                 }}
-                className="hover:opacity-80 transition-opacity"
               >
                 {t('mortgage_payoff_reset', 'Reset')}
               </button>
@@ -604,35 +575,45 @@ export default function MortgagePayoffCalculatorPage() {
         <div className="col-span-1 lg:col-span-7">
           {result ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-              {/* Loan Summary Card */}
+              {/* Loan Summary Card — dark glass */}
               <div
-                className="ds-card"
-                style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}
+                style={{
+                  background: 'var(--ds-bg-card-dark)',
+                  border: '0.5px solid var(--ds-dark-card-border)',
+                  borderRadius: '16px',
+                  padding: '20px 24px',
+                  boxShadow: 'var(--ds-dark-card-glow)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--spacing-2)',
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                   <h2
                     style={{
-                      fontSize: '1.125rem',
-                      fontWeight: 600,
-                      color: 'var(--color-text-primary)',
+                      fontSize: '11px',
+                      fontWeight: 500,
+                      color: 'var(--ds-dark-card-body)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                     }}
                   >
-                    <span style={{ color: 'var(--color-accent-growth)' }}><CheckCircleIcon /></span>
+                    <span style={{ color: 'var(--ds-primary-glow)' }}><CheckCircleIcon /></span>
                     {t('mortgage_payoff_loan_summary', 'Loan Summary')}
                   </h2>
                   {result.summary.lenderName && (
                     <span
                       style={{
-                        fontSize: '0.8125rem',
+                        fontSize: '12px',
                         fontWeight: 500,
-                        color: 'var(--color-text-muted)',
+                        color: 'var(--ds-dark-card-body)',
                         paddingInline: '12px',
                         paddingBlock: '4px',
-                        borderRadius: 'var(--radius-pill)',
-                        border: '1px solid var(--color-border)',
+                        borderRadius: '999px',
+                        border: '0.5px solid var(--ds-dark-card-border)',
                       }}
                     >
                       {result.summary.lenderName}
@@ -678,44 +659,53 @@ export default function MortgagePayoffCalculatorPage() {
                 </div>
               </div>
 
-              {/* Interest Savings Card (only if extra payments) */}
+              {/* Interest Savings Card (only if extra payments) — dark glass */}
               {resultWithoutExtra && result.summary.totalEarlyPayments > 0 && (
                 <div
                   style={{
-                    padding: '1rem 1.25rem',
-                    borderRadius: 'var(--radius-xl)',
-                    background: 'linear-gradient(135deg, rgba(var(--accent-color-rgb), 0.08) 0%, rgba(var(--accent-color-rgb), 0.03) 100%)',
-                    border: '1px solid rgba(var(--accent-color-rgb), 0.2)',
+                    padding: '20px 24px',
+                    borderRadius: '16px',
+                    background: 'var(--ds-bg-card-dark)',
+                    border: '0.5px solid var(--ds-dark-card-border)',
+                    boxShadow: 'var(--ds-dark-card-glow)',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <span style={{ color: 'var(--color-accent-growth)' }}><TrendDownIcon /></span>
-                    <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                    <span style={{ color: 'var(--ds-primary-glow)' }}><TrendDownIcon /></span>
+                    <h3
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        color: 'var(--ds-dark-card-body)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
                       {t('mortgage_payoff_interest_savings', 'Interest Savings with Extra Payments')}
                     </h3>
                   </div>
                   <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                     <div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--ds-dark-card-body)', marginBottom: '2px' }}>
                         {t('mortgage_payoff_interest_without_extra', 'Interest Without Extra Payments')}
                       </p>
-                      <p style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                      <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--ds-dark-card-heading)' }}>
                         {formatCurrency(resultWithoutExtra.summary.totalInterest)}
                       </p>
                     </div>
                     <div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--ds-dark-card-body)', marginBottom: '2px' }}>
                         {t('mortgage_payoff_interest_with_extra', 'Interest With Extra Payments')}
                       </p>
-                      <p style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-accent-growth)' }}>
+                      <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--ds-primary-glow)' }}>
                         {formatCurrency(result.summary.totalInterest)}
                       </p>
                     </div>
                     <div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--ds-dark-card-body)', marginBottom: '2px' }}>
                         {t('mortgage_payoff_you_save', 'You Save')}
                       </p>
-                      <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-accent-growth)' }}>
+                      <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--ds-primary-glow)' }}>
                         {formatCurrency(resultWithoutExtra.summary.totalInterest - result.summary.totalInterest)}
                       </p>
                     </div>
@@ -723,27 +713,36 @@ export default function MortgagePayoffCalculatorPage() {
                 </div>
               )}
 
-              {/* Download PDF Button */}
+              {/* Download PDF Button — inside dark context */}
               <button
                 type="button"
                 onClick={handleDownloadPDF}
+                onMouseEnter={() => setPdfBtnHover(true)}
+                onMouseLeave={() => setPdfBtnHover(false)}
                 disabled={isGeneratingPDF}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
-                  padding: '14px 28px',
-                  background: isGeneratingPDF ? 'var(--color-text-muted)' : 'var(--color-accent-growth)',
-                  color: '#FFFFFF',
-                  fontSize: '0.9375rem',
-                  fontWeight: 600,
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
+                  padding: '8px 16px',
+                  background: isGeneratingPDF
+                    ? 'transparent'
+                    : pdfBtnHover
+                      ? 'rgba(34,197,94,0.1)'
+                      : 'transparent',
+                  color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  border: isGeneratingPDF
+                    ? '1.5px solid rgba(156,163,175,0.3)'
+                    : '1.5px solid rgba(74,222,128,0.3)',
+                  borderRadius: '8px',
                   cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
                   width: '100%',
+                  opacity: isGeneratingPDF ? 0.5 : 1,
+                  transition: 'background 0.15s ease',
                 }}
-                className="hover:opacity-90 transition-opacity"
               >
                 <DownloadIcon />
                 {isGeneratingPDF
@@ -755,8 +754,12 @@ export default function MortgagePayoffCalculatorPage() {
           ) : (
             /* Empty state placeholder */
             <div
-              className="ds-card"
               style={{
+                background: 'var(--ds-bg-card)',
+                border: '0.5px solid var(--ds-border)',
+                borderRadius: '16px',
+                padding: '20px 24px',
+                boxShadow: 'var(--ds-shadow-card)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -769,20 +772,20 @@ export default function MortgagePayoffCalculatorPage() {
                 style={{
                   width: '80px',
                   height: '80px',
-                  borderRadius: 'var(--radius-xl)',
-                  background: 'rgba(var(--accent-color-rgb), 0.08)',
+                  borderRadius: '16px',
+                  background: 'var(--ds-bg-tinted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--color-accent-growth)',
+                  color: 'var(--ds-primary)',
                 }}
               >
                 <HomeIcon />
               </div>
-              <p style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+              <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-heading)', textAlign: 'center' }}>
                 {t('mortgage_payoff_enter_values', 'Enter Values')}
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
                 {t('mortgage_payoff_subtitle', 'Calculate how extra payments can help you pay off your mortgage faster and save on interest.')}
               </p>
             </div>
@@ -809,22 +812,16 @@ function SummaryItem({
     <div
       style={{
         padding: '12px',
-        borderRadius: 'var(--radius-sm)',
-        backgroundColor: highlight
-          ? 'rgba(var(--accent-color-rgb), 0.08)'
-          : accent
-            ? 'rgba(99, 102, 241, 0.06)'
-            : 'var(--color-bg-input)',
-        border: highlight
-          ? '1px solid rgba(var(--accent-color-rgb), 0.2)'
-          : '1px solid var(--color-border)',
+        borderRadius: '8px',
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        border: '0.5px solid rgba(255,255,255,0.08)',
       }}
     >
       <p
         style={{
-          fontSize: '0.6875rem',
+          fontSize: '12px',
           fontWeight: 500,
-          color: 'var(--color-text-muted)',
+          color: 'var(--ds-dark-card-body)',
           marginBottom: '4px',
           lineHeight: 1.3,
         }}
@@ -833,13 +830,13 @@ function SummaryItem({
       </p>
       <p
         style={{
-          fontSize: highlight ? '1.25rem' : '1rem',
+          fontSize: highlight ? '20px' : '20px',
           fontWeight: 600,
           color: highlight
-            ? 'var(--color-accent-growth)'
+            ? 'var(--ds-primary-glow)'
             : accent
-              ? '#6366F1'
-              : 'var(--color-text-primary)',
+              ? 'var(--ds-primary-glow)'
+              : 'var(--ds-dark-card-heading)',
           lineHeight: 1.3,
         }}
       >
@@ -848,4 +845,3 @@ function SummaryItem({
     </div>
   );
 }
-

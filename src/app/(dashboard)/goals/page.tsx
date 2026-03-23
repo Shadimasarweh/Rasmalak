@@ -12,8 +12,8 @@ import { styledNum } from '@/components/StyledNumber';
 const GOAL_COLORS = [
   '#10B981', // emerald
   '#3B82F6', // blue
-  '#8B5CF6', // violet
-  '#6366F1', // indigo
+  '#2D6A4F', // primary green
+  '#0E7490', // teal
   '#F59E0B', // amber
   '#EC4899', // pink
   '#EF4444', // red
@@ -89,9 +89,11 @@ function AddFundsModal({
     >
       <div
         style={{
-          backgroundColor: 'var(--color-bg-surface-1)',
-          borderRadius: 'var(--radius-xl)',
+          backgroundColor: 'var(--ds-bg-card)',
+          borderRadius: '16px',
+          border: '0.5px solid var(--ds-border)',
           padding: '1.5rem',
+          margin: '16px',
           width: '100%',
           maxWidth: '400px',
           boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
@@ -101,20 +103,21 @@ function AddFundsModal({
       >
         <h3
           style={{
-            fontSize: '1.125rem',
+            fontSize: '18px',
             fontWeight: 600,
-            color: 'var(--color-text-primary)',
+            color: 'var(--ds-text-heading)',
+            fontFeatureSettings: '"kern" 1',
             marginBottom: '4px',
           }}
         >
           {intl.formatMessage({ id: 'dashboard.goals_add_funds', defaultMessage: 'Add Funds' })}
         </h3>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '1rem' }}>
           {goalName}
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1rem' }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-muted)' }}>
+          <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
             {currencySymbol}
           </span>
           <input
@@ -125,13 +128,13 @@ function AddFundsModal({
             autoFocus
             style={{
               flex: 1,
-              padding: '10px 12px',
-              fontSize: '1.125rem',
-              fontWeight: 600,
-              border: '1px solid var(--color-border-input)',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--color-bg-input)',
-              color: 'var(--color-text-primary)',
+              padding: '10px 14px',
+              fontSize: '18px',
+              fontWeight: 500,
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--ds-bg-input)',
+              color: 'var(--ds-text-heading)',
               outline: 'none',
               direction: 'ltr',
             }}
@@ -144,12 +147,12 @@ function AddFundsModal({
             style={{
               flex: 1,
               padding: '10px',
-              fontSize: '0.875rem',
+              fontSize: '13px',
               fontWeight: 500,
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
               background: 'transparent',
-              color: 'var(--color-text-secondary)',
+              color: 'var(--ds-text-body)',
               cursor: 'pointer',
             }}
           >
@@ -166,11 +169,11 @@ function AddFundsModal({
             style={{
               flex: 1,
               padding: '10px',
-              fontSize: '0.875rem',
-              fontWeight: 600,
+              fontSize: '13px',
+              fontWeight: 500,
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-accent-growth)',
+              borderRadius: '8px',
+              background: 'var(--ds-primary)',
               color: '#FFFFFF',
               cursor: 'pointer',
             }}
@@ -223,7 +226,7 @@ function GoalCard({
           width: '4px',
           height: '100%',
           backgroundColor: goal.color,
-          borderRadius: isRTL ? '0 var(--radius-xl) var(--radius-xl) 0' : 'var(--radius-xl) 0 0 var(--radius-xl)',
+          borderRadius: isRTL ? '0 16px 16px 0' : '16px 0 0 16px',
         }}
       />
 
@@ -248,9 +251,9 @@ function GoalCard({
           <div style={{ minWidth: 0, flex: 1 }}>
             <h3
               style={{
-                fontSize: '1rem',
+                fontSize: '15px',
                 fontWeight: 600,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -259,7 +262,7 @@ function GoalCard({
               {goal.name}
             </h3>
             {goal.deadline && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
                 {intl.formatMessage({ id: 'dashboard.goals_deadline', defaultMessage: 'Deadline' })}:{' '}
                 {new Date(goal.deadline).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US', {
                   year: 'numeric',
@@ -278,9 +281,9 @@ function GoalCard({
             padding: '6px',
             border: 'none',
             background: 'transparent',
-            color: 'var(--color-text-muted)',
+            color: 'var(--ds-text-muted)',
             cursor: 'pointer',
-            borderRadius: '4px',
+            borderRadius: '8px',
             flexShrink: 0,
           }}
           className="hover:opacity-70"
@@ -291,19 +294,19 @@ function GoalCard({
 
       {/* Progress bar */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
-          <span style={{ color: 'var(--color-text-muted)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+          <span style={{ color: 'var(--ds-text-muted)' }}>
             {currencySymbol} {styledNum(intl.formatNumber(goal.currentAmount))}
           </span>
-          <span style={{ fontWeight: 600, color: isComplete ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
+          <span style={{ fontWeight: 600, color: isComplete ? 'var(--ds-primary)' : goal.color }}>
             {intl.formatNumber(Math.round(percentage))}%
           </span>
         </div>
         <div
           style={{
             height: '8px',
-            borderRadius: 'var(--radius-pill)',
-            backgroundColor: 'var(--color-border)',
+            borderRadius: '8px',
+            backgroundColor: 'var(--ds-bg-tinted)',
             overflow: 'hidden',
           }}
         >
@@ -311,8 +314,8 @@ function GoalCard({
             style={{
               height: '100%',
               width: `${percentage}%`,
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: isComplete ? 'var(--color-accent-growth)' : goal.color,
+              borderRadius: '8px',
+              backgroundColor: isComplete ? 'var(--ds-primary-glow)' : goal.color,
               transition: 'width 0.3s ease',
             }}
           />
@@ -321,9 +324,9 @@ function GoalCard({
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            fontSize: '0.6875rem',
+            fontSize: '11px',
             marginTop: '4px',
-            color: 'var(--color-text-muted)',
+            color: 'var(--ds-text-muted)',
           }}
         >
           <span>
@@ -341,11 +344,11 @@ function GoalCard({
           onClick={onAddFunds}
           style={{
             padding: '8px 16px',
-            fontSize: '0.8125rem',
-            fontWeight: 600,
-            border: `1px solid ${goal.color}30`,
-            borderRadius: 'var(--radius-sm)',
-            background: goal.color + '10',
+            fontSize: '13px',
+            fontWeight: 500,
+            border: `1px solid ${goal.color}40`,
+            borderRadius: '8px',
+            background: goal.color + '0F',
             color: goal.color,
             cursor: 'pointer',
             width: '100%',
@@ -360,11 +363,12 @@ function GoalCard({
           style={{
             textAlign: 'center',
             padding: '8px',
-            fontSize: '0.8125rem',
-            fontWeight: 600,
-            color: 'var(--color-accent-growth)',
-            backgroundColor: 'color-mix(in srgb, var(--color-accent-growth) 6%, transparent)',
-            borderRadius: 'var(--radius-sm)',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: 'var(--ds-success-text)',
+            backgroundColor: 'var(--ds-success-bg)',
+            borderRadius: '8px',
+            border: '0.5px solid var(--ds-success-border)',
           }}
         >
           {intl.formatMessage({ id: 'dashboard.goals_goal_achieved', defaultMessage: 'Goal achieved!' })}
@@ -408,20 +412,20 @@ function CreateGoalForm({
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
-    fontSize: '0.8125rem',
+    fontSize: '13px',
     fontWeight: 500,
-    color: 'var(--color-text-secondary)',
+    color: 'var(--ds-text-heading)',
     marginBottom: '6px',
   };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '10px 12px',
-    fontSize: '0.875rem',
-    border: '1px solid var(--color-border-input)',
-    borderRadius: 'var(--radius-md)',
-    backgroundColor: 'var(--color-bg-input)',
-    color: 'var(--color-text-primary)',
+    padding: '10px 14px',
+    fontSize: '14px',
+    border: '0.5px solid var(--ds-border)',
+    borderRadius: '8px',
+    backgroundColor: 'var(--ds-bg-input)',
+    color: 'var(--ds-text-heading)',
     outline: 'none',
   };
 
@@ -432,14 +436,15 @@ function CreateGoalForm({
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
-        border: '2px solid var(--color-accent-growth)',
+        border: '1.5px solid var(--ds-primary)',
       }}
     >
       <h3
         style={{
-          fontSize: '1rem',
+          fontSize: '18px',
           fontWeight: 600,
-          color: 'var(--color-text-primary)',
+          color: 'var(--ds-text-heading)',
+          fontFeatureSettings: '"kern" 1',
         }}
       >
         {intl.formatMessage({ id: 'dashboard.goals_new_savings_goal', defaultMessage: 'New Savings Goal' })}
@@ -461,7 +466,7 @@ function CreateGoalForm({
       <div>
         <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_target_amount', defaultMessage: 'Target Amount' })}</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-muted)', flexShrink: 0 }}>
+          <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
           <input
@@ -499,9 +504,9 @@ function CreateGoalForm({
                 height: '32px',
                 borderRadius: '50%',
                 backgroundColor: c,
-                border: selectedColor === c ? '3px solid var(--color-text-primary)' : '2px solid transparent',
+                border: selectedColor === c ? '3px solid var(--ds-text-heading)' : '2px solid transparent',
                 cursor: 'pointer',
-                outline: selectedColor === c ? '2px solid var(--color-bg-surface-1)' : 'none',
+                outline: selectedColor === c ? '2px solid #FFFFFF' : 'none',
                 transition: 'transform 0.15s',
                 transform: selectedColor === c ? 'scale(1.15)' : 'scale(1)',
               }}
@@ -517,12 +522,12 @@ function CreateGoalForm({
           style={{
             flex: 1,
             padding: '10px',
-            fontSize: '0.875rem',
+            fontSize: '13px',
             fontWeight: 500,
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-sm)',
+            border: '0.5px solid var(--ds-border)',
+            borderRadius: '8px',
             background: 'transparent',
-            color: 'var(--color-text-secondary)',
+            color: 'var(--ds-text-body)',
             cursor: 'pointer',
           }}
           >
@@ -534,12 +539,12 @@ function CreateGoalForm({
             style={{
               flex: 1,
               padding: '10px',
-              fontSize: '0.875rem',
-              fontWeight: 600,
+              fontSize: '13px',
+              fontWeight: 500,
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              background: !name.trim() || !parseFloat(target) ? 'var(--color-border)' : 'var(--color-accent-growth)',
-              color: !name.trim() || !parseFloat(target) ? 'var(--color-text-muted)' : '#FFFFFF',
+              borderRadius: '8px',
+              background: !name.trim() || !parseFloat(target) ? 'var(--ds-border)' : 'var(--ds-primary)',
+              color: !name.trim() || !parseFloat(target) ? 'var(--ds-text-muted)' : '#FFFFFF',
               cursor: !name.trim() || !parseFloat(target) ? 'not-allowed' : 'pointer',
             }}
           >
@@ -589,9 +594,9 @@ export default function GoalsPage() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '6px',
-          fontSize: '0.875rem',
+          fontSize: '13px',
           fontWeight: 500,
-          color: 'var(--color-accent-growth)',
+          color: 'var(--ds-text-muted)',
           textDecoration: 'none',
           marginBottom: 'var(--spacing-5)',
         }}
@@ -608,9 +613,10 @@ export default function GoalsPage() {
         <div>
           <h1
             style={{
-              fontSize: '1.75rem',
-              fontWeight: 700,
-              color: 'var(--color-text-primary)',
+              fontSize: '24px',
+              fontWeight: 600,
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
               lineHeight: 1.2,
             }}
           >
@@ -618,8 +624,8 @@ export default function GoalsPage() {
           </h1>
           <p
             style={{
-              fontSize: '0.9375rem',
-              color: 'var(--color-text-secondary)',
+              fontSize: '14px',
+              color: 'var(--ds-text-body)',
               lineHeight: 1.6,
               marginTop: '4px',
             }}
@@ -635,12 +641,12 @@ export default function GoalsPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '10px 20px',
-              fontSize: '0.875rem',
-              fontWeight: 600,
+              padding: '9px 18px',
+              fontSize: '13px',
+              fontWeight: 500,
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-accent-growth)',
+              borderRadius: '8px',
+              background: 'var(--ds-primary)',
               color: '#FFFFFF',
               cursor: 'pointer',
               flexShrink: 0,
@@ -665,18 +671,18 @@ export default function GoalsPage() {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)' }}>
               {intl.formatMessage({ id: 'dashboard.goals_overall_progress', defaultMessage: 'Overall Progress' })}
             </p>
-            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: overallPercentage >= 100 ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)' }}>
+            <p style={{ fontSize: '15px', fontWeight: 600, color: overallPercentage >= 100 ? 'var(--ds-primary)' : 'var(--ds-text-body)' }}>
               {intl.formatNumber(Math.round(overallPercentage))}%
             </p>
           </div>
           <div
             style={{
-              height: '10px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--color-border)',
+              height: '8px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--ds-bg-tinted)',
               overflow: 'hidden',
             }}
           >
@@ -684,13 +690,13 @@ export default function GoalsPage() {
               style={{
                 height: '100%',
                 width: `${overallPercentage}%`,
-                borderRadius: 'var(--radius-pill)',
-                background: 'linear-gradient(90deg, var(--color-accent-growth), var(--accent-color-hover))',
+                borderRadius: '8px',
+                background: 'linear-gradient(90deg, var(--ds-primary), var(--ds-primary-glow))',
                 transition: 'width 0.3s ease',
               }}
             />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--ds-text-muted)' }}>
             <span>
               {intl.formatMessage({ id: 'dashboard.goals_saved', defaultMessage: 'Saved' })}: {currencySymbol} {styledNum(intl.formatNumber(totalSaved))}
             </span>
@@ -722,7 +728,7 @@ export default function GoalsPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: 'var(--spacing-5)',
           }}
         >
@@ -760,28 +766,30 @@ export default function GoalsPage() {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--color-border)',
+                backgroundColor: 'var(--ds-bg-tinted)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--color-text-muted)',
+                color: 'var(--ds-primary)',
               }}
             >
               <FlagIcon />
             </div>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'dashboard.goals_no_goals', defaultMessage: 'No goals yet' })}
             </p>
             <button
               onClick={() => setShowCreate(true)}
               style={{
-                fontSize: '0.875rem',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: 'var(--color-accent-growth)',
-                background: 'none',
-                border: 'none',
+                color: 'var(--ds-primary)',
+                textDecoration: 'none',
+                padding: '8px 16px',
+                border: '1.5px solid var(--ds-btn-secondary-border)',
+                borderRadius: '8px',
+                background: 'transparent',
                 cursor: 'pointer',
-                textDecoration: 'underline',
               }}
             >
               {intl.formatMessage({ id: 'dashboard.goals_create_first', defaultMessage: 'Create your first goal' })}

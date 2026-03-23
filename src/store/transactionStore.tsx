@@ -29,6 +29,7 @@ export interface Transaction {
   type: 'income' | 'expense';          // Transaction type
   category: string | null;             // Category (nullable per contract)
   description?: string;                // Optional metadata
+  user_id?: string;
 }
 
 /* ===== STORE INTERFACE ===== */

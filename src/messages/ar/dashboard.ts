@@ -92,6 +92,9 @@ export default {
   budgets_category_budgets: 'ميزانية الفئات',
   budgets_saved: 'تم الحفظ!',
   budgets_save_budgets: 'حفظ الميزانيات',
+  budgets_recurring_charges: 'الرسوم المتكررة',
+  budgets_recurring_auto_detected: 'تم اكتشافها تلقائياً من معاملاتك',
+  budgets_annual_total: 'المجموع السنوي',
   // Goals page
   goals_title: 'أهداف الادخار',
   goals_subtitle: 'حدد أهدافك المالية وتابع تقدمك.',
@@ -125,4 +128,45 @@ export default {
   day_thu: 'خميس',
   day_fri: 'جمعة',
   day_sat: 'سبت',
+
+  // Cash flow labels
+  saved_label: 'تم ادخار',
+  overspent_label: 'تجاوز الإنفاق',
+  this_month_suffix: 'هذا الشهر',
+  // Financial Literacy
+  literacy_score: 'مؤشر الثقافة المالية',
+  literacy_score_desc: 'أكمل الدورات للتحسين',
+  improve: 'تحسين',
+  // Recommended
+  rec_budgeting: 'أساسيات الميزانية',
+  rec_budgeting_desc: 'ابنِ ميزانيتك الأولى',
+  rec_saving: 'صندوق الطوارئ',
+  rec_saving_desc: 'ابدأ الادخار اليوم',
+  rec_investing: 'مقدمة في الاستثمار',
+  rec_investing_desc: 'نمِّ ثروتك',
+
+  // مؤشر الصحة المالية
+  health_score: 'مؤشر الصحة المالية',
+  health_details: 'التفاصيل',
+  health_savings_rate: 'معدل الادخار',
+  health_budget_adherence: 'الالتزام بالميزانية',
+  health_emergency_fund: 'صندوق الطوارئ',
+  health_goal_progress: 'تقدم الأهداف',
+  health_consistency: 'انتظام التسجيل',
+  health_literacy: 'الثقافة المالية',
+
+  // حالة التوجيه الفارغة
+  coach_add_title: 'أضف معاملة',
+  coach_add_subtitle: 'Add a transaction',
+  coach_add_desc: 'سجّل أول دخل أو مصروف لبدء التتبع.',
+  coach_add_cta: 'أضف الآن',
+  coach_budget_title: 'حدد ميزانية',
+  coach_budget_subtitle: 'Set a budget',
+  coach_budget_desc: 'تحكم في إنفاقك بحدود شهرية لكل فئة.',
+  coach_budget_cta: 'حدد الميزانية',
+  coach_goal_title: 'أنشئ هدفاً',
+  coach_goal_subtitle: 'Create a goal',
+  coach_goal_desc: 'ادخر نحو شيء مهم — صندوق طوارئ، سفر، أو شراء كبير.',
+  coach_goal_cta: 'أنشئ هدفاً',
+  coach_ai_nudge: 'أضف أول معاملة وسأبدأ بتحليل أنماط إنفاقك.',
 };

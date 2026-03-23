@@ -14,16 +14,16 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     // Also add/remove class for additional CSS targeting
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-      document.body.style.backgroundColor = '#0B0E14';
+      document.body.style.backgroundColor = '#0F1914';
     } else {
       document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#F9FAFB';
+      document.body.style.backgroundColor = '#F5F0EB';
     }
 
     // Update meta theme-color for mobile browsers
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', theme === 'dark' ? '#0B0E14' : '#F9FAFB');
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#0F1914' : '#F5F0EB');
     }
   }, [theme]);
 

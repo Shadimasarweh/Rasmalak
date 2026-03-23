@@ -112,10 +112,10 @@ const LoadingDots = () => (
       <div
         key={i}
         style={{
-          width: '8px',
-          height: '8px',
+          width: '6px',
+          height: '6px',
           borderRadius: '50%',
-          backgroundColor: 'var(--color-text-muted)',
+          backgroundColor: 'var(--ds-text-muted)',
           animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
         }}
       />
@@ -153,10 +153,10 @@ function QuickActionCard({
         display: 'flex',
         alignItems: 'flex-start',
         gap: '12px',
-        padding: 'var(--spacing-2)',
-        background: 'var(--color-bg-surface-1)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-sm)',
+        padding: '12px',
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
         cursor: 'pointer',
         textAlign: 'start',
         width: '100%',
@@ -167,7 +167,7 @@ function QuickActionCard({
         e.currentTarget.style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border)';
+        e.currentTarget.style.borderColor = 'var(--ds-border)';
         e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
@@ -175,7 +175,7 @@ function QuickActionCard({
         style={{
           width: '36px',
           height: '36px',
-          borderRadius: 'var(--radius-sm)',
+          borderRadius: '8px',
           background: iconBg,
           display: 'flex',
           alignItems: 'center',
@@ -189,9 +189,9 @@ function QuickActionCard({
       <div>
         <p
           style={{
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            color: 'var(--color-text-primary)',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: 'var(--ds-text-heading)',
             marginBottom: '2px',
           }}
         >
@@ -199,8 +199,8 @@ function QuickActionCard({
         </p>
         <p
           style={{
-            fontSize: '0.75rem',
-            color: 'var(--color-text-muted)',
+            fontSize: '12px',
+            color: 'var(--ds-text-muted)',
           }}
         >
           {description}
@@ -228,9 +228,9 @@ function AttachmentPreview({
         alignItems: 'center',
         gap: '6px',
         padding: isImage ? '4px' : '8px 12px',
-        background: 'var(--theme-bg-tertiary)',
-        borderRadius: 'var(--radius-sm)',
-        border: '1px solid var(--color-border)',
+        background: 'var(--ds-bg-tinted)',
+        borderRadius: '8px',
+        border: '0.5px solid var(--ds-border)',
         maxWidth: '150px',
       }}
     >
@@ -247,13 +247,13 @@ function AttachmentPreview({
         />
       ) : (
         <>
-          <span style={{ color: 'var(--color-text-muted)' }}>
+          <span style={{ color: 'var(--ds-text-muted)' }}>
             <FileIcon />
           </span>
           <span
             style={{
-              fontSize: '0.75rem',
-              color: 'var(--color-text-secondary)',
+              fontSize: '12px',
+              color: 'var(--ds-text-body)',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
@@ -277,7 +277,7 @@ function AttachmentPreview({
           width: '18px',
           height: '18px',
           borderRadius: '50%',
-          background: 'var(--color-error)',
+          background: 'var(--ds-error)',
           border: 'none',
           display: 'flex',
           alignItems: 'center',
@@ -315,7 +315,7 @@ function MessageAttachments({ attachments }: { attachments: MessageAttachment[] 
             gap: '6px',
             padding: att.type === 'image' ? '4px' : '6px 10px',
             background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '6px',
+            borderRadius: '8px',
           }}
         >
           {att.type === 'image' && att.previewUrl ? (
@@ -348,27 +348,27 @@ function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolea
       style={{
         display: 'flex',
         justifyContent: isUser ? 'flex-end' : 'flex-start',
-        marginBottom: 'var(--spacing-2)',
+        marginBottom: '12px',
       }}
     >
       <div
         style={{
           maxWidth: '80%',
-          padding: 'var(--spacing-2)',
-          borderRadius: isUser 
-            ? '16px 16px 4px 16px' 
-            : '16px 16px 16px 4px',
-          background: isUser 
-            ? 'var(--color-accent-growth)' 
-            : 'var(--color-bg-surface-1)',
-          color: isUser 
-            ? '#FFFFFF' 
-            : 'var(--color-text-primary)',
-          border: isUser 
-            ? 'none' 
-            : '1px solid var(--color-border)',
-          fontSize: '0.9375rem',
-          lineHeight: 1.6,
+          padding: '10px 14px',
+          borderRadius: isUser
+            ? '14px 14px 2px 14px'
+            : '14px 14px 14px 2px',
+          background: isUser
+            ? 'var(--ds-primary)'
+            : 'var(--ds-bg-card)',
+          color: isUser
+            ? '#FFFFFF'
+            : 'var(--ds-text-heading)',
+          border: isUser
+            ? 'none'
+            : '0.5px solid var(--ds-border)',
+          fontSize: '13px',
+          lineHeight: isUser ? 1.5 : 1.6,
           whiteSpace: 'pre-wrap',
         }}
       >
@@ -380,7 +380,7 @@ function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolea
         {message.isLoading ? (
           <LoadingDots />
         ) : message.isError ? (
-          <span style={{ color: isUser ? '#FCA5A5' : 'var(--color-error)' }}>
+          <span style={{ color: isUser ? '#FCA5A5' : 'var(--ds-error)' }}>
             {message.errorMessage || message.content}
           </span>
         ) : (
@@ -409,8 +409,8 @@ function SuggestedActions({
         display: 'flex',
         flexWrap: 'wrap',
         gap: '8px',
-        marginTop: 'var(--spacing-1)',
-        marginBottom: 'var(--spacing-2)',
+        marginTop: '8px',
+        marginBottom: '12px',
       }}
     >
       {actions.map((action) => (
@@ -420,22 +420,22 @@ function SuggestedActions({
           onClick={() => onAction(action)}
           style={{
             padding: '6px 12px',
-            borderRadius: 'var(--radius-pill)',
-            border: '1px solid var(--color-accent-growth)',
+            borderRadius: '9999px',
+            border: '1.5px solid var(--ds-btn-secondary-border)',
             background: 'transparent',
-            color: 'var(--color-accent-growth)',
-            fontSize: '0.8125rem',
+            color: 'var(--ds-primary)',
+            fontSize: '13px',
             fontWeight: 500,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--color-accent-growth)';
-            e.currentTarget.style.color = '#FFFFFF';
+            e.currentTarget.style.background = 'var(--ds-bg-tinted)';
+            e.currentTarget.style.color = 'var(--ds-primary)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.color = 'var(--color-accent-growth)';
+            e.currentTarget.style.color = 'var(--ds-primary)';
           }}
         >
           {language === 'ar' ? action.labelAr : action.label}
@@ -695,6 +695,8 @@ export default function MustasharakPage() {
     }
   };
   
+  const isRtl = language === 'ar';
+
   // Get display name
   const displayName = userName || intl.formatMessage({ id: 'dashboard.guest_user', defaultMessage: 'User' });
   
@@ -707,9 +709,10 @@ export default function MustasharakPage() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--spacing-2)',
+        gap: '12px',
         height: 'calc(100vh - 4rem - 1.5rem)',
         minHeight: 0,
+        direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
       {/* ===== LEFT COLUMN: CHAT AREA ===== */}
@@ -717,9 +720,9 @@ export default function MustasharakPage() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          background: 'var(--color-bg-surface-1)',
-          borderRadius: 'var(--radius-xl)',
-          border: '1px solid var(--color-border)',
+          background: 'var(--ds-bg-card)',
+          borderRadius: '16px',
+          border: '0.5px solid var(--ds-border)',
           overflow: 'hidden',
           flex: 1,
           minHeight: 0,
@@ -730,7 +733,7 @@ export default function MustasharakPage() {
           ref={chatContainerRef}
           style={{
             flex: 1,
-            padding: 'var(--spacing-2)',
+            padding: '12px',
             overflowY: 'auto',
             minHeight: 0,
           }}
@@ -755,19 +758,19 @@ export default function MustasharakPage() {
               )}
             </>
           ) : (
-            <div style={{ padding: 'var(--spacing-1)' }}>
+            <div style={{ padding: '8px' }}>
               {/* AI Avatar */}
               <div
                 style={{
                   width: '48px',
                   height: '48px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
+                  background: 'var(--ds-bg-tinted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#FFFFFF',
-                  marginBottom: 'var(--spacing-2)',
+                  color: 'var(--ds-primary)',
+                  marginBottom: '12px',
                 }}
               >
                 <BotIcon />
@@ -776,20 +779,23 @@ export default function MustasharakPage() {
               {/* Greeting */}
               <h2
                 style={{
-                  fontSize: '1.125rem',
+                  fontSize: '18px',
                   fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  color: 'var(--ds-text-heading)',
                   marginBottom: '8px',
+                  fontFeatureSettings: '"kern" 1',
+                  textAlign: isRtl ? 'right' : 'left',
                 }}
               >
-                {intl.formatMessage({ id: 'chat.greeting', defaultMessage: 'Hello, {name}!' }, { name: displayName })} 👋
+                {intl.formatMessage({ id: 'chat.greeting', defaultMessage: 'Hello, {name}!' }, { name: displayName })}
               </h2>
               <p
                 style={{
-                  fontSize: '0.875rem',
-                  color: 'var(--color-text-secondary)',
+                  fontSize: '14px',
+                  color: 'var(--ds-text-body)',
                   lineHeight: 1.6,
-                  marginBottom: 'var(--spacing-2)',
+                  marginBottom: '12px',
+                  textAlign: isRtl ? 'right' : 'left',
                 }}
               >
                 {intl.formatMessage({ id: 'chat.intro_message', defaultMessage: "I'm your Mustasharak financial advisor. I've analyzed your recent transactions and I'm ready to help you optimize your budget. What would you like to focus on today?" })}
@@ -799,38 +805,39 @@ export default function MustasharakPage() {
               <div
                 style={{
                   display: 'grid',
-                  gap: 'var(--spacing-1)',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '8px',
+                  direction: isRtl ? 'rtl' : 'ltr',
                 }}
-                className="grid-cols-1 sm:grid-cols-2"
               >
                 <QuickActionCard
                   icon={<ChartIcon />}
-                  iconBg="rgba(99, 102, 241, 0.1)"
-                  iconColor="#6366F1"
+                  iconBg="rgba(14, 116, 144, 0.1)"
+                  iconColor="#0E7490"
                   title={intl.formatMessage({ id: 'chat.analyze_expenses', defaultMessage: 'Analyze my expenses' })}
                   description={intl.formatMessage({ id: 'chat.analyze_expenses_desc', defaultMessage: 'Breakdown by category' })}
                   onClick={() => handleQuickAction(language === 'ar' ? 'حلل مصاريفي لهذا الشهر' : 'Analyze my expenses this month')}
                 />
                 <QuickActionCard
                   icon={<PiggyIcon />}
-                  iconBg="rgba(var(--accent-color-rgb), 0.1)"
-                  iconColor="var(--color-accent-growth)"
+                  iconBg="rgba(45, 106, 79, 0.1)"
+                  iconColor="#2D6A4F"
                   title={intl.formatMessage({ id: 'chat.how_save_more', defaultMessage: 'How can I save more?' })}
                   description={intl.formatMessage({ id: 'chat.how_save_more_desc', defaultMessage: 'Smart budgeting tips' })}
                   onClick={() => handleQuickAction(language === 'ar' ? 'كيف أوفر أكثر؟' : 'How can I save more money?')}
                 />
                 <QuickActionCard
                   icon={<TrendUpIcon />}
-                  iconBg="rgba(245, 158, 11, 0.1)"
-                  iconColor="#F59E0B"
+                  iconBg="rgba(217, 119, 6, 0.1)"
+                  iconColor="#D97706"
                   title={intl.formatMessage({ id: 'chat.investment_options', defaultMessage: 'Investment options' })}
                   description={intl.formatMessage({ id: 'chat.investment_options_desc', defaultMessage: 'Based on your savings' })}
                   onClick={() => handleQuickAction(language === 'ar' ? 'ما هي خيارات الاستثمار المناسبة لي؟' : 'What investment options are suitable for me?')}
                 />
                 <QuickActionCard
                   icon={<RepeatIcon />}
-                  iconBg="rgba(239, 68, 68, 0.1)"
-                  iconColor="var(--color-danger-text)"
+                  iconBg="rgba(220, 38, 38, 0.1)"
+                  iconColor="#DC2626"
                   title={intl.formatMessage({ id: 'chat.review_subscriptions', defaultMessage: 'Review subscriptions' })}
                   description={intl.formatMessage({ id: 'chat.review_subscriptions_desc', defaultMessage: 'Detect recurring charges' })}
                   onClick={() => handleQuickAction(language === 'ar' ? 'راجع اشتراكاتي والمصاريف المتكررة' : 'Review my subscriptions and recurring expenses')}
@@ -844,8 +851,8 @@ export default function MustasharakPage() {
         <form
           onSubmit={handleSubmit}
           style={{
-            padding: 'var(--spacing-2)',
-            borderTop: '1px solid var(--color-border)',
+            padding: '12px',
+            borderTop: '0.5px solid var(--ds-border)',
           }}
         >
           {/* Attachment Previews */}
@@ -857,8 +864,8 @@ export default function MustasharakPage() {
                 gap: '8px',
                 marginBottom: '12px',
                 padding: '8px',
-                background: 'var(--theme-bg-secondary)',
-                borderRadius: 'var(--radius-sm)',
+                background: 'var(--ds-bg-tinted)',
+                borderRadius: '8px',
               }}
             >
               {attachments.map((att) => (
@@ -877,9 +884,9 @@ export default function MustasharakPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '8px 12px',
-              background: 'var(--theme-bg-secondary)',
-              borderRadius: 'var(--radius-pill)',
-              border: '1px solid var(--color-border)',
+              background: 'var(--ds-bg-input)',
+              borderRadius: '9999px',
+              border: '0.5px solid var(--ds-border)',
             }}
           >
             {/* Hidden file input */}
@@ -907,19 +914,19 @@ export default function MustasharakPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--color-text-muted)',
+                color: 'var(--ds-text-muted)',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
                 opacity: isLoading ? 0.5 : 1,
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
                 if (!isLoading) {
-                  e.currentTarget.style.color = 'var(--color-accent-growth)';
-                  e.currentTarget.style.background = 'var(--theme-bg-tertiary)';
+                  e.currentTarget.style.color = 'var(--ds-primary)';
+                  e.currentTarget.style.background = 'rgba(45, 106, 79, 0.08)';
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--color-text-muted)';
+                e.currentTarget.style.color = 'var(--ds-text-muted)';
                 e.currentTarget.style.background = 'transparent';
               }}
             >
@@ -936,11 +943,12 @@ export default function MustasharakPage() {
               disabled={isLoading}
               style={{
                 flex: 1,
+                minWidth: 0,
                 background: 'transparent',
                 border: 'none',
                 outline: 'none',
-                fontSize: '0.875rem',
-                color: 'var(--color-text-primary)',
+                fontSize: '13px',
+                color: 'var(--ds-text-heading)',
                 direction: language === 'ar' ? 'rtl' : 'ltr',
               }}
             />
@@ -950,19 +958,19 @@ export default function MustasharakPage() {
               type="submit"
               disabled={(!inputValue.trim() && attachments.length === 0) || isLoading}
               style={{
-                width: '40px',
-                height: '40px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '50%',
                 background: (inputValue.trim() || attachments.length > 0) && !isLoading
-                  ? 'var(--color-accent-growth)'
-                  : 'var(--color-border)',
+                  ? 'var(--ds-primary)'
+                  : 'var(--ds-text-muted)',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#FFFFFF',
                 cursor: (inputValue.trim() || attachments.length > 0) && !isLoading ? 'pointer' : 'not-allowed',
-                opacity: (inputValue.trim() || attachments.length > 0) && !isLoading ? 1 : 0.6,
+                opacity: (inputValue.trim() || attachments.length > 0) && !isLoading ? 1 : 0.5,
                 transition: 'all 0.2s ease',
               }}
             >
@@ -973,20 +981,20 @@ export default function MustasharakPage() {
           {/* Supported formats hint */}
           <p
             style={{
-              fontSize: '0.6875rem',
-              color: 'var(--color-text-muted)',
+              fontSize: '11px',
+              color: 'var(--ds-text-muted)',
               textAlign: 'center',
               marginTop: '8px',
             }}
           >
             {intl.formatMessage({ id: 'chat.supported_formats', defaultMessage: 'Supports: Images (JPG, PNG, GIF), PDF, Text files' })}
           </p>
-          
+
           {/* Disclaimer */}
           <p
             style={{
-              fontSize: '0.6875rem',
-              color: 'var(--color-text-muted)',
+              fontSize: '11px',
+              color: 'var(--ds-text-muted)',
               textAlign: 'center',
               marginTop: '4px',
             }}
@@ -1001,17 +1009,18 @@ export default function MustasharakPage() {
         className="hidden lg:flex"
         style={{
           flexDirection: 'column',
-          gap: 'var(--spacing-2)',
+          gap: '12px',
           overflowY: 'auto',
         }}
       >
         {/* ----- Spending Insights Card ----- */}
-        <div 
+        <div
           style={{
-            padding: 'var(--spacing-2)',
-            background: 'var(--color-bg-surface-1)',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-border)',
+            padding: '20px 24px',
+            background: 'var(--ds-bg-card)',
+            borderRadius: '16px',
+            border: '0.5px solid var(--ds-border)',
+            boxShadow: 'var(--ds-shadow-card)',
           }}
         >
           <div
@@ -1019,18 +1028,18 @@ export default function MustasharakPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: 'var(--spacing-2)',
+              marginBottom: '12px',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#6366F1' }}>
+              <span style={{ color: 'var(--ds-primary)' }}>
                 <SparklesIcon />
               </span>
               <p
                 style={{
-                  fontSize: '0.9375rem',
-                  fontWeight: 600,
-                  color: 'var(--color-text-primary)',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  color: 'var(--ds-text-heading)',
                 }}
               >
                 {intl.formatMessage({ id: 'chat.spending_insights', defaultMessage: 'Spending Insights' })}
@@ -1038,13 +1047,14 @@ export default function MustasharakPage() {
             </div>
             <span
               style={{
-                fontSize: '0.625rem',
-                fontWeight: 600,
-                color: 'var(--color-accent-growth)',
-                background: 'rgba(var(--accent-color-rgb), 0.1)',
-                padding: '4px 8px',
-                borderRadius: 'var(--radius-pill)',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: 'var(--ds-primary)',
+                background: 'rgba(45, 106, 79, 0.1)',
+                padding: '2px 8px',
+                borderRadius: '4px',
                 textTransform: 'uppercase',
+                letterSpacing: '0.04em',
               }}
             >
               {intl.formatMessage({ id: 'chat.live', defaultMessage: 'Live' })}
@@ -1056,13 +1066,13 @@ export default function MustasharakPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div
                 style={{
-                  background: 'rgba(var(--accent-color-rgb), 0.05)',
-                  border: '1px solid rgba(var(--accent-color-rgb), 0.1)',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: 'var(--spacing-1)',
+                  background: 'rgba(45, 106, 79, 0.05)',
+                  border: '0.5px solid rgba(45, 106, 79, 0.1)',
+                  borderRadius: '8px',
+                  padding: '12px',
                 }}
               >
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '13px', color: 'var(--ds-text-body)', lineHeight: 1.5 }}>
                   {intl.formatMessage(
                     { id: 'chat.transactions_count', defaultMessage: 'You have {count} transactions recorded.' },
                     { count: transactions.length }
@@ -1071,32 +1081,33 @@ export default function MustasharakPage() {
               </div>
             </div>
           ) : (
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)' }}>
               {intl.formatMessage({ id: 'chat.no_transactions', defaultMessage: 'Add transactions to see insights' })}
             </p>
           )}
         </div>
 
         {/* ----- Tips Card ----- */}
-        <div 
+        <div
           style={{
-            padding: 'var(--spacing-2)',
-            background: 'var(--color-bg-surface-1)',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-border)',
+            padding: '20px 24px',
+            background: 'var(--ds-bg-card)',
+            borderRadius: '16px',
+            border: '0.5px solid var(--ds-border)',
+            boxShadow: 'var(--ds-shadow-card)',
           }}
         >
           <p
             style={{
-              fontSize: '0.9375rem',
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-              marginBottom: 'var(--spacing-1)',
+              fontSize: '15px',
+              fontWeight: 500,
+              color: 'var(--ds-text-heading)',
+              marginBottom: '8px',
             }}
           >
             {intl.formatMessage({ id: 'chat.tips_title', defaultMessage: 'Quick Tips' })}
           </p>
-          <ul style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, paddingInlineStart: '16px', margin: 0 }}>
+          <ul style={{ fontSize: '13px', color: 'var(--ds-text-body)', lineHeight: 1.6, paddingInlineStart: '16px', margin: 0 }}>
             <li>{intl.formatMessage({ id: 'chat.tip_1', defaultMessage: 'Ask about your spending patterns' })}</li>
             <li>{intl.formatMessage({ id: 'chat.tip_2', defaultMessage: 'Get personalized saving tips' })}</li>
             <li>{intl.formatMessage({ id: 'chat.tip_3', defaultMessage: 'Track your budget progress' })}</li>

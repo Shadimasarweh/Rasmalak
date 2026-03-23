@@ -6,10 +6,13 @@ import { useCurrency, useUser, useUserName, useLanguage } from '@/store/useStore
 import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
 import { useTransactions } from '@/store/transactionStore';
-import { useMemo } from 'react';
-import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
+import { useMemo, useState, useEffect } from 'react';
+import { DEFAULT_EXPENSE_CATEGORIES, ALL_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
 import { styledNum } from '@/components/StyledNumber';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { calculateHealthScore } from '@/lib/healthScore';
+import { useNotificationStore } from '@/store/notificationStore';
 
 /* ═══════════════════════════════════════════════════
    Dashboard — Overview Page
@@ -24,6 +27,17 @@ export default function OverviewPage() {
   const user = useUser();
   const userName = useUserName();
   const displayName = user?.name || userName || intl.formatMessage({ id: 'dashboard.guest_user', defaultMessage: 'User' });
+
+  /* ---------- Micro-interaction states ---------- */
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsInitialLoad(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const [mounted, setMounted] = useState(false);
+  const [skipCoaching, setSkipCoaching] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   /* ---------- Current Month Transactions ---------- */
   const currentMonthTransactions = useMemo(() => {
@@ -139,6 +153,155 @@ export default function OverviewPage() {
     { timeOfDay }
   );
 
+  /* ---------- Financial Health Score ---------- */
+  const healthScore = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const daysInMonth = endOfMonth.getDate();
+    let mIncome = 0;
+    let mExpenses = 0;
+    const loggedDays = new Set<string>();
+    transactions.forEach((tx) => {
+      const d = new Date(tx.date);
+      if (d >= startOfMonth && d <= endOfMonth) {
+        if (tx.type === 'income') mIncome += Math.abs(tx.amount);
+        else mExpenses += Math.abs(tx.amount);
+        loggedDays.add(tx.date);
+      }
+    });
+    const emergencyGoal = savingsGoals.find(g =>
+      g.name.toLowerCase().includes('emergency') || g.name.includes('طوارئ')
+    );
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+    let totalExp3m = 0;
+    transactions.forEach((tx) => {
+      const d = new Date(tx.date);
+      if (tx.type === 'expense' && d >= threeMonthsAgo && d <= endOfMonth) {
+        totalExp3m += Math.abs(tx.amount);
+      }
+    });
+    const goalsOnTrack = savingsGoals.filter(g => {
+      if (g.targetAmount <= 0) return false;
+      const progress = g.currentAmount / g.targetAmount;
+      if (progress >= 1) return true;
+      return progress > 0;
+    }).length;
+    return calculateHealthScore({
+      monthlyIncome: mIncome,
+      monthlyExpenses: mExpenses,
+      budgetLimit: 0,
+      budgetSpent: mExpenses,
+      categoriesOverBudget: 0,
+      totalCategories: 0,
+      emergencyFundCurrent: emergencyGoal ? emergencyGoal.currentAmount : 0,
+      averageMonthlyExpenses: totalExp3m / 3,
+      goalsOnTrack,
+      totalGoals: savingsGoals.length,
+      daysLoggedThisMonth: loggedDays.size,
+      daysInMonth,
+      coursesCompleted: 0,
+      totalCourses: 30,
+    });
+  }, [transactions, savingsGoals]);
+
+  // Smart notification generation
+  const addNotification = useNotificationStore(state => state.addNotification);
+
+  useEffect(() => {
+    if (!transactions.length) return;
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    const daysLeft = endOfMonth.getDate() - now.getDate();
+
+    const currentSpending: Record<string, number> = {};
+    const prevSpending: Record<string, number> = {};
+    let currentMonthIncome = 0;
+
+    transactions.forEach((tx) => {
+      const d = new Date(tx.date);
+      if (tx.type === 'expense' && d >= startOfMonth && d <= endOfMonth) {
+        const cat = tx.category || 'other';
+        currentSpending[cat] = (currentSpending[cat] || 0) + Math.abs(tx.amount);
+      }
+      if (tx.type === 'expense' && d >= prevStart && d <= prevEnd) {
+        const cat = tx.category || 'other';
+        prevSpending[cat] = (prevSpending[cat] || 0) + Math.abs(tx.amount);
+      }
+      if (tx.type === 'income' && d >= startOfMonth && d <= endOfMonth) {
+        currentMonthIncome += Math.abs(tx.amount);
+      }
+    });
+
+    // 1. Spending spike — any category up 30%+ vs last month
+    Object.entries(currentSpending).forEach(([cat, amount]) => {
+      const prev = prevSpending[cat] || 0;
+      if (prev > 0 && amount > prev * 1.3) {
+        const pctIncrease = Math.round(((amount - prev) / prev) * 100);
+        addNotification({
+          type: 'spending_alert',
+          severity: 'critical',
+          messageEn: `Your ${cat} spending is trending ${pctIncrease}% higher than last month with ${daysLeft} days left.`,
+          messageAr: `إنفاقك على ${cat} يتجه للارتفاع بنسبة ${intl.formatNumber(pctIncrease)}% مقارنة بالشهر الماضي مع بقاء ${intl.formatNumber(daysLeft)} يوماً.`,
+          actionHref: '/transactions',
+          actionLabelEn: 'View transactions',
+          actionLabelAr: 'عرض المعاملات',
+        });
+      }
+    });
+
+    // 2. Goal proximity — any goal within 10% of completion
+    if (savingsGoals) {
+      savingsGoals.forEach((goal) => {
+        if (goal.targetAmount <= 0) return;
+        const pct = goal.currentAmount / goal.targetAmount;
+        const remaining = goal.targetAmount - goal.currentAmount;
+        if (pct >= 0.9 && pct < 1) {
+          addNotification({
+            type: 'goal_progress',
+            severity: 'positive',
+            messageEn: `You're ${currency} ${intl.formatNumber(Math.round(remaining))} away from your ${goal.name} goal. One more deposit!`,
+            messageAr: `أنت على بعد ${currency} ${intl.formatNumber(Math.round(remaining))} من هدف ${goal.nameAr || goal.name}. إيداع واحد آخر!`,
+            actionHref: '/goals',
+            actionLabelEn: 'Add funds',
+            actionLabelAr: 'إضافة أموال',
+          });
+        }
+      });
+    }
+
+    // 3. Salary not detected — past the 25th with no income recorded
+    if (now.getDate() >= 25 && currentMonthIncome === 0) {
+      addNotification({
+        type: 'salary_missing',
+        severity: 'warning',
+        messageEn: `Your salary usually arrives by the 25th. It hasn't been recorded yet this month.`,
+        messageAr: `عادةً ما يصل راتبك بحلول ال25 من الشهر. لم يتم تسجيله بعد هذا الشهر.`,
+        actionHref: '/transactions/new/income',
+        actionLabelEn: 'Add income',
+        actionLabelAr: 'إضافة دخل',
+      });
+    }
+
+    // 4. Health score alert — if below 40
+    if (healthScore.overall < 40) {
+      addNotification({
+        type: 'health_score',
+        severity: 'warning',
+        messageEn: `Your financial health score is ${healthScore.overall}/100. Review your spending habits to improve.`,
+        messageAr: `مؤشر صحتك المالية ${intl.formatNumber(healthScore.overall)}/١٠٠. راجع عادات إنفاقك للتحسين.`,
+        actionHref: '/transactions',
+        actionLabelEn: 'Review spending',
+        actionLabelAr: 'مراجعة الإنفاق',
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions, savingsGoals]);
+
   /* ---------- Helpers ---------- */
   const fmtCurrency = (value: number, cur: string = currency) =>
     styledNum(intl.formatNumber(value, { style: 'currency', currency: cur }));
@@ -157,8 +320,32 @@ export default function OverviewPage() {
   const incomeRatio = monthlyIncome + monthlyExpenses > 0 ? (monthlyIncome / (monthlyIncome + monthlyExpenses)) * 100 : 50;
   const goalPct = topGoal && topGoal.targetAmount > 0 ? Math.min(Math.round((topGoal.currentAmount / topGoal.targetAmount) * 100), 100) : 0;
 
+  if (isInitialLoad) {
+    return (
+      <div className="ds-page" style={{ background: 'var(--ds-bg-page)', direction: isRTL ? 'rtl' : 'ltr' }}>
+        <div className="ds-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+          <Skeleton width="200px" height="32px" borderRadius="8px" />
+          <div style={{ height: '16px' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <Skeleton height="100px" borderRadius="16px" />
+            <Skeleton height="100px" borderRadius="16px" />
+            <Skeleton height="100px" borderRadius="16px" />
+          </div>
+          <div style={{ height: '16px' }} />
+          <Skeleton height="200px" borderRadius="16px" />
+          <div style={{ height: '16px' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <Skeleton height="180px" borderRadius="16px" />
+            <Skeleton height="180px" borderRadius="16px" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="ds-page">
+      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       {/* ===== AI ALERT ===== */}
       <AIAlertBanner />
 
@@ -173,12 +360,111 @@ export default function OverviewPage() {
         <Link
           href="/transactions/new"
           className="ds-btn ds-btn-primary"
-          style={{ paddingBlock: 'var(--spacing-2)', paddingInline: 'var(--spacing-4)' }}
+          style={{ paddingBlock: 'var(--spacing-2)', paddingInline: 'var(--spacing-4)', transition: 'all 150ms ease' }}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
         >
           <svg style={{ width: '1rem', height: '1rem', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           <span>{intl.formatMessage({ id: 'dashboard.add_transaction', defaultMessage: 'Add Transaction' })}</span>
+        </Link>
+      </div>
+
+      {transactions.length > 0 || skipCoaching ? (
+      <>
+      {/* ===== FINANCIAL HEALTH SCORE ===== */}
+      <div style={{
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
+        padding: '20px 24px',
+        boxShadow: 'var(--ds-shadow-card)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '20px',
+        direction: isRTL ? 'rtl' : 'ltr',
+        flexWrap: 'wrap',
+      }}>
+        {/* Score ring */}
+        {(() => {
+          const r = 30;
+          const circ = 2 * Math.PI * r;
+          const offset = circ * (1 - healthScore.overall / 100);
+          const ringColor = healthScore.overall >= 70 ? 'var(--ds-primary-glow)' : healthScore.overall >= 40 ? 'var(--ds-accent-gold)' : 'var(--ds-error)';
+          return (
+            <div style={{ position: 'relative', width: '72px', height: '72px', flexShrink: 0 }}>
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r={r} fill="none" stroke="var(--ds-border)" strokeWidth="4" />
+                <circle cx="36" cy="36" r={r} fill="none"
+                  stroke={ringColor} strokeWidth="4"
+                  strokeDasharray={circ} strokeDashoffset={offset}
+                  strokeLinecap="round" transform="rotate(-90 36 36)"
+                  style={{ transition: 'stroke-dashoffset 600ms ease-out' }} />
+              </svg>
+              <span style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)',
+              }}>
+                {intl.formatNumber(healthScore.overall)}
+              </span>
+            </div>
+          );
+        })()}
+
+        {/* Info */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+            <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+              {intl.formatMessage({ id: 'dashboard.health_score', defaultMessage: 'Financial health score' })}
+            </p>
+            {(() => {
+              const ratingConfig: Record<string, { bg: string; color: string; border: string; en: string; ar: string }> = {
+                excellent: { bg: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: 'var(--ds-success-border)', en: 'EXCELLENT', ar: 'ممتاز' },
+                good: { bg: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: 'var(--ds-success-border)', en: 'GOOD', ar: 'جيد' },
+                fair: { bg: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)', border: 'var(--ds-warning-border)', en: 'FAIR', ar: 'مقبول' },
+                needs_work: { bg: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: 'var(--ds-error-border)', en: 'NEEDS WORK', ar: 'يحتاج تحسين' },
+              };
+              const rc = ratingConfig[healthScore.rating];
+              return (
+                <span style={{
+                  fontSize: '10px', fontWeight: 500, padding: '2px 8px', borderRadius: '4px',
+                  background: rc.bg, color: rc.color, border: `0.5px solid ${rc.border}`,
+                  letterSpacing: '0.04em',
+                }}>
+                  {isRTL ? rc.ar : rc.en}
+                </span>
+              );
+            })()}
+          </div>
+
+          {/* Sub-scores preview */}
+          <div style={{ display: 'flex', gap: '16px', fontSize: '11px', marginTop: '8px', flexWrap: 'wrap' }}>
+            {healthScore.factors.slice(0, 4).map(f => {
+              const names: Record<string, { en: string; ar: string }> = {
+                savings_rate: { en: 'Savings', ar: 'الادخار' },
+                budget_adherence: { en: 'Budget', ar: 'الميزانية' },
+                emergency_fund: { en: 'Emergency', ar: 'الطوارئ' },
+                goal_progress: { en: 'Goals', ar: 'الأهداف' },
+              };
+              const name = names[f.id] || { en: f.id, ar: f.id };
+              const clr = f.status === 'good' ? 'var(--ds-primary)' : f.status === 'fair' ? 'var(--ds-accent-gold)' : 'var(--ds-error)';
+              return (
+                <span key={f.id} style={{ color: clr }}>
+                  {isRTL ? name.ar : name.en} {intl.formatNumber(f.score)}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Details link */}
+        <Link href="/budgets" style={{
+          fontSize: '13px', fontWeight: 500, color: 'var(--ds-primary)',
+          textDecoration: 'none', flexShrink: 0,
+        }}>
+          {intl.formatMessage({ id: 'dashboard.health_details', defaultMessage: 'Details' })} →
         </Link>
       </div>
 
@@ -262,8 +548,8 @@ export default function OverviewPage() {
           {(monthlyIncome > 0 || monthlyExpenses > 0) ? (
             <div style={{ marginTop: 'var(--spacing-5)' }}>
               <div className="ds-progress" style={{ display: 'flex' }}>
-                <div className="ds-progress-fill" style={{ width: `${incomeRatio}%`, borderRadius: 'var(--radius-pill) 0 0 var(--radius-pill)' }} />
-                <div style={{ height: '100%', width: `${100 - incomeRatio}%`, background: 'var(--color-danger-text)', borderRadius: '0 var(--radius-pill) var(--radius-pill) 0' }} />
+                <div className="ds-progress-fill" style={{ width: mounted ? `${incomeRatio}%` : '0%', borderRadius: 'var(--radius-pill) 0 0 var(--radius-pill)', transition: 'width 600ms ease-out' }} />
+                <div style={{ height: '100%', width: mounted ? `${100 - incomeRatio}%` : '0%', background: 'var(--color-danger-text)', borderRadius: '0 var(--radius-pill) var(--radius-pill) 0', transition: 'width 600ms ease-out' }} />
               </div>
               <p className="ds-supporting" style={{ textAlign: 'center', marginTop: 'var(--spacing-3)', fontWeight: 500, color: monthlyCashFlow >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)' }}>
                 {monthlyCashFlow >= 0
@@ -313,12 +599,12 @@ export default function OverviewPage() {
                   <span className="ds-label">{intl.formatNumber(goalPct)}%</span>
                 </div>
                 <div className="ds-progress">
-                  <div className="ds-progress-fill" style={{ width: `${goalPct}%`, background: topGoal.color }} />
+                  <div className="ds-progress-fill" style={{ width: mounted ? `${goalPct}%` : '0%', background: topGoal.color, transition: 'width 600ms ease-out' }} />
                 </div>
               </div>
             </div>
           ) : (
-            <div className="ds-empty-state" style={{ paddingBlock: 'var(--spacing-6)' }}>
+            <div className="ds-empty-state" style={{ paddingBlock: 'var(--spacing-6)', animation: 'fadeIn 300ms ease-out' }}>
               <div className="ds-icon-box-lg" style={{ background: 'var(--color-bg-surface-2)' }}>
                 <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--color-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -368,7 +654,7 @@ export default function OverviewPage() {
               ))}
             </div>
           ) : (
-            <div className="ds-empty-state">
+            <div className="ds-empty-state" style={{ animation: 'fadeIn 300ms ease-out' }}>
               <div className="ds-icon-box-lg" style={{ background: 'var(--color-bg-surface-2)' }}>
                 <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--color-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -410,19 +696,19 @@ export default function OverviewPage() {
                       </span>
                     </div>
                     <div className="ds-progress" style={{ height: '4px' }}>
-                      <div className="ds-progress-fill" style={{ width: `${b.percentage}%`, background: isOver ? 'var(--color-danger-text)' : b.color }} />
+                      <div className="ds-progress-fill" style={{ width: mounted ? `${b.percentage}%` : '0%', background: isOver ? 'var(--color-danger-text)' : b.color, transition: 'width 600ms ease-out' }} />
                     </div>
                   </div>
                 );
               })}
               {activeBudgets.length > 4 && (
                 <Link href="/budgets" className="ds-link-action" style={{ textAlign: 'center' }}>
-                  {intl.formatMessage({ id: 'dashboard.more_budgets', defaultMessage: '+{count} more' }, { count: activeBudgets.length - 4 })}
+                  {intl.formatMessage({ id: 'dashboard.more_budgets', defaultMessage: '+{count} more' }, { count: intl.formatNumber(activeBudgets.length - 4) })}
                 </Link>
               )}
             </div>
           ) : (
-            <div className="ds-empty-state" style={{ paddingBlock: 'var(--spacing-8)' }}>
+            <div className="ds-empty-state" style={{ paddingBlock: 'var(--spacing-8)', animation: 'fadeIn 300ms ease-out' }}>
               <div className="ds-icon-box-lg" style={{ background: 'var(--color-bg-surface-2)' }}>
                 <svg style={{ width: '1.5rem', height: '1.5rem', color: 'var(--color-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -453,9 +739,9 @@ export default function OverviewPage() {
           {/* Stats Row */}
           <div style={{ display: 'flex', gap: 'var(--spacing-6)', marginBottom: 'var(--spacing-5)', flexWrap: 'wrap' }}>
             {[
-              { labelId: 'dashboard.lessons_completed', label: 'Lessons Completed', value: '2', iconColor: '#6366F1', bg: 'rgba(99,102,241,0.12)', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-              { labelId: 'dashboard.current_streak', label: 'Current Streak', value: intl.formatMessage({ id: 'dashboard.days_count', defaultMessage: '{count} days' }, { count: 3 }), iconColor: '#D4920A', bg: 'rgba(212,146,10,0.12)', icon: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z' },
-              { labelId: 'dashboard.time_spent', label: 'Time Spent', value: '13m', iconColor: 'var(--color-accent-growth)', bg: 'var(--color-accent-growth-subtle)', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+              { labelId: 'dashboard.lessons_completed', label: 'Lessons Completed', value: '2', iconColor: 'var(--ds-primary)', bg: 'rgba(45,106,79,0.1)', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+              { labelId: 'dashboard.current_streak', label: 'Current Streak', value: intl.formatMessage({ id: 'dashboard.days_count', defaultMessage: '{count} days' }, { count: intl.formatNumber(3) }), iconColor: '#D4920A', bg: 'rgba(212,146,10,0.12)', icon: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z' },
+              { labelId: 'dashboard.time_spent', label: 'Time Spent', value: isRTL ? '١٣ د' : '13m', iconColor: 'var(--color-accent-growth)', bg: 'var(--color-accent-growth-subtle)', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
             ].map(stat => (
               <div key={stat.labelId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)', flex: 1, minWidth: '140px' }}>
                 <div className="ds-icon-box" style={{ background: stat.bg }}>
@@ -471,24 +757,83 @@ export default function OverviewPage() {
             ))}
           </div>
 
+          {/* Financial Literacy Score */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
+            padding: '12px 16px',
+            background: 'var(--ds-bg-card)',
+            border: '0.5px solid var(--ds-border)',
+            borderRadius: '12px',
+            marginBottom: '16px',
+          }}>
+            {(() => {
+              const score = 0;
+              const radius = 19;
+              const circumference = 2 * Math.PI * radius;
+              const displayPercent = score === 0 ? 3 : Math.min(score, 100);
+              const offset = circumference - (displayPercent / 100) * circumference;
+              return (
+                <div style={{ width: '48px', height: '48px', flexShrink: 0, position: 'relative' }}>
+                  <svg width="48" height="48" viewBox="0 0 48 48">
+                    <circle cx="24" cy="24" r={radius} fill="none" stroke="var(--ds-border)" strokeWidth="3" />
+                    <circle cx="24" cy="24" r={radius} fill="none" stroke="var(--ds-primary)" strokeWidth="3"
+                      strokeDasharray={circumference} strokeDashoffset={offset}
+                      strokeLinecap="round" transform="rotate(-90 24 24)" />
+                  </svg>
+                  <span style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '15px', fontWeight: 700, color: 'var(--ds-text-heading)',
+                  }}>
+                    {intl.formatNumber(score)}
+                  </span>
+                </div>
+              );
+            })()}
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.literacy_score', defaultMessage: 'Financial Literacy Score' })}
+              </p>
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: '2px 0 0 0' }}>
+                {intl.formatMessage({ id: 'dashboard.literacy_score_desc', defaultMessage: 'Complete courses to improve' })}
+              </p>
+            </div>
+            <Link
+              href="/learn"
+              style={{
+                marginInlineStart: 'auto',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: 'var(--ds-primary)',
+                textDecoration: 'none',
+                flexShrink: 0,
+              }}
+            >
+              {intl.formatMessage({ id: 'dashboard.improve', defaultMessage: 'Improve' })} →
+            </Link>
+          </div>
+
           {/* Current Learning Path */}
-          <div className="ds-card-flush" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.12)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-4)' }}>
+          <div className="ds-card-flush" style={{ background: 'var(--ds-bg-tinted)', border: '0.5px solid var(--ds-border-tinted)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-4)' }}>
             <div className="ds-section-header" style={{ marginBottom: 'var(--spacing-3)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
-                <span className="ds-label" style={{ color: '#6366F1' }}>
+                <span className="ds-label" style={{ color: 'var(--ds-primary)' }}>
                   {intl.formatMessage({ id: 'dashboard.current_path', defaultMessage: 'Current Path' })}
                 </span>
                 <span className="ds-supporting">
                   {intl.formatMessage({ id: 'dashboard.module_progress', defaultMessage: 'Module 1 of 4' })}
                 </span>
               </div>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6366F1' }}>40%</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ds-primary)' }}>{intl.formatNumber(40)}%</span>
             </div>
             <h3 className="ds-body" style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-2)' }}>
               {intl.formatMessage({ id: 'dashboard.financial_foundations', defaultMessage: 'Financial Foundations' })}
             </h3>
-            <div className="ds-progress" style={{ background: 'rgba(99,102,241,0.15)' }}>
-              <div className="ds-progress-fill" style={{ width: '40%', background: '#6366F1' }} />
+            <div className="ds-progress" style={{ background: 'var(--ds-bg-tinted)' }}>
+              <div className="ds-progress-fill" style={{ width: mounted ? '40%' : '0%', background: 'var(--ds-primary-glow)', transition: 'width 600ms ease-out' }} />
             </div>
             <p className="ds-supporting" style={{ marginTop: 'var(--spacing-2)' }}>
               {intl.formatMessage({ id: 'dashboard.next_lesson', defaultMessage: 'Next: Understanding Needs vs. Wants' })}
@@ -505,7 +850,12 @@ export default function OverviewPage() {
           </div>
 
           {/* Featured Article */}
-          <div className="ds-card-flush" style={{ background: 'var(--color-accent-growth-subtle)', border: '1px solid rgba(31,122,90,0.15)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-4)', marginBottom: 'var(--spacing-3)', cursor: 'pointer' }}>
+          <div
+            className="ds-card-flush"
+            style={{ background: 'var(--color-accent-growth-subtle)', border: '1px solid rgba(31,122,90,0.15)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-4)', marginBottom: 'var(--spacing-3)', cursor: 'pointer', transition: 'box-shadow 200ms ease' }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)', marginBottom: 'var(--spacing-2)' }}>
               <svg style={{ width: '1rem', height: '1rem', color: 'var(--color-accent-growth)', flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -518,8 +868,87 @@ export default function OverviewPage() {
               {intl.formatMessage({ id: 'dashboard.featured_article_title', defaultMessage: 'The 50/30/20 Budget Rule' })}
             </h4>
             <p className="ds-supporting">
-              {intl.formatMessage({ id: 'dashboard.min_read', defaultMessage: '{min} min read' }, { min: 5 })}
+              {intl.formatMessage({ id: 'dashboard.min_read', defaultMessage: '{min} min read' }, { min: intl.formatNumber(5) })}
             </p>
+          </div>
+
+          {/* Recommended for you — horizontal scroll */}
+          <div
+            className="ds-hide-scrollbar"
+            style={{
+              display: 'flex',
+              gap: '12px',
+              overflowX: 'auto',
+              marginBottom: '12px',
+              paddingBottom: '4px',
+            }}
+          >
+            {[
+              {
+                titleId: 'dashboard.rec_budgeting',
+                titleDefault: 'Budgeting Basics',
+                titleAr: 'أساسيات الميزانية',
+                descId: 'dashboard.rec_budgeting_desc',
+                descDefault: 'Build your first budget',
+                descAr: 'ابنِ ميزانيتك الأولى',
+                color: '#2D6A4F',
+              },
+              {
+                titleId: 'dashboard.rec_saving',
+                titleDefault: 'Emergency Fund',
+                titleAr: 'صندوق الطوارئ',
+                descId: 'dashboard.rec_saving_desc',
+                descDefault: 'Start saving today',
+                descAr: 'ابدأ الادخار اليوم',
+                color: '#0E7490',
+              },
+              {
+                titleId: 'dashboard.rec_investing',
+                titleDefault: 'Investing 101',
+                titleAr: 'مقدمة في الاستثمار',
+                descId: 'dashboard.rec_investing_desc',
+                descDefault: 'Grow your wealth',
+                descAr: 'نمِّ ثروتك',
+                color: '#D97706',
+              },
+            ].map((rec) => (
+              <Link
+                key={rec.titleId}
+                href="/learn"
+                style={{
+                  minWidth: '160px',
+                  padding: '14px 16px',
+                  background: 'var(--ds-bg-card)',
+                  border: '0.5px solid var(--ds-border)',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                  flexShrink: 0,
+                  transition: 'box-shadow 0.2s ease',
+                }}
+                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+              >
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: rec.color,
+                }} />
+                <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                  {isRTL
+                    ? rec.titleAr
+                    : intl.formatMessage({ id: rec.titleId, defaultMessage: rec.titleDefault })}
+                </p>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0 }}>
+                  {isRTL
+                    ? rec.descAr
+                    : intl.formatMessage({ id: rec.descId, defaultMessage: rec.descDefault })}
+                </p>
+              </Link>
+            ))}
           </div>
 
           {/* AI Goal Suggestions */}
@@ -575,7 +1004,7 @@ export default function OverviewPage() {
                         </div>
                       </div>
                     </td>
-                    <td style={{ textTransform: 'capitalize' }}>{tx.category || '—'}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{(() => { const cat = ALL_CATEGORIES.find(c => c.id === tx.category); return cat ? (isRTL ? cat.nameAr : cat.name) : (tx.category || '—'); })()}</td>
                     <td>{tx.date ? intl.formatDate(new Date(tx.date), { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
                     <td>
                       <span className="ds-badge ds-badge-success">
@@ -591,7 +1020,7 @@ export default function OverviewPage() {
             </table>
           </div>
         ) : (
-          <div className="ds-empty-state">
+          <div className="ds-empty-state" style={{ animation: 'fadeIn 300ms ease-out' }}>
             <div className="ds-icon-box-lg" style={{ background: 'var(--color-bg-surface-2)', width: '4rem', height: '4rem' }}>
               <svg style={{ width: '2rem', height: '2rem', color: 'var(--color-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -601,7 +1030,13 @@ export default function OverviewPage() {
             <p className="ds-supporting" style={{ maxWidth: '16rem' }}>
               {intl.formatMessage({ id: 'dashboard.add_transaction_hint', defaultMessage: 'Add your first transaction to start tracking your finances' })}
             </p>
-            <Link href="/transactions/new" className="ds-btn ds-btn-primary" style={{ marginTop: 'var(--spacing-2)' }}>
+            <Link
+              href="/transactions/new"
+              className="ds-btn ds-btn-primary"
+              style={{ marginTop: 'var(--spacing-2)', transition: 'all 150ms ease' }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
               <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
@@ -610,6 +1045,207 @@ export default function OverviewPage() {
           </div>
         )}
       </div>
+      </>
+      ) : (
+      <>
+        {/* ===== COACHING EMPTY STATE ===== */}
+
+        {/* Balance Placeholder */}
+        <div style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '32px 24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          textAlign: 'center',
+          animation: 'fadeIn 300ms ease-out',
+        }}>
+          <p style={{ fontSize: '12px', fontWeight: 500, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '8px' }}>
+            {intl.formatMessage({ id: 'dashboard.total_balance', defaultMessage: 'Total Balance' })}
+          </p>
+          <p style={{ fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 700, color: 'var(--ds-text-heading)' }}>
+            {fmtCurrency(0)}
+          </p>
+        </div>
+
+        {/* Coaching Cards Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '16px',
+          animation: 'fadeIn 300ms ease-out',
+          animationDelay: '80ms',
+          animationFillMode: 'backwards',
+        }}>
+          {/* Add a transaction */}
+          <div style={{
+            background: 'var(--ds-bg-card)',
+            border: '1.5px solid #D1FAE5',
+            borderRadius: '16px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F0F7F4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg style={{ width: '22px', height: '22px', color: '#2D6A4F' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '2px' }}>
+                {intl.formatMessage({ id: 'dashboard.coach_add_title', defaultMessage: 'Add a transaction' })}
+              </p>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '6px' }}>
+                {intl.formatMessage({ id: 'dashboard.coach_add_subtitle', defaultMessage: 'أضف أول معاملة' })}
+              </p>
+              <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.5 }}>
+                {intl.formatMessage({ id: 'dashboard.coach_add_desc', defaultMessage: 'Record your first income or expense to start tracking.' })}
+              </p>
+            </div>
+            <Link
+              href="/transactions/new"
+              className="ds-btn ds-btn-primary"
+              style={{ marginTop: 'auto', textAlign: 'center', transition: 'all 150ms ease' }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {intl.formatMessage({ id: 'dashboard.coach_add_cta', defaultMessage: 'Add now' })}
+            </Link>
+          </div>
+
+          {/* Set a budget */}
+          <div style={{
+            background: 'var(--ds-bg-card)',
+            border: '0.5px solid var(--ds-border)',
+            borderRadius: '16px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F0F7F4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg style={{ width: '22px', height: '22px', color: '#2D6A4F' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '2px' }}>
+                {intl.formatMessage({ id: 'dashboard.coach_budget_title', defaultMessage: 'Set a budget' })}
+              </p>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '6px' }}>
+                {intl.formatMessage({ id: 'dashboard.coach_budget_subtitle', defaultMessage: 'حدد ميزانيتك' })}
+              </p>
+              <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.5 }}>
+                {intl.formatMessage({ id: 'dashboard.coach_budget_desc', defaultMessage: 'Control your spending with monthly limits per category.' })}
+              </p>
+            </div>
+            <Link
+              href="/budgets"
+              style={{
+                marginTop: 'auto',
+                textAlign: 'center',
+                padding: '9px 18px',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: 'var(--ds-primary)',
+                background: 'transparent',
+                border: '1px solid var(--ds-border)',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                transition: 'all 150ms ease',
+              }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {intl.formatMessage({ id: 'dashboard.coach_budget_cta', defaultMessage: 'Set budget' })}
+            </Link>
+          </div>
+
+          {/* Create a goal */}
+          <div style={{
+            background: 'var(--ds-bg-card)',
+            border: '0.5px solid var(--ds-border)',
+            borderRadius: '16px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F0F7F4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg style={{ width: '22px', height: '22px', color: '#2D6A4F' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+              </svg>
+            </div>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '2px' }}>
+                {intl.formatMessage({ id: 'dashboard.coach_goal_title', defaultMessage: 'Create a goal' })}
+              </p>
+              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '6px' }}>
+                {intl.formatMessage({ id: 'dashboard.coach_goal_subtitle', defaultMessage: 'أنشئ هدفاً مالياً' })}
+              </p>
+              <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.5 }}>
+                {intl.formatMessage({ id: 'dashboard.coach_goal_desc', defaultMessage: 'Save toward something meaningful — emergency fund, travel, or a purchase.' })}
+              </p>
+            </div>
+            <Link
+              href="/goals"
+              style={{
+                marginTop: 'auto',
+                textAlign: 'center',
+                padding: '9px 18px',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: 'var(--ds-primary)',
+                background: 'transparent',
+                border: '1px solid var(--ds-border)',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                transition: 'all 150ms ease',
+              }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {intl.formatMessage({ id: 'dashboard.coach_goal_cta', defaultMessage: 'Create goal' })}
+            </Link>
+          </div>
+        </div>
+
+        {/* Mustasharak AI Nudge */}
+        <div style={{
+          background: '#0F1914',
+          borderRadius: '16px',
+          padding: '20px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          animation: 'fadeIn 300ms ease-out',
+          animationDelay: '160ms',
+          animationFillMode: 'backwards',
+        }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(45,106,79,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg style={{ width: '22px', height: '22px', color: '#6EE7B7' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 00.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 01-1.59.659H9.06a2.25 2.25 0 01-1.59-.659L5 14.5m14 0V5a2 2 0 00-2-2H7a2 2 0 00-2 2v9.5" />
+            </svg>
+          </div>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, margin: 0 }}>
+            {intl.formatMessage({ id: 'dashboard.coach_ai_nudge', defaultMessage: "Add your first transaction and I'll start analyzing your spending patterns." })}
+          </p>
+        </div>
+
+        {/* Skip coaching */}
+        <button
+          onClick={() => setSkipCoaching(true)}
+          style={{
+            display: 'block', margin: '16px auto 0', background: 'none', border: 'none',
+            fontSize: '12px', fontWeight: 500, color: '#9CA3AF', cursor: 'pointer',
+          }}
+        >
+          {isRTL ? 'تخطي' : 'Skip'}
+        </button>
+      </>
+      )}
     </div>
   );
 }

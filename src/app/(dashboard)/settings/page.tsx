@@ -199,7 +199,7 @@ function ToggleSwitch({ enabled, onToggle }: { enabled: boolean; onToggle?: () =
         width: '44px',
         height: '24px',
         borderRadius: '12px',
-        background: enabled ? 'var(--color-accent-growth)' : 'var(--color-border)',
+        background: enabled ? 'var(--ds-primary)' : 'var(--ds-border)',
         position: 'relative',
         cursor: 'pointer',
         transition: 'background 0.2s',
@@ -213,9 +213,9 @@ function ToggleSwitch({ enabled, onToggle }: { enabled: boolean; onToggle?: () =
           background: '#FFFFFF',
           position: 'absolute',
           top: '2px',
-          left: enabled ? '22px' : '2px',
+          insetInlineStart: enabled ? '22px' : '2px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-          transition: 'left 0.2s',
+          transition: 'inset-inline-start 0.2s',
         }}
       />
     </div>
@@ -234,28 +234,33 @@ function NavTab({
   active?: boolean;
   onClick?: () => void;
 }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <div
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
         padding: '12px 16px',
-        borderRadius: 'var(--radius-sm)',
-        background: active ? 'var(--color-bg-surface-1)' : 'transparent',
-        border: active ? '1px solid var(--color-border)' : '1px solid transparent',
+        borderRadius: '8px',
+        background: active ? 'var(--ds-bg-card)' : (hovered ? 'var(--ds-bg-tinted)' : 'transparent'),
+        border: active ? '0.5px solid var(--ds-border)' : '0.5px solid transparent',
         cursor: 'pointer',
-        color: active ? 'var(--color-accent-growth)' : 'var(--color-text-secondary)',
+        color: active ? 'var(--ds-primary)' : 'var(--ds-text-muted)',
         transition: 'all 0.15s ease',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
       }}
     >
       {icon}
       <span
         style={{
-          fontSize: '0.875rem',
-          fontWeight: active ? 600 : 500,
-          color: active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+          fontSize: '13px',
+          fontWeight: 500,
+          color: active ? 'var(--ds-text-heading)' : 'var(--ds-text-body)',
         }}
       >
         {label}
@@ -296,9 +301,9 @@ function InputField({
       <label
         style={{
           display: 'block',
-          fontSize: '0.8125rem',
+          fontSize: '13px',
           fontWeight: 500,
-          color: 'var(--color-text-primary)',
+          color: 'var(--ds-text-heading)',
           marginBottom: '6px',
         }}
       >
@@ -309,14 +314,14 @@ function InputField({
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          padding: '12px 14px',
-          background: readOnly ? 'var(--theme-bg-tertiary)' : 'var(--color-bg-input)',
-          borderRadius: 'var(--radius-sm)',
-          border: error ? '1px solid var(--color-error)' : '1px solid var(--color-border)',
+          padding: '10px 14px',
+          background: readOnly ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+          borderRadius: '8px',
+          border: error ? '0.5px solid var(--ds-error)' : '0.5px solid var(--ds-border)',
           opacity: disabled ? 0.6 : 1,
         }}
       >
-        {icon && <span style={{ color: 'var(--color-text-muted)' }}>{icon}</span>}
+        {icon && <span style={{ color: 'var(--ds-text-muted)' }}>{icon}</span>}
         <input
           type={type}
           name={name}
@@ -332,19 +337,19 @@ function InputField({
             background: 'transparent',
             border: 'none',
             outline: 'none',
-            fontSize: '0.875rem',
-            color: 'var(--color-text-primary)',
+            fontSize: '14px',
+            color: 'var(--ds-text-heading)',
             cursor: disabled || readOnly ? 'not-allowed' : 'text',
           }}
         />
       </div>
       {hint && !error && (
-        <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+        <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '4px' }}>
           {hint}
         </p>
       )}
       {error && (
-        <p style={{ fontSize: '0.6875rem', color: 'var(--color-error)', marginTop: '4px' }}>
+        <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>
           {error}
         </p>
       )}
@@ -374,9 +379,9 @@ function LanguageOption({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '14px 16px',
-        background: selected ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
-        border: selected ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-sm)',
+        background: selected ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+        border: selected ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+        borderRadius: '8px',
         cursor: 'pointer',
         transition: 'all 0.15s ease',
       }}
@@ -384,14 +389,14 @@ function LanguageOption({
       <div>
         <p
           style={{
-            fontSize: '0.9375rem',
-            fontWeight: 600,
-            color: 'var(--color-text-primary)',
+            fontSize: '15px',
+            fontWeight: 500,
+            color: 'var(--ds-text-heading)',
           }}
         >
           {name}
         </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{secondaryLabel}</p>
+        <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>{secondaryLabel}</p>
       </div>
       {selected && (
         <div
@@ -399,7 +404,7 @@ function LanguageOption({
             width: '24px',
             height: '24px',
             borderRadius: '50%',
-            background: 'var(--color-accent-growth)',
+            background: 'var(--ds-primary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -437,16 +442,19 @@ function SettingRow({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 'var(--spacing-2)',
-        borderBottom: isLast ? 'none' : '1px solid var(--color-divider)',
+        padding: '12px',
+        borderBottom: isLast ? 'none' : '0.5px solid var(--ds-border)',
+        flexWrap: 'wrap',
+        gap: '8px',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
         <div
           style={{
             width: '36px',
             height: '36px',
-            borderRadius: 'var(--radius-sm)',
+            borderRadius: '8px',
+            flexShrink: 0,
             background: iconBg,
             display: 'flex',
             alignItems: 'center',
@@ -459,15 +467,15 @@ function SettingRow({
         <div>
           <p
             style={{
-              fontSize: '0.875rem',
+              fontSize: '15px',
               fontWeight: 500,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
             }}
           >
             {label}
           </p>
           {description && (
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{description}</p>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)' }}>{description}</p>
           )}
         </div>
       </div>
@@ -477,12 +485,12 @@ function SettingRow({
 }
 
 /* ===== PROFILE TAB CONTENT ===== */
-function ProfileContent({ 
-  intl, 
+function ProfileContent({
+  intl,
   userData,
   onProfileUpdate,
-}: { 
-  intl: ReturnType<typeof useIntl>; 
+}: {
+  intl: ReturnType<typeof useIntl>;
   userData: { name: string; email: string; phone?: string };
   onProfileUpdate: (data: { firstName: string; lastName: string; phone: string }) => void;
 }) {
@@ -490,7 +498,7 @@ function ProfileContent({
   const nameParts = userData.name.trim().split(' ');
   const initialFirstName = nameParts[0] || '';
   const initialLastName = nameParts.slice(1).join(' ') || '';
-  
+
   // Local state for editable fields
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
@@ -498,7 +506,7 @@ function ProfileContent({
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  
+
   // Update local state when userData changes
   useEffect(() => {
     const parts = userData.name.trim().split(' ');
@@ -506,7 +514,7 @@ function ProfileContent({
     setLastName(parts.slice(1).join(' ') || '');
     setPhone(userData.phone || '');
   }, [userData.name, userData.phone]);
-  
+
   // Track changes
   useEffect(() => {
     const currentFullName = `${firstName} ${lastName}`.trim();
@@ -514,41 +522,53 @@ function ProfileContent({
     const originalPhone = userData.phone || '';
     setHasChanges(currentFullName !== originalFullName || phone !== originalPhone);
   }, [firstName, lastName, phone, userData.name, userData.phone]);
-  
+
   // Get initials for avatar
   const initials = (firstName[0] || '') + (lastName[0] || '');
-  
+
   const handleSave = async () => {
     setIsSaving(true);
     setSaveMessage(null);
     try {
       await onProfileUpdate({ firstName, lastName, phone });
-      setSaveMessage({ 
-        type: 'success', 
+      setSaveMessage({
+        type: 'success',
         text: intl.formatMessage({ id: 'settings.profile_updated', defaultMessage: 'Profile updated successfully' })
       });
       setHasChanges(false);
       setTimeout(() => setSaveMessage(null), 3000);
     } catch {
-      setSaveMessage({ 
-        type: 'error', 
+      setSaveMessage({
+        type: 'error',
         text: intl.formatMessage({ id: 'settings.profile_update_failed', defaultMessage: 'Failed to update profile' })
       });
     } finally {
       setIsSaving(false);
     }
   };
-  
+
   return (
     <>
       {/* Profile Information Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <h3
             style={{
-              fontSize: '1.125rem',
+              fontSize: '18px',
               fontWeight: 600,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'settings.profile_information', defaultMessage: 'Profile Information' })}
@@ -561,35 +581,38 @@ function ProfileContent({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 16px',
-                background: 'var(--color-accent-growth)',
+                padding: '9px 18px',
+                background: 'var(--ds-primary)',
                 color: '#FFFFFF',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
+                fontSize: '13px',
+                fontWeight: 500,
                 border: 'none',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '8px',
                 cursor: isSaving ? 'wait' : 'pointer',
                 opacity: isSaving ? 0.7 : 1,
+                transition: 'transform 100ms ease',
               }}
+              onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+              onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              {isSaving 
+              {isSaving
                 ? intl.formatMessage({ id: 'settings.saving', defaultMessage: 'Saving...' })
                 : intl.formatMessage({ id: 'settings.save_changes', defaultMessage: 'Save Changes' })
               }
             </button>
           )}
         </div>
-        
+
         {/* Save message */}
         {saveMessage && (
           <div
             style={{
               padding: '10px 14px',
-              marginBottom: 'var(--spacing-2)',
-              borderRadius: 'var(--radius-sm)',
-              background: saveMessage.type === 'success' ? 'rgba(var(--accent-color-rgb), 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              color: saveMessage.type === 'success' ? 'var(--color-accent-growth)' : 'var(--color-error)',
-              fontSize: '0.8125rem',
+              marginBottom: '16px',
+              borderRadius: '8px',
+              background: saveMessage.type === 'success' ? 'rgba(45, 106, 79, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              color: saveMessage.type === 'success' ? 'var(--ds-primary)' : 'var(--ds-error)',
+              fontSize: '13px',
               fontWeight: 500,
             }}
           >
@@ -600,7 +623,7 @@ function ProfileContent({
         <div
           style={{
             display: 'grid',
-            gap: 'var(--spacing-3)',
+            gap: '24px',
           }}
           className="grid-cols-1 sm:grid-cols-[180px_1fr]"
         >
@@ -650,7 +673,7 @@ function ProfileContent({
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  background: 'var(--color-accent-growth)',
+                  background: 'var(--ds-primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -662,41 +685,41 @@ function ProfileContent({
                 <CameraIcon />
               </div>
             </div>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'settings.allowed_formats', defaultMessage: 'Allowed *.jpeg, *.jpg, *.png, *.gif' })}
             </p>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', textAlign: 'center' }}>
               {intl.formatMessage({ id: 'settings.max_size', defaultMessage: 'Max size of 3.1 MB' })}
             </p>
           </div>
 
           {/* Form Fields */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-2)' }}>
-              <InputField 
-                label={intl.formatMessage({ id: 'settings.first_name', defaultMessage: 'First Name' })} 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              <InputField
+                label={intl.formatMessage({ id: 'settings.first_name', defaultMessage: 'First Name' })}
                 value={firstName}
                 placeholder={intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })}
                 onChange={setFirstName}
               />
-              <InputField 
-                label={intl.formatMessage({ id: 'settings.last_name', defaultMessage: 'Last Name' })} 
+              <InputField
+                label={intl.formatMessage({ id: 'settings.last_name', defaultMessage: 'Last Name' })}
                 value={lastName}
                 placeholder={intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })}
                 onChange={setLastName}
               />
             </div>
-            <InputField 
-              label={intl.formatMessage({ id: 'settings.email_address', defaultMessage: 'Email Address' })} 
-              value={userData.email || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })} 
+            <InputField
+              label={intl.formatMessage({ id: 'settings.email_address', defaultMessage: 'Email Address' })}
+              value={userData.email || intl.formatMessage({ id: 'settings.not_set', defaultMessage: 'Not set' })}
               icon={<MailIcon />}
               type="email"
               name="display-email"
               readOnly
               hint={intl.formatMessage({ id: 'settings.email_readonly_hint', defaultMessage: 'Email cannot be changed for security reasons' })}
             />
-            <InputField 
-              label={intl.formatMessage({ id: 'settings.phone_number', defaultMessage: 'Phone Number' })} 
+            <InputField
+              label={intl.formatMessage({ id: 'settings.phone_number', defaultMessage: 'Phone Number' })}
               value={phone}
               placeholder={intl.formatMessage({ id: 'settings.phone_placeholder', defaultMessage: '+962 7XX XXX XXX' })}
               icon={<SmartphoneIcon />}
@@ -786,7 +809,7 @@ function TwoFactorSetupModal({
       });
 
       if (verifyError) throw verifyError;
-      
+
       setStep(3);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Verification failed';
@@ -823,28 +846,28 @@ function TwoFactorSetupModal({
     >
       <div
         style={{
-          background: 'var(--color-bg-surface-1)',
-          borderRadius: 'var(--radius-xl)',
+          background: 'var(--ds-bg-card)',
+          borderRadius: '16px',
           width: '100%',
           maxWidth: '480px',
           maxHeight: '90vh',
           overflow: 'auto',
-          padding: 'var(--spacing-3)',
+          padding: '24px',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
             {intl.formatMessage({ id: 'settings.two_factor_setup_title', defaultMessage: 'Set Up Two-Factor Authentication' })}
           </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ds-text-muted)' }}>
             <XIcon />
           </button>
         </div>
 
         {/* Step indicator */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: 'var(--spacing-3)' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
           {[1, 2, 3].map((s) => (
             <div
               key={s}
@@ -852,7 +875,7 @@ function TwoFactorSetupModal({
                 flex: 1,
                 height: '4px',
                 borderRadius: '2px',
-                background: s <= step ? 'var(--color-accent-growth)' : 'var(--color-border)',
+                background: s <= step ? 'var(--ds-primary)' : 'var(--ds-border)',
               }}
             />
           ))}
@@ -861,11 +884,11 @@ function TwoFactorSetupModal({
         {error && (
           <div style={{
             padding: '10px 14px',
-            marginBottom: 'var(--spacing-2)',
-            borderRadius: 'var(--radius-sm)',
+            marginBottom: '16px',
+            borderRadius: '8px',
             background: 'rgba(239, 68, 68, 0.1)',
-            color: 'var(--color-error)',
-            fontSize: '0.8125rem',
+            color: 'var(--ds-error)',
+            fontSize: '13px',
           }}>
             {error}
           </div>
@@ -874,20 +897,20 @@ function TwoFactorSetupModal({
         {/* Step 1: QR Code */}
         {step === 1 && (
           <div style={{ textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step1_title', defaultMessage: 'Step 1: Scan QR Code' })}
             </h4>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step1_desc', defaultMessage: 'Scan this QR code with your authenticator app' })}
             </p>
-            
+
             {isLoading ? (
-              <div style={{ padding: '40px', color: 'var(--color-text-muted)' }}>{intl.formatMessage({ id: 'common.loading', defaultMessage: 'Loading...' })}</div>
+              <div style={{ padding: '40px', color: 'var(--ds-text-muted)' }}>{intl.formatMessage({ id: 'common.loading', defaultMessage: 'Loading...' })}</div>
             ) : qrCodeUrl ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                 <img src={qrCodeUrl} alt="QR Code" style={{ width: '200px', height: '200px', borderRadius: '8px' }} />
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', wordBreak: 'break-all', maxWidth: '300px' }}>
-                  Manual entry: <code style={{ background: 'var(--theme-bg-tertiary)', padding: '2px 6px', borderRadius: '4px' }}>{secret}</code>
+                <div style={{ fontSize: '12px', color: 'var(--ds-text-muted)', wordBreak: 'break-all', maxWidth: '300px' }}>
+                  Manual entry: <code style={{ background: 'var(--ds-bg-tinted)', padding: '2px 6px', borderRadius: '4px' }}>{secret}</code>
                 </div>
               </div>
             ) : (
@@ -900,14 +923,14 @@ function TwoFactorSetupModal({
               onClick={() => setStep(2)}
               disabled={!qrCodeUrl}
               style={{
-                marginTop: 'var(--spacing-2)',
-                padding: '12px 24px',
-                background: 'var(--color-accent-growth)',
+                marginTop: '16px',
+                padding: '9px 18px',
+                background: 'var(--ds-primary)',
                 color: '#FFFFFF',
-                fontSize: '0.875rem',
-                fontWeight: 600,
+                fontSize: '13px',
+                fontWeight: 500,
                 border: 'none',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '8px',
                 cursor: qrCodeUrl ? 'pointer' : 'not-allowed',
                 opacity: qrCodeUrl ? 1 : 0.5,
               }}
@@ -920,10 +943,10 @@ function TwoFactorSetupModal({
         {/* Step 2: Verification */}
         {step === 2 && (
           <div style={{ textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step2_title', defaultMessage: 'Step 2: Enter Verification Code' })}
             </h4>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step2_desc', defaultMessage: 'Enter the 6-digit code from your authenticator app' })}
             </p>
 
@@ -940,24 +963,24 @@ function TwoFactorSetupModal({
                 fontFamily: 'monospace',
                 textAlign: 'center',
                 letterSpacing: '0.5em',
-                background: 'var(--color-bg-input)',
-                border: '2px solid var(--color-border)',
-                borderRadius: 'var(--radius-sm)',
-                color: 'var(--color-text-primary)',
+                background: 'var(--ds-bg-input)',
+                border: '0.5px solid var(--ds-border)',
+                borderRadius: '8px',
+                color: 'var(--ds-text-heading)',
               }}
             />
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: 'var(--spacing-2)' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
               <button
                 onClick={() => setStep(1)}
                 style={{
-                  padding: '12px 24px',
+                  padding: '8px 16px',
                   background: 'transparent',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.875rem',
+                  color: 'var(--ds-text-heading)',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-sm)',
+                  border: '0.5px solid var(--ds-border)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
                 }}
               >
@@ -967,13 +990,13 @@ function TwoFactorSetupModal({
                 onClick={verifyCode}
                 disabled={verificationCode.length !== 6 || isLoading}
                 style={{
-                  padding: '12px 24px',
-                  background: 'var(--color-accent-growth)',
+                  padding: '9px 18px',
+                  background: 'var(--ds-primary)',
                   color: '#FFFFFF',
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
+                  fontSize: '13px',
+                  fontWeight: 500,
                   border: 'none',
-                  borderRadius: 'var(--radius-sm)',
+                  borderRadius: '8px',
                   cursor: verificationCode.length === 6 && !isLoading ? 'pointer' : 'not-allowed',
                   opacity: verificationCode.length === 6 && !isLoading ? 1 : 0.5,
                 }}
@@ -987,10 +1010,10 @@ function TwoFactorSetupModal({
         {/* Step 3: Recovery Codes */}
         {step === 3 && (
           <div style={{ textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step3_title', defaultMessage: 'Step 3: Save Recovery Codes' })}
             </h4>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_step3_desc', defaultMessage: 'Save these recovery codes in a safe place' })}
             </p>
 
@@ -999,29 +1022,29 @@ function TwoFactorSetupModal({
               gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '8px',
               padding: '16px',
-              background: 'var(--theme-bg-tertiary)',
-              borderRadius: 'var(--radius-sm)',
-              marginBottom: 'var(--spacing-2)',
+              background: 'var(--ds-bg-tinted)',
+              borderRadius: '8px',
+              marginBottom: '16px',
             }}>
               {recoveryCodes.map((code, i) => (
-                <code key={i} style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>
+                <code key={i} style={{ fontSize: '14px', fontFamily: 'monospace', color: 'var(--ds-text-heading)' }}>
                   {code}
                 </code>
               ))}
             </div>
 
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-warning)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-accent-gold)', marginBottom: '16px' }}>
               {intl.formatMessage({ id: 'settings.two_factor_recovery_warning', defaultMessage: 'Each code can only be used once. Store them securely.' })}
             </p>
 
-            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', marginBottom: 'var(--spacing-2)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', marginBottom: '16px' }}>
               <input
                 type="checkbox"
                 checked={codesSaved}
                 onChange={(e) => setCodesSaved(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: 'var(--color-accent-growth)' }}
+                style={{ width: '18px', height: '18px', accentColor: 'var(--ds-primary)' }}
               />
-              <span style={{ fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>
+              <span style={{ fontSize: '14px', color: 'var(--ds-text-heading)' }}>
                 {intl.formatMessage({ id: 'settings.two_factor_codes_saved', defaultMessage: 'I have saved my recovery codes' })}
               </span>
             </label>
@@ -1030,13 +1053,13 @@ function TwoFactorSetupModal({
               onClick={handleComplete}
               disabled={!codesSaved}
               style={{
-                padding: '12px 24px',
-                background: 'var(--color-accent-growth)',
+                padding: '9px 18px',
+                background: 'var(--ds-primary)',
                 color: '#FFFFFF',
-                fontSize: '0.875rem',
-                fontWeight: 600,
+                fontSize: '13px',
+                fontWeight: 500,
                 border: 'none',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '8px',
                 cursor: codesSaved ? 'pointer' : 'not-allowed',
                 opacity: codesSaved ? 1 : 0.5,
               }}
@@ -1066,10 +1089,12 @@ function DeleteAccountModal({
   const [password, setPassword] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isModalRtl = intl.locale.startsWith('ar');
+  const confirmWord = isModalRtl ? 'حذف' : 'DELETE';
 
   const handleDelete = async () => {
-    if (confirmText !== 'DELETE') return;
-    
+    if (confirmText !== confirmWord) return;
+
     setIsDeleting(true);
     setError(null);
     try {
@@ -1100,16 +1125,16 @@ function DeleteAccountModal({
     >
       <div
         style={{
-          background: 'var(--color-bg-surface-1)',
-          borderRadius: 'var(--radius-xl)',
+          background: 'var(--ds-bg-card)',
+          borderRadius: '16px',
           width: '100%',
           maxWidth: '440px',
-          padding: 'var(--spacing-3)',
-          border: '2px solid var(--color-error)',
+          padding: '24px',
+          border: '2px solid var(--ds-error)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
           <div style={{
             width: '40px',
             height: '40px',
@@ -1118,16 +1143,16 @@ function DeleteAccountModal({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--color-error)',
+            color: 'var(--ds-error)',
             flexShrink: 0,
           }}>
             <AlertTriangleIcon />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-error)', marginBottom: '4px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-error)', marginBottom: '4px', fontFeatureSettings: '"kern" 1' }}>
               {intl.formatMessage({ id: 'settings.delete_account_confirm_title', defaultMessage: 'Delete Your Account?' })}
             </h3>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)' }}>
               {intl.formatMessage({ id: 'settings.delete_account_confirm_desc', defaultMessage: 'This will permanently delete your account and all associated data.' })}
             </p>
           </div>
@@ -1136,39 +1161,39 @@ function DeleteAccountModal({
         {error && (
           <div style={{
             padding: '10px 14px',
-            marginBottom: 'var(--spacing-2)',
-            borderRadius: 'var(--radius-sm)',
+            marginBottom: '16px',
+            borderRadius: '8px',
             background: 'rgba(239, 68, 68, 0.1)',
-            color: 'var(--color-error)',
-            fontSize: '0.8125rem',
+            color: 'var(--ds-error)',
+            fontSize: '13px',
           }}>
             {error}
           </div>
         )}
 
-        <div style={{ marginBottom: 'var(--spacing-2)' }}>
-          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '6px' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '6px' }}>
             {intl.formatMessage({ id: 'settings.delete_account_type_confirm', defaultMessage: 'Type DELETE to confirm' })}
           </label>
           <input
             type="text"
             value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
-            placeholder="DELETE"
+            onChange={(e) => setConfirmText(isModalRtl ? e.target.value : e.target.value.toUpperCase())}
+            placeholder={confirmWord}
             style={{
               width: '100%',
-              padding: '12px 14px',
-              fontSize: '0.875rem',
-              background: 'var(--color-bg-input)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--color-text-primary)',
+              padding: '10px 14px',
+              fontSize: '14px',
+              background: 'var(--ds-bg-input)',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
+              color: 'var(--ds-text-heading)',
             }}
           />
         </div>
 
-        <div style={{ marginBottom: 'var(--spacing-2)' }}>
-          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '6px' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '6px' }}>
             {intl.formatMessage({ id: 'settings.delete_account_reauth', defaultMessage: 'Enter your password to confirm' })}
           </label>
           <input
@@ -1178,28 +1203,28 @@ function DeleteAccountModal({
             placeholder="••••••••"
             style={{
               width: '100%',
-              padding: '12px 14px',
-              fontSize: '0.875rem',
-              background: 'var(--color-bg-input)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--color-text-primary)',
+              padding: '10px 14px',
+              fontSize: '14px',
+              background: 'var(--ds-bg-input)',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
+              color: 'var(--ds-text-heading)',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: 'var(--spacing-2)' }}>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
           <button
             onClick={onClose}
             style={{
               flex: 1,
-              padding: '12px',
+              padding: '9px 18px',
               background: 'transparent',
-              color: 'var(--color-text-primary)',
-              fontSize: '0.875rem',
+              color: 'var(--ds-text-heading)',
+              fontSize: '13px',
               fontWeight: 500,
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
               cursor: 'pointer',
             }}
           >
@@ -1207,18 +1232,18 @@ function DeleteAccountModal({
           </button>
           <button
             onClick={handleDelete}
-            disabled={confirmText !== 'DELETE' || !password || isDeleting}
+            disabled={confirmText !== confirmWord || !password || isDeleting}
             style={{
               flex: 1,
-              padding: '12px',
-              background: 'var(--color-error)',
+              padding: '9px 18px',
+              background: 'var(--ds-error)',
               color: '#FFFFFF',
-              fontSize: '0.875rem',
-              fontWeight: 600,
+              fontSize: '13px',
+              fontWeight: 500,
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              cursor: confirmText === 'DELETE' && password && !isDeleting ? 'pointer' : 'not-allowed',
-              opacity: confirmText === 'DELETE' && password && !isDeleting ? 1 : 0.5,
+              borderRadius: '8px',
+              cursor: confirmText === confirmWord && password && !isDeleting ? 'pointer' : 'not-allowed',
+              opacity: confirmText === confirmWord && password && !isDeleting ? 1 : 0.5,
             }}
           >
             {isDeleting ? intl.formatMessage({ id: 'settings.deleting', defaultMessage: 'Deleting...' }) : intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
@@ -1235,7 +1260,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [twoFactorLastUsed, setTwoFactorLastUsed] = useState<string | null>(null);
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
-  
+
   // Password state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -1243,25 +1268,25 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  
+
   // Delete account state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  
+
   // Sessions state
   const [sessions] = useState([
-    { 
-      device: 'Windows PC - Chrome', 
+    {
+      device: 'Windows PC - Chrome',
       location: 'Amman, Jordan',
       ip: '178.xx.xx.xx',
       lastActive: new Date().toISOString(),
-      current: true 
+      current: true
     },
-    { 
-      device: 'iPhone 14 Pro - Safari', 
+    {
+      device: 'iPhone 14 Pro - Safari',
       location: 'Amman, Jordan',
       ip: '178.xx.xx.xx',
       lastActive: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-      current: false 
+      current: false
     },
   ]);
 
@@ -1330,7 +1355,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      
+
       setPasswordSuccess(true);
       setCurrentPassword('');
       setNewPassword('');
@@ -1356,17 +1381,28 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
   return (
     <>
       {/* Two-Factor Authentication Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
-          <span style={{ color: 'var(--color-accent-growth)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'var(--ds-primary)' }}>
             <ShieldIcon />
           </span>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
             {intl.formatMessage({ id: 'settings.two_factor_auth', defaultMessage: 'Two-Factor Authentication' })}
           </h3>
         </div>
-        
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
           {intl.formatMessage({ id: 'settings.two_factor_auth_description', defaultMessage: 'Add an extra layer of security to your account using an authenticator app.' })}
         </p>
 
@@ -1375,24 +1411,26 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '16px',
-          background: twoFactorEnabled ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--theme-bg-tertiary)',
-          borderRadius: 'var(--radius-sm)',
-          border: twoFactorEnabled ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)',
+          background: twoFactorEnabled ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+          borderRadius: '8px',
+          border: twoFactorEnabled ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+          flexWrap: 'wrap',
+          gap: '12px',
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
                 {intl.formatMessage({ id: 'settings.two_factor_status', defaultMessage: 'Status' })}:
               </span>
               <span style={{
-                fontSize: '0.75rem',
+                fontSize: '12px',
                 fontWeight: 600,
-                color: twoFactorEnabled ? 'var(--color-accent-growth)' : 'var(--color-text-muted)',
-                background: twoFactorEnabled ? 'rgba(var(--accent-color-rgb), 0.15)' : 'var(--color-border)',
+                color: twoFactorEnabled ? 'var(--ds-primary)' : 'var(--ds-text-muted)',
+                background: twoFactorEnabled ? 'rgba(45, 106, 79, 0.15)' : 'var(--ds-border)',
                 padding: '2px 10px',
-                borderRadius: 'var(--radius-pill)',
+                borderRadius: '9999px',
               }}>
-                {twoFactorEnabled 
+                {twoFactorEnabled
                   ? intl.formatMessage({ id: 'settings.enabled', defaultMessage: 'Enabled' })
                   : intl.formatMessage({ id: 'settings.not_enabled', defaultMessage: 'Not enabled' })
                 }
@@ -1400,11 +1438,11 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             </div>
             {twoFactorEnabled && (
               <>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
                   {intl.formatMessage({ id: 'settings.two_factor_method', defaultMessage: 'Method: Authenticator App' })}
                 </p>
                 {twoFactorLastUsed && (
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <ClockIcon />
                     {intl.formatMessage({ id: 'settings.two_factor_last_used', defaultMessage: 'Last verified' })}: {intl.formatDate(new Date(twoFactorLastUsed), { dateStyle: 'medium' })}
                   </p>
@@ -1412,18 +1450,18 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
               </>
             )}
           </div>
-          
+
           {twoFactorEnabled ? (
             <button
               onClick={handleDisableTwoFactor}
               style={{
                 padding: '8px 16px',
                 background: 'transparent',
-                color: 'var(--color-error)',
-                fontSize: '0.8125rem',
+                color: 'var(--ds-error)',
+                fontSize: '13px',
                 fontWeight: 500,
-                border: '1px solid var(--color-error)',
-                borderRadius: 'var(--radius-sm)',
+                border: '0.5px solid var(--ds-error)',
+                borderRadius: '8px',
                 cursor: 'pointer',
               }}
             >
@@ -1433,15 +1471,18 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             <button
               onClick={() => setShowTwoFactorModal(true)}
               style={{
-                padding: '8px 16px',
-                background: 'var(--color-accent-growth)',
+                padding: '9px 18px',
+                background: 'var(--ds-primary)',
                 color: '#FFFFFF',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
+                fontSize: '13px',
+                fontWeight: 500,
                 border: 'none',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '8px',
                 cursor: 'pointer',
+                transition: 'transform 100ms ease',
               }}
+              onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+              onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
               {intl.formatMessage({ id: 'settings.two_factor_setup', defaultMessage: 'Set up 2FA' })}
             </button>
@@ -1450,12 +1491,23 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       </div>
 
       {/* Change Password Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
-          <span style={{ color: 'var(--color-info)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'var(--ds-primary)' }}>
             <KeyIcon />
           </span>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
             {intl.formatMessage({ id: 'settings.change_password', defaultMessage: 'Change Password' })}
           </h3>
         </div>
@@ -1463,41 +1515,41 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
         {passwordSuccess && (
           <div style={{
             padding: '10px 14px',
-            marginBottom: 'var(--spacing-2)',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(var(--accent-color-rgb), 0.1)',
-            color: 'var(--color-accent-growth)',
-            fontSize: '0.8125rem',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            background: 'rgba(45, 106, 79, 0.1)',
+            color: 'var(--ds-primary)',
+            fontSize: '13px',
           }}>
             {intl.formatMessage({ id: 'settings.password_updated', defaultMessage: 'Password updated successfully' })}
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-          <InputField 
-            label={intl.formatMessage({ id: 'settings.current_password', defaultMessage: 'Current Password' })} 
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <InputField
+            label={intl.formatMessage({ id: 'settings.current_password', defaultMessage: 'Current Password' })}
             value={currentPassword}
             onChange={setCurrentPassword}
             type="password"
             placeholder="••••••••"
           />
-          
+
           <div>
-            <InputField 
-              label={intl.formatMessage({ id: 'settings.new_password', defaultMessage: 'New Password' })} 
+            <InputField
+              label={intl.formatMessage({ id: 'settings.new_password', defaultMessage: 'New Password' })}
               value={newPassword}
               onChange={setNewPassword}
               type="password"
               placeholder="••••••••"
               error={passwordError || undefined}
             />
-            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '4px' }}>
               {intl.formatMessage({ id: 'settings.password_requirements', defaultMessage: 'Password must be at least 8 characters with uppercase, lowercase, and a number' })}
             </p>
           </div>
-          
-          <InputField 
-            label={intl.formatMessage({ id: 'settings.confirm_password', defaultMessage: 'Confirm New Password' })} 
+
+          <InputField
+            label={intl.formatMessage({ id: 'settings.confirm_password', defaultMessage: 'Confirm New Password' })}
             value={confirmPassword}
             onChange={setConfirmPassword}
             type="password"
@@ -1505,30 +1557,30 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'var(--spacing-2)', flexWrap: 'wrap', gap: '12px' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-            <a href="/auth/forgot-password" style={{ color: 'var(--color-accent-growth)', textDecoration: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
+            <a href="/auth/forgot-password" style={{ color: 'var(--ds-primary)', textDecoration: 'none' }}>
               {intl.formatMessage({ id: 'settings.forgot_password', defaultMessage: 'Forgot Password?' })}
             </a>
             {' '}- {intl.formatMessage({ id: 'settings.forgot_password_hint', defaultMessage: 'Reset via email' })}
           </p>
-          
+
           <button
             onClick={handleUpdatePassword}
             disabled={!currentPassword || !newPassword || !confirmPassword || isUpdatingPassword}
             style={{
-              padding: '10px 20px',
-              background: 'var(--color-accent-growth)',
-              color: '#FFFFFF',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
+              padding: '8px 16px',
+              background: 'transparent',
+              color: 'var(--ds-primary)',
+              fontSize: '13px',
+              fontWeight: 500,
+              border: '1.5px solid var(--ds-btn-secondary-border)',
+              borderRadius: '8px',
               cursor: currentPassword && newPassword && confirmPassword && !isUpdatingPassword ? 'pointer' : 'not-allowed',
               opacity: currentPassword && newPassword && confirmPassword && !isUpdatingPassword ? 1 : 0.5,
             }}
           >
-            {isUpdatingPassword 
+            {isUpdatingPassword
               ? intl.formatMessage({ id: 'settings.saving', defaultMessage: 'Saving...' })
               : intl.formatMessage({ id: 'settings.update_password', defaultMessage: 'Update Password' })
             }
@@ -1537,23 +1589,34 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
       </div>
 
       {/* Active Sessions Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)', flexWrap: 'wrap', gap: '12px' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
             {intl.formatMessage({ id: 'settings.active_sessions', defaultMessage: 'Active Sessions' })}
           </h3>
-          
+
           {sessions.filter(s => !s.current).length > 0 && (
             <button
               onClick={handleSignOutAllSessions}
               style={{
                 padding: '6px 12px',
                 background: 'transparent',
-                color: 'var(--color-error)',
-                fontSize: '0.75rem',
+                color: 'var(--ds-error)',
+                fontSize: '12px',
                 fontWeight: 500,
-                border: '1px solid var(--color-error)',
-                borderRadius: 'var(--radius-sm)',
+                border: '0.5px solid var(--ds-error)',
+                borderRadius: '8px',
                 cursor: 'pointer',
               }}
             >
@@ -1571,23 +1634,26 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 alignItems: 'flex-start',
                 justifyContent: 'space-between',
                 padding: '14px 16px',
-                background: session.current ? 'var(--theme-bg-tertiary)' : 'var(--color-bg-input)',
-                borderRadius: 'var(--radius-sm)',
-                border: session.current ? '1px solid var(--color-border)' : '1px solid transparent',
+                background: session.current ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+                borderRadius: '8px',
+                border: '0.5px solid var(--ds-border)',
                 opacity: session.current ? 1 : 0.85,
+                transition: 'box-shadow 200ms ease',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <div
                   style={{
                     width: '36px',
                     height: '36px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: session.current ? 'rgba(var(--accent-color-rgb), 0.1)' : 'rgba(99, 102, 241, 0.1)',
+                    borderRadius: '8px',
+                    background: session.current ? 'rgba(45, 106, 79, 0.1)' : 'rgba(45, 106, 79, 0.06)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: session.current ? 'var(--color-accent-growth)' : 'var(--color-info)',
+                    color: 'var(--ds-primary)',
                     flexShrink: 0,
                   }}
                 >
@@ -1595,18 +1661,18 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-heading)' }}>
                       {session.device}
                     </p>
                     {session.current && (
                       <span
                         style={{
-                          fontSize: '0.6875rem',
+                          fontSize: '11px',
                           fontWeight: 600,
-                          color: 'var(--color-accent-growth)',
-                          background: 'rgba(var(--accent-color-rgb), 0.1)',
+                          color: 'var(--ds-primary)',
+                          background: 'rgba(45, 106, 79, 0.1)',
                           padding: '2px 8px',
-                          borderRadius: 'var(--radius-pill)',
+                          borderRadius: '9999px',
                         }}
                       >
                         {intl.formatMessage({ id: 'settings.current_session', defaultMessage: 'This device' })}
@@ -1614,10 +1680,10 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                     )}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <MapPinIcon /> {session.location} ({session.ip})
                     </p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <ClockIcon /> {intl.formatMessage({ id: 'settings.last_active', defaultMessage: 'Last active' })}: {intl.formatRelativeTime(
                         Math.round((new Date(session.lastActive).getTime() - Date.now()) / 60000),
                         'minute'
@@ -1626,17 +1692,17 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                   </div>
                 </div>
               </div>
-              
+
               <button
                 onClick={() => handleSignOutSession(index)}
                 style={{
-                  padding: '6px 12px',
+                  padding: '8px 16px',
                   background: 'transparent',
-                  color: session.current ? 'var(--color-text-muted)' : 'var(--color-error)',
-                  fontSize: '0.75rem',
+                  color: session.current ? 'var(--ds-text-muted)' : 'var(--ds-primary)',
+                  fontSize: '13px',
                   fontWeight: 500,
-                  border: `1px solid ${session.current ? 'var(--color-border)' : 'var(--color-error)'}`,
-                  borderRadius: 'var(--radius-sm)',
+                  border: session.current ? '0.5px solid var(--ds-border)' : '1.5px solid var(--ds-btn-secondary-border)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
                   flexShrink: 0,
                 }}
@@ -1650,10 +1716,13 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
       {/* Danger Zone */}
       <div
-        className="ds-card"
-        style={{ 
+        style={{
+          background: 'var(--ds-bg-card)',
           border: '2px solid rgba(239, 68, 68, 0.4)',
-          marginTop: 'var(--spacing-2)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          marginTop: '16px',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -1665,19 +1734,19 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--color-error)',
+            color: 'var(--ds-error)',
             flexShrink: 0,
           }}>
             <AlertTriangleIcon />
           </div>
           <div style={{ flex: 1 }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-error)', marginBottom: '4px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-error)', marginBottom: '4px', fontFeatureSettings: '"kern" 1' }}>
               {intl.formatMessage({ id: 'settings.danger_zone', defaultMessage: 'Danger Zone' })}
             </h3>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '8px' }}>
               {intl.formatMessage({ id: 'settings.danger_zone_description', defaultMessage: 'Deleting your account permanently removes all financial data and cannot be undone.' })}
             </p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginBottom: 'var(--spacing-2)' }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginBottom: '16px' }}>
               {intl.formatMessage({ id: 'settings.danger_zone_warning', defaultMessage: 'This action is irreversible. All your transactions, budgets, goals, and settings will be permanently deleted.' })}
             </p>
             <button
@@ -1687,15 +1756,18 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '10px 20px',
-                background: 'var(--color-error)',
+                padding: '9px 18px',
+                background: 'var(--ds-error)',
                 color: '#FFFFFF',
-                fontSize: '0.875rem',
-                fontWeight: 600,
+                fontSize: '13px',
+                fontWeight: 500,
                 border: 'none',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '8px',
                 cursor: 'pointer',
+                transition: 'transform 100ms ease',
               }}
+              onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+              onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
               <TrashIcon />
               {intl.formatMessage({ id: 'settings.delete_account', defaultMessage: 'Delete Account' })}
@@ -1711,7 +1783,7 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
         onClose={() => setShowTwoFactorModal(false)}
         onSuccess={handleTwoFactorSuccess}
       />
-      
+
       <DeleteAccountModal
         intl={intl}
         isOpen={showDeleteModal}
@@ -1745,9 +1817,9 @@ function CurrencyOption({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 14px',
-        background: selected ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
-        border: selected ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-sm)',
+        background: selected ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+        border: selected ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+        borderRadius: '8px',
         cursor: 'pointer',
         transition: 'all 0.15s ease',
       }}
@@ -1755,9 +1827,9 @@ function CurrencyOption({
       <div>
         <p
           style={{
-            fontSize: '0.875rem',
+            fontSize: '14px',
             fontWeight: 600,
-            color: 'var(--color-text-primary)',
+            color: 'var(--ds-text-heading)',
           }}
         >
           {name}
@@ -1769,7 +1841,7 @@ function CurrencyOption({
             width: '20px',
             height: '20px',
             borderRadius: '50%',
-            background: 'var(--color-accent-growth)',
+            background: 'var(--ds-primary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1828,30 +1900,30 @@ function AccentColorPickerModal({
     >
       <div
         style={{
-          background: 'var(--color-bg-surface-1)',
-          borderRadius: 'var(--radius-xl)',
+          background: 'var(--ds-bg-card)',
+          borderRadius: '16px',
           width: '100%',
           maxWidth: '400px',
           maxHeight: '85vh',
           overflow: 'auto',
-          padding: 'var(--spacing-3)',
+          padding: '24px',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ color: 'var(--color-accent-growth)' }}><PaletteIcon /></span>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            <span style={{ color: 'var(--ds-primary)' }}><PaletteIcon /></span>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
               {intl.formatMessage({ id: 'settings.accent_color', defaultMessage: 'Accent Color' })}
             </h3>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ds-text-muted)' }}>
             <XIcon />
           </button>
         </div>
 
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-3)' }}>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '24px' }}>
           {intl.formatMessage({ id: 'settings.accent_color_description', defaultMessage: 'Choose a color that personalizes buttons, links, and highlights across the app.' })}
         </p>
 
@@ -1881,8 +1953,8 @@ function AccentColorPickerModal({
                     height: '36px',
                     borderRadius: '50%',
                     background: option.value,
-                    border: isSelected ? '3px solid var(--color-text-primary)' : '2px solid transparent',
-                    outline: isSelected ? '2px solid var(--color-text-primary)' : 'none',
+                    border: isSelected ? '2px solid var(--ds-text-heading)' : '2px solid transparent',
+                    outline: isSelected ? '2px solid var(--ds-text-heading)' : 'none',
                     outlineOffset: '2px',
                     display: 'flex',
                     alignItems: 'center',
@@ -1899,9 +1971,9 @@ function AccentColorPickerModal({
                 </div>
                 <span
                   style={{
-                    fontSize: '0.625rem',
+                    fontSize: '10px',
                     fontWeight: isSelected ? 600 : 400,
-                    color: isSelected ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+                    color: isSelected ? 'var(--ds-text-heading)' : 'var(--ds-text-muted)',
                     maxWidth: '48px',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -1916,17 +1988,17 @@ function AccentColorPickerModal({
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: 'var(--spacing-3)', paddingTop: 'var(--spacing-2)', borderTop: '1px solid var(--color-divider)', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '0.5px solid var(--ds-border)', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             onClick={onClose}
             style={{
-              padding: '8px 20px',
-              background: 'var(--color-accent-growth)',
+              padding: '9px 18px',
+              background: 'var(--ds-primary)',
               color: '#FFFFFF',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
+              fontSize: '13px',
+              fontWeight: 500,
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
+              borderRadius: '8px',
               cursor: 'pointer',
             }}
           >
@@ -1939,7 +2011,7 @@ function AccentColorPickerModal({
 }
 
 /* ===== PREFERENCES TAB CONTENT ===== */
-function PreferencesContent({ 
+function PreferencesContent({
   intl,
   selectedLanguage,
   onLanguageChange,
@@ -1949,7 +2021,7 @@ function PreferencesContent({
   onThemeChange,
   selectedAccentColor,
   onAccentColorChange,
-}: { 
+}: {
   intl: ReturnType<typeof useIntl>;
   selectedLanguage: 'en' | 'ar';
   onLanguageChange: (lang: 'en' | 'ar') => void;
@@ -1965,7 +2037,7 @@ function PreferencesContent({
   const [weeklySummary, setWeeklySummary] = useState(false);
   const [languageChangeNotice, setLanguageChangeNotice] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  
+
   const handleLanguageChange = (lang: 'en' | 'ar') => {
     onLanguageChange(lang);
     setLanguageChangeNotice(true);
@@ -1975,42 +2047,54 @@ function PreferencesContent({
   return (
     <>
       {/* Language Card */}
-      <div className="ds-card">
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <span style={{ color: 'var(--color-info)' }}>
+          <span style={{ color: 'var(--ds-primary)' }}>
             <GlobeIcon />
           </span>
           <h3
             style={{
-              fontSize: '1.125rem',
+              fontSize: '18px',
               fontWeight: 600,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'settings.language', defaultMessage: 'Language' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'settings.language_description', defaultMessage: 'Select your preferred language for the interface.' })}
         </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-accent-growth)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '12px', color: 'var(--ds-primary)', marginBottom: '16px' }}>
           {intl.formatMessage({ id: 'settings.language_applies_immediately', defaultMessage: 'Applies immediately across the interface.' })}
         </p>
-        
+
         {languageChangeNotice && (
           <div style={{
             padding: '10px 14px',
-            marginBottom: 'var(--spacing-2)',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(99, 102, 241, 0.1)',
-            color: 'var(--color-info)',
-            fontSize: '0.8125rem',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            background: 'rgba(45, 106, 79, 0.1)',
+            color: 'var(--ds-primary)',
+            fontSize: '13px',
           }}>
             {intl.formatMessage({ id: 'settings.language_change_notice', defaultMessage: 'Interface language changed. Some elements may require a page refresh.' })}
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-1)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <LanguageOption
             code="en"
             name="English"
@@ -2029,25 +2113,37 @@ function PreferencesContent({
       </div>
 
       {/* Currency Card */}
-      <div className="ds-card">
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <span style={{ color: 'var(--color-accent-growth)' }}>
+          <span style={{ color: 'var(--ds-primary)' }}>
             <DollarIcon />
           </span>
           <h3
             style={{
-              fontSize: '1.125rem',
+              fontSize: '18px',
               fontWeight: 600,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'settings.currency', defaultMessage: 'Currency' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'settings.currency_description', defaultMessage: 'Used for display only. Transactions keep their original currency.' })}
         </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
           {intl.formatMessage({ id: 'settings.currency_no_conversion', defaultMessage: 'No automatic conversion is applied to existing records.' })}
         </p>
 
@@ -2058,14 +2154,14 @@ function PreferencesContent({
             onChange={(e) => onCurrencyChange(e.target.value)}
             style={{
               width: '100%',
-              padding: '14px 16px',
+              padding: '10px 14px',
               paddingRight: '40px',
-              fontSize: '0.9375rem',
+              fontSize: '15px',
               fontWeight: 500,
-              color: 'var(--color-text-primary)',
-              background: 'var(--color-bg-input)',
-              border: '2px solid var(--color-accent-growth)',
-              borderRadius: 'var(--radius-sm)',
+              color: 'var(--ds-text-heading)',
+              background: 'var(--ds-bg-input)',
+              border: '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
               cursor: 'pointer',
               appearance: 'none',
               WebkitAppearance: 'none',
@@ -2086,7 +2182,7 @@ function PreferencesContent({
               top: '50%',
               transform: 'translateY(-50%)',
               pointerEvents: 'none',
-              color: 'var(--color-accent-growth)',
+              color: 'var(--ds-primary)',
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2097,23 +2193,35 @@ function PreferencesContent({
       </div>
 
       {/* Appearance Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
-          <span style={{ color: 'var(--color-warning)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'var(--ds-accent-gold)' }}>
             <SunIcon />
           </span>
           <h3
             style={{
-              fontSize: '1.125rem',
+              fontSize: '18px',
               fontWeight: 600,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'settings.appearance', defaultMessage: 'Appearance' })}
           </h3>
         </div>
 
-        <div style={{ display: 'flex', gap: 'var(--spacing-1)' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <div
             onClick={() => onThemeChange('light')}
             style={{
@@ -2123,18 +2231,18 @@ function PreferencesContent({
               justifyContent: 'center',
               gap: '8px',
               padding: '12px',
-              background: selectedTheme === 'light' ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
-              border: selectedTheme === 'light' ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
+              background: selectedTheme === 'light' ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+              border: selectedTheme === 'light' ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
               cursor: 'pointer',
             }}
           >
             <SunIcon />
             <span
               style={{
-                fontSize: '0.875rem',
+                fontSize: '14px',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
               }}
             >
               {intl.formatMessage({ id: 'settings.light', defaultMessage: 'Light' })}
@@ -2149,18 +2257,18 @@ function PreferencesContent({
               justifyContent: 'center',
               gap: '8px',
               padding: '12px',
-              background: selectedTheme === 'dark' ? 'rgba(var(--accent-color-rgb), 0.08)' : 'var(--color-bg-input)',
-              border: selectedTheme === 'dark' ? '2px solid var(--color-accent-growth)' : '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
+              background: selectedTheme === 'dark' ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+              border: selectedTheme === 'dark' ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+              borderRadius: '8px',
               cursor: 'pointer',
             }}
           >
             <MoonIcon />
             <span
               style={{
-                fontSize: '0.875rem',
+                fontSize: '14px',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
               }}
             >
               {intl.formatMessage({ id: 'settings.dark', defaultMessage: 'Dark' })}
@@ -2170,22 +2278,34 @@ function PreferencesContent({
       </div>
 
       {/* Accent Color Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
-          <span style={{ color: 'var(--color-accent-growth)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'var(--ds-primary)' }}>
             <PaletteIcon />
           </span>
           <h3
             style={{
-              fontSize: '1.125rem',
+              fontSize: '18px',
               fontWeight: 600,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'settings.accent_color', defaultMessage: 'Accent Color' })}
           </h3>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-2)' }}>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
           {intl.formatMessage({ id: 'settings.accent_color_description', defaultMessage: 'Choose a color that personalizes buttons, links, and highlights across the app.' })}
         </p>
 
@@ -2200,9 +2320,9 @@ function PreferencesContent({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '14px 16px',
-                background: 'rgba(var(--accent-color-rgb), 0.08)',
-                border: '2px solid var(--color-accent-growth)',
-                borderRadius: 'var(--radius-sm)',
+                background: 'var(--ds-bg-tinted)',
+                border: '0.5px solid var(--ds-primary)',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
@@ -2220,15 +2340,15 @@ function PreferencesContent({
                   }}
                 />
                 <div>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
                     {selectedLanguage === 'ar' ? current.labelAr : current.label}
                   </p>
-                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
                     {intl.formatMessage({ id: 'settings.tap_to_change', defaultMessage: 'Tap to change' })}
                   </p>
                 </div>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ds-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </div>
@@ -2247,16 +2367,28 @@ function PreferencesContent({
       />
 
       {/* Notifications Card */}
-      <div className="ds-card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--spacing-2)' }}>
-          <span style={{ color: 'var(--color-error)' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: 'var(--ds-shadow-card)',
+          transition: 'box-shadow 200ms ease',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'var(--ds-error)' }}>
             <BellIcon />
           </span>
           <h3
             style={{
-              fontSize: '1.125rem',
+              fontSize: '18px',
               fontWeight: 600,
-              color: 'var(--color-text-primary)',
+              color: 'var(--ds-text-heading)',
+              fontFeatureSettings: '"kern" 1',
             }}
           >
             {intl.formatMessage({ id: 'settings.notifications', defaultMessage: 'Notifications' })}
@@ -2266,16 +2398,16 @@ function PreferencesContent({
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <SettingRow
             icon={<MailIcon />}
-            iconBg="rgba(99, 102, 241, 0.1)"
-            iconColor="var(--color-info)"
+            iconBg="rgba(45, 106, 79, 0.1)"
+            iconColor="var(--ds-primary)"
             label={intl.formatMessage({ id: 'settings.email_notifications', defaultMessage: 'Email Notifications' })}
             description={intl.formatMessage({ id: 'settings.email_notifications_description', defaultMessage: 'Receive updates via email' })}
             action={<ToggleSwitch enabled={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />}
           />
           <SettingRow
             icon={<SmartphoneIcon />}
-            iconBg="rgba(var(--accent-color-rgb), 0.1)"
-            iconColor="var(--color-accent-growth)"
+            iconBg="rgba(45, 106, 79, 0.1)"
+            iconColor="var(--ds-primary)"
             label={intl.formatMessage({ id: 'settings.push_notifications', defaultMessage: 'Push Notifications' })}
             description={intl.formatMessage({ id: 'settings.push_notifications_description', defaultMessage: 'Receive push notifications on your device' })}
             action={<ToggleSwitch enabled={pushNotifications} onToggle={() => setPushNotifications(!pushNotifications)} />}
@@ -2283,7 +2415,7 @@ function PreferencesContent({
           <SettingRow
             icon={<MailIcon />}
             iconBg="rgba(245, 158, 11, 0.1)"
-            iconColor="var(--color-warning)"
+            iconColor="var(--ds-accent-gold)"
             label={intl.formatMessage({ id: 'settings.weekly_summary', defaultMessage: 'Weekly Summary' })}
             description={intl.formatMessage({ id: 'settings.weekly_summary_description', defaultMessage: 'Get a weekly summary of your finances' })}
             action={<ToggleSwitch enabled={weeklySummary} onToggle={() => setWeeklySummary(!weeklySummary)} />}
@@ -2299,64 +2431,68 @@ function PreferencesContent({
 export default function SettingsPage() {
   const intl = useIntl();
   const [activeTab, setActiveTab] = useState<TabId>('profile');
-  
+
   // Get user data from store
   const user = useUser();
   const userName = useUserName();
   const updateUserProfile = useUpdateUserProfile();
-  
+
   // Compute display values
   const displayName = user?.name || userName || intl.formatMessage({ id: 'settings.guest_user', defaultMessage: 'Guest User' });
   const displayEmail = user?.email || intl.formatMessage({ id: 'settings.no_email', defaultMessage: 'No email set' });
   const displayPhone = user?.phone || '';
-  
+
   // Get initials for avatar
   const nameParts = displayName.trim().split(' ');
   const initials = (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '');
-  
+
   // Get global language from store
   const globalLanguage = useStore((state) => state.language);
   const setGlobalLanguage = useStore((state) => state.setLanguage);
-  
+
   // Get global currency from store
   const globalCurrency = useStore((state) => state.currency);
   const setGlobalCurrency = useStore((state) => state.setCurrency);
-  
+
   // Get global theme from store
   const globalTheme = useStore((state) => state.theme);
   const setGlobalTheme = useStore((state) => state.setTheme);
-  
+
   // Get global accent color from store
   const globalAccentColor = useStore((state) => state.accentColor);
   const setGlobalAccentColor = useStore((state) => state.setAccentColor);
-  
+
   // Local state for pending changes (before save)
   const [pendingLanguage, setPendingLanguage] = useState<'en' | 'ar'>(globalLanguage);
   const [pendingCurrency, setPendingCurrency] = useState<string>(globalCurrency);
-  
+
+  // RTL support
+  const language = globalLanguage;
+  const isRtl = language === 'ar';
+
   // Theme is applied immediately for instant preview
   const handleThemeChange = (theme: 'light' | 'dark') => {
     setGlobalTheme(theme);
   };
-  
+
   // Accent color is applied immediately for instant preview
   const handleAccentColorChange = (color: string) => {
     setGlobalAccentColor(color);
   };
-  
+
   // Handle profile update
   const handleProfileUpdate = async (data: { firstName: string; lastName: string; phone: string }) => {
     const fullName = `${data.firstName} ${data.lastName}`.trim();
     await updateUserProfile({ name: fullName, phone: data.phone });
   };
-  
+
   // Handle save - apply pending changes to global store
   const handleSaveChanges = () => {
     setGlobalLanguage(pendingLanguage);
     setGlobalCurrency(pendingCurrency);
     // Theme is already saved immediately
   };
-  
+
   // Handle cancel - reset pending to current global
   const handleCancel = () => {
     setPendingLanguage(globalLanguage);
@@ -2370,25 +2506,27 @@ export default function SettingsPage() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 'calc(100vh - 80px)',
-        padding: 'var(--spacing-3)',
+        padding: '24px',
+        direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
       {/* Page Header */}
-      <div style={{ marginBottom: 'var(--spacing-3)' }}>
+      <div style={{ marginBottom: '24px' }}>
         <h1
           style={{
-            fontSize: '1.75rem',
-            fontWeight: 700,
-            color: 'var(--color-text-primary)',
+            fontSize: '24px',
+            fontWeight: 600,
+            color: 'var(--ds-text-heading)',
             marginBottom: '8px',
+            fontFeatureSettings: '"kern" 1',
           }}
         >
           {intl.formatMessage({ id: 'settings.account_settings', defaultMessage: 'Account Settings' })}
         </h1>
         <p
           style={{
-            fontSize: '0.9375rem',
-            color: 'var(--color-text-secondary)',
+            fontSize: '13px',
+            color: 'var(--ds-text-muted)',
             lineHeight: 1.6,
           }}
         >
@@ -2402,7 +2540,7 @@ export default function SettingsPage() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--spacing-3)',
+          gap: '24px',
           flex: 1,
         }}
       >
@@ -2429,12 +2567,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Right Content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+        <div key={activeTab} style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 200ms ease-out' }}>
           {activeTab === 'profile' && <ProfileContent intl={intl} userData={{ name: displayName, email: displayEmail, phone: displayPhone }} onProfileUpdate={handleProfileUpdate} />}
           {activeTab === 'security' && <SecurityContent intl={intl} />}
           {activeTab === 'preferences' && (
-            <PreferencesContent 
-              intl={intl} 
+            <PreferencesContent
+              intl={intl}
               selectedLanguage={pendingLanguage}
               onLanguageChange={setPendingLanguage}
               selectedCurrency={pendingCurrency}
@@ -2454,9 +2592,9 @@ export default function SettingsPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingTop: 'var(--spacing-2)',
-          borderTop: '1px solid var(--color-border)',
-          marginTop: 'var(--spacing-2)',
+          paddingTop: '16px',
+          borderTop: '0.5px solid var(--ds-border)',
+          marginTop: '16px',
           flexWrap: 'wrap',
           gap: '1rem',
         }}
@@ -2475,7 +2613,7 @@ export default function SettingsPage() {
             }}
           >
             {initials ? (
-              <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#D4A853' }}>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#D4A853' }}>
                 {initials.toUpperCase()}
               </span>
             ) : (
@@ -2488,32 +2626,32 @@ export default function SettingsPage() {
           <div>
             <p
               style={{
-                fontSize: '0.875rem',
+                fontSize: '14px',
                 fontWeight: 600,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
               }}
             >
               {displayName}
             </p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
               {displayEmail}
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleCancel}
             style={{
-              padding: '10px 24px',
+              padding: '8px 16px',
               background: 'transparent',
-              color: 'var(--color-text-primary)',
-              fontSize: '0.875rem',
+              color: 'var(--ds-primary)',
+              fontSize: '13px',
               fontWeight: 500,
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
+              border: '1.5px solid var(--ds-btn-secondary-border)',
+              borderRadius: '8px',
               cursor: 'pointer',
             }}
           >
@@ -2523,15 +2661,18 @@ export default function SettingsPage() {
             type="button"
             onClick={handleSaveChanges}
             style={{
-              padding: '10px 24px',
-              background: 'var(--color-accent-growth)',
+              padding: '9px 18px',
+              background: 'var(--ds-primary)',
               color: '#FFFFFF',
-              fontSize: '0.875rem',
-              fontWeight: 600,
+              fontSize: '13px',
+              fontWeight: 500,
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
+              borderRadius: '8px',
               cursor: 'pointer',
+              transition: 'transform 100ms ease',
             }}
+            onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)'; }}
+            onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
             {intl.formatMessage({ id: 'settings.save_changes', defaultMessage: 'Save Changes' })}
           </button>

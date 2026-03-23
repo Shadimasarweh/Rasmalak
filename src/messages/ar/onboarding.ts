@@ -4,7 +4,7 @@ export default {
   completed: '{percent}% مكتمل',
   step1_title: 'خلنا نخصص تجربتك',
   step1_subtitle: 'عشان نقدم لك أفضل النصائح، خبرنا عن أهدافك.',
-  step1_question: 'شو هدفك المالي الرئيسي؟',
+  step1_question: 'شو أهدافك المالية؟',
   step2_title: 'عرّفنا عن نفسك',
   step2_subtitle: 'هذا يساعدنا نخصص التوصيات لوضعك.',
   step2_question: 'أي وصف يناسبك؟',

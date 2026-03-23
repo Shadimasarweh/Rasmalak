@@ -118,4 +118,11 @@ export default {
   'course.next': 'التالي',
   'course.previous': 'السابق',
   'course.complete_course': 'إكمال الدورة',
+  // Course tutor chat
+  'course.tutor_title': 'مساعد الدورة',
+  'course.tutor_placeholder': 'اسأل عن هذه الدورة...',
+  'course.tutor_minimize': 'تصغير',
+  'course.tutor_welcome': 'تحتاج مساعدة في الدورة؟',
+  'course.tutor_welcome_sub': 'اسألني عن أي موضوع أو مفهوم أو أي شيء في هذه الدورة وسأساعدك.',
+  'course.tutor_send': 'إرسال',
 };

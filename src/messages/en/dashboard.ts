@@ -132,4 +132,29 @@ export default {
   day_thu: 'Thu',
   day_fri: 'Fri',
   day_sat: 'Sat',
+
+  // Financial Health Score
+  health_score: 'Financial health score',
+  health_details: 'Details',
+  health_savings_rate: 'Savings rate',
+  health_budget_adherence: 'Budget adherence',
+  health_emergency_fund: 'Emergency fund',
+  health_goal_progress: 'Goal progress',
+  health_consistency: 'Tracking consistency',
+  health_literacy: 'Financial literacy',
+
+  // Coaching empty state
+  coach_add_title: 'Add a transaction',
+  coach_add_subtitle: 'أضف أول معاملة',
+  coach_add_desc: 'Record your first income or expense to start tracking.',
+  coach_add_cta: 'Add now',
+  coach_budget_title: 'Set a budget',
+  coach_budget_subtitle: 'حدد ميزانيتك',
+  coach_budget_desc: 'Control your spending with monthly limits per category.',
+  coach_budget_cta: 'Set budget',
+  coach_goal_title: 'Create a goal',
+  coach_goal_subtitle: 'أنشئ هدفاً مالياً',
+  coach_goal_desc: 'Save toward something meaningful — emergency fund, travel, or a purchase.',
+  coach_goal_cta: 'Create goal',
+  coach_ai_nudge: 'Add your first transaction and I\'ll start analyzing your spending patterns.',
 };

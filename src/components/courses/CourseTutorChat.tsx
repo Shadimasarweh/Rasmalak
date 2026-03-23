@@ -47,7 +47,7 @@ function LoadingDots() {
             width: '6px',
             height: '6px',
             borderRadius: '50%',
-            background: 'var(--color-text-muted)',
+            background: 'var(--ds-text-muted)',
             animation: `tutorBounce 1.4s ${i * 0.2}s infinite ease-in-out both`,
           }}
         />
@@ -76,21 +76,21 @@ function TutorMessageBubble({ message, isUser }: { message: AIMessage; isUser: b
       <div
         style={{
           maxWidth: '85%',
-          padding: '8px 12px',
+          padding: '10px 14px',
           borderRadius: isUser
-            ? '12px 12px 2px 12px'
-            : '12px 12px 12px 2px',
+            ? '14px 14px 2px 14px'
+            : '14px 14px 14px 2px',
           background: isUser
-            ? 'var(--color-accent-growth)'
-            : 'var(--color-bg-surface-1)',
+            ? 'var(--ds-primary)'
+            : 'var(--ds-bg-card)',
           color: isUser
             ? '#FFFFFF'
-            : 'var(--color-text-primary)',
+            : 'var(--ds-text-heading)',
           border: isUser
             ? 'none'
-            : '1px solid var(--color-border)',
-          fontSize: '0.8125rem',
-          lineHeight: 1.5,
+            : '0.5px solid var(--ds-border)',
+          fontSize: '13px',
+          lineHeight: isUser ? 1.5 : 1.6,
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
         }}
@@ -98,7 +98,7 @@ function TutorMessageBubble({ message, isUser }: { message: AIMessage; isUser: b
         {message.isLoading ? (
           <LoadingDots />
         ) : message.isError ? (
-          <span style={{ color: isUser ? '#FCA5A5' : 'var(--color-error)' }}>
+          <span style={{ color: isUser ? '#FCA5A5' : 'var(--ds-error)' }}>
             {message.errorMessage || message.content}
           </span>
         ) : (
@@ -289,58 +289,73 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
   };
 
   const tutorTitle = intl.formatMessage({
-    id: 'course.tutor_title',
+    id: 'learn.course.tutor_title',
     defaultMessage: 'Course Tutor',
   });
 
   const placeholderText = intl.formatMessage({
-    id: 'course.tutor_placeholder',
+    id: 'learn.course.tutor_placeholder',
     defaultMessage: 'Ask about this course...',
   });
 
   /* ===== COLLAPSED STATE — FAB BUTTON ===== */
   if (!isOpen) {
     return (
-      <button
-        onClick={() => toggleOpen(true)}
-        aria-label={tutorTitle}
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          insetInlineEnd: '24px',
-          insetInlineStart: 'auto',
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          background: 'var(--color-accent-growth)',
-          color: '#FFFFFF',
-          border: 'none',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 40,
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.08)';
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.25)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.2)';
-        }}
-      >
-        <TutorIcon />
-      </button>
+      <>
+        <style>{`
+          @media (max-width: 1023px) {
+            .tutor-chat-fab { bottom: 80px !important; }
+          }
+        `}</style>
+        <button
+          className="tutor-chat-fab"
+          onClick={() => toggleOpen(true)}
+          aria-label={tutorTitle}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            insetInlineEnd: '24px',
+            insetInlineStart: 'auto',
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: 'var(--ds-primary)',
+            color: '#FFFFFF',
+            border: 'none',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 40,
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.08)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15)';
+          }}
+        >
+          <TutorIcon />
+        </button>
+      </>
     );
   }
 
   /* ===== EXPANDED STATE — CHAT PANEL ===== */
   return (
+    <>
+    <style>{`
+      @media (max-width: 1023px) {
+        .tutor-chat-panel { bottom: 80px !important; }
+      }
+    `}</style>
     <div
+      className="tutor-chat-panel"
       style={{
         position: 'fixed',
         bottom: '24px',
@@ -352,9 +367,9 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
         height: '500px',
         maxHeight: 'calc(100vh - 100px)',
         borderRadius: '16px',
-        background: 'var(--color-bg-card)',
-        border: '1px solid var(--color-border)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -367,24 +382,36 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '12px 16px',
-          background: 'var(--color-accent-growth)',
+          padding: '14px 16px',
+          background: 'var(--ds-primary)',
           color: '#FFFFFF',
           flexShrink: 0,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <TutorIcon />
-          <span style={{ fontWeight: 600, fontSize: '0.9375rem' }}>{tutorTitle}</span>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <TutorIcon />
+          </div>
+          <span style={{ fontWeight: 500, fontSize: '15px' }}>{tutorTitle}</span>
         </div>
         <button
           onClick={() => toggleOpen(false)}
-          aria-label={intl.formatMessage({ id: 'course.tutor_minimize', defaultMessage: 'Minimize' })}
+          aria-label={intl.formatMessage({ id: 'learn.course.tutor_minimize', defaultMessage: 'Minimize' })}
           style={{
-            background: 'rgba(255, 255, 255, 0.2)',
+            background: 'rgba(255, 255, 255, 0.15)',
             border: 'none',
             borderRadius: '8px',
-            padding: '4px',
+            width: '44px',
+            height: '44px',
+            padding: '0',
             color: '#FFFFFF',
             cursor: 'pointer',
             display: 'flex',
@@ -420,39 +447,40 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
           >
             <div
               style={{
-                width: '48px',
-                height: '48px',
+                width: '56px',
+                height: '56px',
                 borderRadius: '50%',
-                background: 'var(--color-accent-growth-subtle)',
+                background: 'var(--ds-bg-tinted)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--color-accent-growth)',
+                color: 'var(--ds-primary)',
               }}
             >
               <TutorIcon />
             </div>
             <p
               style={{
-                fontSize: '0.875rem',
+                fontSize: '15px',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ds-text-heading)',
               }}
             >
               {intl.formatMessage({
-                id: 'course.tutor_welcome',
+                id: 'learn.course.tutor_welcome',
                 defaultMessage: 'Need help with the course?',
               })}
             </p>
             <p
               style={{
-                fontSize: '0.8125rem',
-                color: 'var(--color-text-muted)',
+                fontSize: '13px',
+                color: 'var(--ds-text-muted)',
                 maxWidth: '240px',
+                lineHeight: 1.5,
               }}
             >
               {intl.formatMessage({
-                id: 'course.tutor_welcome_sub',
+                id: 'learn.course.tutor_welcome_sub',
                 defaultMessage: 'Ask me to explain a topic, expand on a concept, or help you understand anything in this course.',
               })}
             </p>
@@ -475,10 +503,10 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          padding: '10px 12px',
-          borderTop: '1px solid var(--color-border)',
+          padding: '12px',
+          borderTop: '0.5px solid var(--ds-border)',
           flexShrink: 0,
-          background: 'var(--color-bg-card)',
+          background: 'var(--ds-bg-card)',
         }}
       >
         <input
@@ -491,11 +519,12 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
           disabled={isLoading}
           style={{
             flex: 1,
-            padding: '10px 12px',
-            fontSize: '0.8125rem',
-            color: 'var(--color-text-primary)',
-            background: 'var(--color-bg-input, var(--color-bg-surface-1))',
-            border: '1px solid var(--color-border)',
+            padding: '10px 14px',
+            minHeight: '44px',
+            fontSize: '13px',
+            color: 'var(--ds-text-heading)',
+            background: 'var(--ds-bg-input)',
+            border: '0.5px solid var(--ds-border)',
             borderRadius: '20px',
             outline: 'none',
           }}
@@ -503,14 +532,14 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
         <button
           type="submit"
           disabled={!inputValue.trim() || isLoading}
-          aria-label={intl.formatMessage({ id: 'course.tutor_send', defaultMessage: 'Send' })}
+          aria-label={intl.formatMessage({ id: 'learn.course.tutor_send', defaultMessage: 'Send' })}
           style={{
-            width: '36px',
-            height: '36px',
+            width: '44px',
+            height: '44px',
             borderRadius: '50%',
             background: inputValue.trim() && !isLoading
-              ? 'var(--color-accent-growth)'
-              : 'var(--color-text-muted)',
+              ? 'var(--ds-primary)'
+              : 'var(--ds-text-muted)',
             color: '#FFFFFF',
             border: 'none',
             cursor: inputValue.trim() && !isLoading ? 'pointer' : 'not-allowed',
@@ -526,5 +555,6 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
         </button>
       </form>
     </div>
+    </>
   );
 }

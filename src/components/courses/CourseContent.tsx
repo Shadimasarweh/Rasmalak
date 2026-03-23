@@ -83,16 +83,17 @@ export default function CourseContent({
                 style={{
                   marginBottom: 'var(--spacing-5)',
                   paddingBottom: 'var(--spacing-3)',
-                  borderBottom: '2px solid var(--color-accent-growth)',
+                  borderBottom: '2px solid var(--ds-primary)',
                 }}
               >
                 <h2
                   style={{
-                    fontSize: '1.5rem',
-                    fontWeight: 700,
-                    color: 'var(--color-text-primary)',
+                    fontSize: '18px',
+                    fontWeight: 600,
+                    color: 'var(--ds-text-heading)',
                     marginTop: '4px',
                     lineHeight: 1.3,
+                    fontFeatureSettings: '"kern" 1',
                   }}
                 >
                   {lesson.title}
@@ -122,7 +123,7 @@ export default function CourseContent({
             gap: 'var(--spacing-2)',
             paddingTop: 'var(--spacing-6)',
             marginTop: 'var(--spacing-4)',
-            borderTop: '2px solid var(--color-border-subtle)',
+            borderTop: '0.5px solid var(--ds-border)',
           }}
         >
           {isLastPage ? (
@@ -131,19 +132,22 @@ export default function CourseContent({
               onClick={handleComplete}
               style={{
                 width: '100%',
-                padding: '14px 24px',
-                background: 'var(--color-success)',
+                padding: '12px 24px',
+                background: 'var(--ds-primary)',
                 color: '#FFFFFF',
                 border: 'none',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.9375rem',
-                fontWeight: 600,
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 500,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
+                transition: 'background-color 150ms ease',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -156,19 +160,22 @@ export default function CourseContent({
               onClick={handleNext}
               style={{
                 width: '100%',
-                padding: '14px 24px',
-                background: 'var(--color-accent-growth)',
+                padding: '12px 24px',
+                background: 'var(--ds-primary)',
                 color: '#FFFFFF',
                 border: 'none',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.9375rem',
-                fontWeight: 600,
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 500,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
+                transition: 'background-color 150ms ease',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
             >
               {intl.formatMessage({ id: 'learn.course.next', defaultMessage: 'Next' })}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -185,10 +192,10 @@ export default function CourseContent({
                 width: '100%',
                 padding: '12px 24px',
                 background: 'transparent',
-                color: 'var(--color-text-secondary)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.875rem',
+                color: 'var(--ds-text-body)',
+                border: '0.5px solid var(--ds-border)',
+                borderRadius: '8px',
+                fontSize: '13px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 display: 'flex',

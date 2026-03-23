@@ -76,6 +76,8 @@ export default function CompoundSavingsCalculatorPage() {
   const [result, setResult] = useState<CompoundSavingsResult | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [calcBtnHover, setCalcBtnHover] = useState(false);
+  const [pdfBtnHover, setPdfBtnHover] = useState(false);
 
   const t = (key: string, defaultMessage: string) =>
     intl.formatMessage({ id: `tools.${key}`, defaultMessage });
@@ -141,14 +143,16 @@ export default function CompoundSavingsCalculatorPage() {
   const formatPercent = (value: number) =>
     styledNum(intl.formatNumber(value / 100, { style: 'percent', minimumFractionDigits: 2 }));
 
+  /* ===== SHARED STYLES ===== */
+
   const inputFieldStyle = (hasError: boolean): React.CSSProperties => ({
     width: '100%',
     padding: '10px 14px',
-    fontSize: '0.9375rem',
-    border: `1.5px solid ${hasError ? 'var(--color-error)' : 'var(--color-border-input)'}`,
-    borderRadius: 'var(--radius-md)',
-    backgroundColor: 'var(--color-bg-input)',
-    color: 'var(--color-text-primary)',
+    fontSize: '14px',
+    border: `0.5px solid ${hasError ? 'var(--ds-error)' : 'var(--ds-border)'}`,
+    borderRadius: '8px',
+    backgroundColor: 'var(--ds-bg-input)',
+    color: 'var(--ds-text-heading)',
     outline: 'none',
     direction: 'ltr',
     textAlign: isRTL ? 'right' : 'left',
@@ -157,35 +161,63 @@ export default function CompoundSavingsCalculatorPage() {
   const selectStyle: React.CSSProperties = {
     width: '100%',
     padding: '10px 14px',
-    fontSize: '0.9375rem',
-    border: '1.5px solid var(--color-border-input)',
-    borderRadius: 'var(--radius-md)',
-    backgroundColor: 'var(--color-bg-input)',
-    color: 'var(--color-text-primary)',
+    fontSize: '14px',
+    border: '0.5px solid var(--ds-border)',
+    borderRadius: '8px',
+    backgroundColor: 'var(--ds-bg-input)',
+    color: 'var(--ds-text-heading)',
     outline: 'none',
     appearance: 'none',
     WebkitAppearance: 'none',
   };
 
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: 'var(--ds-text-heading)',
+    marginBottom: '6px',
+  };
+
+  const errorMsgStyle: React.CSSProperties = {
+    fontSize: '12px',
+    color: 'var(--ds-error)',
+    marginTop: '4px',
+  };
+
+  const freqBtnStyle = (active: boolean): React.CSSProperties => ({
+    flex: '1 1 auto',
+    minWidth: '80px',
+    padding: '8px 12px',
+    fontSize: '13px',
+    fontWeight: 500,
+    border: active ? 'none' : '0.5px solid var(--ds-border)',
+    borderRadius: '8px',
+    background: active ? 'var(--ds-primary)' : 'transparent',
+    color: active ? '#FFFFFF' : 'var(--ds-text-body)',
+    cursor: 'pointer',
+    textAlign: 'center',
+  });
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', padding: 'var(--spacing-3)', direction: isRTL ? 'rtl' : 'ltr' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', padding: '16px', direction: isRTL ? 'rtl' : 'ltr' }}>
       {/* Back Link */}
-      <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-accent-growth)', textDecoration: 'none', marginBottom: 'var(--spacing-2)' }} className="hover:underline">
+      <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-muted)', textDecoration: 'none', marginBottom: '16px' }}>
         <span style={{ transform: isRTL ? 'scaleX(-1)' : 'none', display: 'inline-flex' }}><ArrowLeftIcon /></span>
         {t('compound_back_to_tools', 'Back to Tools')}
       </Link>
 
       {/* Page Header */}
-      <div style={{ marginBottom: 'var(--spacing-3)' }}>
+      <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', background: 'rgba(var(--accent-color-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-growth)', flexShrink: 0 }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ds-primary)', flexShrink: 0 }}>
             <PiggyIcon />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
+            <h1 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', lineHeight: 1.2, fontFeatureSettings: '"kern" 1' }}>
               {t('compound_title', 'Compound Savings Calculator')}
             </h1>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, marginTop: '4px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', lineHeight: 1.6, marginTop: '4px' }}>
               {t('compound_subtitle', 'See how your savings grow over time with compound interest and plan your wealth-building journey.')}
             </p>
           </div>
@@ -196,91 +228,106 @@ export default function CompoundSavingsCalculatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Input Form */}
         <div className="col-span-1 lg:col-span-5">
-          <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+          <div style={{ background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px', padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ color: 'var(--color-accent-growth)' }}><CalculatorIcon /></span>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              <span style={{ color: 'var(--ds-primary)' }}><CalculatorIcon /></span>
+              <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', fontFeatureSettings: '"kern" 1' }}>
                 {t('compound_enter_values', 'Savings Plan Inputs')}
               </h2>
             </div>
 
             {/* Years to Invest */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+              <label style={labelStyle}>
                 {t('compound_years', 'Years to Invest')}
               </label>
               <input type="number" value={yearsToInvest} onChange={e => setYearsToInvest(e.target.value)}
                 placeholder={isRTL ? 'مثال: ١٠' : 'e.g. 10'}
                 style={inputFieldStyle(!!errors.yearsToInvest)} />
-              {errors.yearsToInvest && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.yearsToInvest}</p>}
+              {errors.yearsToInvest && <p style={errorMsgStyle}>{errors.yearsToInvest}</p>}
             </div>
 
             {/* Initial Investment */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+              <label style={labelStyle}>
                 {t('compound_initial', 'Initial Investment')} ({currencySymbol})
               </label>
               <input type="number" value={initialInvestment} onChange={e => setInitialInvestment(e.target.value)}
                 placeholder={isRTL ? 'مثال: ٥٠٠٠' : 'e.g. 5000'}
                 style={inputFieldStyle(!!errors.initialInvestment)} />
-              {errors.initialInvestment && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.initialInvestment}</p>}
+              {errors.initialInvestment && <p style={errorMsgStyle}>{errors.initialInvestment}</p>}
             </div>
 
             {/* Annual Interest Rate */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+              <label style={labelStyle}>
                 {t('compound_rate', 'Expected Annual Interest Rate (%)')}
               </label>
               <input type="number" step="0.01" value={interestRate} onChange={e => setInterestRate(e.target.value)}
                 placeholder={isRTL ? 'مثال: ٤' : 'e.g. 4'}
                 style={inputFieldStyle(!!errors.interestRate)} />
-              {errors.interestRate && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.interestRate}</p>}
+              {errors.interestRate && <p style={errorMsgStyle}>{errors.interestRate}</p>}
             </div>
 
             {/* Deposit Amount */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+              <label style={labelStyle}>
                 {t('compound_deposit', 'Deposit Amount')} ({currencySymbol})
               </label>
               <input type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)}
                 placeholder={isRTL ? 'مثال: ٥٠' : 'e.g. 50'}
                 style={inputFieldStyle(!!errors.depositAmount)} />
-              {errors.depositAmount && <p style={{ fontSize: '0.75rem', color: 'var(--color-error)', marginTop: '4px' }}>{errors.depositAmount}</p>}
+              {errors.depositAmount && <p style={errorMsgStyle}>{errors.depositAmount}</p>}
             </div>
 
-            {/* Deposit Frequency */}
+            {/* Deposit Frequency — Toggle Buttons */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+              <label style={labelStyle}>
                 {t('compound_frequency', 'Deposit Frequency')}
               </label>
-              <select value={depositFrequency} onChange={e => setDepositFrequency(e.target.value as DepositFrequency)}
-                style={selectStyle}>
-                <option value="monthly">{t('compound_monthly', 'Monthly')}</option>
-                <option value="quarterly">{t('compound_quarterly', 'Quarterly')}</option>
-                <option value="annually">{t('compound_annually', 'Annually')}</option>
-              </select>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {(['monthly', 'quarterly', 'annually'] as DepositFrequency[]).map(freq => (
+                  <button key={freq} type="button"
+                    onClick={() => setDepositFrequency(freq)}
+                    style={freqBtnStyle(depositFrequency === freq)}>
+                    {freq === 'monthly' ? t('compound_monthly', 'Monthly')
+                      : freq === 'quarterly' ? t('compound_quarterly', 'Quarterly')
+                      : t('compound_annually', 'Annually')}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Extra Annual Deposit */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
+              <label style={labelStyle}>
                 {t('compound_extra', 'Additional Annual Investment')} ({currencySymbol})
               </label>
               <input type="number" value={extraAnnualDeposit} onChange={e => setExtraAnnualDeposit(e.target.value)}
                 placeholder={isRTL ? 'اختياري' : 'Optional'}
                 style={inputFieldStyle(false)} />
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '4px' }}>
+                {isRTL ? 'اختياري — إضافة سنوية' : 'Optional — added once per year'}
+              </p>
             </div>
 
             {/* Buttons */}
-            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
               <button type="button" onClick={handleCalculate}
-                style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 24px', background: 'var(--color-accent-growth)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
-                className="hover:opacity-90 transition-opacity">
+                onMouseEnter={() => setCalcBtnHover(true)}
+                onMouseLeave={() => setCalcBtnHover(false)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '9px 18px',
+                  background: calcBtnHover ? 'var(--ds-primary-hover)' : 'var(--ds-primary)',
+                  color: '#FFFFFF', fontSize: '13px', fontWeight: 500,
+                  border: 'none', borderRadius: '8px', cursor: 'pointer', width: '100%',
+                  transition: 'background 0.15s ease',
+                }}>
                 <CalculatorIcon /> {t('compound_calculate', 'Calculate')}
               </button>
               <button type="button" onClick={handleReset}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 20px', background: 'transparent', color: 'var(--color-text-secondary)', fontSize: '0.875rem', fontWeight: 500, border: '1.5px solid var(--color-border-input)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
-                className="hover:opacity-80 transition-opacity">
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '9px 18px', background: 'transparent', color: 'var(--ds-text-body)', fontSize: '13px', fontWeight: 500, border: '0.5px solid var(--ds-border)', borderRadius: '8px', cursor: 'pointer', width: '100%' }}>
                 {t('compound_reset', 'Reset')}
               </button>
             </div>
@@ -290,14 +337,24 @@ export default function CompoundSavingsCalculatorPage() {
         {/* Results */}
         <div className="col-span-1 lg:col-span-7">
           {result ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-              <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: 'var(--color-accent-growth)' }}><CheckCircleIcon /></span>
-                  {t('compound_results_title', 'Summary of Results')}
-                </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Summary — Dark Glass Card */}
+              <div style={{
+                background: 'var(--ds-bg-card-dark)',
+                border: '0.5px solid var(--ds-dark-card-border)',
+                borderRadius: '16px',
+                padding: '20px 24px',
+                boxShadow: 'var(--ds-dark-card-glow)',
+                display: 'flex', flexDirection: 'column', gap: '16px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--ds-primary-glow)' }}><CheckCircleIcon /></span>
+                  <h2 style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-dark-card-body)', textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>
+                    {t('compound_results_title', 'Summary of Results')}
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
                     <SummaryItem
                       label={t('compound_future_value', 'Estimated Future Value')}
                       sublabel={t('compound_value_after', `Value After ${yearsToInvest} Years`)}
@@ -306,14 +363,35 @@ export default function CompoundSavingsCalculatorPage() {
                   <SummaryItem label={t('compound_total_invested', 'Total Invested')} value={formatCurrency(result.summary.totalInvested)} />
                   <SummaryItem label={t('compound_interest_earned', 'Interest Earned')} value={formatCurrency(result.summary.interestEarned)} accent />
                 </div>
+
+                {/* PDF download — inside dark card */}
+                <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
+                  onMouseEnter={() => setPdfBtnHover(true)}
+                  onMouseLeave={() => setPdfBtnHover(false)}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                    padding: '8px 16px',
+                    background: isGeneratingPDF ? 'rgba(156,163,175,0.2)' : pdfBtnHover ? 'rgba(34,197,94,0.1)' : 'transparent',
+                    color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)',
+                    fontSize: '13px', fontWeight: 500,
+                    border: isGeneratingPDF ? '1.5px solid rgba(156,163,175,0.3)' : '1.5px solid rgba(74,222,128,0.3)',
+                    borderRadius: '8px',
+                    cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
+                    width: '100%',
+                    opacity: isGeneratingPDF ? 0.5 : 1,
+                    transition: 'background 0.15s ease',
+                  }}>
+                  <DownloadIcon />
+                  {isGeneratingPDF ? t('compound_generating', 'Generating...') : t('compound_download', 'Download PDF Report')}
+                </button>
               </div>
 
               {/* Growth schedule table */}
-              <div className="ds-card" style={{ overflowX: 'auto' }}>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '12px' }}>
+              <div style={{ background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px', padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', overflowX: 'auto' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', marginBottom: '12px', fontFeatureSettings: '"kern" 1' }}>
                   {t('compound_schedule_title', 'Savings Growth Schedule')}
                 </h2>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr>
                       {[
@@ -325,15 +403,15 @@ export default function CompoundSavingsCalculatorPage() {
                         t('compound_col_cumulative', 'Total Contributed'),
                         t('compound_col_cum_interest', 'Total Interest'),
                       ].map(h => (
-                        <th key={h} style={{ padding: '8px 6px', textAlign: isRTL ? 'right' : 'left', fontWeight: 600, color: 'var(--color-text-secondary)', borderBottom: '2px solid var(--color-border)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                        <th key={h} style={{ padding: '8px 6px', textAlign: isRTL ? 'right' : 'left', fontWeight: 500, color: 'var(--ds-text-muted)', borderBottom: '0.5px solid var(--ds-border)', fontSize: '11px', whiteSpace: 'nowrap', textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>
                           {h}
                         </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {result.schedule.map((row, idx) => (
-                      <tr key={row.year} style={{ background: idx % 2 === 1 ? 'var(--color-bg-surface-1)' : undefined }}>
+                    {result.schedule.map((row) => (
+                      <tr key={row.year}>
                         <td style={cellStyle}>{row.year}</td>
                         <td style={cellStyle}>{formatPercent(row.rate * 100)}</td>
                         <td style={cellStyle}>{formatCurrency(row.interest)}</td>
@@ -346,23 +424,16 @@ export default function CompoundSavingsCalculatorPage() {
                   </tbody>
                 </table>
               </div>
-
-              <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', background: isGeneratingPDF ? 'var(--color-text-muted)' : 'var(--color-accent-growth)', color: '#FFFFFF', fontSize: '0.9375rem', fontWeight: 600, border: 'none', borderRadius: 'var(--radius-sm)', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%' }}
-                className="hover:opacity-90 transition-opacity">
-                <DownloadIcon />
-                {isGeneratingPDF ? t('compound_generating', 'Generating...') : t('compound_download', 'Download PDF Report')}
-              </button>
             </div>
           ) : (
-            <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-xl)', background: 'rgba(var(--accent-color-rgb), 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent-growth)' }}>
+            <div style={{ background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px', padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '16px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '16px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ds-primary)' }}>
                 <PiggyIcon />
               </div>
-              <p style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+              <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-body)', textAlign: 'center' }}>
                 {t('compound_enter_values', 'Savings Plan Inputs')}
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', textAlign: 'center', maxWidth: '320px' }}>
                 {t('compound_subtitle', 'See how your savings grow over time with compound interest and plan your wealth-building journey.')}
               </p>
             </div>
@@ -374,17 +445,26 @@ export default function CompoundSavingsCalculatorPage() {
 }
 
 const cellStyle: React.CSSProperties = {
-  padding: '8px 6px',
-  borderBottom: '1px solid var(--color-border-subtle)',
+  padding: '12px 0',
+  paddingRight: '6px',
+  paddingLeft: '6px',
+  borderBottom: '0.5px solid var(--ds-border)',
   whiteSpace: 'nowrap',
+  fontSize: '14px',
+  color: 'var(--ds-text-body)',
 };
 
 function SummaryItem({ label, sublabel, value, highlight, accent }: { label: string; sublabel?: string; value: React.ReactNode; highlight?: boolean; accent?: boolean }) {
   return (
-    <div style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: highlight ? 'rgba(var(--accent-color-rgb), 0.08)' : accent ? 'rgba(99, 102, 241, 0.06)' : 'var(--color-bg-input)', border: highlight ? '1px solid rgba(var(--accent-color-rgb), 0.2)' : '1px solid var(--color-border)' }}>
-      <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '2px', lineHeight: 1.3 }}>{label}</p>
-      {sublabel && <p style={{ fontSize: '0.625rem', color: 'var(--color-text-muted)', marginBottom: '4px', opacity: 0.7 }}>{sublabel}</p>}
-      <p style={{ fontSize: highlight ? '1.25rem' : '1rem', fontWeight: 600, color: highlight ? 'var(--color-accent-growth)' : accent ? '#6366F1' : 'var(--color-text-primary)', lineHeight: 1.3 }}>{value}</p>
+    <div style={{
+      padding: '12px',
+      borderRadius: '8px',
+      backgroundColor: 'rgba(255,255,255,0.04)',
+      border: '0.5px solid rgba(255,255,255,0.08)',
+    }}>
+      <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-dark-card-body)', marginBottom: '2px', lineHeight: 1.3 }}>{label}</p>
+      {sublabel && <p style={{ fontSize: '11px', color: 'var(--ds-dark-card-body)', marginBottom: '4px', fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>{sublabel}</p>}
+      <p style={{ fontSize: highlight ? '20px' : '20px', fontWeight: 600, color: highlight ? 'var(--ds-primary-glow)' : accent ? 'var(--ds-primary-glow)' : 'var(--ds-dark-card-heading)', lineHeight: 1.3 }}>{value}</p>
     </div>
   );
 }
