@@ -105,6 +105,156 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv10_L5_en",
+      "title": "Multigenerational Estate Freezing and Recapping",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv10_L5",
+          "title": "Multigenerational Estate Freezing and Recapping",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced estate planning uses \"Recapitalization\" to freeze the value of your estate for tax purposes today, while passing all future growth to the next generation. By converting your growth shares into preferred shares with a fixed value, you \"lock in\" your current tax liability. Any future expansion of the family business belongs to your children’s shares."
+            },
+            {
+              "type": "p",
+              "text": "This prevents the \"Death Tax\" from growing as your business grows. It is a vital tool for families who intend to keep their businesses for centuries. It ensures that the family can afford to pay the inheritance taxes without being forced to sell parts of the company. It is the science of \"Capping your Liability\" while \"Uncapping your Legacy.\""
+            },
+            {
+              "type": "p",
+              "text": "Action: Estimate the value of your business in 20 years if it grows at 10% annually; calculate the difference in inheritance tax between your current value and that future value."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv10_L6_en",
+      "title": "The \"Anti-Fragile\" Life Strategy",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv10_L6",
+          "title": "The \"Anti-Fragile\" Life Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Nassim Taleb’s concept of \"Anti-Fragility\" is the pinnacle of advanced planning. A \"Fragile\" life is one where a single mistake (job loss, lawsuit) destroys you. A \"Robust\" life resists shocks. An \"Anti-Fragile\" life is one that actually benefits from chaos and disorder. You achieve this through \"The Barbell Strategy\"—keeping 90% of your wealth in ultra-safe assets and 10% in high-risk, high-reward bets."
+            },
+            {
+              "type": "p",
+              "text": "If the world is stable, your 10% produces massive returns. If the world crashes, your 90% protects you. This mindset allows you to welcome volatility because you are structured to survive the downside while capturing the unlimited upside. It is the move from \"Fear\" to \"Opportunity.\" You become a predator in a volatile market rather than the prey."
+            },
+            {
+              "type": "p",
+              "text": "Action: Audit your current life and assets: identify one area where you are \"Fragile\" (dependent on a single source) and create a \"Barbell\" hedge for it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv10_L7_en",
+      "title": "Sovereignty and Personal Data Protection",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv10_L7",
+          "title": "Sovereignty and Personal Data Protection",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In the digital age, your \"Data\" is a form of capital. Advanced planning involves \"Digital Sovereignty\"—protecting your financial privacy and personal information from state or corporate surveillance. This includes using encrypted communications, private servers for family records, and legal structures (like LLCs) to keep your name off public asset registries."
+            },
+            {
+              "type": "p",
+              "text": "Privacy is the ultimate form of \"Asset Protection.\" If people don't know what you own, they cannot sue you for it. By decoupling your \"Legal Identity\" from your \"Physical Personhood,\" you gain a level of freedom and security that is unavailable to the general public. You move \"off the radar\" while staying fully compliant with the law."
+            },
+            {
+              "type": "p",
+              "text": "Action: Search your name on the public \"Real Estate\" or \"Business Registry\" in your country; identify which of your assets are currently visible to anyone with an internet connection."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv10_L8_en",
+      "title": "Pre-Nuptial and Post-Nuptial Wealth Architecture",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv10_L8",
+          "title": "Pre-Nuptial and Post-Nuptial Wealth Architecture",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced planning recognizes that divorce is one of the greatest \"Tail Risks\" to wealth. A Pre-Nuptial or Post-Nuptial agreement is not about \"lack of trust,\" but about \"Clarity of Capital.\" It defines which assets are \"Family Assets\" (to be kept for generations) and which are \"Joint Assets.\""
+            },
+            {
+              "type": "p",
+              "text": "By protecting the core family business or inherited wealth in these agreements, you ensure that the \"Family Empire\" remains intact regardless of personal relationship outcomes. It is a vital duty to your ancestors and your descendants. It removes the \"Financial Incentive\" for conflict and ensures that your life's work is protected by a clear legal wall from the day of the wedding."
+            },
+            {
+              "type": "p",
+              "text": "Action: If you are married or planning to be, discuss the concept of \"Separate Property\" with your spouse and see if your primary business shares are legally protected from a personal split."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv10_L9_en",
+      "title": "Advanced Elder Care and Cognitive Risk Management",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv10_L9",
+          "title": "Advanced Elder Care and Cognitive Risk Management",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final \"Life Stage\" risk is the loss of your own mental capacity. Advanced planning involves \"Cognitive Risk Management\"—setting up a \"Durable Power of Attorney\" and \"Revocable Trusts\" that automatically transfer decision-making power to a pre-selected group (not just one person) if you become mentally unfit."
+            },
+            {
+              "type": "p",
+              "text": "This prevents \"Elder Abuse\" and the \"Freezing\" of your assets by the court. You decide today who will manage your wealth when you no longer can. By setting up \"Check and Balance\" systems, you ensure that your capital continues to be managed according to your wishes, even if you are not there to oversee it."
+            },
+            {
+              "type": "p",
+              "text": "Action: Choose three \"Trustees\" (a lawyer, a family member, and a friend) who would collectively oversee your wealth if you became incapacitated; ensure they have the legal authority to do so."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv10_L10_en",
+      "title": "The Synthesis: Becoming a \"Capital Architect\"",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_adv10_L10",
+          "title": "The Synthesis: Becoming a \"Capital Architect\"",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final lesson is the realization that you are the \"Architect\" of a system. You have moved from \"Working for Money\" (Basic), to \"Managing Money\" (Intermediate), to \"Engineering Capital\" (Advanced). Your work is now to ensure that this system—the trusts, the businesses, the waqf—functions without you."
+            },
+            {
+              "type": "p",
+              "text": "You have achieved \"Total Sovereignty.\" Your wealth is global, your risk is hedged, and your legacy is secure. Your final task is to mentor the next generation of \"Architects.\" You have fulfilled the meaning of Rasmalak; you have turned your time into a permanent source of value, barakah, and light for the world. The curriculum ends, but your legacy begins."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify one person (a child or a protégé) and begin teaching them the \"Advanced Path\" today; the true test of your architecture is if they can manage it when you are gone."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

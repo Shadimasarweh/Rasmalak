@@ -35,6 +35,10 @@ import investmentFundamentalsIntEn from './investment_fundamentals_intermediate_
 import investmentFundamentalsIntAr from './investment_fundamentals_intermediate_ar.json';
 import insuranceLiteracyIntEn from './insurance_literacy_intermediate_en.json';
 import insuranceLiteracyIntAr from './insurance_literacy_intermediate_ar.json';
+import taxesAndLegalIntEn from './taxes_and_legal_intermediate_en.json';
+import taxesAndLegalIntAr from './taxes_and_legal_intermediate_ar.json';
+import smeFinancialManagementIntEn from './sme_financial_management_intermediate_en.json';
+import smeFinancialManagementIntAr from './sme_financial_management_intermediate_ar.json';
 import islamicFinanceBasicsIntEn from './islamic_finance_basics_intermediate_en.json';
 import islamicFinanceBasicsIntAr from './islamic_finance_basics_intermediate_ar.json';
 import lifeStageFinancialPlanningIntEn from './life_stage_financial_planning_intermediate_en.json';
@@ -97,6 +101,10 @@ const ALL_COURSES: CourseData[] = [
   investmentFundamentalsIntAr as CourseData,
   insuranceLiteracyIntEn as CourseData,
   insuranceLiteracyIntAr as CourseData,
+  taxesAndLegalIntEn as CourseData,
+  taxesAndLegalIntAr as CourseData,
+  smeFinancialManagementIntEn as CourseData,
+  smeFinancialManagementIntAr as CourseData,
   islamicFinanceBasicsIntEn as CourseData,
   islamicFinanceBasicsIntAr as CourseData,
   lifeStageFinancialPlanningIntEn as CourseData,

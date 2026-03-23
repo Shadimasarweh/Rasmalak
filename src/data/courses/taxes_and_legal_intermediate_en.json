@@ -1,0 +1,244 @@
+{
+  "courseId": "taxes_and_legal_intermediate_en",
+  "locale": "en",
+  "title": "Taxes & Legal Basics",
+  "description": "Learn about legal entities, tax-efficient vehicles, the corporate veil, capital gains strategy, and VAT obligations.",
+  "level": "intermediate",
+  "estimatedTime": "30 min",
+  "lessons": [
+    {
+      "lessonId": "int7_L1_en",
+      "title": "Understanding Legal Entities (LLC vs. Sole Proprietorship) As your business grows, its legal structure becomes a critical shield for your personal wealth. A Sole Proprietorship is simple but offers no separation; you are personally liable for all debts and lawsuits. An LLC (Limited Liability Company) creates a \"corporate veil\" that protects your home and personal savings from business failures. Moving to an LLC is a professional milestone that signals you are building an entity that exists independently of you, which is essential for attracting investors. Action: Check the local cost and requirements for registering an LLC in your country and compare the liability protection to your current status.",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_int7_L1",
+          "title": "Understanding Legal Entities (LLC vs. Sole Proprietorship) As your business grows, its legal structure becomes a critical shield for your personal wealth. A Sole Proprietorship is simple but offers no separation; you are personally liable for all debts and lawsuits. An LLC (Limited Liability Company) creates a \"corporate veil\" that protects your home and personal savings from business failures. Moving to an LLC is a professional milestone that signals you are building an entity that exists independently of you, which is essential for attracting investors. Action: Check the local cost and requirements for registering an LLC in your country and compare the liability protection to your current status.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Understanding Legal Entities (LLC vs. Sole Proprietorship) As your business grows, its legal structure becomes a critical shield for your personal wealth. A Sole Proprietorship is simple but offers no separation; you are personally liable for all debts and lawsuits. An LLC (Limited Liability Company) creates a \"corporate veil\" that protects your home and personal savings from business failures. Moving to an LLC is a professional milestone that signals you are building an entity that exists independently of you, which is essential for attracting investors. Action: Check the local cost and requirements for registering an LLC in your country and compare the liability protection to your current status."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L2_en",
+      "title": "Tax-Efficient Investment Vehicles Intermediate tax literacy involves choosing where to hold assets to minimize the long-term tax \"drag\" on your portfolio. In many regions, specific accounts like retirement funds or insurance-linked products offer tax-deferred or tax-free growth. By placing high-growth assets in these protected accounts while keeping lower-tax assets in standard accounts, you optimize your total net return. Understanding these legal frameworks ensures your hard-earned capital works as efficiently as possible for your future. Action: Research if your country offers any \"tax-shielded\" accounts and list which of your current assets would benefit most from being moved there.",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_int7_L2",
+          "title": "Tax-Efficient Investment Vehicles Intermediate tax literacy involves choosing where to hold assets to minimize the long-term tax \"drag\" on your portfolio. In many regions, specific accounts like retirement funds or insurance-linked products offer tax-deferred or tax-free growth. By placing high-growth assets in these protected accounts while keeping lower-tax assets in standard accounts, you optimize your total net return. Understanding these legal frameworks ensures your hard-earned capital works as efficiently as possible for your future. Action: Research if your country offers any \"tax-shielded\" accounts and list which of your current assets would benefit most from being moved there.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Tax-Efficient Investment Vehicles Intermediate tax literacy involves choosing where to hold assets to minimize the long-term tax \"drag\" on your portfolio. In many regions, specific accounts like retirement funds or insurance-linked products offer tax-deferred or tax-free growth. By placing high-growth assets in these protected accounts while keeping lower-tax assets in standard accounts, you optimize your total net return. Understanding these legal frameworks ensures your hard-earned capital works as efficiently as possible for your future. Action: Research if your country offers any \"tax-shielded\" accounts and list which of your current assets would benefit most from being moved there."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L3_en",
+      "title": "The \"Corporate Veil\" and Piercing the Veil",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_int7_L3",
+          "title": "The \"Corporate Veil\" and Piercing the Veil",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "An LLC protects you by creating a \"corporate veil\" between your business and your home. However, if you mix personal and business money—a practice known as commingling—a court can \"pierce the veil,\" making you personally liable for business debts despite your LLC status."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate users maintain strict separation between bank accounts to keep this legal shield strong. They ensure that every business transaction is documented and paid for through business funds, preserving the legal integrity of their company."
+            },
+            {
+              "type": "p",
+              "text": "Action: Audit your business transactions for the last month; ensure 100% of business expenses were paid from a dedicated business account."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L4_en",
+      "title": "Withholding vs. Estimated Tax Payments",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_int7_L4",
+          "title": "Withholding vs. Estimated Tax Payments",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate earners, especially the self-employed, move from being \"surprised\" by taxes to managing them proactively. Instead of waiting until the end of the year, they calculate \"Estimated Taxes\" and set aside a percentage of every invoice into a dedicated \"Tax Sinking Fund.\""
+            },
+            {
+              "type": "p",
+              "text": "This prevents cash flow shocks when the tax bill finally arrives and ensures that your money is working for you (earning interest) until it is due. It turns a potential crisis into a planned, manageable expense."
+            },
+            {
+              "type": "p",
+              "text": "Action: Based on your last year's income, calculate what percentage you should set aside from every paycheck this year to cover your tax obligations."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L5_en",
+      "title": "Capital Gains Tax Strategy",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_int7_L5",
+          "title": "Capital Gains Tax Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate investors understand that when you sell an asset matters for taxes. In many jurisdictions, selling a stock after holding it for more than a year results in significantly lower tax rates (Long-Term Capital Gains) compared to selling quickly (Short-Term)."
+            },
+            {
+              "type": "p",
+              "text": "Strategically timing your \"exit\" from an investment can save you significant wealth over several decades. By being patient and understanding the tax code, you ensure that you keep more of your investment profits for your own future."
+            },
+            {
+              "type": "p",
+              "text": "Action: Review your investment portfolio and identify which assets have been held for over 12 months."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L6_en",
+      "title": "Deductible Business Expenses for SMEs",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_int7_L6",
+          "title": "Deductible Business Expenses for SMEs",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For business owners, every riyal spent on a \"legitimate business purpose\" can often be subtracted from your taxable income. Intermediate managers keep meticulous records of marketing, software, travel, and office costs to minimize their tax burden legally."
+            },
+            {
+              "type": "p",
+              "text": "This isn't about avoiding taxes; it's about only paying tax on your profit, not your total revenue. By properly documenting expenses, you ensure your business has more capital available to reinvest in growth."
+            },
+            {
+              "type": "p",
+              "text": "Action: Use an app or spreadsheet to categorize your business expenses from the last 30 days into \"Deductible\" and \"Non-Deductible\" categories."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L7_en",
+      "title": "Statutory Records and Compliance",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_int7_L7",
+          "title": "Statutory Records and Compliance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Beyond just paying taxes, intermediate legal mastery involves maintaining statutory records, such as meeting minutes and updated shareholder registries. Proper compliance prevents legal fines and makes your business much more attractive to future investors or banks."
+            },
+            {
+              "type": "p",
+              "text": "It signals that your operation is a professional, transparent entity rather than just a hobby. Maintaining these records consistently ensures that when you are ready to scale or sell, your \"legal house\" is in perfect order."
+            },
+            {
+              "type": "p",
+              "text": "Action: Check your local government's portal to ensure all your business licenses and annual filings are up to date for the current year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L8_en",
+      "title": "Understanding VAT and Sales Tax Obligations",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_int7_L8",
+          "title": "Understanding VAT and Sales Tax Obligations",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "As an SME grows, it eventually crosses the threshold for mandatory VAT or sales tax registration. Intermediate managers understand that they are effectively acting as tax collectors for the government and must set up systems to track and remit these funds."
+            },
+            {
+              "type": "p",
+              "text": "Failing to manage VAT correctly can lead to massive penalties and cash flow disasters. By setting up automated accounting systems, you ensure that the tax you collect from customers is never mistaken for your own revenue."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the mandatory VAT registration threshold in your country and compare it to your business's projected annual revenue."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L9_en",
+      "title": "Intellectual Property and Trademarking",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_int7_L9",
+          "title": "Intellectual Property and Trademarking",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate legal literacy involves protecting your brand's Intellectual Property (IP). Registering a trademark for your business name or logo ensures that you own the \"identity\" of your work and can prevent others from profiting off your reputation."
+            },
+            {
+              "type": "p",
+              "text": "Your brand is an asset that can be valued and eventually sold. Protecting it legally from day one prevents expensive legal battles later and builds the long-term value of your company."
+            },
+            {
+              "type": "p",
+              "text": "Action: Search your national trademark database to see if your business name or logo is already registered by someone else."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int7_L10_en",
+      "title": "Creating a Basic Operating Agreement",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_int7_L10",
+          "title": "Creating a Basic Operating Agreement",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you have partners, an Operating Agreement is a vital legal document that outlines how decisions are made, how profits are shared, and what happens if a partner wants to leave. It is the \"prenuptial agreement\" of the business world."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate managers never rely on verbal agreements. Having a formal, written structure prevents personal conflicts from destroying the business and ensures everyone is aligned on the long-term vision and responsibilities."
+            },
+            {
+              "type": "p",
+              "text": "Action: If you have business partners, schedule a meeting to draft or review a basic \"term sheet\" that covers decision-making and exit strategies."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

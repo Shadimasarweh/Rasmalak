@@ -2,118 +2,223 @@
   "courseId": "budgeting_money_management_intermediate_en",
   "locale": "en",
   "title": "Budgeting & Money Management",
-  "description": "Master zero-based budgeting, cash flow analysis, sinking funds, and impulse control strategies.",
+  "description": "Master zero-based budgeting, sinking funds, cash flow analysis, impulse control, and capital allocation strategies.",
   "level": "intermediate",
-  "estimatedTime": "25 min",
+  "estimatedTime": "30 min",
   "lessons": [
     {
-      "lessonId": "p2_int_L1_en",
-      "title": "The Zero-Based Budgeting Method",
+      "lessonId": "int2_L1_en",
+      "title": "The Zero-Based Budgeting Method Zero-based budgeting is a rigorous strategy where every single unit of currency you earn is assigned a specific job until \"Income minus Expenses\" equals zero. This does not mean you have an empty bank account; rather, it means every riyal is purposefully allocated toward rent, investments, or charity. This method is far superior to basic tracking because it forces you to prioritize your financial goals before the month even begins. It effectively eliminates \"mysterious\" cash leaks and impulsive spending by giving you a clear roadmap for every unit of capital. Action: Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero.",
       "order": 1,
       "sections": [
         {
-          "id": "sec_p2_int_L1",
-          "title": "The Zero-Based Budgeting Method",
+          "id": "sec_int2_L1",
+          "title": "The Zero-Based Budgeting Method Zero-based budgeting is a rigorous strategy where every single unit of currency you earn is assigned a specific job until \"Income minus Expenses\" equals zero. This does not mean you have an empty bank account; rather, it means every riyal is purposefully allocated toward rent, investments, or charity. This method is far superior to basic tracking because it forces you to prioritize your financial goals before the month even begins. It effectively eliminates \"mysterious\" cash leaks and impulsive spending by giving you a clear roadmap for every unit of capital. Action: Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero.",
           "blocks": [
             {
               "type": "p",
-              "text": "Zero-based budgeting is an advanced strategy where you assign every single unit of currency to a specific category until your \"Income minus Expenses\" equals exactly zero. This doesn't mean you have zero money; it means every riyal has a job (e.g., 500 for rent, 200 for gold, 100 for charity). This method is superior to basic tracking because it forces you to prioritize your financial goals at the start of the month, leaving no room for \"mysterious\" leaks or impulsive spending."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero."
+              "text": "The Zero-Based Budgeting Method Zero-based budgeting is a rigorous strategy where every single unit of currency you earn is assigned a specific job until \"Income minus Expenses\" equals zero. This does not mean you have an empty bank account; rather, it means every riyal is purposefully allocated toward rent, investments, or charity. This method is far superior to basic tracking because it forces you to prioritize your financial goals before the month even begins. It effectively eliminates \"mysterious\" cash leaks and impulsive spending by giving you a clear roadmap for every unit of capital. Action: Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p2_int_L2_en",
-      "title": "Budgeting for Sinking Funds",
+      "lessonId": "int2_L2_en",
+      "title": "Budgeting for Sinking Funds A \"Sinking Fund\" is a proactive savings strategy designed to cover known future expenses by breaking them into manageable monthly installments. Unlike an emergency fund, which is reserved for the unknown, a sinking fund is for the inevitable, such as annual car insurance, home maintenance, or a wedding. By setting aside money incrementally, you eliminate the financial shock and stress of \"big bills\" when they finally arrive. This is the secret to maintaining a smooth financial life and avoiding sudden, unplanned spikes in your monthly spending. Action: Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due.",
       "order": 2,
       "sections": [
         {
-          "id": "sec_p2_int_L2",
-          "title": "Budgeting for Sinking Funds",
+          "id": "sec_int2_L2",
+          "title": "Budgeting for Sinking Funds A \"Sinking Fund\" is a proactive savings strategy designed to cover known future expenses by breaking them into manageable monthly installments. Unlike an emergency fund, which is reserved for the unknown, a sinking fund is for the inevitable, such as annual car insurance, home maintenance, or a wedding. By setting aside money incrementally, you eliminate the financial shock and stress of \"big bills\" when they finally arrive. This is the secret to maintaining a smooth financial life and avoiding sudden, unplanned spikes in your monthly spending. Action: Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due.",
           "blocks": [
             {
               "type": "p",
-              "text": "A \"Sinking Fund\" is a way to save for a known future expense by breaking it down into smaller, manageable monthly payments. Unlike an emergency fund, which is for the unknown, a sinking fund is for the expected (e.g., car insurance, home maintenance, or a wedding). By creating separate sinking funds within your budget, you eliminate the stress of \"big bills\" because the money is already set aside. This is the secret to a smooth financial life without sudden spikes in spending."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due."
+              "text": "Budgeting for Sinking Funds A \"Sinking Fund\" is a proactive savings strategy designed to cover known future expenses by breaking them into manageable monthly installments. Unlike an emergency fund, which is reserved for the unknown, a sinking fund is for the inevitable, such as annual car insurance, home maintenance, or a wedding. By setting aside money incrementally, you eliminate the financial shock and stress of \"big bills\" when they finally arrive. This is the secret to maintaining a smooth financial life and avoiding sudden, unplanned spikes in your monthly spending. Action: Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p2_int_L3_en",
-      "title": "Analyzing Personal Cash Flow Trends",
+      "lessonId": "int2_L3_en",
+      "title": "Analyzing Personal Cash Flow Trends Intermediate budgeting moves beyond static monthly snapshots to active trend analysis. By comparing your spending over a 6 to 12-month period, you can identify seasonal patterns—such as higher energy bills in the summer or increased gift spending during religious holidays. Understanding these trends allows you to build a \"buffer\" in your budget during lower-expense months to cover higher-expense ones. This proactive approach ensures your financial plan remains robust and steady throughout the entire year. Action: Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most.",
       "order": 3,
       "sections": [
         {
-          "id": "sec_p2_int_L3",
-          "title": "Analyzing Personal Cash Flow Trends",
+          "id": "sec_int2_L3",
+          "title": "Analyzing Personal Cash Flow Trends Intermediate budgeting moves beyond static monthly snapshots to active trend analysis. By comparing your spending over a 6 to 12-month period, you can identify seasonal patterns—such as higher energy bills in the summer or increased gift spending during religious holidays. Understanding these trends allows you to build a \"buffer\" in your budget during lower-expense months to cover higher-expense ones. This proactive approach ensures your financial plan remains robust and steady throughout the entire year. Action: Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most.",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate budgeting moves beyond monthly snapshots to trend analysis. By comparing your spending over 6 to 12 months, you can identify seasonal patterns—such as higher utility bills in the summer or increased gift spending during holidays. Understanding these trends allows you to build a \"buffer\" in your budget during low-expense months to cover high-expense months. This proactive approach ensures your financial plan remains robust throughout the entire year."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most."
+              "text": "Analyzing Personal Cash Flow Trends Intermediate budgeting moves beyond static monthly snapshots to active trend analysis. By comparing your spending over a 6 to 12-month period, you can identify seasonal patterns—such as higher energy bills in the summer or increased gift spending during religious holidays. Understanding these trends allows you to build a \"buffer\" in your budget during lower-expense months to cover higher-expense ones. This proactive approach ensures your financial plan remains robust and steady throughout the entire year. Action: Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p2_int_L4_en",
-      "title": "Analyzing Personal Cash Flow Trends",
+      "lessonId": "int2_L4_en",
+      "title": "The 1% Rule for Impulse Control For intermediate spenders, the \"1% Rule\" acts as a vital psychological guardrail against impulsive consumption. It dictates that for any non-essential purchase exceeding 1% of your annual gross income, you must observe a mandatory one-week waiting period before completing the transaction. This \"cooling-off\" period allows the initial dopamine hit to fade, enabling a more rational decision based on actual needs rather than fleeting desires. By implementing this rule, you prevent \"death by a thousand cuts\"—the small, impulsive upgrades that collectively drain your wealth-building capital. Action: Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items.",
       "order": 4,
       "sections": [
         {
-          "id": "sec_p2_int_L4",
-          "title": "Analyzing Personal Cash Flow Trends",
+          "id": "sec_int2_L4",
+          "title": "The 1% Rule for Impulse Control For intermediate spenders, the \"1% Rule\" acts as a vital psychological guardrail against impulsive consumption. It dictates that for any non-essential purchase exceeding 1% of your annual gross income, you must observe a mandatory one-week waiting period before completing the transaction. This \"cooling-off\" period allows the initial dopamine hit to fade, enabling a more rational decision based on actual needs rather than fleeting desires. By implementing this rule, you prevent \"death by a thousand cuts\"—the small, impulsive upgrades that collectively drain your wealth-building capital. Action: Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items.",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate budgeting moves beyond monthly snapshots to trend analysis. By comparing spending over 12 months, you can identify seasonal patterns—like higher utility bills in summer or increased gift spending during holidays. Most people feel \"poor\" during expensive months like Ramadan or Eid because they haven't accounted for the surge."
-            },
-            {
-              "type": "p",
-              "text": "By identifying these peaks, you can build a \"buffer\" in your budget during low-expense months to cover the high-expense ones. This turns your budget into a proactive tool rather than a reactive one. Understanding your \"Seasonal Burn Rate\" allows you to keep your lifestyle steady and avoid the stress of sudden financial spikes, ensuring your long-term plan remains robust throughout the entire year."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Review your reports from the last 6 months and identify which category has fluctuated the most."
+              "text": "The 1% Rule for Impulse Control For intermediate spenders, the \"1% Rule\" acts as a vital psychological guardrail against impulsive consumption. It dictates that for any non-essential purchase exceeding 1% of your annual gross income, you must observe a mandatory one-week waiting period before completing the transaction. This \"cooling-off\" period allows the initial dopamine hit to fade, enabling a more rational decision based on actual needs rather than fleeting desires. By implementing this rule, you prevent \"death by a thousand cuts\"—the small, impulsive upgrades that collectively drain your wealth-building capital. Action: Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p2_int_L5_en",
-      "title": "The 1% Rule for Impulse Control",
+      "lessonId": "int2_L5_en",
+      "title": "The Lifestyle Inflation \"Veto\"",
       "order": 5,
       "sections": [
         {
-          "id": "sec_p2_int_L5",
-          "title": "The 1% Rule for Impulse Control",
+          "id": "sec_int2_L5",
+          "title": "The Lifestyle Inflation \"Veto\"",
           "blocks": [
             {
               "type": "p",
-              "text": "For intermediate spenders, the \"1% Rule\" is a powerful psychological guardrail. It suggests that for any non-essential purchase exceeding 1% of your annual gross income, you must wait one full week before completing the transaction. This cooling-off period allows the \"dopamine hit\" of the potential purchase to fade, enabling you to make a rational decision based on your actual needs and long-term goals."
+              "text": "Lifestyle inflation is the silent killer of wealth, occurring when your expenses rise at the same rate as your income. Intermediate spenders implement a \"Veto\" rule: for every salary increase, 50% must be directed toward investments or debt repayment, while only the remaining 50% can be used to upgrade your standard of living."
             },
             {
               "type": "p",
-              "text": "Lifestyle inflation often happens through \"death by a thousand cuts\"—small, impulsive upgrades that feel manageable individually but together drain your capital. By implementing the 1% Rule, you force yourself to justify large outflows. This ensures that your money is being directed toward assets that build wealth rather than consumables that lose value the moment they are purchased."
+              "text": "This balanced approach allows you to enjoy the rewards of your hard work today while ensuring that your future self benefits even more from your career success. By capping the expansion of your lifestyle, you ensure that every promotion moves you significantly closer to financial freedom rather than just a more expensive set of bills."
             },
             {
-              "type": "action_prompt",
-              "text": "Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items."
+              "type": "p",
+              "text": "Action: If you received a raise today, calculate exactly how much of it would go to savings versus your monthly spending under the 50/50 rule."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int2_L6_en",
+      "title": "The \"Anti-Budget\" (Pay Yourself First)",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_int2_L6",
+          "title": "The \"Anti-Budget\" (Pay Yourself First)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For those who find detailed line-item tracking tedious, the \"Anti-Budget\" focuses exclusively on the \"bottom line.\" The core principle is to \"pay yourself first\" by automating all savings and investment contributions the moment your paycheck arrives."
+            },
+            {
+              "type": "p",
+              "text": "Once your future goals are funded, whatever remains in your account is yours to spend on lifestyle and needs without guilt or complex tracking. This method effectively \"tricks\" your brain into living on less, ensuring that your wealth grows automatically while simplifying your daily financial management."
+            },
+            {
+              "type": "p",
+              "text": "Action: Set up an automatic transfer for your savings or investments to trigger on your payday, before you pay any other bills."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int2_L7_en",
+      "title": "Tracking Net Worth vs. Monthly Income",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_int2_L7",
+          "title": "Tracking Net Worth vs. Monthly Income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate money managers shift their focus from what they make (income) to what they keep (net worth). Net worth is the most accurate measure of financial progress, calculated by subtracting your total liabilities from your total assets."
+            },
+            {
+              "type": "p",
+              "text": "While income provides cash flow, net worth provides security and long-term options. Tracking this metric monthly helps you see the \"big picture,\" showing how every debt payment or investment contributes to your overall wealth, regardless of your current salary level."
+            },
+            {
+              "type": "p",
+              "text": "Action: List all your assets (cash, investments, car value) and subtract all debts. This is your starting Net Worth."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int2_L8_en",
+      "title": "Budgeting for Irregular Income",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_int2_L8",
+          "title": "Budgeting for Irregular Income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you are a freelancer or business owner, your income is often unpredictable. Intermediate budgeting for irregular income involves identifying your \"Baseline\"—the lowest monthly amount you have earned in the past year—and basing your essential living expenses on that figure."
+            },
+            {
+              "type": "p",
+              "text": "Any \"Surplus\" earned during high-income months is moved into a dedicated \"Hill and Valley\" fund. During \"Valley\" (low-income) months, you draw from this fund to pay yourself a consistent baseline salary, effectively smoothing out your cash flow and reducing financial anxiety."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate your average monthly expenses and compare it to your lowest-earning month of the last year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int2_L9_en",
+      "title": "Capital Allocation vs. Expense Tracking",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_int2_L9",
+          "title": "Capital Allocation vs. Expense Tracking",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Beginner budgeting is reactive, focusing on where the money went. Intermediate budgeting is proactive \"Capital Allocation,\" where you act as the CEO of your own life and decide where every unit of capital should go to provide the highest return."
+            },
+            {
+              "type": "p",
+              "text": "This means strategically choosing whether the next 1,000 riyals should go toward high-interest debt, a sinking fund for a car, or an investment account. By treating your budget as an allocation tool, you prioritize wealth-building over simple survival."
+            },
+            {
+              "type": "p",
+              "text": "Action: For your next paycheck, rank your \"top 3\" destinations for every unspent unit of currency."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int2_L10_en",
+      "title": "Seasonal Burn Rate and Buffer Building",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_int2_L10",
+          "title": "Seasonal Burn Rate and Buffer Building",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Most people feel \"poor\" during expensive seasons like Ramadan or Eid because they haven't accounted for the surge in spending. Intermediate users calculate their \"Seasonal Burn Rate\" by identifying these annual peaks and planning for them months in advance."
+            },
+            {
+              "type": "p",
+              "text": "By identifying these cycles, you can build a financial buffer during low-expense months specifically to cover these surges. This proactive approach turns your budget into a tool for peace of mind, ensuring your lifestyle remains steady even during the most expensive times of the year."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify the specific month in the next year where you expect the highest spending and start a monthly allocation for it today."
             }
           ]
         }

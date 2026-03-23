@@ -105,6 +105,181 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv9_L5_en",
+      "title": "Sukuk Engineering and Accessing Capital Markets",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv9_L5",
+          "title": "Sukuk Engineering and Accessing Capital Markets",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced investors move from being buyers of Sukuk to being \"Issuers.\" If you have a large-scale real estate or infrastructure project, you can use \"Sukuk Engineering\" to raise capital from global Islamic markets. This involves \"Securitizing\" your assets—turning them into certificates that investors can buy and sell."
+            },
+            {
+              "type": "p",
+              "text": "This provides access to a massive pool of liquidity that is often cheaper than a traditional bank loan. Understanding different Sukuk structures (Ijarah, Musharaka, Wakala) allows you to choose the one that best fits your asset's cash flow profile. It is the pinnacle of Islamic financial engineering, allowing you to fund multi-million dollar expansions while providing Sharia-compliant returns to a global audience."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research a recent Sukuk issuance by a major corporation in your region and identify the \"Underlying Asset\" and the profit-sharing structure used."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv9_L6_en",
+      "title": "Istisna’ and Project Finance for Infrastructure",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv9_L6",
+          "title": "Istisna’ and Project Finance for Infrastructure",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "\"Istisna’\" is a specialized contract for \"Manufacturing\" or \"Construction.\" Unlike a standard trade, the asset doesn't exist yet; it is built to your specifications. Advanced SME developers use Istisna’ to fund the construction of factories, warehouses, or residential projects. The bank pays the contractor in stages, and you pay the bank back after the project is complete."
+            },
+            {
+              "type": "p",
+              "text": "This is the Sharia-compliant alternative to a \"Construction Loan.\" It allows you to build massive physical infrastructure without interest. The \"Profit Margin\" for the bank is built into the final price of the asset. Mastering this allows you to act as a \"Developer\" who builds the future of the region using purely ethical, asset-backed financing."
+            },
+            {
+              "type": "p",
+              "text": "Action: If you have a construction project, compare an \"Istisna’\" quote with a traditional interest-bearing construction loan to see the difference in \"Legal Risk\" and \"Profit Margin.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv9_L7_en",
+      "title": "Diminishing Musharaka (Home and Business Buyouts)",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv9_L7",
+          "title": "Diminishing Musharaka (Home and Business Buyouts)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "\"Diminishing Musharaka\" is a partnership where you and the bank buy an asset together. Over time, you \"buy out\" the bank’s share through monthly payments. It is the most common Islamic alternative to a \"Mortgage.\" Advanced users also use this for \"Business Partner Buyouts\"—allowing them to gradually take 100% control of a company without a massive upfront cash payment."
+            },
+            {
+              "type": "p",
+              "text": "This structure is beautiful because it reflects reality: as you pay more, you own more. The \"Rent\" you pay to the bank decreases as their ownership share drops. It provides a clear, transparent path to \"Full Ownership\" while ensuring that the bank shares the risk of the asset's value with you, unlike a traditional loan where the bank only cares about the interest."
+            },
+            {
+              "type": "p",
+              "text": "Action: Use a \"Diminishing Musharaka\" calculator to see how your ownership percentage and monthly \"Rent\" would change over a 10-year period for a prime asset."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv9_L8_en",
+      "title": "Salam Contracts and Forward Commodity Trading",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv9_L8",
+          "title": "Salam Contracts and Forward Commodity Trading",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "\"Salam\" is a contract where you pay upfront for goods that will be delivered in the future. In Islamic finance, this is a vital tool for \"Commodity Hedging\" and \"Working Capital.\" An SME can use Salam to lock in the price of raw materials (like wheat or oil) or to get immediate cash flow by selling their future production today at a discount."
+            },
+            {
+              "type": "p",
+              "text": "It is the Sharia-compliant version of a \"Forward Contract.\" Advanced managers use Salam to manage the \"Volatility\" of their supply chain. It provides liquidity to the producer and price security to the buyer. By mastering Salam, you can protect your business from sudden global price spikes, ensuring your margins remain stable regardless of market chaos."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research how \"Salam\" contracts are used in the agricultural or mining sectors to provide \"Pre-Export\" financing to producers."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv9_L9_en",
+      "title": "Sharia-Compliant Private Equity and Venture Capital",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv9_L9",
+          "title": "Sharia-Compliant Private Equity and Venture Capital",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced Islamic investing includes \"Halal VC.\" This involves strict \"Negative Screening\" (avoiding haram industries) and \"Positive Screening\" (ensuring the deal structure is Mudaraba or Musharaka). You cannot use \"Preferred Shares\" with fixed dividends, as that mimics interest. Instead, you use \"Participating Equity\" where the risk and reward are truly shared."
+            },
+            {
+              "type": "p",
+              "text": "This level of investing focuses on \"Ethical Technology\" and \"Productive Assets.\" By investing in Sharia-compliant startups, you are building the \"Islamic Economy\" of the future. It requires a deep understanding of \"Equity-Side Sharia Audit\" to ensure that the company's debt levels and cash management remain within the 33% debt-to-market-cap limit."
+            },
+            {
+              "type": "p",
+              "text": "Action: Review the \"Sharia Screening Criteria\" for a major Islamic index (like the Dow Jones Islamic Market Index) and apply it to a private company you are considering for investment."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv9_L10_en",
+      "title": "Islamic Wealth Cleansing and Zakat Optimization",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_adv9_L10",
+          "title": "Islamic Wealth Cleansing and Zakat Optimization",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "\"Wealth Cleansing\" is the advanced practice of identifying \"Shubha\" (doubtful income) and removing it through \"Sadaqah.\" This includes interest earned accidentally or profits from a company that unexpectedly changed its business model. Beyond simple Zakat, advanced users perform a \"Purity Audit\" of their entire net worth annually."
+            },
+            {
+              "type": "p",
+              "text": "\"Zakat Optimization\" involves calculating Zakat on complex assets—like \"Trade Goods\" vs. \"Fixed Assets\"—to ensure you are paying exactly what is owed, no more and no less. It ensures your wealth is \"Pure\" (Tayyib) and that you are maximizing your \"Spiritual ROI.\" This meticulousness is what brings \"Barakah\" into a massive family fortune, protecting it from the \"spiritual decay\" that often hits large estates."
+            },
+            {
+              "type": "p",
+              "text": "Action: Perform a \"Purity Audit\" on your dividends from last year; calculate the \"Purification Ratio\" for any companies that have minor non-compliant income."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv9_L11_en",
+      "title": "The Philosophy of Maqasid al-Sharia in Finance",
+      "order": 11,
+      "sections": [
+        {
+          "id": "sec_adv9_L11",
+          "title": "The Philosophy of Maqasid al-Sharia in Finance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final level of Islamic finance is aligning your wealth with the \"Maqasid al-Sharia\"—the Higher Objectives of the Law. This means your wealth must serve the protection of Religion, Life, Intellect, Lineage, and Property. You move from \"Compliance\" (following the rules) to \"Purpose\" (achieving the goal)."
+            },
+            {
+              "type": "p",
+              "text": "Your investments are chosen because they improve society, protect the environment, or strengthen the family unit. At this level, \"Rasmalak\" is not just money; it is a \"Moral Force.\" You are a \"Khalifa\" (steward) of the wealth provided by God. Your financial success is measured by the \"Common Good\" (Maslaha) you create, ensuring that your legacy is a blessing for both this world and the next."
+            },
+            {
+              "type": "p",
+              "text": "Action: Evaluate your top three investments against the \"Five Maqasid\"; which objective does each investment primarily support or protect?"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

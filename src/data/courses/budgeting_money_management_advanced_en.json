@@ -105,6 +105,156 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv2_L5_en",
+      "title": "Matching Liabilities and Duration Hedging",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv2_L5",
+          "title": "Matching Liabilities and Duration Hedging",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced budgeting involves \"Liability Matching,\" a strategy used by institutional pension funds to ensure that the cash flow from assets exactly matches future payment obligations. If you have a major liability coming due in 10 years—such as a large tax bill or a business buyout—you must ensure the \"duration\" of your investments aligns with that date."
+            },
+            {
+              "type": "p",
+              "text": "Duration hedging prevents you from being forced to sell assets during a market dip just to meet a deadline. By using \"Zero-Coupon Bonds\" or \"Fixed-Income Strips,\" you can \"lock in\" the exact amount of cash needed for the future today. This removes market timing risk from your budget and ensures that your most critical future milestones are mathematically guaranteed."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify a major liability due in 5+ years and select a fixed-income instrument that matures exactly during that period to \"match\" it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv2_L6_en",
+      "title": "Zero-Base Budgeting for Corporations and SMEs",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv2_L6",
+          "title": "Zero-Base Budgeting for Corporations and SMEs",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For the advanced business owner, budgeting moves from \"incremental\" (adding to last year's numbers) to \"Zero-Base Budgeting\" (ZBB). In ZBB, every single expense must be justified from scratch every year, as if the business were starting today. This eliminates the \"fat\" and inefficiencies that naturally accumulate in established companies."
+            },
+            {
+              "type": "p",
+              "text": "This process requires deep \"Operational Auditing.\" You must analyze the ROI of every software subscription, every employee role, and every marketing channel. While time-consuming, ZBB ensures that your business capital is always flowing toward the highest-growth activities, preventing the \"Institutional Inertia\" that eventually destroys even the most successful firms."
+            },
+            {
+              "type": "p",
+              "text": "Action: Perform a \"Zero-Base\" audit on one department or category of your business; if you started it today, would you still spend that money?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv2_L7_en",
+      "title": "Hedging Your Cost of Living with Foreign Exchange",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv2_L7",
+          "title": "Hedging Your Cost of Living with Foreign Exchange",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If your future major expenses are in foreign currency—such as sending children to university in the UK or USA—your budget is at the mercy of exchange rates. A sudden 20% move in a currency pair could cost you tens of thousands in extra tuition. Advanced budgeting involves \"currency matching\" your assets to your future liabilities."
+            },
+            {
+              "type": "p",
+              "text": "This strategy involves holding a portion of your wealth in the specific currency of your future expense. By buying GBP or USD denominated bonds or property now, you effectively \"lock in\" the cost of that future education today. You remove the \"Exchange Rate Risk\" from your life, ensuring that your family's future remains stable regardless of what happens to your local currency."
+            },
+            {
+              "type": "p",
+              "text": "Action: List your top three future \"Life Milestone\" expenses and calculate your exchange rate exposure for each."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv2_L8_en",
+      "title": "Tax-Loss Harvesting and Portfolio Optimization",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv2_L8",
+          "title": "Tax-Loss Harvesting and Portfolio Optimization",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In an advanced budget, taxes are a variable cost that can be actively managed. \"Tax-Loss Harvesting\" is the strategic act of selling an investment that is currently at a loss to \"offset\" the capital gains taxes you owe on your winning investments. This allows you to lower your effective tax rate while maintaining your desired risk profile."
+            },
+            {
+              "type": "p",
+              "text": "By realizing losses at the end of a fiscal year, you can reduce your total tax bill to near zero, effectively keeping more capital in your \"Wealth Flow\" for reinvestment. You can then immediately buy a similar asset to maintain your market exposure. This turns a temporary market downturn into a permanent tax advantage, significantly accelerating the compounding effect of your wealth."
+            },
+            {
+              "type": "p",
+              "text": "Action: Review your current portfolio for any \"underwater\" positions and calculate the potential tax savings if you realized those losses today."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv2_L9_en",
+      "title": "Capital Gains Deferral and Like-Kind Exchanges",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv2_L9",
+          "title": "Capital Gains Deferral and Like-Kind Exchanges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced real estate and asset management utilize \"Deferral Strategies\" to prevent the erosion of capital. In many jurisdictions, mechanisms like the \"1031 Exchange\" (or similar local tax-deferral laws) allow you to sell a property and reinvest the proceeds into a new one without paying capital gains tax immediately."
+            },
+            {
+              "type": "p",
+              "text": "This allows you to \"roll\" your equity into larger and more productive assets over time, using the government's tax money as an interest-free loan to fund your growth. Mastering these legal loops is the difference between owning a single apartment and building a multi-national property empire. You only pay the tax at the very end of the cycle—or never, if the assets are passed down through a stepped-up basis in a trust."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research if your local jurisdiction allows for \"tax-deferred exchanges\" or \"reinvestment reliefs\" when selling a business or property asset."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv2_L10_en",
+      "title": "Predictive Analytics and Cash Flow Forecasting",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_adv2_L10",
+          "title": "Predictive Analytics and Cash Flow Forecasting",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final step in advanced budgeting is moving from \"historical\" reporting to \"predictive\" analytics. Using sophisticated software or AI-driven models (like Rasmalak AI), you can simulate various economic scenarios—such as a 10% interest rate hike or a 30% drop in commodity prices—to see how they impact your future solvency."
+            },
+            {
+              "type": "p",
+              "text": "Cash flow forecasting allows you to anticipate \"Capital Crunches\" months before they happen, giving you the time to secure credit lines or liquidate non-core assets under favorable conditions. By managing your wealth based on the \"Future Value of Cash Flow\" rather than past spending, you ensure that you are always positioned to capture opportunities that others are too stressed to see."
+            },
+            {
+              "type": "p",
+              "text": "Action: Create a \"Stress Scenario\" forecast for your household or business: if your primary income dropped by 40% for 6 months, how would your cash flow hold up?"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

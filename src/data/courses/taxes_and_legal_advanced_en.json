@@ -105,6 +105,156 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv7_L5_en",
+      "title": "The Law of Private Foundations (Civil Law Jurisdictions)",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv7_L5",
+          "title": "The Law of Private Foundations (Civil Law Jurisdictions)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In Civil Law jurisdictions (like many in the MENA region and Europe), the \"Foundation\" is the equivalent of a Trust. A Private Foundation is a separate legal entity that \"owns\" assets for a specific purpose defined by the founder. Unlike a trust, the foundation is its own \"legal person\" and can enter into contracts in its own name."
+            },
+            {
+              "type": "p",
+              "text": "Advanced users use Foundations to consolidate family wealth while maintaining strict control over how that wealth is spent. It is an ideal structure for holding the shares of a family business, as it prevents any single heir from selling their shares and disrupting the company. It provides the \"Immortality\" of a corporation with the \"Privacy\" of a private family agreement."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the \"ADGM Foundation\" or \"DIFC Foundation\" laws in the UAE as a modern, local way to structure your family's private wealth."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv7_L6_en",
+      "title": "Asset Protection and the \"Statute of Limitations\" on Fraud",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv7_L6",
+          "title": "Asset Protection and the \"Statute of Limitations\" on Fraud",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced legal planning is about building a \"Fortress\" around your assets before any legal trouble arises. When you move assets into a Trust or Foundation, there is often a \"Statute of Limitations\"—a period (usually 2 to 6 years) after which creditors can no longer \"reach back\" to claim those assets, even if you lose a lawsuit later."
+            },
+            {
+              "type": "p",
+              "text": "Timing is everything. If you set up these structures after a lawsuit is filed, it is called \"Fraudulent Conveyance\" and can be overturned. Advanced users perform \"Asset Protection Audits\" annually, ensuring that their legal shields are always in place long before any storm hits. This turns your net worth into a \"non-target\" for aggressive litigants."
+            },
+            {
+              "type": "p",
+              "text": "Action: Review the transfer dates of your major assets into companies or trusts; ensure they were moved during a \"Quiet Period\" when no legal threats existed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv7_L7_en",
+      "title": "Controlled Foreign Corporations (CFC) and Deferral",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv7_L7",
+          "title": "Controlled Foreign Corporations (CFC) and Deferral",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you own a business in a foreign country, you must understand the \"CFC Rules.\" These are laws designed to prevent you from hiding profits in tax havens. If the government determines that your foreign company is just a \"Shell,\" they may tax you on those profits as if you earned them at home, even if the money stays in the foreign bank."
+            },
+            {
+              "type": "p",
+              "text": "Advanced managers ensure their foreign companies have \"Substance\"—real offices, employees, and local decision-making. By proving substance, you can legally defer taxes on that foreign income until you actually bring it home. This allows your foreign profits to compound much faster, as they are not being drained by domestic taxes every year."
+            },
+            {
+              "type": "p",
+              "text": "Action: Audit your foreign entities; do they have enough \"Local Substance\" (staff, rent, utilities) to pass a CFC inspection by your home country's tax authority?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv7_L8_en",
+      "title": "Intellectual Property (IP) Licensing Structures",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv7_L8",
+          "title": "Intellectual Property (IP) Licensing Structures",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For an advanced SME, your most valuable asset is often your \"IP\"—your brand, patents, or software code. Strategically, you can house this IP in a separate \"IP Holding Company\" in a jurisdiction with low taxes on royalties. Your operating company then pays a fee to the IP company to use the brand."
+            },
+            {
+              "type": "p",
+              "text": "This legally moves profit from a high-tax country (where the operations are) to a low-tax country (where the IP is). This \"Royalty Arbitrage\" is used by every major global tech firm. It ensures that the \"Brain Power\" of your business is rewarded at a lower tax rate than the \"Manual Labor\" of the business."
+            },
+            {
+              "type": "p",
+              "text": "Action: Estimate the value of your brand or patent; identify a jurisdiction that offers an \"IP Box\" or \"Patent Box\" tax incentive."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv7_L9_en",
+      "title": "Estate Freeze and Valuation Arbitrage",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv7_L9",
+          "title": "Estate Freeze and Valuation Arbitrage",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "An \"Estate Freeze\" is a strategy to lock in the value of an asset today for tax purposes, while passing all future growth to your heirs. You exchange your \"Common Shares\" (which grow) for \"Preferred Shares\" (which are fixed in value). The heirs then get the new common shares for a very low price."
+            },
+            {
+              "type": "p",
+              "text": "As the business grows from 10 million to 100 million, your taxable estate stays at 10 million. The 90 million in growth belongs to the heirs and is never taxed in your estate. This is a primary tool for \"Wealth Transfer\" in large family enterprises, ensuring that the government doesn't become the primary beneficiary of your life's work."
+            },
+            {
+              "type": "p",
+              "text": "Action: If your business is growing rapidly, ask your accountant about an \"Estate Freeze\" to prevent your future tax bill from growing alongside your success."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv7_L10_en",
+      "title": "Cross-Border Succession and Multi-Jurisdictional Wills",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_adv7_L10",
+          "title": "Cross-Border Succession and Multi-Jurisdictional Wills",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you own property in multiple countries, a single Will is often not enough. Each country has its own laws—some have \"Forced Heirship\" (Sharia or Civil law), while others have \"Freedom of Testation\" (Common Law). Advanced users create \"Multi-Jurisdictional Wills\" to ensure their assets in each country are handled according to the local legal system."
+            },
+            {
+              "type": "p",
+              "text": "Failing to do this leads to \"Legal Gridlock,\" where assets are frozen for years while courts in different countries argue over who is the rightful heir. By coordinating your legal documents globally, you ensure that your family can access your wealth immediately, providing a seamless transition of power and capital across borders."
+            },
+            {
+              "type": "p",
+              "text": "Action: List all countries where you own real estate or bank accounts; confirm that you have a legally valid document in each jurisdiction that governs those specific assets."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

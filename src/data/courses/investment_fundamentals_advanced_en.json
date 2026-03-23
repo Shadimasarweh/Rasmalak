@@ -105,6 +105,206 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv5_L5_en",
+      "title": "Options Strategies for Hedging and Income Generation",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv5_L5",
+          "title": "Options Strategies for Hedging and Income Generation",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced investors use Derivatives, specifically Options, to manage risk and generate extra yield on their existing holdings. A \"Covered Call\" involves selling the right for someone else to buy your stocks at a higher price; you collect an immediate \"premium\" (cash). This provides a steady income stream even if the market stays flat or moves sideways."
+            },
+            {
+              "type": "p",
+              "text": "Alternatively, a \"Protective Put\" acts like an insurance policy; you pay a small fee for the right to sell your stocks at a specific price even if the market crashes. Mastering these tools allows you to remain \"Long\" on the market while being protected from short-term \"Tail Risks.\" You effectively \"insure\" your portfolio against a crash, allowing you to stay invested when others are panic-selling."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the \"Greeks\" (Delta, Theta, Gamma) and calculate how much a 10% market drop would impact your portfolio if you held a protective put."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L6_en",
+      "title": "Global Macro-Trading and Geopolitical Strategy",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv5_L6",
+          "title": "Global Macro-Trading and Geopolitical Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Global Macro is an investment strategy that bases its holdings on the overall economic and political views of various countries. Advanced macro-traders analyze interest rate differentials, trade balances, and geopolitical stability to place massive bets on currencies, commodities, or entire national indices. This is the realm of the institutional \"Hedge Fund\" manager."
+            },
+            {
+              "type": "p",
+              "text": "By anticipating tectonic shifts in global power—such as a US election result or a sudden change in China's growth policy—you can position your wealth to benefit from large-scale volatility. It requires a deep understanding of history and economics. When done correctly, global macro strategy allows you to profit from the \"chaos\" of the world by being on the right side of history's largest financial trends."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify one major geopolitical event happening this year (e.g., a trade summit or election) and predict its impact on two asset classes (e.g., Oil and the Euro)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L7_en",
+      "title": "Quantitative Analysis and Algorithmic Investing",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv5_L7",
+          "title": "Quantitative Analysis and Algorithmic Investing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the advanced level, \"gut feeling\" is replaced by \"Back-Testing\" and data models. Quantitative Analysis (Quant) involves using mathematical models to find patterns in price and volume that the human eye cannot see. Advanced investors use algorithms to execute trades at high speeds or to rebalance their portfolios based on complex \"Risk-Parity\" models."
+            },
+            {
+              "type": "p",
+              "text": "This approach removes human emotion from investing—the fear and greed that lead to poor decision-making. By building or using \"Rule-Based\" systems, you ensure that your capital is deployed with scientific precision. Even if you aren't a programmer, understanding \"Factor Investing\" (Value, Momentum, Quality) allows you to build a portfolio that outperforms the standard index over time."
+            },
+            {
+              "type": "p",
+              "text": "Action: Look up a \"Factor-Based\" ETF (e.g., MSCI World Quality Index) and compare its 10-year performance to a standard S&P 500 index."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L8_en",
+      "title": "Real Estate Syndication and Fund Management",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv5_L8",
+          "title": "Real Estate Syndication and Fund Management",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced real estate investing moves beyond owning individual apartments to \"Syndication\"—pooling capital with other high-net-worth individuals to acquire massive commercial assets like hospitals, malls, or logistics hubs. This allows you to access institutional-grade deals that are \"Off-Market\" and invisible to the general public."
+            },
+            {
+              "type": "p",
+              "text": "In a syndication, you may act as a \"Limited Partner\" (passive) or a \"General Partner\" (active). Understanding the fee structures (carried interest, acquisition fees) is essential for maximizing your return. This level of investing provides massive tax depreciation benefits and high-yield cash flow, while the management of the property is handled by professional operators."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the \"Waterfall Structure\" of a typical real estate syndication to understand how profits are distributed between the manager and the investors."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L9_en",
+      "title": "Fixed-Income Arbitrage and Yield Curve Plays",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv5_L9",
+          "title": "Fixed-Income Arbitrage and Yield Curve Plays",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced investors look at the \"Yield Curve\"—the difference in interest rates between short-term and long-term bonds. An \"Inverted Yield Curve\" often predicts a recession. Master strategists use this information to position their cash. They might use \"Fixed-Income Arbitrage\" to profit from small price discrepancies between different types of bonds."
+            },
+            {
+              "type": "p",
+              "text": "This involves using leverage to amplify the returns of very low-risk instruments. It requires sophisticated knowledge of interest rate movements and bond \"Duration.\" By understanding the bond market (which is much larger than the stock market), you gain the ultimate \"Early Warning System\" for the global economy, allowing you to protect your equities long before a crash happens."
+            },
+            {
+              "type": "p",
+              "text": "Action: Look up the current \"10-Year vs 2-Year Treasury Spread\"; if the number is negative, research what that has historically meant for the stock market."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L10_en",
+      "title": "Alternative Assets: Art, Rare Coins, and Wine",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_adv5_L10",
+          "title": "Alternative Assets: Art, Rare Coins, and Wine",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Once a core portfolio is established, advanced investors diversify into \"Alternative Assets\" that have zero correlation to the stock market. This includes fine art, rare collectibles, and high-end commodities. These assets often serve as a \"Store of Value\" that appreciates during periods of extreme inflation or social unrest."
+            },
+            {
+              "type": "p",
+              "text": "However, these markets are highly \"Illiquid\" and require expert appraisal. They are not for speculation but for \"Wealth Preservation.\" Owning a piece of history that cannot be \"printed\" or \"deleted\" provides a psychological and financial anchor for a multi-generational estate. They represent the \"Hardest\" of hard assets, often outperforming stocks over multi-decade horizons."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify one \"Alternative Asset\" class you are interested in and research the \"Compound Annual Growth Rate\" (CAGR) of that market over the last 20 years."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L11_en",
+      "title": "Risk Parity and the \"All-Weather\" Strategy",
+      "order": 11,
+      "sections": [
+        {
+          "id": "sec_adv5_L11",
+          "title": "Risk Parity and the \"All-Weather\" Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Most people diversify by \"Dollar Amount\"; advanced investors diversify by \"Risk Amount.\" Risk Parity involves balancing your portfolio so that each asset class contributes the same amount of risk. Because stocks are more volatile than bonds, a Risk Parity portfolio might hold more bonds—but use leverage to make those bonds provide stock-like returns."
+            },
+            {
+              "type": "p",
+              "text": "This is the core of Ray Dalio’s \"All-Weather\" strategy. It is designed to perform well in all four economic seasons: rising inflation, falling inflation, rising growth, and falling growth. It provides the highest \"Risk-Adjusted Return,\" ensuring that you never experience the massive \"Drawdowns\" (losses) that can set a financial plan back by a decade."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the \"Bridgewater All-Weather\" portfolio allocation and compare its volatility to a standard 60/40 stocks-bonds portfolio."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv5_L12_en",
+      "title": "Impact Investing and ESG Integration",
+      "order": 12,
+      "sections": [
+        {
+          "id": "sec_adv5_L12",
+          "title": "Impact Investing and ESG Integration",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final stage of investing is \"Impact Investing\"—using your capital to solve global problems while still making a profit. Advanced investors integrate Environmental, Social, and Governance (ESG) factors into their analysis, recognizing that companies with poor ethics are also at high risk of legal and regulatory failure."
+            },
+            {
+              "type": "p",
+              "text": "By investing in renewable energy, sustainable agriculture, or educational technology, you align your wealth with the \"Long-Term Trends\" of humanity. This isn't charity; it is \"Strategic Capital.\" Companies that solve the world's biggest problems are the ones that will receive the most government support and consumer loyalty over the next 50 years, ensuring both ethical and financial success."
+            },
+            {
+              "type": "p",
+              "text": "Action: Find the \"ESG Score\" of the largest company in your portfolio and identify if they have any significant \"Sustainability Risks\" (e.g., carbon taxes or labor issues)."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -105,6 +105,131 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv3_L5_en",
+      "title": "Multi-Jurisdictional Liquidity and Sovereign Risk",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv3_L5",
+          "title": "Multi-Jurisdictional Liquidity and Sovereign Risk",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Holding all your savings in a single country exposes you to \"Sovereign Risk\"—the danger that a government might freeze accounts, implement capital controls, or devalue the local currency overnight. Advanced strategists use Multi-Jurisdictional Liquidity, spreading their cash equivalents across different legal systems and currencies (e.g., USD in the UAE, EUR in Luxembourg, SGD in Singapore)."
+            },
+            {
+              "type": "p",
+              "text": "By diversifying your \"liquidity geography,\" you ensure that a local political or economic crisis doesn't paralyze your family's ability to function. This level of planning provides a \"Global Safety Net\" that is immune to the failures or policy shifts of any single nation-state, granting you absolute mobility and security in a volatile world."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify one offshore jurisdiction with a strong legal tradition where you could legally open a secondary liquidity account."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv3_L6_en",
+      "title": "Captive Insurance and Risk Retention Groups",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv3_L6",
+          "title": "Captive Insurance and Risk Retention Groups",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced saving involves moving from being an insurance consumer to a risk manager. This is achieved by creating a formal \"Self-Insurance\" structure or a \"Captive\" fund. Instead of paying high premiums to a third party for predictable or manageable risks (like appliance maintenance or minor professional errors), you set aside those premiums in a dedicated, tax-advantaged account."
+            },
+            {
+              "type": "p",
+              "text": "If no loss occurs, you keep the profit and the investment growth of those funds, rather than giving them to an insurance company. Over decades, these \"Risk Retention\" funds can grow into a massive asset class of their own, effectively insuring your life through your own accumulated capital. This represents the ultimate level of financial independence and wealth retention."
+            },
+            {
+              "type": "p",
+              "text": "Action: Analyze your total insurance premiums from the last 5 years versus the actual claims you made; calculate if a \"Self-Insurance\" fund would have yielded a profit."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv3_L7_en",
+      "title": "Dynamic Hedging of Liquid Reserves",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv3_L7",
+          "title": "Dynamic Hedging of Liquid Reserves",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Standard saving is static; advanced liquidity management is dynamic. If you hold large cash reserves in anticipation of a market crash, you are exposed to \"Inflation Decay.\" Advanced users use \"Dynamic Hedging\"—buying low-cost put options on the market or using currency futures—to protect the purchasing power of their cash while they wait."
+            },
+            {
+              "type": "p",
+              "text": "This allows you to maintain a high cash position (offensive liquidity) while being protected from a sudden surge in inflation or a massive currency devaluation. You effectively \"insure\" your cash reserves. This ensuring that when the opportunity to buy finally arrives, your \"dry powder\" still has its full explosive power to acquire assets at generational lows."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the cost of a \"Protective Put\" on a broad market ETF as a way to hedge your cash position during high-volatility periods."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv3_L8_en",
+      "title": "The Philosophy of the \"Permanent Portfolio\"",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv3_L8",
+          "title": "The Philosophy of the \"Permanent Portfolio\"",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The advanced saver often adopts the \"Permanent Portfolio\" strategy: a four-way split between Stocks, Bonds, Gold, and Cash. This structure is designed to survive any economic environment—Inflation, Deflation, Growth, or Recession—without the need for constant market timing. When one asset crashes, another in the portfolio is mathematically positioned to rise."
+            },
+            {
+              "type": "p",
+              "text": "By maintaining this balance, you remove the emotional stress of \"Saving.\" The portfolio rebalances itself automatically: you sell what is expensive (the winners) to buy what is \"on sale\" (the losers). This ensures your capital is always flowing toward value, providing a safe, consistent compounding machine that requires minimal intervention but offers maximum resilience."
+            },
+            {
+              "type": "p",
+              "text": "Action: Simulate a \"Permanent Portfolio\" allocation (25% each) for your current savings and see how it would have performed during the 2008 or 2020 market crashes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv3_L9_en",
+      "title": "Family Trust Liquidity and Spendthrift Provisions",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv3_L9",
+          "title": "Family Trust Liquidity and Spendthrift Provisions",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final level of advanced saving is protecting the capital from the next generation's mistakes. By placing your long-term savings into a Trust with \"Spendthrift Provisions,\" you ensure that the capital is preserved for family needs (education, healthcare) but cannot be seized by creditors or wasted on impulsive consumption by heirs."
+            },
+            {
+              "type": "p",
+              "text": "This creates a \"Family Bank\" that saves money across generations. Instead of heirs inheriting a lump sum and spending it, they \"borrow\" from the trust at low rates to start businesses or buy homes. This structure ensures that the family's \"Emergency Fund\" becomes a perpetual engine of wealth, supporting the lineage for centuries rather than being exhausted in a single lifetime."
+            },
+            {
+              "type": "p",
+              "text": "Action: Consult with a trust lawyer to understand how a \"Spendthrift Clause\" can protect your family's accumulated savings from future legal or personal risks."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -2,118 +2,231 @@
   "courseId": "insurance_literacy_intermediate_en",
   "locale": "en",
   "title": "Insurance Literacy",
-  "description": "Understand key person insurance, parametric coverage, captive entities, and estate tax planning.",
+  "description": "Explore self-insurance, umbrella policies, cash value vs term life, professional indemnity, and strategic group insurance.",
   "level": "intermediate",
-  "estimatedTime": "25 min",
+  "estimatedTime": "30 min",
   "lessons": [
     {
-      "lessonId": "p6_int_L1_en",
-      "title": "Liability Limits and Umbrella Policies",
+      "lessonId": "int6_L1_en",
+      "title": "Self-Insurance and Higher Deductibles As your emergency fund and wealth grow, you can practice \"Self-Insurance\". This involves choosing a higher deductible on your insurance policies, which significantly lowers your monthly premiums. Over several years, the savings in premiums often far exceed the cost of the deductible. This strategy effectively uses your emergency fund to handle small risks while keeping insurance only for catastrophic events. Action: Ask your insurance provider for a quote with a deductible that is double your current one. Calculate how many months of premium savings it would take to cover it.",
       "order": 1,
       "sections": [
         {
-          "id": "sec_p6_int_L1",
-          "title": "Liability Limits and Umbrella Policies",
+          "id": "sec_int6_L1",
+          "title": "Self-Insurance and Higher Deductibles As your emergency fund and wealth grow, you can practice \"Self-Insurance\". This involves choosing a higher deductible on your insurance policies, which significantly lowers your monthly premiums. Over several years, the savings in premiums often far exceed the cost of the deductible. This strategy effectively uses your emergency fund to handle small risks while keeping insurance only for catastrophic events. Action: Ask your insurance provider for a quote with a deductible that is double your current one. Calculate how many months of premium savings it would take to cover it.",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate insurance literacy means looking beyond \"is it covered?\" to \"how much is covered?\" Liability Limits represent the maximum amount an insurance company will pay for a claim. If you cause a major car accident where the damages exceed your policy limit, you are personally responsible for the difference. Intermediate users evaluate their net worth and often purchase an Umbrella Policy—additional liability insurance that sits on top of their home and auto policies to protect their assets from lawsuits and extreme claims."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the repairs and medical bills?"
+              "text": "Self-Insurance and Higher Deductibles As your emergency fund and wealth grow, you can practice \"Self-Insurance\". This involves choosing a higher deductible on your insurance policies, which significantly lowers your monthly premiums. Over several years, the savings in premiums often far exceed the cost of the deductible. This strategy effectively uses your emergency fund to handle small risks while keeping insurance only for catastrophic events. Action: Ask your insurance provider for a quote with a deductible that is double your current one. Calculate how many months of premium savings it would take to cover it."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p6_int_L2_en",
-      "title": "Cash Value vs. Term Life Insurance",
+      "lessonId": "int6_L2_en",
+      "title": "Liability Limits and Umbrella Policies Intermediate literacy means looking beyond whether an item is covered to how much is covered. Liability Limits represent the maximum amount an insurance company will pay; if damages exceed this, you are personally responsible, which could lead to bankruptcy. Intermediate users often purchase an \"Umbrella Policy\"—additional liability insurance that sits on top of home and auto policies. This inexpensive layer provides extra protection for your assets against lawsuits and extreme claims. Action: Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the medical bills?.",
       "order": 2,
       "sections": [
         {
-          "id": "sec_p6_int_L2",
-          "title": "Cash Value vs. Term Life Insurance",
+          "id": "sec_int6_L2",
+          "title": "Liability Limits and Umbrella Policies Intermediate literacy means looking beyond whether an item is covered to how much is covered. Liability Limits represent the maximum amount an insurance company will pay; if damages exceed this, you are personally responsible, which could lead to bankruptcy. Intermediate users often purchase an \"Umbrella Policy\"—additional liability insurance that sits on top of home and auto policies. This inexpensive layer provides extra protection for your assets against lawsuits and extreme claims. Action: Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the medical bills?.",
           "blocks": [
             {
               "type": "p",
-              "text": "There is a major debate in finance regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period (e.g., 20 years), while Whole Life acts as both insurance and an investment vehicle that builds a \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference.\" This means paying less for term insurance and putting the saved money into higher-growth investments like stocks, rather than letting the insurance company manage the investment for them at a higher fee."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount."
+              "text": "Liability Limits and Umbrella Policies Intermediate literacy means looking beyond whether an item is covered to how much is covered. Liability Limits represent the maximum amount an insurance company will pay; if damages exceed this, you are personally responsible, which could lead to bankruptcy. Intermediate users often purchase an \"Umbrella Policy\"—additional liability insurance that sits on top of home and auto policies. This inexpensive layer provides extra protection for your assets against lawsuits and extreme claims. Action: Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the medical bills?."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p6_int_L3_en",
-      "title": "Self-Insurance and Higher Deductibles",
+      "lessonId": "int6_L3_en",
+      "title": "Cash Value vs. Term Life Insurance There is a major debate regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period, while Whole Life acts as both insurance and an investment vehicle that builds \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference\". This means paying less for term insurance and putting the saved money into higher-growth investments like stocks, rather than paying higher fees to an insurance company to manage it for you. Action: Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount.",
       "order": 3,
       "sections": [
         {
-          "id": "sec_p6_int_L3",
-          "title": "Self-Insurance and Higher Deductibles",
+          "id": "sec_int6_L3",
+          "title": "Cash Value vs. Term Life Insurance There is a major debate regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period, while Whole Life acts as both insurance and an investment vehicle that builds \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference\". This means paying less for term insurance and putting the saved money into higher-growth investments like stocks, rather than paying higher fees to an insurance company to manage it for you. Action: Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount.",
           "blocks": [
             {
               "type": "p",
-              "text": "As your emergency fund and wealth grow, you can practice Self-Insurance. This involves choosing a higher deductible on your insurance policies (car, home, health). A higher deductible means you pay more in the event of a small claim, but your monthly premium drops significantly. Over several years, the savings in premiums often far exceed the cost of the deductible. This intermediate strategy is effectively \"betting on yourself\" and using your emergency fund to handle small risks while keeping the insurance only for catastrophic events."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Ask your insurance provider for a quote on your car or health insurance with a deductible that is double your current one. Calculate how many months it would take for the premium savings to cover that deductible."
+              "text": "Cash Value vs. Term Life Insurance There is a major debate regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period, while Whole Life acts as both insurance and an investment vehicle that builds \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference\". This means paying less for term insurance and putting the saved money into higher-growth investments like stocks, rather than paying higher fees to an insurance company to manage it for you. Action: Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p6_int_L4_en",
-      "title": "Liability Limits and Umbrella Policies",
+      "lessonId": "int6_L4_en",
+      "title": "The Concept of \"Maximum Out-of-Pocket\"",
       "order": 4,
       "sections": [
         {
-          "id": "sec_p6_int_L4",
-          "title": "Liability Limits and Umbrella Policies",
+          "id": "sec_int6_L4",
+          "title": "The Concept of \"Maximum Out-of-Pocket\"",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate insurance literacy means looking beyond \"is it covered?\" to \"how much is covered?\" Liability Limits represent the maximum amount an insurance company will pay for a claim. If you cause a major car accident where the damages exceed your policy limit, you are personally responsible for the difference, which could bankrupt you."
+              "text": "Intermediate insurance users look past monthly premiums to the \"Maximum Out-of-Pocket\" (MOOP) limit. This is the absolute most you will pay in a year for covered services before the insurance company pays 100%."
             },
             {
               "type": "p",
-              "text": "Intermediate users evaluate their net worth and often purchase an Umbrella Policy—additional liability insurance that sits on top of their home and auto policies. It is very inexpensive but provides millions in extra protection. This ensures that even in an extreme scenario, your home, your savings, and your future income are protected from lawsuits and extreme claims. It is the \"Peace of Mind\" layer of a mature financial plan."
+              "text": "Understanding this number allows you to \"cap\" your financial risk. It ensures that even a catastrophic medical event cannot drain your entire net worth, as you have a known, fixed maximum exposure for the year."
             },
             {
-              "type": "action_prompt",
-              "text": "Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the repairs and medical bills?"
+              "type": "p",
+              "text": "Action: Find the \"Maximum Out-of-Pocket\" limit on your current health or car insurance policy and ensure your emergency fund can cover it."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p6_int_L5_en",
-      "title": "Cash Value vs. Term Life Insurance",
+      "lessonId": "int6_L5_en",
+      "title": "Professional Indemnity and Malpractice Insurance",
       "order": 5,
       "sections": [
         {
-          "id": "sec_p6_int_L5",
-          "title": "Cash Value vs. Term Life Insurance",
+          "id": "sec_int6_L5",
+          "title": "Professional Indemnity and Malpractice Insurance",
           "blocks": [
             {
               "type": "p",
-              "text": "There is a major debate in finance regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period (e.g., 20 years), while Whole Life acts as both insurance and an investment vehicle that builds a \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference.\""
+              "text": "For self-employed individuals or SMEs, personal insurance isn't enough. Professional Indemnity insurance protects you against claims of negligence or mistakes in your work that cause a client financial loss."
             },
             {
               "type": "p",
-              "text": "This means paying less for term insurance and putting the saved money into higher-growth investments like stocks. However, for some high-earners, Whole Life can serve as a tax-advantaged \"private bank.\" Understanding the pros and cons of both allows you to choose the right tool for your specific legacy goals. The key is to never let an insurance agent sell you a product you haven't mathematically modeled against your other investment options."
+              "text": "As an intermediate professional, this is a vital shield that separates your personal savings from your professional liabilities. It ensures that a single mistake in a contract or a project doesn't result in a lawsuit that wipes out your personal wealth."
             },
             {
-              "type": "action_prompt",
-              "text": "Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount."
+              "type": "p",
+              "text": "Action: If you provide consulting or technical services, get a quote for professional indemnity insurance to see the cost of protecting your career capital."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int6_L6_en",
+      "title": "Understanding Insurance Riders",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_int6_L6",
+          "title": "Understanding Insurance Riders",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A \"Rider\" is an add-on to a standard insurance policy that provides extra protection for specific risks. Intermediate users evaluate these individually—such as critical illness or accidental death riders—rather than buying expensive \"all-in-one\" packages."
+            },
+            {
+              "type": "p",
+              "text": "This allows you to customize your coverage to fit your specific lifestyle and family needs. By choosing only the riders that are truly relevant to your situation, you maintain a high level of protection while keeping your premium costs optimized."
+            },
+            {
+              "type": "p",
+              "text": "Action: Review your life or health insurance policy for any \"riders\" and determine if the cost of each one is justified by your current risk profile."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int6_L7_en",
+      "title": "The Claims Settlement Ratio (CSR)",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_int6_L7",
+          "title": "The Claims Settlement Ratio (CSR)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "When choosing an insurer, the price isn't the only factor; the Claims Settlement Ratio (CSR) tells you the percentage of claims the company actually pays out. A low price is useless if the company has a history of rejecting legitimate claims during a crisis."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate literacy involves researching the CSR of a company before signing a policy. You want a provider with a high ratio (ideally above 95%), ensuring they will actually be there to support you when you need to make a claim."
+            },
+            {
+              "type": "p",
+              "text": "Action: Look up the \"Claims Settlement Ratio\" of your current insurance provider online to ensure it is above 95%."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int6_L8_en",
+      "title": "Re-Evaluating Coverage at Life Milestones",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_int6_L8",
+          "title": "Re-Evaluating Coverage at Life Milestones",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Insurance is not a \"set it and forget it\" tool. Intermediate users re-evaluate their coverage every time a major life event occurs, such as marriage, the birth of a child, or buying a home."
+            },
+            {
+              "type": "p",
+              "text": "These milestones change your financial responsibilities and the amount of protection your family needs. Regular reviews ensure you are neither under-insured (leaving loved ones at risk) nor over-insured (wasting capital on unnecessary premiums)."
+            },
+            {
+              "type": "p",
+              "text": "Action: Schedule a 15-minute review of your total insurance coverage for the upcoming weekend to see if it still aligns with your current life stage."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int6_L9_en",
+      "title": "Understanding Disability and Income Protection",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_int6_L9",
+          "title": "Understanding Disability and Income Protection",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Your biggest asset isn't your house or your car; it's your ability to earn an income over the next 20 to 30 years. Disability insurance provides a portion of your salary if you are unable to work due to illness or injury."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate users recognize that even a few years of lost income can derail a financial plan permanently. Having a robust income protection policy ensures that your lifestyle and your family's future remain secure even if you face health challenges."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research if your current employer provides disability insurance and what percentage of your salary it would cover."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int6_L10_en",
+      "title": "The Strategic Use of Group Insurance",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_int6_L10",
+          "title": "The Strategic Use of Group Insurance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Many employers offer group insurance rates that are much lower than individual policies. Intermediate users maximize these benefits but are careful not to rely on them exclusively, as the coverage often disappears if you change jobs."
+            },
+            {
+              "type": "p",
+              "text": "The strategy is to use group insurance as a primary layer of protection while maintaining a small, private \"portable\" policy. This ensures you are always covered during career transitions and can access higher total coverage amounts at a lower average cost."
+            },
+            {
+              "type": "p",
+              "text": "Action: Compare the cost and coverage of your employer's group life insurance plan with an individual term life policy."
             }
           ]
         }

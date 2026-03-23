@@ -105,6 +105,231 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv8_L5_en",
+      "title": "Exit Strategy: EBITDA Multiples and M&A Dynamics",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv8_L5",
+          "title": "Exit Strategy: EBITDA Multiples and M&A Dynamics",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "An advanced entrepreneur builds a business with the ultimate intent to sell it. The valuation of your SME is usually based on a \"Multiple of EBITDA\" (Earnings Before Interest, Taxes, Depreciation, and Amortization). To maximize your exit price, you must clean up your financial \"hygiene\" years in advance, ensuring your EBITDA is transparent, growing, and \"normalized\" for non-recurring expenses."
+            },
+            {
+              "type": "p",
+              "text": "Understanding Mergers & Acquisitions (M&A) allows you to position your company as a \"strategic acquisition\" for a larger player, who may pay a \"Synergy Premium\" far higher than a simple financial sale. This is the \"Payday\" that turns a decade of hard work into generational wealth. You move from being an operator to being a \"Dealmaker,\" focusing on the enterprise value of the firm."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research the average \"EBITDA Multiple\" for your specific industry and calculate your theoretical \"Exit Value\" based on last year's performance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L6_en",
+      "title": "Sophisticated Treasury Management and Price Hedging",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv8_L6",
+          "title": "Sophisticated Treasury Management and Price Hedging",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For an SME doing international business, \"Treasury Management\" is a profit center. This involves managing the company's cash to maximize interest income while simultaneously hedging against currency and commodity price risks. Advanced managers use \"Forward Contracts\" or \"Swaps\" to lock in prices for their raw materials or their export revenue months in advance."
+            },
+            {
+              "type": "p",
+              "text": "This ensures that a sudden 10% move in the price of oil or the value of a currency doesn't wipe out the entire year's profits. By professionalizing your treasury, you protect your margins from external shocks that you cannot control. It is about creating a \"Predictable Profit Engine\" that remains stable while your competitors are struggling with fluctuating costs and unpredictable cash flow."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify your company's biggest external price risk (e.g., Fuel or Exchange Rates) and find one hedging tool that would allow you to lock in that price for 6 months."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L7_en",
+      "title": "Equity Incentive Plans and Talent Retention at Scale",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv8_L7",
+          "title": "Equity Incentive Plans and Talent Retention at Scale",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the advanced tier, the \"capital\" you manage is not just financial, but human. To attract and retain world-class talent, you must use sophisticated Equity Incentive Plans, such as \"Employee Stock Option Plans\" (ESOPs) or \"Phantom Stock.\" This aligns the interests of your key employees with the long-term growth of the company—if the company's value increases, they become wealthy alongside you."
+            },
+            {
+              "type": "p",
+              "text": "Designing these plans requires careful legal structuring to ensure they are motivating for the employee but protective for the founder (e.g., \"Vesting\" periods). It turns your staff into \"partners\" and creates a culture of ownership where everyone is focused on the \"exit value\" of the firm. This is how the most successful SMEs in the world scale from a small team to a global powerhouse."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research \"Vesting Schedules\" for employee stock options and draft a one-page \"Term Sheet\" for how an equity plan could be offered to your top three employees."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L8_en",
+      "title": "Activity-Based Costing (ABC) and Profitability Mapping",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv8_L8",
+          "title": "Activity-Based Costing (ABC) and Profitability Mapping",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Standard accounting tells you if the company is profitable; \"Activity-Based Costing\" (ABC) tells you which specific customers or products are making money. Advanced managers assign indirect costs (rent, admin, tech) to specific activities. This often reveals that 20% of your customers are providing 80% of your profit, while others may actually be costing you money to serve."
+            },
+            {
+              "type": "p",
+              "text": "Mapping your profitability allows you to make the difficult decision to \"fire\" unprofitable customers or discontinue low-margin products. By focusing your limited resources only on \"High-Alpha\" activities, you dramatically increase the efficiency of your business. It is the move from \"Top-Line Growth\" to \"Bottom-Line Optimization,\" ensuring that every hour of labor produces the maximum possible profit."
+            },
+            {
+              "type": "p",
+              "text": "Action: Select your three largest customers and calculate their \"Net Profitability\" after subtracting the specific time and resources your team spends supporting them."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L9_en",
+      "title": "Leveraged Buyouts (LBO) for SME Expansion",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_adv8_L9",
+          "title": "Leveraged Buyouts (LBO) for SME Expansion",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced SME growth often happens through \"Acquisition\" rather than organic sales. A \"Leveraged Buyout\" (LBO) involves buying a competitor using the competitor’s own assets as collateral for the loan. You use very little of your own cash to acquire a company that already has cash flow and customers."
+            },
+            {
+              "type": "p",
+              "text": "The goal is to use the acquired company’s profits to pay off the debt used to buy it. This \"Debt-Funded Growth\" allows you to double the size of your business overnight. It requires sophisticated financial modeling to ensure the cash flow is sufficient to cover the interest payments. It is the ultimate tool for \"Market Consolidation\" and building a regional leader."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify a smaller competitor in your region and estimate their valuation; could their current cash flow support a loan that covers 70% of their purchase price?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L10_en",
+      "title": "Unit Economics and the \"Rule of 40\"",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_adv8_L10",
+          "title": "Unit Economics and the \"Rule of 40\"",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For high-growth SMEs (especially in tech/services), the \"Rule of 40\" is the gold standard for health. It states that your \"Growth Rate\" plus your \"Profit Margin\" should equal at least 40%. If you are growing at 50%, you can afford to lose 10%; if you are growing at 10%, you must have a 30% margin."
+            },
+            {
+              "type": "p",
+              "text": "Advanced managers use this to balance \"Aggressive Expansion\" with \"Financial Discipline.\" If your total is below 40%, it signals that your \"Unit Economics\" (LTV/CAC) are broken and your growth is inefficient. Mastering this ratio ensures that your business remains attractive to investors and banks, as it proves that your model is scalable and fundamentally sound."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate your company's \"Rule of 40\" score for the last fiscal year (Annual Growth % + Net Profit Margin %)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L11_en",
+      "title": "Supply Chain Finance and Reverse Factoring",
+      "order": 11,
+      "sections": [
+        {
+          "id": "sec_adv8_L11",
+          "title": "Supply Chain Finance and Reverse Factoring",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced SMEs optimize their \"Payables\" using Supply Chain Finance. \"Reverse Factoring\" allows your suppliers to get paid early by a bank, based on your high credit rating, while you still get to keep your cash for 60 or 90 days. It is a \"Win-Win\" that strengthens your supply chain without hurting your liquidity."
+            },
+            {
+              "type": "p",
+              "text": "By providing your suppliers with cheap capital (through your credit), you can negotiate better prices and ensure they remain loyal during shortages. It turns your \"Accounts Payable\" department into a strategic tool for relationship management. It is a hallmark of an institutionalized business that uses its financial strength to support its entire ecosystem."
+            },
+            {
+              "type": "p",
+              "text": "Action: Ask your bank if they offer a \"Supply Chain Finance\" program that your primary suppliers could join to get paid within 15 days instead of 60."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L12_en",
+      "title": "Economic Value Added (EVA) and Capital Charges",
+      "order": 12,
+      "sections": [
+        {
+          "id": "sec_adv8_L12",
+          "title": "Economic Value Added (EVA) and Capital Charges",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "\"Economic Value Added\" (EVA) is a measure of \"True Profit.\" It is your Net Profit minus a \"Charge\" for the cost of the capital you used (both debt and equity). Many businesses that look \"profitable\" are actually \"Value Destroyers\" because their profit is lower than what the owners could have earned by just putting their money in the stock market."
+            },
+            {
+              "type": "p",
+              "text": "Advanced managers use EVA to evaluate projects. If a new branch makes a 10% profit but your \"Cost of Capital\" is 12%, that branch is actually making you poorer. By focusing on EVA, you ensure that every project you undertake is creating \"Real Wealth\" beyond just accounting earnings. It aligns management perfectly with the long-term interests of the shareholders."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate your company's EVA: Net Operating Profit After Tax (NOPAT) - (Total Capital Employed x WACC)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv8_L13_en",
+      "title": "Fractional Leadership and Outsourced Excellence",
+      "order": 13,
+      "sections": [
+        {
+          "id": "sec_adv8_L13",
+          "title": "Fractional Leadership and Outsourced Excellence",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final level of SME management is \"De-Risking\" the leadership. Advanced owners move from being \"The Boss\" to being \"The Chairman.\" They use \"Fractional\" (part-time) C-level executives—CFOs, CTOs, or CMOs—to bring world-class expertise to the firm at a fraction of the cost of a full-time hire."
+            },
+            {
+              "type": "p",
+              "text": "This allows an SME to have \"Big Company Brains\" on a \"Small Company Budget.\" It ensures that your financial strategy, technology roadmap, and marketing are handled by experts who have seen the journey from 10 million to 100 million before. It is the ultimate strategic move to prepare your business for a professional exit or a massive scale-up."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify the one area of your business where you feel most \"out of your depth\" (e.g., Tax Strategy or AI Integration) and research \"Fractional\" leaders in that sector."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

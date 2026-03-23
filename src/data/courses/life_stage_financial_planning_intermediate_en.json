@@ -2,118 +2,231 @@
   "courseId": "life_stage_financial_planning_intermediate_en",
   "locale": "en",
   "title": "Life Stage Financial Planning",
-  "description": "Leverage human capital, navigate the sandwich generation, and plan retirement withdrawal strategies.",
+  "description": "Learn about education funding, career pivot finances, mid-life insurance review, retirement planning, and legacy preparation.",
   "level": "intermediate",
-  "estimatedTime": "25 min",
+  "estimatedTime": "30 min",
   "lessons": [
     {
-      "lessonId": "p10_int_L1_en",
-      "title": "Career Capital and Human Capital",
+      "lessonId": "int10_L1_en",
+      "title": "Retirement Withdrawal Strategies Once you have built a \"nest egg,\" the challenge shifts to withdrawal strategies. Intermediate planning moves beyond the basic \"4% Rule\" to consider tax-efficient withdrawals and the \"Sequence of Returns Risk,\" which recognizes that a market crash in the early years of retirement is much more dangerous than one later on. Learning to adjust spending based on market performance ensures your money lasts through your entire life. This proactive approach helps you maintain your lifestyle while protecting your principal from premature depletion. Action: Research \"Sequence of Returns Risk\" and see how a 20% market drop in Year 1 of retirement impacts a portfolio differently than in Year 15.",
       "order": 1,
       "sections": [
         {
-          "id": "sec_p10_int_L1",
-          "title": "Career Capital and Human Capital",
+          "id": "sec_int10_L1",
+          "title": "Retirement Withdrawal Strategies Once you have built a \"nest egg,\" the challenge shifts to withdrawal strategies. Intermediate planning moves beyond the basic \"4% Rule\" to consider tax-efficient withdrawals and the \"Sequence of Returns Risk,\" which recognizes that a market crash in the early years of retirement is much more dangerous than one later on. Learning to adjust spending based on market performance ensures your money lasts through your entire life. This proactive approach helps you maintain your lifestyle while protecting your principal from premature depletion. Action: Research \"Sequence of Returns Risk\" and see how a 20% market drop in Year 1 of retirement impacts a portfolio differently than in Year 15.",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate planning looks at you as an asset. Human Capital is the total value of your future earnings. When you are young, your human capital is high, but your financial capital (savings) is low. As you age, you convert human capital into financial capital. To maximize this, you must invest in Career Capital—the rare and valuable skills that allow you to command higher pay. Instead of just saving money, intermediate users actively spend on certifications, networking, and high-level training to increase the value of their biggest asset: themselves."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Identify one skill in your industry that is in high demand and low supply. Research the cost of a certification or course to master it."
+              "text": "Retirement Withdrawal Strategies Once you have built a \"nest egg,\" the challenge shifts to withdrawal strategies. Intermediate planning moves beyond the basic \"4% Rule\" to consider tax-efficient withdrawals and the \"Sequence of Returns Risk,\" which recognizes that a market crash in the early years of retirement is much more dangerous than one later on. Learning to adjust spending based on market performance ensures your money lasts through your entire life. This proactive approach helps you maintain your lifestyle while protecting your principal from premature depletion. Action: Research \"Sequence of Returns Risk\" and see how a 20% market drop in Year 1 of retirement impacts a portfolio differently than in Year 15."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p10_int_L2_en",
-      "title": "The Sandwich Generation Dilemma",
+      "lessonId": "int10_L2_en",
+      "title": "Career Capital and Human Capital Intermediate planning views you as a financial asset, where \"Human Capital\" is the total value of your future earnings. When you are young, your Human Capital is high, and your focus should be on maximizing it by investing in \"Career Capital\"—rare and valuable skills that command higher pay. Spending on certifications or high-level training to increase your \"Value per Hour\" is often the most efficient investment you can make. A 10% salary increase from a new skill often provides a higher return than a 10% gain on a small stock portfolio. Action: Identify one skill in your industry that is in high demand and research the cost of a course to master it.",
       "order": 2,
       "sections": [
         {
-          "id": "sec_p10_int_L2",
-          "title": "The Sandwich Generation Dilemma",
+          "id": "sec_int10_L2",
+          "title": "Career Capital and Human Capital Intermediate planning views you as a financial asset, where \"Human Capital\" is the total value of your future earnings. When you are young, your Human Capital is high, and your focus should be on maximizing it by investing in \"Career Capital\"—rare and valuable skills that command higher pay. Spending on certifications or high-level training to increase your \"Value per Hour\" is often the most efficient investment you can make. A 10% salary increase from a new skill often provides a higher return than a 10% gain on a small stock portfolio. Action: Identify one skill in your industry that is in high demand and research the cost of a course to master it.",
           "blocks": [
             {
               "type": "p",
-              "text": "Many intermediate users enter the \"Sandwich Generation\" stage—where they are financially supporting both their growing children and their aging parents. This requires a complex balancing act. Intermediate planning involves creating \"Sinking Funds\" for parents' healthcare while simultaneously funding children's education. It is vital to prioritize your own retirement savings during this stage; if you sacrifice your retirement for others, you risk becoming a financial burden on your children later, continuing the cycle."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Estimate the potential healthcare costs for your parents over the next 5 years and discuss with siblings how a shared family fund could be structured."
+              "text": "Career Capital and Human Capital Intermediate planning views you as a financial asset, where \"Human Capital\" is the total value of your future earnings. When you are young, your Human Capital is high, and your focus should be on maximizing it by investing in \"Career Capital\"—rare and valuable skills that command higher pay. Spending on certifications or high-level training to increase your \"Value per Hour\" is often the most efficient investment you can make. A 10% salary increase from a new skill often provides a higher return than a 10% gain on a small stock portfolio. Action: Identify one skill in your industry that is in high demand and research the cost of a course to master it."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p10_int_L3_en",
-      "title": "Retirement Withdrawal Strategies",
+      "lessonId": "int10_L3_en",
+      "title": "The Sandwich Generation Dilemma Many intermediate users enter the \"Sandwich Generation\" stage, where they must simultaneously support their children and their aging parents. This requires a complex balancing act, such as creating sinking funds for parental healthcare while funding education and retirement. It is vital to prioritize your own retirement savings during this stage; if you sacrifice your future for others, you risk becoming a financial burden on your children later. Mature financial leaders learn to set compassionate but firm boundaries. Action: Estimate healthcare costs for your parents over the next 5 years and discuss a shared family fund with siblings.",
       "order": 3,
       "sections": [
         {
-          "id": "sec_p10_int_L3",
-          "title": "Retirement Withdrawal Strategies",
+          "id": "sec_int10_L3",
+          "title": "The Sandwich Generation Dilemma Many intermediate users enter the \"Sandwich Generation\" stage, where they must simultaneously support their children and their aging parents. This requires a complex balancing act, such as creating sinking funds for parental healthcare while funding education and retirement. It is vital to prioritize your own retirement savings during this stage; if you sacrifice your future for others, you risk becoming a financial burden on your children later. Mature financial leaders learn to set compassionate but firm boundaries. Action: Estimate healthcare costs for your parents over the next 5 years and discuss a shared family fund with siblings.",
           "blocks": [
             {
               "type": "p",
-              "text": "Once you have a nest egg, you must plan how to take the money out. Intermediate planning moves beyond the \"4% Rule\" to consider Tax-Efficient Withdrawals and Sequence of Returns Risk. This means knowing which accounts to empty first to minimize taxes and understanding that a market crash in the first few years of retirement is much more dangerous than a crash later on. Learning to adjust your spending based on market performance (the \"Guardrails\" approach) ensures your money lasts through your entire life."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Research the \"Sequence of Returns Risk\" and see how a 20% market drop in Year 1 of retirement impacts a portfolio differently than a 20% drop in Year 15."
+              "text": "The Sandwich Generation Dilemma Many intermediate users enter the \"Sandwich Generation\" stage, where they must simultaneously support their children and their aging parents. This requires a complex balancing act, such as creating sinking funds for parental healthcare while funding education and retirement. It is vital to prioritize your own retirement savings during this stage; if you sacrifice your future for others, you risk becoming a financial burden on your children later. Mature financial leaders learn to set compassionate but firm boundaries. Action: Estimate healthcare costs for your parents over the next 5 years and discuss a shared family fund with siblings."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p10_int_L4_en",
-      "title": "Career Capital and Human Capital",
+      "lessonId": "int10_L4_en",
+      "title": "Hedging the \"Single Point of Failure\"",
       "order": 4,
       "sections": [
         {
-          "id": "sec_p10_int_L4",
-          "title": "Career Capital and Human Capital",
+          "id": "sec_int10_L4",
+          "title": "Hedging the \"Single Point of Failure\"",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate planning looks at you as an asset. Human Capital is the total value of your future earnings. When you are young, your human capital is high, but your financial capital is low. To maximize your lifetime wealth, you must invest in Career Capital—the rare and valuable skills that allow you to command higher pay or start more successful businesses."
+              "text": "Intermediate planners identify their \"Single Point of Failure\"—usually their own ability to work and earn an income. If you are the primary provider, your \"Human Capital\" is your most valuable asset, but it is also your most vulnerable one."
             },
             {
               "type": "p",
-              "text": "Instead of just saving money, intermediate users actively spend on certifications, networking, and high-level training to increase the \"Value per Hour\" of their biggest asset: themselves. This is the most efficient investment you can make; a 10% increase in your salary through a new skill often provides a higher return than a 10% return on a small stock portfolio."
+              "text": "To hedge this risk, you must invest in disability insurance and a \"Career Moat\" of diverse skills. This ensures that even if your primary industry collapses or you face health challenges, your family's financial foundation remains secure."
             },
             {
-              "type": "action_prompt",
-              "text": "Identify one skill in your industry that is in high demand and low supply. Research the cost of a certification or course to master it."
+              "type": "p",
+              "text": "Action: List the top three risks to your current income and write one step you can take to mitigate each (e.g., learning a new software or increasing your emergency fund)."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p10_int_L5_en",
-      "title": "The Sandwich Generation Dilemma",
+      "lessonId": "int10_L5_en",
+      "title": "The Multi-Generational Wealth Mindset",
       "order": 5,
       "sections": [
         {
-          "id": "sec_p10_int_L5",
-          "title": "The Sandwich Generation Dilemma",
+          "id": "sec_int10_L5",
+          "title": "The Multi-Generational Wealth Mindset",
           "blocks": [
             {
               "type": "p",
-              "text": "Many intermediate users enter the \"Sandwich Generation\" stage—where they are financially supporting both their children and their aging parents. This requires a complex balancing act. Intermediate planning involves creating \"Sinking Funds\" for parents' healthcare while simultaneously funding children's education and your own retirement."
+              "text": "Intermediate planning shifts the focus from individual accumulation to family resource management. This involves teaching financial literacy to children early and having transparent discussions about inheritance or \"Waqf\" (endowment) structures with aging parents."
             },
             {
               "type": "p",
-              "text": "It is vital to prioritize your own retirement savings during this stage; if you sacrifice your retirement for others, you risk becoming a financial burden on your children later, continuing the cycle of the sandwich generation. Learning to set \"Financial Boundaries\" with family while providing compassionate support is the hallmark of a mature financial leader."
+              "text": "By treating wealth as a family asset, you prevent the common \"three-generation cycle\" where wealth is made by the first, managed by the second, and lost by the third. Formalizing these structures ensures that your hard work benefits your descendants for decades."
             },
             {
-              "type": "action_prompt",
-              "text": "Estimate the potential healthcare costs for your parents over the next 5 years and discuss with siblings how a shared family fund could be structured."
+              "type": "p",
+              "text": "Action: Schedule a \"Family Financial Summit\" this month to discuss long-term goals and boundaries with your partner or parents."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int10_L6_en",
+      "title": "Planning for Longevity Risk",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_int10_L6",
+          "title": "Planning for Longevity Risk",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Longevity risk is the danger of outliving your money. As life expectancy increases, intermediate planners must ensure their portfolio can support them for 30 or even 40 years of retirement, accounting for the rising costs of healthcare and long-term care."
+            },
+            {
+              "type": "p",
+              "text": "To combat this, you must maintain a portion of your portfolio in growth assets (stocks) even during retirement. This ensures your capital keeps pace with inflation rather than being purely consumed, providing a safety net for your very late years."
+            },
+            {
+              "type": "p",
+              "text": "Action: Use a retirement calculator to see if your current savings rate will support you until age 90, assuming a 3% annual inflation rate."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int10_L7_en",
+      "title": "Tax-Efficient Legacy Planning",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_int10_L7",
+          "title": "Tax-Efficient Legacy Planning",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate planning includes looking at how your wealth will be transferred after you are gone. Proper legacy planning ensures that as much of your wealth as possible goes to your heirs or chosen charities rather than being lost to legal fees or unnecessary taxes."
+            },
+            {
+              "type": "p",
+              "text": "By setting up clear beneficiaries on all accounts and creating a legal will, you remove the burden of decision-making from your grieving family. It is the final act of financial stewardship, ensuring your values continue to be supported by your capital."
+            },
+            {
+              "type": "p",
+              "text": "Action: Check the beneficiary designations on your bank accounts and insurance policies to ensure they are up to date and legally valid."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int10_L8_en",
+      "title": "Bridging the \"Gap Years\" in Early Retirement",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_int10_L8",
+          "title": "Bridging the \"Gap Years\" in Early Retirement",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you plan to retire before the official pension age, you face \"Gap Years\" where you must live off your private savings without government or employer support. Intermediate users build \"Bridge Accounts\"—liquid, accessible funds specifically for this period."
+            },
+            {
+              "type": "p",
+              "text": "This prevents you from having to touch your long-term retirement accounts too early, which often carries heavy penalties. Strategic planning for these years is the key to successfully launching into early retirement without jeopardizing your long-term solvency."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate how many years are between your goal retirement age and your country’s official pension age; multiply this by your annual survival budget."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int10_L9_en",
+      "title": "Managing the \"Sequence of Returns\" Risk",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_int10_L9",
+          "title": "Managing the \"Sequence of Returns\" Risk",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The order in which your investment returns occur matters greatly at the start of retirement. A market crash in the first 2 years is much more damaging than a crash in year 20 because you are withdrawing money from a shrinking principal."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate users mitigate this by having a \"Cash Buffer\" of 2 years of expenses in cash or money market funds. This allows them to avoid selling stocks during a market downturn, giving their portfolio time to recover while they live off their cash reserves."
+            },
+            {
+              "type": "p",
+              "text": "Action: If you are within 5 years of a major life transition (retirement or business launch), identify a \"Safe Bucket\" of 2 years of expenses in cash."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int10_L10_en",
+      "title": "Philanthropy and Impact Investing",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_int10_L10",
+          "title": "Philanthropy and Impact Investing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate financial maturity involves looking beyond personal accumulation to societal impact. This means choosing investments that align with your values or setting up a structured giving plan that supports causes you believe in."
+            },
+            {
+              "type": "p",
+              "text": "Impact investing allows your capital to do good in the world while still earning a return. By formalizing your philanthropy, you ensure that your financial success is not just a personal victory, but a source of blessing (Barakah) for the wider community."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify one cause or organization you care about and decide on a small, recurring percentage of your profit to automate as a donation."
             }
           ]
         }

@@ -1,98 +1,240 @@
 {
   "courseId": "islamic_finance_basics_intermediate_en",
   "locale": "en",
-  "title": "Islamic Finance Basics",
-  "description": "Distinguish Mudaraba from Musharaka, learn income purification, and apply advanced Islamic finance principles.",
+  "title": "Islamic Finance",
+  "description": "Explore murabaha markup structures, investment purification, sukuk basics, takaful vs conventional, and Islamic fintech.",
   "level": "intermediate",
-  "estimatedTime": "20 min",
+  "estimatedTime": "30 min",
   "lessons": [
     {
-      "lessonId": "p9_int_L1_en",
-      "title": "Understanding Mudaraba vs. Musharaka",
+      "lessonId": "int9_L1_en",
+      "title": "Understanding Mudaraba vs. Musharaka While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides capital and the other provides labor and expertise; if the business loses money, the capital provider loses cash while the expert loses time. In Musharaka, both parties provide capital and share in the management. Understanding these differences is vital for aligning the legal and religious framework with the specific risk profile of each partner. Action: If you were to start a business today, decide if Mudaraba or Musharaka is more appropriate for your role.",
       "order": 1,
       "sections": [
         {
-          "id": "sec_p9_int_L1",
-          "title": "Understanding Mudaraba vs. Musharaka",
+          "id": "sec_int9_L1",
+          "title": "Understanding Mudaraba vs. Musharaka While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides capital and the other provides labor and expertise; if the business loses money, the capital provider loses cash while the expert loses time. In Musharaka, both parties provide capital and share in the management. Understanding these differences is vital for aligning the legal and religious framework with the specific risk profile of each partner. Action: If you were to start a business today, decide if Mudaraba or Musharaka is more appropriate for your role.",
           "blocks": [
             {
               "type": "p",
-              "text": "While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides the capital (Rab-ul-Mal) and the other provides the labor/expertise (Mudarib). If the business loses money, the capital provider loses their cash, while the expert loses their time and effort. In Musharaka, both parties provide capital and both share in the management. Understanding these differences is vital when entering into a business partnership or choosing a private equity investment that aligns with Sharia."
-            },
-            {
-              "type": "action_prompt",
-              "text": "If you were to start a business with a partner today, decide if a Mudaraba (you provide expertise) or Musharaka (you both provide cash and work) is more appropriate."
+              "text": "Understanding Mudaraba vs. Musharaka While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides capital and the other provides labor and expertise; if the business loses money, the capital provider loses cash while the expert loses time. In Musharaka, both parties provide capital and share in the management. Understanding these differences is vital for aligning the legal and religious framework with the specific risk profile of each partner. Action: If you were to start a business today, decide if Mudaraba or Musharaka is more appropriate for your role."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p9_int_L2_en",
-      "title": "Purification of Investment Income",
+      "lessonId": "int9_L2_en",
+      "title": "Purification of Investment Income Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts. To keep your wealth \"pure,\" you must calculate this non-compliant portion and donate it to charity. This ensures your growth is ethically clean and demonstrates a higher level of financial stewardship. Action: Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund and calculate the donation amount for a 1,000 unit investment.",
       "order": 2,
       "sections": [
         {
-          "id": "sec_p9_int_L2",
-          "title": "Purification of Investment Income",
+          "id": "sec_int9_L2",
+          "title": "Purification of Investment Income Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts. To keep your wealth \"pure,\" you must calculate this non-compliant portion and donate it to charity. This ensures your growth is ethically clean and demonstrates a higher level of financial stewardship. Action: Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund and calculate the donation amount for a 1,000 unit investment.",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts. To keep your wealth \"pure,\" you must calculate this non-compliant portion (often found in the fund’s annual report) and donate it to charity. This ensures that your growth is ethically clean and that your portfolio adheres strictly to the spirit of Islamic finance."
-            },
-            {
-              "type": "action_prompt",
-              "text": "Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund you are interested in and calculate how much you would need to donate based on a 1,000-unit investment."
+              "text": "Purification of Investment Income Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts. To keep your wealth \"pure,\" you must calculate this non-compliant portion and donate it to charity. This ensures your growth is ethically clean and demonstrates a higher level of financial stewardship. Action: Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund and calculate the donation amount for a 1,000 unit investment."
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p9_int_L3_en",
-      "title": "Understanding Mudaraba vs. Musharaka",
+      "lessonId": "int9_L3_en",
+      "title": "Murabaha (Cost-Plus Financing)",
       "order": 3,
       "sections": [
         {
-          "id": "sec_p9_int_L3",
-          "title": "Understanding Mudaraba vs. Musharaka",
+          "id": "sec_int9_L3",
+          "title": "Murabaha (Cost-Plus Financing)",
           "blocks": [
             {
               "type": "p",
-              "text": "While beginners learn about profit-sharing, intermediate users distinguish between the two main partnership structures. In Mudaraba, one party provides the capital (Rab-ul-Mal) and the other provides the labor and expertise (Mudarib). If the business loses money, the capital provider loses their cash, while the expert loses their time. In Musharaka, both parties provide capital and both share in the management."
+              "text": "Intermediate users understand Murabaha as a Sharia-compliant alternative to traditional interest-based loans. In this structure, the bank buys the asset (such as a car or house) and sells it to the client at a higher, agreed-upon price paid in installments."
             },
             {
               "type": "p",
-              "text": "Understanding these differences is vital when entering into a business partnership or choosing a private equity investment. It allows you to align the structure with the risk profile of each partner. For example, if you are an investor wanting a passive role, Mudaraba is ideal; if you want to be actively involved in the day-to-day operations, Musharaka is the correct legal and religious framework."
+              "text": "Because the profit is fixed and linked to a physical asset rather than the lending of money itself, it avoids the prohibition of Riba (usury). It provides the same utility as a loan but operates within a framework of real economic exchange."
             },
             {
-              "type": "action_prompt",
-              "text": "If you were to start a business with a partner today, decide if a Mudaraba (you provide expertise) or Musharaka (you both provide cash and work) is more appropriate."
+              "type": "p",
+              "text": "Action: Compare a Murabaha quote from an Islamic bank with a traditional interest-based loan to see the total difference in \"Cost of Ownership.\""
             }
           ]
         }
       ]
     },
     {
-      "lessonId": "p9_int_L4_en",
-      "title": "Purification of Investment Income",
+      "lessonId": "int9_L4_en",
+      "title": "Sukuk (Islamic Bonds) vs. Conventional Bonds",
       "order": 4,
       "sections": [
         {
-          "id": "sec_p9_int_L4",
-          "title": "Purification of Investment Income",
+          "id": "sec_int9_L4",
+          "title": "Sukuk (Islamic Bonds) vs. Conventional Bonds",
           "blocks": [
             {
               "type": "p",
-              "text": "Intermediate Halal investing involves \"Purification\"—the process of removing prohibited income from your investment returns. Even Sharia-compliant companies may earn a tiny percentage of interest from their bank accounts or have minor non-compliant activities. To keep your wealth \"pure,\" you must calculate this non-compliant portion and donate it to charity."
+              "text": "While conventional bonds are debt instruments that pay interest, Sukuk represents partial ownership in a tangible asset or a specific project. Investors earn a share of the profit generated by that asset rather than a fixed interest payment."
             },
             {
               "type": "p",
-              "text": "This ensures that your growth is ethically clean and that your portfolio adheres strictly to the spirit of Islamic finance. Most Sharia-compliant mutual funds provide a \"Purification Ratio\" in their annual reports. By proactively managing this, you demonstrate a higher level of financial stewardship, ensuring that your wealth is not just growing, but \"blessed\" (Barakah) according to your religious values."
+              "text": "Intermediate Halal investors use Sukuk to add stability to their portfolio. Because Sukuk are asset-backed, they align with the Islamic principle that wealth must be generated from productive, real-world activity rather than pure financial engineering."
             },
             {
-              "type": "action_prompt",
-              "text": "Check the \"purification ratio\" of a Sharia-compliant ETF or mutual fund you are interested in and calculate how much you would need to donate based on a 1,000 unit investment."
+              "type": "p",
+              "text": "Action: Research a publicly traded Sukuk and identify the underlying asset that generates the profit."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int9_L5_en",
+      "title": "The Ethics of Gharar (Uncertainty)",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_int9_L5",
+          "title": "The Ethics of Gharar (Uncertainty)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Islamic finance prohibits Gharar—excessive uncertainty or ambiguity in a financial contract. Intermediate practitioners avoid highly speculative investments where the outcome is purely based on chance or where the terms are intentionally unclear."
+            },
+            {
+              "type": "p",
+              "text": "This religious principle naturally aligns with the intermediate strategy of \"Fundamental Analysis.\" By focusing on real value and clear contracts, you ensure your wealth is built on a solid, ethical foundation rather than gambling."
+            },
+            {
+              "type": "p",
+              "text": "Action: Before your next investment, ask if the contract is clear and if the profit is tied to a real productive activity rather than pure speculation."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int9_L6_en",
+      "title": "Ijarah (Lease-to-Own) Principles",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_int9_L6",
+          "title": "Ijarah (Lease-to-Own) Principles",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Ijarah is a Sharia-compliant leasing structure where the bank owns the asset and leases it to you for a specified period. At the end of the term, the ownership is typically transferred to the client."
+            },
+            {
+              "type": "p",
+              "text": "This allows for the acquisition of large assets without taking on interest-based debt. Intermediate users value Ijarah because it ensures the risks and rewards of ownership are shared fairly between the bank and the client during the lease period."
+            },
+            {
+              "type": "p",
+              "text": "Action: Look up an \"Ijarah Muntahia Bittamleek\" (Lease ending with ownership) calculator to see the monthly payment for a car or home."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int9_L7_en",
+      "title": "Understanding Qard al-Hasan (Interest-Free Loan)",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_int9_L7",
+          "title": "Understanding Qard al-Hasan (Interest-Free Loan)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Qard al-Hasan is a \"beautiful loan\"—an interest-free loan given for benevolent purposes. In Islamic finance, this is the only type of \"pure\" loan allowed, where the borrower is only required to return the principal amount."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate users view Qard al-Hasan as a vital tool for community support and social impact. While it doesn't provide a financial return to the lender, it provides a massive \"Social Return\" and Barakah, fulfilling the religious obligation to help those in need without exploitation."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify one community-based organization that provides interest-free micro-loans and learn about their impact."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int9_L8_en",
+      "title": "Zakat Calculation on Investments",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_int9_L8",
+          "title": "Zakat Calculation on Investments",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate Islamic financial planning involves calculating Zakat not just on cash, but on various asset classes including stocks and gold. Understanding the \"Nisab\" (threshold) and the specific rules for long-term investments ensures your wealth is fulfilling its religious obligations."
+            },
+            {
+              "type": "p",
+              "text": "By proactively managing Zakat, you ensure that your growth is blessed (Barakah) and that you are contributing to the circulation of wealth in society, which is a core tenet of Islamic economic theory."
+            },
+            {
+              "type": "p",
+              "text": "Action: Use a Zakat calculator to estimate the obligation on your current investment portfolio based on its current market value."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int9_L9_en",
+      "title": "Halal Screeners and Sharia Compliance",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_int9_L9",
+          "title": "Halal Screeners and Sharia Compliance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate investors use \"Halal Screeners\"—software tools that analyze stocks for Sharia compliance based on their business activities and debt levels. A company must pass both qualitative (business type) and quantitative (financial ratios) tests to be considered Halal."
+            },
+            {
+              "type": "p",
+              "text": "This ensures that your capital isn't supporting industries like gambling, alcohol, or high-interest banking. It allows you to build a modern, high-growth portfolio that remains strictly within the bounds of your values."
+            },
+            {
+              "type": "p",
+              "text": "Action: Download a Halal stock screening app and check the compliance status of three major global companies."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int9_L10_en",
+      "title": "Waqf and Perpetual Endowments",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_int9_L10",
+          "title": "Waqf and Perpetual Endowments",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Waqf is a perpetual endowment—an asset dedicated to a specific charitable purpose that continues to provide benefit indefinitely. Intermediate users look toward Waqf as a way to create a lasting legacy that exists beyond their own lifetime."
+            },
+            {
+              "type": "p",
+              "text": "By setting up or contributing to a Waqf, you turn your financial success into a \"perpetual charity\" (Sadaqah Jariyah). It is the ultimate expression of Islamic financial maturity, moving from personal accumulation to eternal impact."
+            },
+            {
+              "type": "p",
+              "text": "Action: Research a modern \"Waqf Fund\" and see how it manages its investments to support education or healthcare."
             }
           ]
         }

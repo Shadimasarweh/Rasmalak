@@ -1,0 +1,244 @@
+{
+  "courseId": "sme_financial_management_intermediate_en",
+  "locale": "en",
+  "title": "SME Financial Management",
+  "description": "Master break-even analysis, working capital, unit economics, operational leverage, and financial forecasting for SMEs.",
+  "level": "intermediate",
+  "estimatedTime": "30 min",
+  "lessons": [
+    {
+      "lessonId": "int8_L1_en",
+      "title": "Analyzing Operating Leverage Operating Leverage measures how much a business can increase its operating income by increasing revenue. A business with high fixed costs, like a software platform, has high leverage; once those costs are covered, every additional sale is mostly pure profit. In contrast, a consultancy with high variable costs has low leverage. Intermediate managers analyze this structure to decide when to invest in automation or technology to increase future profit margins. Action: Calculate your \"Degree of Operating Leverage\" by dividing your Percentage Change in Operating Income by your Percentage Change in Sales.",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_int8_L1",
+          "title": "Analyzing Operating Leverage Operating Leverage measures how much a business can increase its operating income by increasing revenue. A business with high fixed costs, like a software platform, has high leverage; once those costs are covered, every additional sale is mostly pure profit. In contrast, a consultancy with high variable costs has low leverage. Intermediate managers analyze this structure to decide when to invest in automation or technology to increase future profit margins. Action: Calculate your \"Degree of Operating Leverage\" by dividing your Percentage Change in Operating Income by your Percentage Change in Sales.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Analyzing Operating Leverage Operating Leverage measures how much a business can increase its operating income by increasing revenue. A business with high fixed costs, like a software platform, has high leverage; once those costs are covered, every additional sale is mostly pure profit. In contrast, a consultancy with high variable costs has low leverage. Intermediate managers analyze this structure to decide when to invest in automation or technology to increase future profit margins. Action: Calculate your \"Degree of Operating Leverage\" by dividing your Percentage Change in Operating Income by your Percentage Change in Sales."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L2_en",
+      "title": "Working Capital Optimization Intermediate management involves optimizing the Cash Conversion Cycle (CCC), which measures how fast you turn an investment in inventory back into cash. The shorter the cycle, the more efficient the business. By reducing collection times (DSO) and negotiating longer payment terms with suppliers (DPO), you can fund your growth using \"other people's money\". Optimizing working capital is often the cheapest way to fund expansion without bank loans or giving away equity. Action: Calculate your CCC: Days Sales Outstanding + Days Inventory Outstanding - Days Payable Outstanding. Aim to lower this number.",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_int8_L2",
+          "title": "Working Capital Optimization Intermediate management involves optimizing the Cash Conversion Cycle (CCC), which measures how fast you turn an investment in inventory back into cash. The shorter the cycle, the more efficient the business. By reducing collection times (DSO) and negotiating longer payment terms with suppliers (DPO), you can fund your growth using \"other people's money\". Optimizing working capital is often the cheapest way to fund expansion without bank loans or giving away equity. Action: Calculate your CCC: Days Sales Outstanding + Days Inventory Outstanding - Days Payable Outstanding. Aim to lower this number.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Working Capital Optimization Intermediate management involves optimizing the Cash Conversion Cycle (CCC), which measures how fast you turn an investment in inventory back into cash. The shorter the cycle, the more efficient the business. By reducing collection times (DSO) and negotiating longer payment terms with suppliers (DPO), you can fund your growth using \"other people's money\". Optimizing working capital is often the cheapest way to fund expansion without bank loans or giving away equity. Action: Calculate your CCC: Days Sales Outstanding + Days Inventory Outstanding - Days Payable Outstanding. Aim to lower this number."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L3_en",
+      "title": "Understanding Unit Economics (LTV vs. CAC)",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_int8_L3",
+          "title": "Understanding Unit Economics (LTV vs. CAC)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate SME managers focus on the \"Unit\" level to ensure long-term profitability. Customer Acquisition Cost (CAC) is the total marketing spend required to get one customer, while Lifetime Value (LTV) is the total profit that customer generates over time."
+            },
+            {
+              "type": "p",
+              "text": "A healthy, scalable business aims for an LTV that is at least 3 times its CAC. If your LTV is too low, you are effectively \"buying\" customers at a loss, which is unsustainable regardless of how much revenue you generate."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate your CAC (Total Marketing Spend / New Customers) and estimate your average LTV per customer."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L4_en",
+      "title": "The Break-Even Analysis",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_int8_L4",
+          "title": "The Break-Even Analysis",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Beyond just chasing profit, intermediate managers calculate the \"Break-Even Point\"—the exact volume of sales required to cover all fixed and variable costs. This number represents the \"survival line\" for the business."
+            },
+            {
+              "type": "p",
+              "text": "Knowing your break-even point allows you to set realistic sales targets and helps you decide if a new project or product line is worth the initial investment. It is the most critical calculation for ensuring your business stays solvent during slow periods."
+            },
+            {
+              "type": "p",
+              "text": "Action: Divide your total monthly fixed costs by your \"Contribution Margin\" (Price minus Variable Cost) to find your monthly break-even units."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L5_en",
+      "title": "Inventory Turnover and Stagnant Stock",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_int8_L5",
+          "title": "Inventory Turnover and Stagnant Stock",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In an SME, unsold inventory is effectively \"trapped cash\" that could be used elsewhere. The Inventory Turnover Ratio measures how many times your stock is sold and replaced in a year; a low ratio means your money is \"dying\" in a warehouse."
+            },
+            {
+              "type": "p",
+              "text": "Intermediate managers clear out slow-moving stock—even at a discount—to increase the \"Velocity of Money\" within the business. This ensures that capital is constantly moving and being reinvested into items that customers actually want."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify any product or material that hasn't moved in 90 days and create a plan to liquidate it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L6_en",
+      "title": "Accounts Receivable Aging Reports",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_int8_L6",
+          "title": "Accounts Receivable Aging Reports",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Revenue is a \"vanity metric\"; cash in the bank is reality. Intermediate managers use Aging Reports to track exactly how long customers are taking to pay their invoices, categorizing them into 30, 60, and 90-day buckets."
+            },
+            {
+              "type": "p",
+              "text": "If a high percentage of your money is in the 90+ day category, you are effectively giving interest-free loans to your customers while potentially struggling with your own bills. Active collections management is vital for maintaining healthy liquidity."
+            },
+            {
+              "type": "p",
+              "text": "Action: List all your outstanding invoices and highlight any that are more than 30 days past their due date."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L7_en",
+      "title": "Debt Service Coverage Ratio (DSCR)",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_int8_L7",
+          "title": "Debt Service Coverage Ratio (DSCR)",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If your business takes on a loan, banks look at your DSCR—your ability to pay the loan back using only your operating income. Intermediate mastery involves keeping this ratio high (usually above 1.25) to show that the business is not \"over-leveraged.\""
+            },
+            {
+              "type": "p",
+              "text": "Maintaining a healthy DSCR ensures that even if sales dip slightly, your business can still honor its debt obligations without risking bankruptcy. It is a key measure of the financial durability of your company."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate your DSCR by dividing your Net Operating Income by your total annual debt payments."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L8_en",
+      "title": "The Strategic Use of Trade Credit",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_int8_L8",
+          "title": "The Strategic Use of Trade Credit",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Trade credit allows you to buy now and pay later (e.g., Net-30 or Net-60 terms). Intermediate managers use this strategically to manage cash flow, effectively using their suppliers as a source of interest-free short-term financing."
+            },
+            {
+              "type": "p",
+              "text": "However, this requires high discipline and strong relationships. By paying on time, you build a \"reputation asset\" that allows you to negotiate even better terms in the future, providing a significant advantage over competitors who pay cash upfront."
+            },
+            {
+              "type": "p",
+              "text": "Action: Ask one of your primary suppliers if they would be willing to extend your payment terms from 15 days to 30 days."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L9_en",
+      "title": "Analyzing Profit Margins: Gross vs. Net",
+      "order": 9,
+      "sections": [
+        {
+          "id": "sec_int8_L9",
+          "title": "Analyzing Profit Margins: Gross vs. Net",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate managers distinguish between Gross Profit (Revenue minus Cost of Goods Sold) and Net Profit (what remains after all expenses, including taxes). High gross margins are meaningless if they are swallowed by high overhead and administrative costs."
+            },
+            {
+              "type": "p",
+              "text": "By analyzing both, you can identify exactly where your business is losing money. Sometimes the solution isn't to sell more, but to reduce the \"operational drag\" that prevents your gross profits from reaching the bottom line."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate your Gross Profit Margin and your Net Profit Margin for the last quarter."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "int8_L10_en",
+      "title": "Creating a \"Cash Flow Forecast\"",
+      "order": 10,
+      "sections": [
+        {
+          "id": "sec_int8_L10",
+          "title": "Creating a \"Cash Flow Forecast\"",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A budget is a plan for the month, but a Cash Flow Forecast is a look into the future. Intermediate managers project their cash needs for the next 3 to 6 months to anticipate \"cash crunches\" before they happen."
+            },
+            {
+              "type": "p",
+              "text": "This allows you to act proactively—by delaying an expense or seeking a line of credit—well before the crisis hits. It is the final step in moving from reactive \"survival mode\" to proactive \"empire building.\""
+            },
+            {
+              "type": "p",
+              "text": "Action: Create a simple 3-month forecast listing your expected cash inflows and mandatory outflows."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

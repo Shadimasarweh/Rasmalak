@@ -105,6 +105,106 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv1_L5_en",
+      "title": "Modern Monetary Theory (MMT) and Inflationary Risk",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_adv1_L5",
+          "title": "Modern Monetary Theory (MMT) and Inflationary Risk",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Modern Monetary Theory (MMT) suggests that a government that prints its own currency cannot \"run out of money\" and can spend freely until inflation becomes a problem. At the advanced level, understanding MMT is crucial because it governs how governments respond to crises—typically by printing money to fund social or infrastructure projects, which directly impacts asset valuations."
+            },
+            {
+              "type": "p",
+              "text": "When MMT principles are applied, the risk shifts from \"default risk\" to \"inflation risk.\" Advanced thinkers protect themselves by owning \"Inflation-Linked Bonds\" or \"Hard Assets\" that have a finite supply. This ensures that as the government expands the money supply to fund its obligations, the nominal value of your assets rises in tandem, preserving your real wealth in a debased currency environment."
+            },
+            {
+              "type": "p",
+              "text": "Action: Identify which of your assets are \"debt-like\" (lose value with inflation) and which are \"equity-like\" (benefit from inflation)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv1_L6_en",
+      "title": "The Velocity of Capital and Opportunity Cost at Scale",
+      "order": 6,
+      "sections": [
+        {
+          "id": "sec_adv1_L6",
+          "title": "The Velocity of Capital and Opportunity Cost at Scale",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In advanced finance, the velocity of capital refers to how quickly you can move wealth from a low-growth environment to a high-alpha opportunity without incurring significant friction costs. High-net-worth individuals don't just \"buy and hold\" forever; they constantly audit their \"Internal Rate of Return\" (IRR) across all holdings to ensure no capital is being wasted in underperforming sectors."
+            },
+            {
+              "type": "p",
+              "text": "Opportunity cost at this scale is measured in millions. If you have capital tied up in a 4% yield real estate project while a 15% private equity deal is available, the \"friction\" of exiting the real estate—legal fees, taxes, and time—must be calculated against the long-term gain. Master strategists maintain \"Liquidity Ladders\" to ensure they always have access to capital for the next big move without disrupting their core holdings."
+            },
+            {
+              "type": "p",
+              "text": "Action: Calculate the IRR for your lowest-performing asset and determine the \"Exit Friction\" cost required to move that capital into a higher-growth venture."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv1_L7_en",
+      "title": "Behavioral Finance and Institutional Herding",
+      "order": 7,
+      "sections": [
+        {
+          "id": "sec_adv1_L7",
+          "title": "Behavioral Finance and Institutional Herding",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced mastery requires recognizing that markets are not purely mathematical, but psychological. Behavioral finance studies how cognitive biases—such as \"Loss Aversion\" or \"Recency Bias\"—drive institutional investors to \"herd\" into the same crowded trades, creating massive bubbles and subsequent crashes."
+            },
+            {
+              "type": "p",
+              "text": "An advanced strategist remains a \"Contrarian\" when market sentiment reaches extremes. By using \"Sentiment Analysis\" and \"Volatility Indices\" (like the VIX), you can identify when the market is over-leveraged and fearful. This allows you to provide liquidity when others are panicking and to take profits when the general public is most exuberant, effectively capturing the \"Emotional Premium\" left on the table by less disciplined investors."
+            },
+            {
+              "type": "p",
+              "text": "Action: Review the current \"Fear & Greed Index\" and identify one asset class you are currently avoiding because of \"bad news\"—then evaluate if it is fundamentally undervalued."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "adv1_L8_en",
+      "title": "Game Theory in Financial Negotiations",
+      "order": 8,
+      "sections": [
+        {
+          "id": "sec_adv1_L8",
+          "title": "Game Theory in Financial Negotiations",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the pinnacle of money management, every major transaction—whether a business merger or a large-scale real estate acquisition—is a game of strategy. Game Theory provides a framework for predicting the moves of other players (banks, partners, or competitors) to ensure you achieve the \"Nash Equilibrium,\" where you maximize your gain regardless of others' actions."
+            },
+            {
+              "type": "p",
+              "text": "Understanding concepts like \"Asymmetric Payoffs\" and \"First-Mover Advantage\" allows you to structure deals where your downside is capped but your upside is unlimited. In advanced negotiations, you don't just seek a \"fair price\"; you seek to structure the \"rules of the game\" (contracts, options, and contingencies) so that you remain in control of the capital regardless of the economic outcome."
+            },
+            {
+              "type": "p",
+              "text": "Action: Recall a recent financial negotiation; identify if you had the \"First-Mover Advantage\" or if you were reacting to the other party's strategy."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
