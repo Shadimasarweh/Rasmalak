@@ -1,0 +1,388 @@
+{
+  "courseId": "budgeting_money_management_en",
+  "locale": "en",
+  "title": "Budgeting & Money Management",
+  "description": "Learn to build a personal budget, track expenses, set financial goals, and make smarter spending decisions every day.",
+  "level": "beginner",
+  "estimatedTime": "35 min",
+  "lessons": [
+    {
+      "lessonId": "p2_L13_en",
+      "title": "What is a personal budget?",
+      "order": 13,
+      "sections": [
+        {
+          "id": "sec_p2_L13",
+          "title": "What is a personal budget?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A personal budget is a financial plan that tracks your income and expenses over a specific period, usually a month. It is not meant to restrict your freedom, but rather to give your money a specific purpose before you spend it. By documenting every cent that comes in and goes out, you gain the clarity needed to make informed decisions and stop wondering where your money went at the end of the month."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List your total monthly income and your major fixed expenses (rent, utilities, etc.) on a piece of paper today."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L14_en",
+      "title": "The 50/30/20 rule",
+      "order": 14,
+      "sections": [
+        {
+          "id": "sec_p2_L14",
+          "title": "The 50/30/20 rule",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The 50/30/20 rule is a simple thumb rule for budget allocation. It suggests spending 50% of your income on \"Needs\" (rent, groceries), 30% on \"Wants\" (hobbies, dining out), and 20% on \"Financial Goals\" (savings, debt repayment). This framework ensures that you are covering your essentials and enjoying your life while still building a secure financial future. It is particularly effective for those who find complex spreadsheets overwhelming."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate what 50%, 30%, and 20% of your current net income looks like in numbers."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L15_en",
+      "title": "Fixed vs variable expenses",
+      "order": 15,
+      "sections": [
+        {
+          "id": "sec_p2_L15",
+          "title": "Fixed vs variable expenses",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Expenses are generally split into two categories: fixed and variable. Fixed expenses stay the same every month, such as rent or a gym membership, making them easy to predict. Variable expenses, like groceries, entertainment, or electricity bills, fluctuate based on your behavior and usage. Understanding the difference allows you to identify which areas of your spending are easiest to cut back on when you need to save more money."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Go through your last bank statement and highlight variable expenses in a different color than fixed ones."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L16_en",
+      "title": "Tracking expenses",
+      "order": 16,
+      "sections": [
+        {
+          "id": "sec_p2_L16",
+          "title": "Tracking expenses",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Tracking is the act of recording every transaction you make, no matter how small. Many people are shocked to find that small daily purchases, like a morning coffee or snacks, add up to hundreds of riyals or dinars by the end of the month. Using an app like Rasmalak to log these in real-time prevents \"budget leakage\" and keeps you accountable to your financial goals. Without tracking, a budget is just a wish; with tracking, it becomes a reality."
+            },
+            {
+              "type": "action_prompt",
+              "text": "For the next 48 hours, record every single purchase you make, even the smallest ones."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L17_en",
+      "title": "Identifying spending leaks",
+      "order": 17,
+      "sections": [
+        {
+          "id": "sec_p2_L17",
+          "title": "Identifying spending leaks",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A spending leak is a recurring expense that provides little to no value but drains your account over time. Common examples include unused streaming subscriptions, gym memberships you don't visit, or frequently paying for premium delivery services. These \"leaks\" are often hard to notice individually, but together they can represent a significant percentage of your income. Plugging these leaks is the fastest way to \"give yourself a raise\" without actually needing more income."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check your \"Subscriptions\" list on your phone and cancel one service you haven't used in the last month."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L18_en",
+      "title": "Reducing unnecessary expenses",
+      "order": 18,
+      "sections": [
+        {
+          "id": "sec_p2_L18",
+          "title": "Reducing unnecessary expenses",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Reducing expenses doesn't mean living a life of deprivation; it means being intentional about where your money goes. Look for \"substitutes\" rather than \"sacrifices\"—for example, making coffee at home instead of buying it daily, or choosing a mid-range brand over a luxury one for basic household goods. By cutting back on things that don't truly improve your happiness, you free up cash for the things that actually do."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one category (like \"Dining Out\") and commit to reducing its budget by 20% this month."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L19_en",
+      "title": "Managing irregular expenses",
+      "order": 19,
+      "sections": [
+        {
+          "id": "sec_p2_L19",
+          "title": "Managing irregular expenses",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Irregular expenses are those that occur once or twice a year, like car registration, holiday gifts, or annual insurance premiums. These often feel like \"financial emergencies\" because they aren't in the monthly budget, but they are actually predictable. The best way to manage them is to calculate the annual total, divide by 12, and save that amount every month. This turns a giant yearly bill into a manageable monthly contribution."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List three annual expenses you have and calculate how much you need to set aside each month to cover them."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L20_en",
+      "title": "Planning annual spending",
+      "order": 20,
+      "sections": [
+        {
+          "id": "sec_p2_L20",
+          "title": "Planning annual spending",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Annual spending plans help you look beyond the immediate 30 days. By mapping out big upcoming events—such as Eid, summer vacations, or school tuition—you can spread the cost over several months. This forward-thinking approach prevents the \"feast or famine\" cycle where you have plenty of money one month and none the next. It allows you to say \"yes\" to fun experiences because you’ve already set the money aside for them."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Open your calendar and mark any major events in the next 12 months that will require extra spending."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L21_en",
+      "title": "Setting financial goals",
+      "order": 21,
+      "sections": [
+        {
+          "id": "sec_p2_L21",
+          "title": "Setting financial goals",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A goal without a plan is just a wish, and a budget without a goal is just math. Financial goals give your savings a \"job\" and provide the motivation needed to skip unnecessary spending. Whether it’s saving for a new laptop or building a house, clear goals help you prioritize your spending. When you have a strong \"why,\" saying \"no\" to a small impulse purchase becomes much easier because you are saying \"yes\" to your future."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Write down your top financial goal and the exact amount of money needed to achieve it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L22_en",
+      "title": "Short vs long term goals",
+      "order": 22,
+      "sections": [
+        {
+          "id": "sec_p2_L22",
+          "title": "Short vs long term goals",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Short-term goals are things you want to achieve within a year (like a vacation or a new phone), while long-term goals take several years or decades (like retirement or buying a home). Balancing both is crucial; if you only focus on the short-term, you’ll never build wealth, but if you only focus on the long-term, you may burn out. Allocate your savings so that you are making progress on your dream home while still having enough for smaller, immediate joys."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Divide your current financial goals into two lists: \"Under 1 Year\" and \"Over 5 Years.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L23_en",
+      "title": "Saving for major purchases",
+      "order": 23,
+      "sections": [
+        {
+          "id": "sec_p2_L23",
+          "title": "Saving for major purchases",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "When you want to buy something expensive, avoid the temptation of high-interest consumer loans or \"Buy Now Pay Later\" schemes. Instead, create a dedicated \"Sinking Fund\"—a separate savings pot where you put a fixed amount every month until you reach your target. This allows you to buy the item with cash, often giving you more negotiating power and saving you from paying extra in interest or fees."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Choose one major purchase you want to make and decide how much you will put into a sinking fund for it starting today."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L24_en",
+      "title": "Budgeting with variable income",
+      "order": 24,
+      "sections": [
+        {
+          "id": "sec_p2_L24",
+          "title": "Budgeting with variable income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you are self-employed or work on commission, your income fluctuates every month, making traditional budgeting difficult. The secret is to base your budget on your \"lowest-earning month\" to cover your essentials. When you have a \"high-earning month,\" the extra cash should be used to build a buffer or fund your long-term goals. This creates a \"stability floor\" that protects you during slow months while letting you thrive during busy ones."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your average monthly income from the last six months to find your \"safe\" budget baseline."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L25_en",
+      "title": "Needs vs wants",
+      "order": 25,
+      "sections": [
+        {
+          "id": "sec_p2_L25",
+          "title": "Needs vs wants",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The line between a need and a want is often blurred by our emotions. A \"need\" is something essential for survival and working (like basic food and transport), while a \"want\" is something that improves your quality of life but isn't strictly necessary. Before buying, ask yourself if you could still function without it for a month. Mastering this distinction is the foundation of self-discipline and prevents your \"wants\" from eating your future wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at your last three non-essential purchases and label them honestly as either a \"need\" or a \"want.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L26_en",
+      "title": "Lifestyle inflation",
+      "order": 26,
+      "sections": [
+        {
+          "id": "sec_p2_L26",
+          "title": "Lifestyle inflation",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Lifestyle inflation occurs when your spending increases at the same rate as your income. If you get a 10% raise and immediately move into a more expensive apartment, you aren't actually getting wealthier—you're just spending more. To build true wealth, you must keep your expenses stable even as your income grows. This creates a \"gap\" that you can use to invest and achieve financial freedom much faster."
+            },
+            {
+              "type": "action_prompt",
+              "text": "The next time you get a raise or bonus, commit to saving at least 50% of the increase before you change your lifestyle."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L27_en",
+      "title": "Negotiating prices",
+      "order": 27,
+      "sections": [
+        {
+          "id": "sec_p2_L27",
+          "title": "Negotiating prices",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In many Arab markets and service industries, prices are not always fixed. Negotiating is a valuable skill that can save you thousands of riyals or dinars over your lifetime on everything from rent to insurance and big-ticket items. Approach negotiation with respect and data; knowing the market price of a service gives you the leverage to ask for a better deal. Every piastre or halala you save through negotiation is money you didn't have to work for."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Try to negotiate a better rate for a service you currently pay for, like your internet or insurance, this week."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L28_en",
+      "title": "Smart consumer behavior",
+      "order": 28,
+      "sections": [
+        {
+          "id": "sec_p2_L28",
+          "title": "Smart consumer behavior",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A smart consumer doesn't just look at the price tag; they look at the \"cost per use\" and the quality of the item. Sometimes, buying a slightly more expensive, high-quality pair of shoes that lasts three years is cheaper than buying a low-quality pair every six months. Avoid \"marketing traps\" like sales that encourage you to buy things you didn't need just because they were discounted. Being a smart consumer means buying for value, not just for the thrill of a deal."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Before your next purchase, research reviews or compare prices at three different vendors."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L29_en",
+      "title": "Managing household budgets",
+      "order": 29,
+      "sections": [
+        {
+          "id": "sec_p2_L29",
+          "title": "Managing household budgets",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Managing a budget for a family requires communication and shared goals. It involves coordinating multiple income sources and expenses, from groceries to children's education and household maintenance. Having a weekly \"money meeting\" with your partner can prevent arguments and ensure everyone is on the same page. Transparency about where the money is going builds trust and helps the whole family move toward a more secure future together."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Schedule a 15-minute \"money talk\" with your family members to discuss the budget for the upcoming month."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p2_L30_en",
+      "title": "Using budgeting apps effectively",
+      "order": 30,
+      "sections": [
+        {
+          "id": "sec_p2_L30",
+          "title": "Using budgeting apps effectively",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Technology can make money management effortless if used correctly. A budgeting app like Rasmalak provides real-time visibility into your spending habits through clear charts and predictive budgeting. The key is to check the app daily and ensure every transaction is categorized correctly so the AI can provide accurate insights. By letting the app do the heavy lifting of calculation, you can focus on the higher-level decisions that grow your wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Set a daily notification in your Rasmalak app to spend 2 minutes reviewing your spending for the day."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

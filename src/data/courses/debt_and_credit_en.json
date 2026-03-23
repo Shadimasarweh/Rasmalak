@@ -1,0 +1,346 @@
+{
+  "courseId": "debt_and_credit_en",
+  "locale": "en",
+  "title": "Debt & Credit",
+  "description": "Understand how debt works, avoid credit card traps, learn payoff strategies, and rebuild your financial health.",
+  "level": "beginner",
+  "estimatedTime": "30 min",
+  "lessons": [
+    {
+      "lessonId": "p4_L43_en",
+      "title": "What is debt?",
+      "order": 43,
+      "sections": [
+        {
+          "id": "sec_p4_L43",
+          "title": "What is debt?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Debt is money borrowed by one party from another with the expectation that it will be paid back, usually with interest. While often viewed negatively, debt is simply a financial tool that allows you to purchase things now using your future income. However, every dinar or riyal borrowed today is a commitment against your freedom tomorrow. Understanding the mechanics of debt is the first step toward ensuring it works for you rather than against you."
+            },
+            {
+              "type": "action_prompt",
+              "text": "List every person or institution you currently owe money to, along with the total amount for each."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L44_en",
+      "title": "Productive vs destructive debt Not all debt is created equal.",
+      "order": 44,
+      "sections": [
+        {
+          "id": "sec_p4_L44",
+          "title": "Productive vs destructive debt Not all debt is created equal.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Productive (Good) Debt is an investment that grows in value or generates income, such as a mortgage for a home or a loan to start a business. Destructive (Bad) Debt is used to purchase items that lose value instantly, like clothes, expensive dinners, or high-interest consumer goods. The goal is to minimize destructive debt while ensuring that any productive debt you take on is manageable within your monthly cash flow."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at your list from Lesson 43 and label each debt as either \"Productive\" or \"Destructive.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L45_en",
+      "title": "Loan terminology To master debt, you must speak its language.",
+      "order": 45,
+      "sections": [
+        {
+          "id": "sec_p4_L45",
+          "title": "Loan terminology To master debt, you must speak its language.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Principal is the initial amount you borrowed. The Interest Rate (APR) is the cost of borrowing that money, expressed as a yearly percentage. The Term is the length of time you have to pay it back. Always look at the \"Total Cost of Credit,\" which shows the combined amount of principal and interest you will pay over the life of the loan."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Find the contract for one of your loans and identify the Principal, APR, and total Term."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L46_en",
+      "title": "Personal loans Personal loans are unsecured debts often used for",
+      "order": 46,
+      "sections": [
+        {
+          "id": "sec_p4_L46",
+          "title": "Personal loans Personal loans are unsecured debts often used for",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "debt consolidation, home renovations, or unexpected expenses. Because they don't require collateral (like a house or car), they often carry higher interest rates than secured loans. Banks in the MENA region frequently offer these based on your salary transfer. Before taking one, calculate if the monthly installment leaves you enough \"breathing room\" in your budget for savings."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate what percentage of your monthly income would go toward a new loan payment before signing any papers."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L47_en",
+      "title": "Car loans",
+      "order": 47,
+      "sections": [
+        {
+          "id": "sec_p4_L47",
+          "title": "Car loans",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A car loan is a secured loan where the vehicle itself serves as collateral. While a car is a necessity for many, it is a depreciating asset—it loses value the moment you drive it off the lot. To avoid \"going underwater\" (owing more than the car is worth), aim for a shorter loan term and a significant down payment. Never choose a car based on the monthly payment alone; look at the total price including interest."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check the current market value of your car and compare it to your remaining loan balance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L48_en",
+      "title": "Mortgage basics",
+      "order": 48,
+      "sections": [
+        {
+          "id": "sec_p4_L48",
+          "title": "Mortgage basics",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A mortgage is a long-term loan used to purchase real estate. It is likely the largest financial commitment you will ever make. Because the terms can span 20 to 30 years, even a 0.5% difference in the interest rate can save you tens of thousands of riyals or dinars over time. Ensure your mortgage payment, including insurance and taxes, does not exceed 30% of your gross monthly income."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Use a mortgage calculator to see how much total interest you would pay on a house at different interest rates."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L49_en",
+      "title": "How credit cards work Credit cards provide a revolving line",
+      "order": 49,
+      "sections": [
+        {
+          "id": "sec_p4_L49",
+          "title": "How credit cards work Credit cards provide a revolving line",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "of credit that you can use for purchases. If you pay the full balance every month, you usually pay zero interest. However, if you only pay the \"minimum amount,\" the remaining balance starts accruing high interest immediately. Credit cards are powerful tools for building a credit history and earning rewards, but only if you treat them like a debit card and never spend money you don't already have."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check your last credit card statement for the \"interest charged\" section to see exactly what that convenience is costing you."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L50_en",
+      "title": "Interest calculations Interest is often calculated",
+      "order": 50,
+      "sections": [
+        {
+          "id": "sec_p4_L50",
+          "title": "Interest calculations Interest is often calculated",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "using a \"reducing balance\" method or a \"flat rate\" method. Flat rates can be deceptive because they appear lower but are calculated on the original principal for the entire term. Reducing balance interest is calculated only on what you still owe, which is generally fairer to the borrower. Understanding how your bank calculates interest helps you realize why paying a little extra each month can drastically shorten your loan."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Ask your bank representative specifically if your loan uses \"flat\" or \"reducing\" interest rates."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L51_en",
+      "title": "Fees and penalties",
+      "order": 51,
+      "sections": [
+        {
+          "id": "sec_p4_L51",
+          "title": "Fees and penalties",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The cost of debt isn't just interest. Banks often charge \"Processing Fees,\" \"Late Payment Fees,\" and \"Early Settlement Penalties.\" An early settlement penalty is a fee charged if you try to pay off your loan faster than scheduled. Always read the fine print to see how much it will cost you to change your mind or make a mistake. These hidden costs can turn a \"cheap\" loan into an expensive burden."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Read your loan or credit card agreement to find the specific cost of a single late payment."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L52_en",
+      "title": "Credit card traps Banks make a significant portion of their",
+      "order": 52,
+      "sections": [
+        {
+          "id": "sec_p4_L52",
+          "title": "Credit card traps Banks make a significant portion of their",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "profit from \"Credit Card Traps.\" The most common trap is the \"Minimum Payment\" option, which is designed to keep you in debt for years while the bank collects interest. Another is the \"Cash Advance,\" which usually carries a much higher interest rate than regular purchases and starts charging interest the very same day. Use credit cards for convenience, but never for long-term borrowing."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Commit to paying at least double the \"minimum payment\" on your card this month if you carry a balance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L53_en",
+      "title": "Debt snowball strategy",
+      "order": 53,
+      "sections": [
+        {
+          "id": "sec_p4_L53",
+          "title": "Debt snowball strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Debt Snowball is a psychological strategy for paying off debt. You list all your debts from smallest balance to largest balance. You pay the minimum on everything except the smallest debt, which you attack with every extra fil or halala you have. Once the smallest is gone, you move that entire payment to the next smallest. This creates \"wins\" early on, giving you the momentum to tackle larger debts later."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Order your debts by balance size to see which one you could pay off first."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L54_en",
+      "title": "Debt avalanche strategy",
+      "order": 54,
+      "sections": [
+        {
+          "id": "sec_p4_L54",
+          "title": "Debt avalanche strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Debt Avalanche focuses on math rather than psychology. You list your debts from the highest interest rate to the lowest. You pay the minimum on all debts but put all extra money toward the debt with the highest interest rate. This method saves you the most money in interest payments and helps you get out of debt faster theoretically. It requires more discipline but is the most cost-effective way to become debt-free."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Re-order your debt list by interest rate and identify your most \"expensive\" debt."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L55_en",
+      "title": "Loan refinancing Refinancing means taking out a new loan with",
+      "order": 55,
+      "sections": [
+        {
+          "id": "sec_p4_L55",
+          "title": "Loan refinancing Refinancing means taking out a new loan with",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "better terms (lower interest or longer term) to pay off an existing one. This is a smart move if market interest rates have dropped or if your credit score has improved significantly. However, be careful of \"restarts\"—if you refinance a 5-year loan into a new 5-year loan after already paying for 2 years, you might pay more in total interest even if the rate is lower."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Call your bank and ask if you qualify for a lower interest rate based on your current credit standing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L56_en",
+      "title": "Avoiding debt traps Debt traps often appear as \"easy money.\"",
+      "order": 56,
+      "sections": [
+        {
+          "id": "sec_p4_L56",
+          "title": "Avoiding debt traps Debt traps often appear as \"easy money.\"",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "This includes payday loans, unregulated lenders, or \"Buy Now Pay Later\" (BNPL) services for small everyday items. These services encourage \"impulse spending\" and can quickly lead to a cycle where you are borrowing from one source to pay another. If you cannot afford to buy a non-essential item twice in cash, you cannot afford to buy it on credit."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Delete shopping apps that encourage BNPL if you find yourself using them more than once a month."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L57_en",
+      "title": "Managing multiple loans Managing several loans requires extreme organization. Missing",
+      "order": 57,
+      "sections": [
+        {
+          "id": "sec_p4_L57",
+          "title": "Managing multiple loans Managing several loans requires extreme organization. Missing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "a single payment on one loan can damage your credit score and trigger penalties across others. Consolidating multiple high-interest debts into one single lower-interest personal loan can simplify your life and reduce your monthly outgoings. The key is to ensure that after consolidation, you don't start using your now-empty credit cards again."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a master calendar with the due dates and amounts for every monthly debt payment you have."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_L58_en",
+      "title": "Rebuilding financial health Becoming debt-free is a journey of habit",
+      "order": 58,
+      "sections": [
+        {
+          "id": "sec_p4_L58",
+          "title": "Rebuilding financial health Becoming debt-free is a journey of habit",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "change. Once you have cleared your destructive debts, you must focus on rebuilding your \"Credit Worthiness\" by paying all remaining bills on time and keeping your credit usage low. This ensures that when you truly need a productive loan (like a mortgage) in the future, you will get the best possible rates. Financial health is the freedom to decide how your future income is spent."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Set an automated reminder for 5 days before each debt due date to ensure you never pay a late fee again."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

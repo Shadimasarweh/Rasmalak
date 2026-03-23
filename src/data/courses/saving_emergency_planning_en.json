@@ -1,0 +1,262 @@
+{
+  "courseId": "saving_emergency_planning_en",
+  "locale": "en",
+  "title": "Saving & Emergency Planning",
+  "description": "Master the art of saving, build an emergency fund, protect against inflation, and secure your family's financial future.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p3_L31_en",
+      "title": "Why saving matters",
+      "order": 31,
+      "sections": [
+        {
+          "id": "sec_p3_L31",
+          "title": "Why saving matters",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Saving is the act of setting aside a portion of your current income for future use. It is the bridge between your current reality and your future goals, providing you with a \"margin of safety\" in an unpredictable world. Without savings, you are always one missed paycheck away from a financial crisis. Saving isn't about being stingy; it’s about buying your future self freedom and options that you don't have today."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Set a \"Savings Target\" for this month—even if it is a small amount—and treat it as a non-negotiable bill."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L32_en",
+      "title": "The emergency fund",
+      "order": 32,
+      "sections": [
+        {
+          "id": "sec_p3_L32",
+          "title": "The emergency fund",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "An emergency fund is a dedicated stash of money used only for unplanned, essential expenses like medical emergencies or urgent car repairs. Most financial experts recommend having 3 to 6 months' worth of living expenses saved in this fund. Think of it as an \"insurance policy\" you pay to yourself, which prevents you from having to take out high-interest loans when life happens. It provides a level of psychological peace that no other investment can match."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your \"Survival Number\" (minimum monthly expenses) and multiply it by 3 to find your initial emergency fund goal."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L33_en",
+      "title": "Where to keep savings",
+      "order": 33,
+      "sections": [
+        {
+          "id": "sec_p3_L33",
+          "title": "Where to keep savings",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The best place for savings is an account that is safe, liquid (easy to access), and separate from your daily spending money. While you want your savings to be accessible, having them in your primary checking account makes them too easy to spend on \"wants.\" Look for a high-yield savings account or a digital wallet that offers some return while keeping the principal amount secure. The goal for this specific money is safety and accessibility, not high-risk growth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Open a separate savings sub-account today and name it \"Emergency Fund\" to give the money a clear identity."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L34_en",
+      "title": "Automatic saving",
+      "order": 34,
+      "sections": [
+        {
+          "id": "sec_p3_L34",
+          "title": "Automatic saving",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The most effective way to save is to remove the human element of \"choice\" through automation. By setting up a standing order that transfers a fixed amount from your salary to your savings the day you get paid, you ensure you save before you spend. This \"set it and forget it\" approach turns saving into a background process that happens without effort. Over time, you will adapt your lifestyle to the remaining balance, making saving feel painless."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Set up an automatic transfer of 5% of your income to your savings account for the next three months."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L35_en",
+      "title": "Pay yourself first \"Pay yourself first\" is a golden rule of personal finance.",
+      "order": 35,
+      "sections": [
+        {
+          "id": "sec_p3_L35",
+          "title": "Pay yourself first \"Pay yourself first\" is a golden rule of personal finance.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Most people pay the landlord, the supermarket, and the utility company first, then try to save whatever is left over—which is usually nothing. By treating your savings as your most important \"expense\" and paying it first, you prioritize your future over your current consumption. This shift in mindset ensures that your wealth grows consistently, regardless of how many other bills you have."
+            },
+            {
+              "type": "action_prompt",
+              "text": "The very next time you receive any income, transfer your savings portion before paying a single bill."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L36_en",
+      "title": "Saving with irregular income",
+      "order": 36,
+      "sections": [
+        {
+          "id": "sec_p3_L36",
+          "title": "Saving with irregular income",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If you are a freelancer or business owner, saving requires a \"percentage-based\" approach rather than a fixed amount. Every time a client pays you, immediately set aside a fixed percentage (e.g., 20%) for taxes and savings. During high-income months, resist the urge to spend more; instead, build a \"buffer\" in your savings to cover your expenses during the slow months. This strategy creates a stable financial life despite an unstable income stream."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a \"Tax & Savings\" folder or account and commit to moving 20% of every payment you receive into it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L37_en",
+      "title": "Inflation impact",
+      "order": 37,
+      "sections": [
+        {
+          "id": "sec_p3_L37",
+          "title": "Inflation impact",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "While saving is vital, keeping large amounts of cash for decades can be risky due to inflation. Over time, the cost of living rises, meaning the 1,000 JOD/SAR you save today will buy less in ten years. To protect your long-term savings, you must eventually move beyond simple savings accounts and into assets that grow faster than inflation. For short-term goals, cash is king, but for long-term security, inflation is a silent enemy you must account for."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your long-term savings and check if the interest rate is higher or lower than your country's inflation rate."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L38_en",
+      "title": "Currency risk in emerging markets",
+      "order": 38,
+      "sections": [
+        {
+          "id": "sec_p3_L38",
+          "title": "Currency risk in emerging markets",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In many parts of the MENA region, local currencies can be subject to volatility or devaluation against global currencies like the USD. If your savings are entirely in a volatile local currency, your global purchasing power could drop overnight. Diversifying your savings by holding a portion in a stable currency or \"hard assets\" can provide a hedge against local economic shifts. Understanding your country's exchange rate history helps you decide if you need to diversify your cash holdings."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research how your local currency has performed against the USD over the last 5 years to understand your currency risk."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L39_en",
+      "title": "Gold vs bank savings",
+      "order": 39,
+      "sections": [
+        {
+          "id": "sec_p3_L39",
+          "title": "Gold vs bank savings",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In Arab culture, gold has traditionally been a favored \"store of value\" and a hedge against economic instability. Unlike bank savings, which can lose value through inflation or currency drops, gold tends to maintain its purchasing power over long periods. However, gold doesn't pay \"interest\" and can be difficult to store safely. A balanced approach often involves keeping liquid cash in a bank for emergencies while holding a portion of long-term wealth in gold for stability."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Compare the historical performance of gold versus a standard savings account over the last decade."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L40_en",
+      "title": "Retirement savings basics",
+      "order": 40,
+      "sections": [
+        {
+          "id": "sec_p3_L40",
+          "title": "Retirement savings basics",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Retirement might seem far away, but the earlier you start saving, the less you have to save overall thanks to the power of time. Retirement saving is about building a fund that will replace your salary when you choose to stop working. Relying solely on government pensions is often insufficient for maintaining your current lifestyle. Starting a private retirement pot now ensures that you can enjoy your later years with dignity and financial independence."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Use an online retirement calculator to see how much you need to save monthly to reach your desired retirement income."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L41_en",
+      "title": "Education savings",
+      "order": 41,
+      "sections": [
+        {
+          "id": "sec_p3_L41",
+          "title": "Education savings",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The cost of quality education is rising faster than general inflation in many countries. Starting an education fund for your children when they are young allows you to save smaller amounts over a longer period, avoiding the stress of massive tuition bills later. Education is an investment in the next generation’s earning potential, and planning for it early prevents you from having to take out high-interest \"education loans\" in the future."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Estimate the current cost of university in your region and set a monthly savings goal to meet that target by the time your child turns 18."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_L42_en",
+      "title": "Family financial protection",
+      "order": 42,
+      "sections": [
+        {
+          "id": "sec_p3_L42",
+          "title": "Family financial protection",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Saving is not just for you; it is a shield for your entire family. Financial protection involves having enough liquid savings to cover family emergencies and having a plan for the unexpected. This includes teaching your family members about where the emergency funds are kept and how to use them. A protected family is one that can weather life's storms without losing their home or their standard of living."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Have a \"Family Safety Meeting\" to discuss where emergency funds are stored and under what conditions they should be used."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "courseId": "saving_emergency_planning_advanced_en",
+  "locale": "en",
+  "title": "Saving & Emergency Planning",
+  "description": "Optimize your savings with high-yield accounts, tiered emergency funds, and opportunity cost analysis.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p3_adv_L1_en",
+      "title": "Strategic Liquidity and Cash Equivalents",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p3_adv_L1",
+          "title": "Strategic Liquidity and Cash Equivalents",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For high-net-worth individuals, \"Saving\" is renamed Strategic Liquidity Management. At this level, cash is not just for emergencies; it is \"dry powder\" held to strike when markets crash. Advanced users move beyond simple savings accounts into Cash Equivalents like Treasury Bills (T-Bills) or ultra-short-term corporate paper. These instruments are as liquid as cash but are backed by sovereign or institutional credit and offer significantly better yields."
+            },
+            {
+              "type": "p",
+              "text": "Managing this \"Liquidity Layer\" ensures you are never forced to sell long-term assets at a loss during a market downturn. Instead of panicking during a crash, you use your strategic liquidity to buy quality assets at a discount. This turns cash from a defensive shelter into an offensive weapon, allowing you to profit from volatility while others are scrambling for safety."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your \"Dry Powder\" ratio. What percentage of your total net worth is currently held in liquid cash equivalents ready for a market entry?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_adv_L2_en",
+      "title": "Captive Insurance and Self-Insurance Structures",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p3_adv_L2",
+          "title": "Captive Insurance and Self-Insurance Structures",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced saving involves moving from being an insurance consumer to a risk manager. This is done by creating a formal Self-Insurance structure. Instead of paying premiums to a third party for small or manageable risks (like appliance failure or minor medical costs), you establish a \"Captive\" fund. This is a dedicated, legal account where you \"pay yourself\" the premiums you would have otherwise given to an insurance company."
+            },
+            {
+              "type": "p",
+              "text": "If no loss occurs, you keep the profit and the investment growth of those funds. Over 10 to 20 years, these saved premiums can grow into a massive asset that covers even larger risks. This significantly increases your long-term wealth retention by cutting out the insurance company’s profit margin and overhead. It represents the ultimate level of financial independence: insuring your own life through your own accumulated capital."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Analyze your insurance premiums from the last 5 years versus the claims you made. Could a self-insurance fund for \"small risks\" have saved you money?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_adv_L3_en",
+      "title": "Sovereign Risk and Multi-Jurisdictional Liquidity",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p3_adv_L3",
+          "title": "Sovereign Risk and Multi-Jurisdictional Liquidity",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In the advanced world, \"where\" you save is as important as \"how much.\" Holding all your savings in a single country exposes you to Sovereign Risk—the risk that a government might freeze accounts, implement capital controls, or devalue the local currency overnight. Advanced strategists use Multi-Jurisdictional Liquidity, spreading their cash equivalents across different legal systems and currencies."
+            },
+            {
+              "type": "p",
+              "text": "This often involves using offshore banking hubs or international brokerage accounts in jurisdictions like Switzerland, Singapore, or the UAE. By diversifying your \"liquidity geography,\" you ensure that a local political or economic crisis doesn't paralyze your family's ability to function. This level of planning provides a \"Global Safety Net\" that is immune to the failures of any single nation-state."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"Capital Controls\" history in your region and identify one offshore jurisdiction where you could legally open a secondary liquidity account."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p3_adv_L4_en",
+      "title": "Precious Metals and Hard-Asset Storage",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p3_adv_L4",
+          "title": "Precious Metals and Hard-Asset Storage",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Digital numbers in a bank account are promises; physical gold is an asset. Advanced saving includes a dedicated allocation to physical precious metals stored outside the banking system. Gold acts as \"Global Money\" that has no counterparty risk—it doesn't rely on a bank's ability to pay or a government's ability to maintain its currency."
+            },
+            {
+              "type": "p",
+              "text": "The key to this strategy is professional storage in a high-security, insured vault located in a politically stable jurisdiction. This is your \"Ultimate Reserve.\" While it doesn't pay interest, it preserves purchasing power over centuries and serves as the final insurance policy against the total collapse of the digital financial world. In the advanced tier, gold is not an investment for profit; it is a permanent anchor for your wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate a 5% allocation of your net worth to physical gold. Research private vaulting services in your city or a nearby financial hub."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1077 @@
+@import "tailwindcss";
+
+/* ============================================================
+   RASMALAK – Design System v2
+   Deep Navy + Emerald Advisory Palette
+   ============================================================
+   Token Hierarchy:
+     Primitive  →  --color-raw-*          (hex, never used directly)
+     Semantic   →  --color-bg-*, --color-text-*, --color-accent-*
+     Component  →  .ds-card, .ds-metric, .ds-btn, etc.
+   ============================================================ */
+
+/* ============================================================
+   1. THEME TOKENS  (Tailwind v4 @theme)
+   ============================================================ */
+@theme {
+  /* --- Font family --- */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* --- Border Radius --- */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-pill: 9999px;
+
+  /* --- Shadows (elevation tiers) --- */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.06);
+
+  /* --- 4 / 8 px spacing scale --- */
+  --spacing-0: 0;
+  --spacing-px: 1px;
+  --spacing-0_5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1_5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+
+  /* --- Brand primitives (exposed to Tailwind utilities) --- */
+  --color-brand-navy: #0A192F;
+  --color-brand-emerald: #2D6A4F;
+  --color-brand-emerald-hover: #1B4332;
+  --color-brand-danger: #B54747;
+
+  /* --- Status colors --- */
+  --color-success: #2D6A4F;
+  --color-warning: #D4920A;
+  --color-danger: #B54747;
+  --color-info: #3B82F6;
+}
+
+/* Expose to Tailwind utility layer */
+@theme inline {
+  --color-brand-navy: #0A192F;
+  --color-brand-emerald: #2D6A4F;
+  --color-brand-emerald-hover: #1B4332;
+  --color-success: #2D6A4F;
+  --color-warning: #D4920A;
+  --color-danger: #B54747;
+  --color-info: #3B82F6;
+}
+
+/* ============================================================
+   2. LIGHT THEME  (default)
+   ============================================================ */
+:root {
+  /* --- User-selectable accent color (updated by JS) --- */
+  --accent-color: #2D6A4F;
+  --accent-color-hover: #1B4332;
+  --accent-color-dark: #1B4332;
+  --accent-color-rgb: 45, 106, 79;
+
+  /* --- Backgrounds --- */
+  --color-bg-primary: #F5F0EB;
+  --color-bg-surface-1: #FFFFFF;
+  --color-bg-surface-2: #F0F7F4;
+  --color-bg-input: #F5F0EB;
+  --color-bg-sidebar: #0F1E2E;
+  --color-bg-hero: linear-gradient(135deg, #0F1E2E 0%, #162635 60%, var(--accent-color) 100%);
+
+  /* --- Text --- */
+  --color-text-primary: #0F1914;
+  --color-text-secondary: #374151;
+  --color-text-muted: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+  --color-text-on-hero: #FFFFFF;
+  --color-text-on-hero-dim: rgba(255, 255, 255, 0.65);
+
+  /* --- Accent (derived from --accent-color) --- */
+  --color-accent-growth: var(--accent-color);
+  --color-accent-growth-hover: var(--accent-color-hover);
+  --color-accent-growth-subtle: rgba(var(--accent-color-rgb), 0.1);
+
+  /* --- Design brief tokens --- */
+  --color-bg-card-dark: #0F1914;
+  --color-primary-glow: #22c55e;
+  --color-accent-gold: #D97706;
+  --color-border-dark: rgba(255, 255, 255, 0.08);
+
+  /* --- Border --- */
+  --color-border: #E5E7EB;
+  --color-border-subtle: #E5E7EB;
+  --color-border-input: #E5E7EB;
+
+  /* --- Danger --- */
+  --color-danger-bg: rgba(181, 71, 71, 0.08);
+  --color-danger-text: #B54747;
+
+  /* --- Divider --- */
+  --color-divider: #E5E7EB;
+
+  /* --- Shadows --- */
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-hero: var(--shadow-xl);
+
+  /* --- Sidebar (always dark, theme-independent) --- */
+  --color-sidebar-bg: #0F1E2E;
+  --color-sidebar-text: #FFFFFF;
+  --color-sidebar-text-dim: rgba(255, 255, 255, 0.7);
+  --color-sidebar-text-muted: rgba(255, 255, 255, 0.4);
+  --color-sidebar-border: rgba(255, 255, 255, 0.08);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --color-sidebar-active: var(--color-accent-growth);
+
+  /* ---- Legacy aliases (backward compat while propagating) ---- */
+  --theme-bg-main: var(--color-bg-primary);
+  --theme-bg-card: var(--color-bg-surface-1);
+  --theme-bg-sidebar: var(--color-bg-sidebar);
+  --theme-bg-modal: var(--color-bg-surface-1);
+  --theme-bg-input: var(--color-bg-input);
+  --theme-text-primary: var(--color-text-primary);
+  --theme-text-secondary: var(--color-text-secondary);
+  --theme-text-muted: var(--color-text-muted);
+  --theme-border: var(--color-border);
+  --theme-border-input: var(--color-border-input);
+  --theme-divider: var(--color-divider);
+  --theme-accent: var(--color-accent-growth);
+  --theme-accent-glow: var(--color-accent-growth-hover);
+  --theme-bg-secondary: var(--color-bg-surface-2);
+  --theme-bg-tertiary: var(--color-bg-surface-2);
+
+  /* Legacy brand aliases (derived from --accent-color) */
+  --color-primary: var(--color-text-primary);
+  --color-secondary: var(--color-accent-growth);
+  --color-bg: var(--color-bg-primary);
+  --color-brand-bg: var(--color-bg-primary);
+  --color-brand-navy-light: #162635;
+  --color-brand-navy-dark: #0A1220;
+  --color-brand-emerald: var(--accent-color);
+  --color-brand-emerald-hover: var(--accent-color-hover);
+  --color-brand-emerald-light: var(--accent-color-hover);
+  --color-brand-emerald-dark: var(--accent-color-dark);
+  --color-brand-accent: rgba(var(--accent-color-rgb), 0.12);
+  --color-error: var(--color-danger-text);
+
+  /* Legacy radius aliases */
+  --radius-input: var(--radius-md);
+  --radius-card: var(--radius-xl);
+  --radius-full: var(--radius-pill);
+
+  /* Design system tokens — light mode */
+  --ds-bg-page: #F5F0EB;
+  --ds-bg-card: #FFFFFF;
+  --ds-bg-card-dark: #0F1914;
+  --ds-bg-input: #F5F0EB;
+  --ds-bg-tinted: #F0F7F4;
+  --ds-text-heading: #0F1914;
+  --ds-text-body: #374151;
+  --ds-text-muted: #9CA3AF;
+  --ds-border: #E5E7EB;
+  --ds-border-tinted: #D1FAE5;
+  --ds-primary: #2D6A4F;
+  --ds-primary-hover: #1B4332;
+  --ds-primary-glow: #22c55e;
+  --ds-accent-gold: #D97706;
+  --ds-error: #DC2626;
+  --ds-error-bg: #FEF2F2;
+  --ds-error-text: #991B1B;
+  --ds-error-border: #FECACA;
+  --ds-success-bg: #F0FDF4;
+  --ds-success-text: #166534;
+  --ds-success-border: #BBF7D0;
+  --ds-warning-bg: #FFFBEB;
+  --ds-warning-text: #92400E;
+  --ds-warning-border: #FDE68A;
+  --ds-shadow-card: 0 1px 4px rgba(0,0,0,0.04);
+  --ds-dark-card-heading: #F0FDF4;
+  --ds-dark-card-body: #6B7280;
+  --ds-dark-card-border: rgba(255,255,255,0.08);
+  --ds-dark-card-glow: inset 0 0 40px rgba(34,197,94,0.04);
+  --ds-btn-secondary-border: #86EFAC;
+  --ds-btn-secondary-hover: #F0F7F4;
+}
+
+/* ============================================================
+   3. DARK THEME
+   ============================================================ */
+[data-theme="dark"] {
+  /* --- Backgrounds --- */
+  --color-bg-primary: #0F1914;
+  --color-bg-surface-1: #1A2420;
+  --color-bg-surface-2: #223830;
+  --color-bg-input: #1A2420;
+  --color-bg-sidebar: #0A110E;
+  --color-bg-hero: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-color-dark) 50%, #0F1914 100%);
+
+  /* --- Text --- */
+  --color-text-primary: #F0FDF4;
+  --color-text-secondary: #D1D5DB;
+  --color-text-muted: #6B7280;
+  --color-text-inverse: #0F1914;
+  --color-text-on-hero: #FFFFFF;
+  --color-text-on-hero-dim: rgba(255, 255, 255, 0.6);
+
+  /* --- Accent (derived from --accent-color) --- */
+  --color-accent-growth: var(--accent-color);
+  --color-accent-growth-hover: var(--accent-color-hover);
+  --color-accent-growth-subtle: rgba(var(--accent-color-rgb), 0.18);
+
+  /* --- Border --- */
+  --color-border: rgba(255,255,255,0.1);
+  --color-border-subtle: rgba(255,255,255,0.06);
+  --color-border-input: rgba(255,255,255,0.12);
+
+  /* --- Danger --- */
+  --color-danger-bg: rgba(248, 113, 113, 0.15);
+  --color-danger-text: #F87171;
+
+  /* --- Divider --- */
+  --color-divider: rgba(255,255,255,0.08);
+
+  /* --- Sidebar --- */
+  --color-sidebar-bg: #0A110E;
+  --color-sidebar-text: #F0FDF4;
+  --color-sidebar-text-dim: rgba(240, 253, 244, 0.7);
+  --color-sidebar-text-muted: rgba(240, 253, 244, 0.4);
+  --color-sidebar-border: rgba(240, 253, 244, 0.08);
+  --color-sidebar-hover: rgba(240, 253, 244, 0.05);
+  --color-sidebar-active: var(--color-accent-growth);
+
+  /* --- Shadows (darker in dark mode) --- */
+  --shadow-card: 0 2px 4px 0 rgb(0 0 0 / 0.3);
+  --shadow-card-hover: 0 4px 8px 0 rgb(0 0 0 / 0.35);
+  --shadow-hero: 0 20px 25px -5px rgb(0 0 0 / 0.4);
+
+  /* Legacy overrides */
+  --color-brand-navy: #F0FDF4;
+  --color-brand-navy-light: #D1D5DB;
+  --color-brand-bg: #0F1914;
+  --color-error: #F87171;
+
+  /* Design system tokens — dark mode */
+  --ds-bg-page: #0F1914;
+  --ds-bg-card: #1A2420;
+  --ds-bg-card-dark: #0A0F0C;
+  --ds-bg-input: #1A2420;
+  --ds-bg-tinted: rgba(45,106,79,0.1);
+  --ds-text-heading: #F0FDF4;
+  --ds-text-body: #D1D5DB;
+  --ds-text-muted: #6B7280;
+  --ds-border: rgba(255,255,255,0.1);
+  --ds-border-tinted: rgba(45,106,79,0.2);
+  --ds-primary: #4ADE80;
+  --ds-primary-hover: #22c55e;
+  --ds-primary-glow: #22c55e;
+  --ds-accent-gold: #FBBF24;
+  --ds-error: #F87171;
+  --ds-error-bg: rgba(220,38,38,0.1);
+  --ds-error-text: #FCA5A5;
+  --ds-error-border: rgba(220,38,38,0.2);
+  --ds-success-bg: rgba(34,197,94,0.1);
+  --ds-success-text: #86EFAC;
+  --ds-success-border: rgba(34,197,94,0.2);
+  --ds-warning-bg: rgba(217,119,6,0.1);
+  --ds-warning-text: #FCD34D;
+  --ds-warning-border: rgba(217,119,6,0.2);
+  --ds-shadow-card: 0 1px 4px rgba(0,0,0,0.2);
+  --ds-dark-card-heading: #F0FDF4;
+  --ds-dark-card-body: #9CA3AF;
+  --ds-dark-card-border: rgba(255,255,255,0.1);
+  --ds-dark-card-glow: inset 0 0 40px rgba(34,197,94,0.06);
+  --ds-btn-secondary-border: rgba(74,222,128,0.4);
+  --ds-btn-secondary-hover: rgba(45,106,79,0.15);
+}
+
+/* ============================================================
+   4. GLOBAL RESETS
+   ============================================================ */
+html, body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+/* ============================================================
+   5. TYPOGRAPHY SCALE
+   ============================================================
+
+   Role               Class               Size     Weight   Tracking
+   ────────────────────────────────────────────────────────────
+   Page title          .ds-title-page      1.75rem  700      -0.02em
+   Section title       .ds-title-section   1.125rem 600      0
+   Card title          .ds-title-card      0.875rem 500      0
+   Financial metric    .ds-metric          1.75rem  700      -0.025em
+   Metric (small)      .ds-metric-sm       1.25rem  600      -0.02em
+   Body                .ds-body            0.9375rem 400     0
+   Supporting          .ds-supporting      0.8125rem 400     0
+   Micro-label         .ds-label           0.6875rem 600     0.04em
+*/
+
+.ds-title-page {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+  font-feature-settings: "kern" 1;
+}
+
+.ds-title-section {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+  font-feature-settings: "kern" 1;
+}
+
+.ds-title-card {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  font-feature-settings: "kern" 1;
+}
+
+.ds-metric {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "kern" 1;
+}
+
+.ds-metric-sm {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "kern" 1;
+}
+
+.ds-body {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.ds-supporting {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.ds-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+
+.ds-subtitle-ar {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   6. CARD / ELEVATION SYSTEM
+   ============================================================
+
+   Tier            Class               Shadow          Radius
+   ──────────────────────────────────────────────────────
+   Hero            .ds-card-hero       --shadow-hero   --radius-xl
+   Standard        .ds-card            --shadow-card   --radius-xl
+   Compact         .ds-card-compact    --shadow-xs     --radius-lg
+   Flush           .ds-card-flush      none            --radius-lg
+*/
+
+.ds-card {
+  background: var(--ds-bg-card);
+  border: 0.5px solid var(--ds-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: var(--ds-shadow-card);
+}
+
+.ds-card-dark {
+  background: var(--ds-bg-card-dark);
+  border: 0.5px solid var(--ds-dark-card-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: var(--ds-dark-card-glow);
+}
+
+.ds-card-dark h1, .ds-card-dark h2, .ds-card-dark h3,
+.ds-card-dark .ds-title-page, .ds-card-dark .ds-title-section, .ds-card-dark .ds-title-card {
+  color: var(--ds-dark-card-heading);
+}
+
+.ds-card-dark p, .ds-card-dark .ds-body, .ds-card-dark .ds-supporting {
+  color: var(--ds-dark-card-body);
+}
+
+.ds-card-tinted {
+  background: var(--ds-bg-tinted);
+  border: 0.5px solid var(--ds-border-tinted);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.ds-card-hero {
+  background: var(--color-bg-hero);
+  border: none;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-5);
+  box-shadow: var(--shadow-hero);
+  position: relative;
+  overflow: hidden;
+  color: var(--color-text-on-hero);
+}
+
+.ds-card-compact {
+  background: var(--ds-bg-card);
+  border: 0.5px solid var(--ds-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: var(--ds-shadow-card);
+}
+
+.ds-card-flush {
+  background: var(--ds-bg-tinted);
+  border: none;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+/* ============================================================
+   7. BUTTONS
+   ============================================================ */
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+  text-decoration: none;
+  border: none;
+}
+
+.ds-btn-primary {
+  background: var(--ds-primary);
+  color: #FFFFFF;
+  padding: 9px 18px;
+}
+.ds-btn-primary:hover {
+  background: var(--ds-primary-hover);
+}
+
+.ds-btn-secondary {
+  background: transparent;
+  color: var(--ds-primary);
+  border: 1.5px solid var(--ds-btn-secondary-border);
+  padding: 8px 16px;
+}
+.ds-btn-secondary:hover {
+  background: var(--ds-btn-secondary-hover);
+}
+
+.ds-btn-gold {
+  background: transparent;
+  color: var(--ds-accent-gold);
+  border: 1.5px solid var(--ds-warning-border);
+  padding: 8px 16px;
+}
+.ds-btn-gold:hover {
+  background: var(--ds-warning-bg);
+}
+
+.ds-btn-ghost {
+  background: transparent;
+  color: var(--ds-text-body);
+  border: 0.5px solid var(--ds-border);
+  padding: 8px 16px;
+}
+.ds-btn-ghost:hover {
+  background: var(--ds-bg-tinted);
+}
+
+/* ============================================================
+   8. PROGRESS BAR
+   ============================================================ */
+
+.ds-progress {
+  height: 4px;
+  background: var(--ds-bg-tinted);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ds-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--ds-primary-glow);
+  transition: width 300ms ease-out;
+}
+
+.ds-progress-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ds-primary);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ============================================================
+   9. BADGES / PILLS
+   ============================================================ */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+}
+
+.ds-badge-beginner {
+  background: var(--ds-success-bg);
+  color: var(--ds-success-text);
+  border: 0.5px solid var(--ds-success-border);
+}
+
+.ds-badge-intermediate {
+  background: var(--ds-warning-bg);
+  color: var(--ds-warning-text);
+  border: 0.5px solid var(--ds-warning-border);
+}
+
+.ds-badge-advanced {
+  background: var(--ds-error-bg);
+  color: var(--ds-error-text);
+  border: 0.5px solid var(--ds-error-border);
+}
+
+.ds-badge-in-progress {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ADE80;
+  border: 0.5px solid rgba(74, 222, 128, 0.2);
+}
+
+.ds-badge-success {
+  background: var(--color-accent-growth-subtle);
+  color: var(--color-accent-growth);
+}
+
+.ds-badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.ds-badge-warning {
+  background: rgba(212, 146, 10, 0.1);
+  color: var(--color-warning);
+}
+
+/* ============================================================
+   10. LAYOUT UTILITIES
+   ============================================================ */
+
+.ds-page {
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+@media (max-width: 767px) {
+  .ds-page {
+    padding: var(--spacing-6);
+    gap: var(--spacing-4);
+  }
+}
+
+/* Learn page accordion */
+.learn-accordion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-4);
+}
+@keyframes learnAccordionIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.learn-topics-grid,
+.learn-achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.ds-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.ds-link-action {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-accent-growth);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.ds-link-action:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   11. ICON CONTAINERS
+   ============================================================ */
+
+.ds-icon-box {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.ds-icon-box-sm {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.ds-icon-box-lg {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   12. RESPONSIVE GRIDS
+   ============================================================ */
+
+.ds-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-5);
+}
+
+@media (min-width: 768px) {
+  .ds-grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+  /* Column span utilities for the 12-col grid */
+  .ds-col-3  { grid-column: span 3; }
+  .ds-col-4  { grid-column: span 4; }
+  .ds-col-5  { grid-column: span 5; }
+  .ds-col-6  { grid-column: span 6; }
+  .ds-col-8  { grid-column: span 8; }
+  .ds-col-12 { grid-column: span 12; }
+}
+
+/* ── Hide-scrollbar utility ── */
+.ds-hide-scrollbar {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge */
+}
+.ds-hide-scrollbar::-webkit-scrollbar {
+  display: none;                /* Chrome / Safari */
+}
+
+/* ============================================================
+   13. DIVIDER
+   ============================================================ */
+
+.ds-divider-v {
+  width: 1px;
+  align-self: stretch;
+  background: var(--color-divider);
+  flex-shrink: 0;
+}
+
+.ds-divider-h {
+  height: 1px;
+  width: 100%;
+  background: var(--color-divider);
+}
+
+/* ============================================================
+   14. TABLE
+   ============================================================ */
+
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ds-table th {
+  text-align: start;
+  padding-block: var(--spacing-3);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-table td {
+  padding-block: var(--spacing-4);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.ds-table tbody tr {
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.ds-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* ============================================================
+   15. EMPTY STATE
+   ============================================================ */
+
+.ds-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--spacing-8);
+  gap: var(--spacing-3);
+  text-align: center;
+}
+
+/* ============================================================
+   16. LEGACY BACKWARD-COMPAT CLASSES
+   These keep existing pages working while we propagate
+   the new tokens. Remove once all pages are migrated.
+   ============================================================ */
+
+/* Legacy card variants */
+.card-standard {
+  background: var(--ds-bg-card);
+  border: 0.5px solid var(--ds-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: var(--ds-shadow-card);
+}
+
+.card-compact {
+  background: var(--ds-bg-card);
+  border: 0.5px solid var(--ds-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: var(--ds-shadow-card);
+}
+
+.card-hero {
+  background: var(--color-bg-hero);
+  color: var(--color-text-on-hero);
+  border: none;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-5);
+  box-shadow: var(--shadow-hero);
+  position: relative;
+  overflow: hidden;
+}
+
+.card, .card-sm, .card-lg {
+  background: var(--ds-bg-card);
+  border: 0.5px solid var(--ds-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: var(--ds-shadow-card);
+}
+
+/* Legacy typography */
+.heading-1 { font-size: 1.75rem; font-weight: 700; color: var(--color-text-primary); line-height: 1.2; }
+.heading-2 { font-size: 1.25rem; font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
+.heading-3 { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); line-height: 1.4; }
+.body-text { font-size: 1rem; font-weight: 400; color: var(--color-text-primary); line-height: 1.5; }
+.small-text { font-size: 0.875rem; font-weight: 500; color: var(--color-text-secondary); line-height: 1.4; }
+.label-text { font-size: 0.75rem; font-weight: 500; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.section-title { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); }
+.card-title { font-size: 0.875rem; font-weight: 500; color: var(--color-text-secondary); }
+.card-value { font-size: 1.5rem; font-weight: 600; color: var(--color-text-primary); }
+.card-meta { font-size: 0.75rem; color: var(--color-text-muted); }
+.value-large { font-size: 1.875rem; font-weight: 600; color: var(--color-text-primary); line-height: 1.2; }
+.value-medium { font-size: 1.25rem; font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
+.currency-prefix { font-size: 0.875rem; font-weight: 500; color: var(--color-text-secondary); }
+
+/* Legacy buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.btn-primary { background: var(--ds-primary); color: #FFFFFF; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 500; }
+.btn-primary:hover { background: var(--ds-primary-hover); }
+.btn-secondary { background: transparent; color: var(--ds-primary); border: 1.5px solid var(--ds-btn-secondary-border); border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 500; }
+.btn-secondary:hover { background: var(--ds-btn-secondary-hover); }
+
+/* Legacy badges */
+.badge { display: inline-flex; align-items: center; font-size: 0.75rem; font-weight: 500; padding: 0.125rem 0.5rem; border-radius: var(--radius-pill); }
+.badge-success { background: var(--color-accent-growth-subtle); color: var(--color-accent-growth); }
+.badge-error { background: var(--color-danger-bg); color: var(--color-danger-text); }
+.badge-warning { background: rgba(212, 146, 10, 0.1); color: var(--color-warning); }
+.badge-info { background: rgba(59, 130, 246, 0.1); color: var(--color-info); }
+
+/* Legacy progress */
+.progress-bar { height: 4px; background: var(--ds-bg-tinted); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; background: var(--ds-primary-glow); transition: width 300ms ease-out; }
+
+/* Legacy icon containers */
+.icon-container { width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); }
+.icon-container-sm { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); }
+.icon-success { background: var(--color-accent-growth-subtle); color: var(--color-accent-growth); }
+.icon-error { background: var(--color-danger-bg); color: var(--color-danger-text); }
+
+/* Legacy layout */
+.page-container { padding: var(--spacing-6); display: flex; flex-direction: column; gap: var(--spacing-4); }
+@media (max-width: 767px) { .page-container { padding: var(--spacing-4); } }
+
+.dashboard-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-4); }
+@media (min-width: 768px) { .dashboard-grid { grid-template-columns: repeat(12, 1fr); } }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-4); }
+
+/* Legacy grids */
+.responsive-grid-4 { display: grid; grid-template-columns: 1fr; gap: var(--spacing-4); }
+@media (min-width: 640px) { .responsive-grid-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .responsive-grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+.responsive-grid-3 { display: grid; grid-template-columns: 1fr; gap: var(--spacing-4); }
+@media (min-width: 640px) { .responsive-grid-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .responsive-grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+.responsive-grid-2 { display: grid; grid-template-columns: 1fr; gap: var(--spacing-4); }
+@media (min-width: 640px) { .responsive-grid-2 { grid-template-columns: repeat(2, 1fr); } }
+
+/* Legacy values */
+.value-large-inverse { font-size: 1.875rem; font-weight: 600; color: #FFFFFF; line-height: 1.2; }
+.currency-prefix-inverse { font-size: 0.875rem; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+
+/* Legacy links */
+.link-action { font-size: 0.75rem; font-weight: 500; color: var(--color-accent-growth); text-decoration: none; }
+.link-action:hover { text-decoration: underline; }
+
+/* Legacy divider */
+.divider-vertical { width: 1px; height: 2.5rem; background: var(--color-divider); }
+
+/* Legacy table */
+.table-header { border-bottom: 1px solid var(--color-border); }
+.table-row { border-bottom: 1px solid var(--color-divider); }
+.table-row:last-child { border-bottom: none; }
+.table-cell { padding: var(--spacing-2) 0; }
+
+/* Legacy trend pill */
+.trend-pill { display: inline-flex; align-items: center; gap: 0.125rem; font-size: 0.75rem; font-weight: 500; padding: 0.125rem 0.5rem; border-radius: var(--radius-pill); background: var(--color-accent-growth-subtle); color: var(--color-accent-growth); }
+
+/* Legacy amounts */
+.amount-expense { font-size: 0.875rem; font-weight: 500; color: var(--color-danger-text); }
+.amount-income { font-size: 0.875rem; font-weight: 500; color: var(--color-accent-growth); }
+
+/* Legacy chart */
+.chart-container { height: 10rem; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--spacing-2); }
+.chart-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--spacing-2); }
+.chart-bar-fill { width: 2rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: var(--color-border-subtle); }
+.chart-bar-fill-active { width: 2rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: var(--color-accent-growth); }
+.chart-label { font-size: 0.75rem; font-weight: 500; color: var(--color-text-muted); }
+.chart-label-active { font-size: 0.75rem; font-weight: 500; color: var(--color-accent-growth); }
+
+@media (max-width: 640px) {
+  .chart-container { height: 8rem; }
+  .chart-bar-fill, .chart-bar-fill-active { width: 1.25rem; }
+}
+
+/* Legacy chat & settings layout */
+@media (min-width: 1024px) {
+  .chat-layout { display: grid !important; grid-template-columns: 1fr 320px !important; }
+  .settings-layout { display: grid !important; grid-template-columns: 200px 1fr !important; }
+}
+
+/* Featured tool grid */
+@media (min-width: 768px) {
+  .featured-tool-grid { grid-template-columns: 1fr 280px !important; }
+}
+
+/* Legacy mesh gradient */
+.mesh-gradient-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-surface-2) 50%, var(--color-bg-primary) 100%);
+  opacity: 0.4;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.soft-surface {
+  min-height: 100vh;
+  background-color: transparent;
+}
+
+/* ============================================================
+   17. INPUT OVERRIDES
+   ============================================================ */
+input, select, textarea {
+  background-color: var(--color-bg-input);
+  border-color: var(--color-border-input);
+  color: var(--color-text-primary);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-accent-growth);
+  outline-color: var(--color-accent-growth);
+}
+
+/* ============================================================
+   18. GLOBAL DARK MODE HELPERS
+   (Minimal — most theming is done via tokens above)
+   ============================================================ */
+
+/* Override Tailwind bg-white in dark mode */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] [class*="bg-white"] {
+  background-color: var(--color-bg-surface-1) !important;
+}
+
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-gray-100 {
+  background-color: var(--color-bg-surface-2) !important;
+}
+
+/* Override Tailwind text colors in dark mode */
+[data-theme="dark"] .text-gray-900 { color: var(--color-text-primary) !important; }
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-600 { color: var(--color-text-secondary) !important; }
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400 { color: var(--color-text-muted) !important; }
+
+/* Override Tailwind borders in dark mode */
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 { border-color: var(--color-border) !important; }
+
+/* Shadows in dark mode */
+[data-theme="dark"] .shadow-sm,
+[data-theme="dark"] .shadow { box-shadow: var(--shadow-card) !important; }
+
+/* Headings */
+[data-theme="dark"] h1, [data-theme="dark"] h2,
+[data-theme="dark"] h3, [data-theme="dark"] h4 { color: var(--color-text-primary); }
+
+/* Emerald accent stays visible in dark */
+[data-theme="dark"] .text-emerald-500,
+[data-theme="dark"] .text-emerald-600 { color: var(--color-accent-growth-hover) !important; }
+
+/* Round cards (dashboard uses rounded-2xl inline) */
+[data-theme="dark"] .rounded-2xl {
+  background-color: var(--color-bg-surface-1) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* Keep hero gradient in dark mode */
+[data-theme="dark"] .ds-card-hero,
+[data-theme="dark"] .card-hero {
+  background: var(--color-bg-hero) !important;
+  background-color: transparent !important;
+}
+
+/* Nav */
+[data-theme="dark"] nav {
+  background-color: var(--color-bg-sidebar) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* Emerald colored badges */
+[data-theme="dark"] .bg-emerald-50,
+[data-theme="dark"] .bg-emerald-100 { background-color: var(--color-accent-growth-subtle) !important; }
+
+[data-theme="dark"] .bg-red-50 { background-color: var(--color-danger-bg) !important; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ds-primary);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--ds-primary);
+}

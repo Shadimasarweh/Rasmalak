@@ -1,0 +1,123 @@
+{
+  "courseId": "investment_fundamentals_intermediate_en",
+  "locale": "en",
+  "title": "Investment Fundamentals",
+  "description": "Explore portfolio theory, options hedging, private equity access, and global macro strategies.",
+  "level": "intermediate",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p5_int_L1_en",
+      "title": "Fundamental Analysis: The P/E Ratio",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p5_int_L1",
+          "title": "Fundamental Analysis: The P/E Ratio",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate investors move beyond \"gut feelings\" to Fundamental Analysis. The Price-to-Earnings (P/E) ratio is a key metric used to determine if a stock is overvalued or undervalued. It is calculated by dividing the current share price by the company's earnings per share (EPS). A high P/E might suggest investors expect high future growth, while a low P/E could indicate a \"value\" bargain or a company in trouble. Comparing a company’s P/E to its industry average helps you decide if the price you are paying is reasonable."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Select a major company listed on the Saudi Exchange (Tadawul) or Amman Stock Exchange and find its current P/E ratio. Compare it to a competitor in the same sector."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_int_L2_en",
+      "title": "Understanding Dividend Yield",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p5_int_L2",
+          "title": "Understanding Dividend Yield",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For many investors in the MENA region, cash flow is as important as price growth. Dividend Yield is a financial ratio that tells you how much a company pays out in dividends each year relative to its stock price. It is expressed as a percentage. If a stock is priced at 100 SAR and pays 5 SAR in annual dividends, the yield is 5%. This is a form of passive income. Intermediate investors use this to compare the \"cash return\" of a stock to the interest they would get from a bank account."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify a high-dividend-paying company in your local market and calculate its yield based on the last four quarterly payouts."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_int_L3_en",
+      "title": "Correlation and Portfolio Rebalancing",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p5_int_L3",
+          "title": "Correlation and Portfolio Rebalancing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Diversification is only effective if your assets are not highly correlated (moving in the same direction at the same time). If you own five different tech stocks, you aren't truly diversified because they will likely all drop together during a tech slump. Intermediate investors look for low correlation—like owning gold, real estate, and stocks simultaneously. Furthermore, you must rebalance your portfolio annually. If your stocks grew significantly and now represent 80% of your wealth instead of your target 60%, you should sell some stocks and buy other assets to return to your original risk level."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your current investments. Are they all in the same industry or country? If so, identify one asset class that usually moves differently (e.g., gold vs. stocks)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_int_L4_en",
+      "title": "Fundamental Analysis: The P/E Ratio",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p5_int_L4",
+          "title": "Fundamental Analysis: The P/E Ratio",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Intermediate investors move beyond \"gut feelings\" to Fundamental Analysis. The Price-to-Earnings (P/E) ratio is a key metric used to determine if a stock is overvalued or undervalued. It is calculated by dividing the current share price by the company's earnings per share (EPS). A high P/E might suggest investors expect high future growth, while a low P/E could indicate a \"value\" bargain or a company in trouble."
+            },
+            {
+              "type": "p",
+              "text": "Comparing a company’s P/E to its industry average helps you decide if the price you are paying is reasonable. If the sector average is 15 but your target stock is at 30, you must ask if that company's growth potential truly justifies paying double the market rate. This analytical layer prevents you from \"buying the hype\" and ensures you are paying a fair price for the earnings the company produces."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Select a major company listed on the Saudi Exchange (Tadawul) or Amman Stock Exchange and find its current P/E ratio. Compare it to a competitor in the same sector."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p5_int_L5_en",
+      "title": "Understanding Dividend Yield",
+      "order": 5,
+      "sections": [
+        {
+          "id": "sec_p5_int_L5",
+          "title": "Understanding Dividend Yield",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For many investors in the MENA region, cash flow is as important as price growth. Dividend Yield is a financial ratio that tells you how much a company pays out in dividends each year relative to its stock price. It is expressed as a percentage. If a stock is priced at 100 and pays 5 in annual dividends, the yield is 5%."
+            },
+            {
+              "type": "p",
+              "text": "This is a form of passive income. Intermediate investors use this to compare the \"cash return\" of a stock to the interest they would get from a bank account. High-yield stocks in stable sectors (like telecommunications or utilities) can provide a steady stream of income that helps cover your living expenses, making them a cornerstone of a \"dividend growth\" strategy that builds wealth without needing to sell the underlying shares."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify a high-dividend-paying company in your local market and calculate its yield based on the last four quarterly payouts."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

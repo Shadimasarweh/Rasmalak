@@ -1,0 +1,110 @@
+{
+  "courseId": "debt_and_credit_advanced_en",
+  "locale": "en",
+  "title": "Debt and Credit",
+  "description": "Learn financial leverage, credit optimization, arbitrage concepts, and debt-to-income management.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p4_adv_L1_en",
+      "title": "Lombard Credits and Asset-Backed Lending",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p4_adv_L1",
+          "title": "Lombard Credits and Asset-Backed Lending",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced users do not use \"Personal Loans\"; they use Lombard Credits or Securities-Based Lending (SBL). This involves borrowing against your high-quality investment portfolio (stocks, bonds, or gold) at very low interest rates—often LIBOR or SOFR plus a small margin. Because the loan is backed by liquid assets, the bank's risk is low, and they pass that savings to you."
+            },
+            {
+              "type": "p",
+              "text": "This provides immediate liquidity without the need to sell your assets and trigger a taxable event. By using your wealth as collateral, you can fund a new business venture or a real estate purchase while your original investments continue to grow and pay dividends. This is how the wealthy \"stay rich\"—they never sell their winning assets; they simply borrow against them at rates lower than the assets' growth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Contact your private banker or broker and ask about their \"Loan-to-Value\" (LTV) ratios for borrowing against your current stock or gold portfolio."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_adv_L2_en",
+      "title": "Credit Default Swaps and Hedging Debt Risk",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p4_adv_L2",
+          "title": "Credit Default Swaps and Hedging Debt Risk",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In a volatile global economy, even \"fixed\" debt has risks, such as sudden currency collapses or changes in macro-regulation. Advanced credit management involves Hedging. This might include using Interest Rate Swaps to turn a variable-rate loan into a fixed one if you expect rates to rise, or using Currency Forwards to protect a loan denominated in a foreign currency."
+            },
+            {
+              "type": "p",
+              "text": "Mastering these tools ensures that your debt remains a controlled tool for growth rather than a fluctuating liability that could bankrupt you during a shift in the macro-economy. For example, if you have a business loan in USD but earn in a local currency, a currency hedge ensures that a 20% devaluation doesn't increase your debt by 20% overnight. It is \"Institutional Grade\" protection for your balance sheet."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you have a variable-rate loan, calculate how much your monthly payment would increase if interest rates rose by 3% this year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_adv_L3_en",
+      "title": "Arbitrage: Borrowing to Earn",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p4_adv_L3",
+          "title": "Arbitrage: Borrowing to Earn",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Arbitrage is the practice of taking advantage of an interest rate difference between two markets. In advanced finance, this could mean taking a low-interest loan (e.g., 3% from a Lombard credit) and investing that money in a guaranteed or high-probability asset that pays more (e.g., 6% from corporate bonds or real estate yield)."
+            },
+            {
+              "type": "p",
+              "text": "The 3% difference is your \"Spread,\" or pure profit. This is a sophisticated move that requires high discipline and certain market conditions. It should never be attempted with high-interest consumer debt. When done correctly, you are essentially using the bank's money to build your wealth for free. It is the pinnacle of \"Using Other People's Money\" (OPM) to accelerate your journey to financial freedom."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look at the interest rate of a low-cost Lombard loan and compare it to the current yield of a low-risk dividend fund or government bond."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p4_adv_L4_en",
+      "title": "Mezzanine Debt and Convertible Notes",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p4_adv_L4",
+          "title": "Mezzanine Debt and Convertible Notes",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "When scaling a business or a large real estate project, you may use Mezzanine Debt. This is a hybrid of debt and equity; it sits \"in the middle\" of the capital stack. If the business fails, the lender can convert the debt into an ownership stake. It is more expensive than a bank loan but cheaper than giving away pure equity to an investor."
+            },
+            {
+              "type": "p",
+              "text": "Advanced users use these notes to bridge the gap between their own capital and a traditional bank loan. This allows for massive projects to be completed without the founder losing total control. Understanding the \"Capital Stack\"—and where your debt sits in the hierarchy of repayment—is essential for protecting your equity while using heavy leverage to build an empire."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research \"Convertible Notes\" and identify how they could be used to fund the next stage of your business growth without immediate equity dilution."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

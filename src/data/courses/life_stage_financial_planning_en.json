@@ -1,0 +1,304 @@
+{
+  "courseId": "life_stage_financial_planning_en",
+  "locale": "en",
+  "title": "Life Stage Financial Planning",
+  "description": "Plan your finances through every life stage — from your first salary to retirement, marriage, children, and building a lasting legacy.",
+  "level": "beginner",
+  "estimatedTime": "30 min",
+  "lessons": [
+    {
+      "lessonId": "p10_L127_en",
+      "title": "Managing your first salary",
+      "order": 127,
+      "sections": [
+        {
+          "id": "sec_p10_L127",
+          "title": "Managing your first salary",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Your first salary is a milestone moment, and the habits you build now will shape your financial future for decades. The biggest mistake new earners make is lifestyle inflation — spending every dirham or dinar they earn because they finally can. Instead, adopt the 50/30/20 rule as a starting framework: 50% for needs (rent, food, transport), 30% for wants (entertainment, dining out), and 20% for savings and debt repayment. Open a separate savings account on your first payday and set up an automatic transfer so you pay yourself first before spending temptations kick in."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Set up an automatic transfer of at least 10% of your salary to a savings account on the day you receive your paycheck."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L128_en",
+      "title": "Building financial discipline",
+      "order": 128,
+      "sections": [
+        {
+          "id": "sec_p10_L128",
+          "title": "Building financial discipline",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Financial discipline is the ability to consistently make smart money decisions even when tempted to do otherwise. It is a skill, not a personality trait — meaning anyone can develop it with practice. Start by tracking every expense for one month to understand where your money actually goes (most people are shocked by the result). Then set clear spending limits for discretionary categories like dining, clothing, and entertainment. Use the 24-hour rule for non-essential purchases: wait a full day before buying anything over a certain amount. Over time, these small acts of discipline compound into significant wealth."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Track every single expense you make for the next 7 days — write it down or use an app — and review where your money is actually going."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L129_en",
+      "title": "Financial planning for couples",
+      "order": 129,
+      "sections": [
+        {
+          "id": "sec_p10_L129",
+          "title": "Financial planning for couples",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "When you partner with someone, your finances become intertwined whether you plan for it or not. Financial disagreements are one of the leading causes of relationship stress in Arab households. The key is open communication: discuss your individual debts, savings, income, and financial goals before or early in the relationship. Decide together how you will handle shared expenses — will you pool everything, split proportionally based on income, or maintain separate accounts with a joint fund for shared costs? There is no single right answer, but having an explicit agreement prevents resentment and misunderstandings."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you are in a relationship, schedule a 'money talk' with your partner to discuss both of your incomes, debts, and shared financial goals."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L130_en",
+      "title": "Joint finances",
+      "order": 130,
+      "sections": [
+        {
+          "id": "sec_p10_L130",
+          "title": "Joint finances",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Joint finances involve combining some or all of your financial resources with a partner. Common approaches include: fully joint (all income goes into one account), partially joint (each keeps a personal account plus a shared account for household expenses), or fully separate (each manages their own money and splits bills). In many Arab cultures, there is an expectation that the husband covers household expenses, but modern dual-income families are increasingly adopting shared approaches. Whatever model you choose, transparency is essential — both partners should know the full picture of household income, expenses, debts, and savings. Regular monthly 'budget meetings' help keep both partners aligned."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If managing finances with a partner, list all shared expenses and decide together on a clear system for who pays what and how much each person saves."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L131_en",
+      "title": "Planning for children",
+      "order": 131,
+      "sections": [
+        {
+          "id": "sec_p10_L131",
+          "title": "Planning for children",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Children bring immense joy but also significant financial responsibility. The costs begin before birth (medical expenses, nursery setup) and continue through childcare, school fees, clothing, food, activities, and eventually higher education. In many Arab countries, private school fees alone can range from $3,000 to $25,000+ per year per child. Planning ahead is critical: start saving before the child arrives, factor children into your insurance coverage (health and life), and adjust your budget to accommodate the new expenses. Creating a dedicated savings fund for each child's future education is one of the smartest financial moves a parent can make."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Estimate the annual cost of raising a child in your city (including school fees, healthcare, and daily needs) and start a savings plan to cover those future expenses."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L132_en",
+      "title": "Education funding",
+      "order": 132,
+      "sections": [
+        {
+          "id": "sec_p10_L132",
+          "title": "Education funding",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Education is one of the largest expenses a family will face. University tuition in the Arab world varies enormously — from free or subsidized public universities in some countries to $15,000-$50,000+ per year at private or international institutions. The earlier you start saving, the more time compound growth has to work in your favor. A dedicated education fund invested in a balanced portfolio can grow significantly over 15-18 years. Some families also consider education insurance plans that guarantee a payout at a specific date. Explore whether your government offers scholarships, grants, or subsidized student loans. Having a clear funding plan removes the panic of last-minute financial scrambles when your child reaches university age."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research the current cost of university education in your preferred institutions and calculate how much you need to save monthly starting now to fund it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L133_en",
+      "title": "Buying vs renting",
+      "order": 133,
+      "sections": [
+        {
+          "id": "sec_p10_L133",
+          "title": "Buying vs renting",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The buy-vs-rent decision is one of the biggest financial choices you will make. Buying builds equity (ownership value) over time and gives you stability, but it requires a large down payment, commits you to mortgage payments, and carries maintenance costs and market risk. Renting offers flexibility and lower upfront costs but does not build equity. In high-cost real estate markets common across the GCC, the math often favors renting and investing the difference. In markets with more affordable property, buying can be a strong wealth-building move. The key factors to consider are: how long you plan to stay (buying usually makes sense only if you will stay 5+ years), your financial stability, the local property market trend, and the cost of renting vs. the total cost of ownership."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your total monthly cost of renting vs. the total monthly cost of buying (mortgage + maintenance + insurance) for a comparable property in your area."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L134_en",
+      "title": "Mortgage planning",
+      "order": 134,
+      "sections": [
+        {
+          "id": "sec_p10_L134",
+          "title": "Mortgage planning",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A mortgage is typically the largest financial commitment you will ever make, so planning is essential. Key factors include: the down payment (most banks require 15-25% of the property value), the interest rate (fixed vs. variable — fixed gives payment certainty while variable may start lower but can increase), the loan term (15, 20, or 25 years — shorter terms mean higher monthly payments but less total interest), and your debt-to-income ratio (banks typically want your total monthly debt payments to be below 40-50% of your income). Before applying, improve your credit score, save the largest down payment you can, compare offers from multiple banks, and factor in closing costs, registration fees, and insurance premiums that add to the upfront expense."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Use an online mortgage calculator to see what monthly payment you can afford based on your income, and determine how much you need to save for a 20% down payment on your target property."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L135_en",
+      "title": "Retirement planning basics",
+      "order": 135,
+      "sections": [
+        {
+          "id": "sec_p10_L135",
+          "title": "Retirement planning basics",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Retirement planning means ensuring you have enough income to maintain your desired lifestyle when you stop working. The earlier you start, the less you need to save each month thanks to compound growth. A common guideline is that you will need 70-80% of your pre-retirement income annually during retirement. Start by estimating your retirement expenses, then subtract expected income from pensions and social security. The gap is what your personal savings and investments need to cover. Key retirement planning actions include: maximizing employer pension contributions, opening a personal retirement savings account, investing in a diversified portfolio appropriate for your age, and regularly reviewing your plan as your circumstances change."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Estimate how much annual income you will need in retirement, check what your social security pension will provide, and calculate the savings gap you need to fill."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L136_en",
+      "title": "Pension systems in Arab countries",
+      "order": 136,
+      "sections": [
+        {
+          "id": "sec_p10_L136",
+          "title": "Pension systems in Arab countries",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Arab countries have different pension systems for nationals and expatriates. Most GCC countries provide government pensions for citizens but not for foreign workers, who typically receive an end-of-service gratuity (a lump sum based on years of service) when they leave their employer. Countries like Jordan and Egypt have mandatory social security systems that provide monthly retirement pensions to contributors. The pension amount is usually calculated based on your average salary and number of contribution years. For expatriates in the GCC, the end-of-service gratuity is often the only employer-provided retirement benefit, making personal retirement savings even more critical. Understand which system applies to you and plan accordingly."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Find out exactly what retirement benefits you are entitled to — whether it is a pension, end-of-service gratuity, or both — and calculate whether it will be sufficient for your retirement needs."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L137_en",
+      "title": "Estate planning basics",
+      "order": 137,
+      "sections": [
+        {
+          "id": "sec_p10_L137",
+          "title": "Estate planning basics",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Estate planning is the process of arranging how your assets will be managed and distributed after your death. Without a proper plan, your family may face legal complications, asset freezes, and disputes that can take years to resolve. Key components include: creating a will (essential for expatriates in countries where local inheritance laws may differ from their wishes), designating beneficiaries on bank accounts and insurance policies, organizing important documents in one accessible location, and considering a power of attorney for financial decisions in case of incapacity. In many Arab countries, Sharia inheritance laws (Faraid) apply by default, distributing assets according to fixed shares to family members. Understanding these rules is essential whether you follow them or seek alternatives where legally permitted."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Create a simple document listing all your assets, debts, bank accounts, insurance policies, and important contacts — store it securely and tell a trusted family member where to find it."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L138_en",
+      "title": "Wealth transfer",
+      "order": 138,
+      "sections": [
+        {
+          "id": "sec_p10_L138",
+          "title": "Wealth transfer",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Wealth transfer is the process of passing your financial assets to the next generation or to beneficiaries during your lifetime or after death. Effective wealth transfer requires planning to minimize legal complications and potential tax implications (in countries where inheritance or gift taxes apply). Common strategies include: setting up family trusts, making gifts during your lifetime, naming beneficiaries on all financial accounts and insurance policies, and organizing property ownership structures. In the Arab world, family businesses are a major wealth vehicle — proper succession planning ensures the business survives the transition between generations. Without planning, families have seen fortunes disputed in courts for years while assets depreciate."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you have significant assets, consult with a financial advisor or lawyer about the most efficient way to structure wealth transfer in your jurisdiction."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L139_en",
+      "title": "Wills and inheritance in Arab contexts",
+      "order": 139,
+      "sections": [
+        {
+          "id": "sec_p10_L139",
+          "title": "Wills and inheritance in Arab contexts",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "In most Arab countries, Sharia-based inheritance laws (Faraid) govern how a deceased person's estate is distributed. Under these rules, fixed shares are allocated to specific heirs (spouse, children, parents, siblings) based on their relationship to the deceased, with male heirs typically receiving double the share of female heirs in the same category. A Muslim can write a will (Wasiyya) for up to one-third of their estate to be directed to non-heirs or charitable causes, but the remaining two-thirds must follow Faraid rules. For non-Muslim expatriates in some GCC countries (notably the UAE's DIFC Wills Service), it is possible to register a will that follows the laws of their home country instead. Regardless of your situation, having a registered will is crucial to protect your family from legal limbo."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check whether you have a valid, registered will. If not, research the requirements in your country of residence and take steps to create one — especially if you are an expatriate."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_L140_en",
+      "title": "Long term financial security",
+      "order": 140,
+      "sections": [
+        {
+          "id": "sec_p10_L140",
+          "title": "Long term financial security",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Long-term financial security means having enough resources to weather economic downturns, health crises, job loss, and the gradual transition into retirement without compromising your quality of life. It is built on multiple pillars: a fully funded emergency fund (6-12 months of expenses), adequate insurance coverage (health, life, property), diversified investments growing over time, manageable or zero debt, and a clear estate plan. The most important principle is consistency — small, regular contributions to savings and investments over decades produce extraordinary results through compound growth. Financial security is not about becoming wealthy overnight; it is about building a resilient foundation that supports you and your family through every stage of life."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Assess your current standing on each pillar of financial security — emergency fund, insurance, investments, debt level, and estate plan — and identify the weakest area to strengthen first."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

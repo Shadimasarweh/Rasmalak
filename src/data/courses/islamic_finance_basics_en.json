@@ -1,0 +1,220 @@
+{
+  "courseId": "islamic_finance_basics_en",
+  "locale": "en",
+  "title": "Islamic Finance Basics",
+  "description": "Understand the principles of Islamic finance, Sharia-compliant products, and ethical money management in accordance with Islamic values.",
+  "level": "beginner",
+  "estimatedTime": "25 min",
+  "lessons": [
+    {
+      "lessonId": "p9_L117_en",
+      "title": "Principles of Islamic finance",
+      "order": 117,
+      "sections": [
+        {
+          "id": "sec_p9_L117",
+          "title": "Principles of Islamic finance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Islamic finance is a system of financial practices that comply with Sharia (Islamic law). Its core principles include the prohibition of Riba (interest/usury), the avoidance of Gharar (excessive uncertainty or ambiguity in contracts), and the prohibition of investing in Haram (forbidden) industries such as alcohol, gambling, and tobacco. Instead of interest-based lending, Islamic finance emphasizes profit-and-loss sharing, asset-backed transactions, and ethical investing. These principles aim to create a more equitable financial system where risk and reward are shared fairly between all parties."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Reflect on whether your current financial products (savings accounts, loans) align with Islamic finance principles and identify areas where you might want to switch."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L118_en",
+      "title": "Riba vs profit sharing",
+      "order": 118,
+      "sections": [
+        {
+          "id": "sec_p9_L118",
+          "title": "Riba vs profit sharing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Riba (interest) is any guaranteed, predetermined return on a loan regardless of the outcome of the borrower's venture. In conventional banking, the lender earns interest whether the borrower succeeds or fails. Islamic finance replaces this with profit-and-loss sharing models like Mudarabah (where one party provides capital and the other provides expertise, sharing profits at an agreed ratio) and Musharakah (a joint venture where all partners contribute capital and share both profits and losses). This creates a more just system because the financier shares the risk rather than simply extracting guaranteed returns."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Compare the terms of a conventional personal loan with an Islamic financing option from your bank to see how the cost structures differ in practice."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L119_en",
+      "title": "Murabaha financing",
+      "order": 119,
+      "sections": [
+        {
+          "id": "sec_p9_L119",
+          "title": "Murabaha financing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Murabaha is one of the most common Islamic financing structures. Instead of lending you money at interest to buy an asset (like a car or home), the bank purchases the asset itself and then sells it to you at a disclosed markup, payable in installments. The key difference from conventional lending is transparency: the bank's profit margin is agreed upon upfront and fixed, there is no compounding interest, and the transaction is backed by a real asset. This \"cost-plus\" structure ensures the transaction has a tangible economic purpose rather than being a purely monetary exchange."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Ask your bank about their Murabaha products for auto or home financing and compare the total cost with a conventional loan equivalent."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L120_en",
+      "title": "Ijara leasing",
+      "order": 120,
+      "sections": [
+        {
+          "id": "sec_p9_L120",
+          "title": "Ijara leasing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Ijara is the Islamic equivalent of leasing. The bank purchases an asset (such as a car, equipment, or property) and leases it to you for an agreed period and rental amount. The bank retains ownership and bears the risks of ownership (like major maintenance), while you pay rent for the right to use the asset. At the end of the lease, the asset may be returned, the lease renewed, or ownership transferred to you (Ijara wa Iqtina). This structure is Sharia-compliant because it is a genuine sale-and-lease arrangement tied to a real asset, not a disguised interest-based loan."
+            },
+            {
+              "type": "action_prompt",
+              "text": "If you are considering a major purchase like a vehicle, explore Ijara options and note how the total cost and risk allocation compare to a standard car loan."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L121_en",
+      "title": "Sukuk bonds",
+      "order": 121,
+      "sections": [
+        {
+          "id": "sec_p9_L121",
+          "title": "Sukuk bonds",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Sukuk are Islamic investment certificates often described as \"Islamic bonds,\" though they differ fundamentally from conventional bonds. While a conventional bond represents a debt obligation where the issuer pays interest, Sukuk represent proportional ownership in an underlying tangible asset or project. The returns come from the asset's profits (like rental income or business revenue) rather than from interest payments. Sukuk have become a major instrument in global Islamic capital markets, with governments and corporations in the GCC, Malaysia, and beyond issuing them to raise billions of dollars in Sharia-compliant financing."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Research whether your country's government or any local companies have issued Sukuk and explore if they are available for individual investors."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L122_en",
+      "title": "Halal investing",
+      "order": 122,
+      "sections": [
+        {
+          "id": "sec_p9_L122",
+          "title": "Halal investing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Halal investing means placing your money in investments that comply with Islamic principles. This involves screening companies to ensure they do not derive significant revenue from prohibited activities (alcohol, gambling, pork, conventional financial services based on interest, weapons, or adult entertainment). Additionally, companies must maintain acceptable financial ratios—typically, their total debt should not exceed a certain percentage of their market capitalization, and interest-bearing deposits should be minimal. Many Islamic scholars and financial institutions have established screening criteria, and several Sharia-compliant stock indices (like the Dow Jones Islamic Market Index) exist to guide investors."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Check whether your current investments pass Sharia screening criteria using a free online Halal stock screening tool."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L123_en",
+      "title": "Islamic banking products",
+      "order": 123,
+      "sections": [
+        {
+          "id": "sec_p9_L123",
+          "title": "Islamic banking products",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Islamic banks offer a full range of products that mirror conventional banking but are structured to comply with Sharia. Current accounts operate on the Qard Hasan (benevolent loan) principle where the bank guarantees your deposits but does not pay interest. Savings and investment accounts work on the Mudarabah model where your deposits are invested and profits are shared at an agreed ratio. Financing products use Murabaha, Ijara, or diminishing Musharakah structures. Credit cards may use Tawarruq (commodity trading) or charge a flat annual fee instead of interest. The key is that every product must be tied to a real economic activity, not just the exchange of money for money."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Visit your nearest Islamic bank's website and compare their product offerings with your current conventional banking products."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L124_en",
+      "title": "Zakat and financial planning",
+      "order": 124,
+      "sections": [
+        {
+          "id": "sec_p9_L124",
+          "title": "Zakat and financial planning",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Zakat is one of the five pillars of Islam and represents a mandatory annual charitable contribution of 2.5% on wealth that exceeds the Nisab threshold (the minimum amount of wealth a Muslim must have before being obligated to pay Zakat). It applies to savings, gold, silver, business inventory, and certain investments held for one lunar year. Incorporating Zakat into your financial planning is essential: it should be calculated accurately and paid on time, typically during Ramadan. Rather than viewing it as a tax, consider Zakat as a purification of your wealth and a mechanism that promotes social equity by redistributing resources to those in need."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Calculate your Zakat obligation by listing all your Zakatable assets, subtracting your debts, and applying the 2.5% rate if the net amount exceeds the Nisab."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L125_en",
+      "title": "Islamic wealth management",
+      "order": 125,
+      "sections": [
+        {
+          "id": "sec_p9_L125",
+          "title": "Islamic wealth management",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Islamic wealth management combines conventional financial planning principles with Sharia compliance. It covers investment portfolio construction using Halal assets, retirement planning through Sharia-compliant pension funds, estate planning that adheres to Islamic inheritance laws (Faraid), and Takaful (Islamic insurance) for risk management. A comprehensive Islamic wealth plan ensures that your money grows ethically while fulfilling your religious obligations like Zakat and providing for your family according to Islamic succession rules. Many Islamic financial advisors and robo-advisory platforms now offer specialized services to help Muslims build wealth within these guidelines."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Assess whether your overall financial plan—savings, investments, insurance, and estate planning—is fully Sharia-compliant, and identify any gaps."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p9_L126_en",
+      "title": "Ethical investing",
+      "order": 126,
+      "sections": [
+        {
+          "id": "sec_p9_L126",
+          "title": "Ethical investing",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Ethical investing extends beyond Sharia compliance to encompass broader ESG (Environmental, Social, and Governance) criteria. Islamic finance and ethical investing share significant common ground: both reject investments that cause societal harm and both prioritize transparency and fairness. ESG-focused funds avoid companies involved in environmental destruction, human rights violations, or poor corporate governance. For Muslim investors, combining Halal screening with ESG criteria creates a powerful framework for building wealth that is both religiously compliant and socially responsible. This approach has gained significant mainstream traction, with studies showing that ethical funds often perform comparably to or better than conventional ones over the long term."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Look into one Sharia-compliant ESG fund available in your region and compare its performance with a conventional index fund over the past five years."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

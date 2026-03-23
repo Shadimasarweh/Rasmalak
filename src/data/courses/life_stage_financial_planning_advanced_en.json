@@ -1,0 +1,110 @@
+{
+  "courseId": "life_stage_financial_planning_advanced_en",
+  "locale": "en",
+  "title": "Life Stage Financial Planning",
+  "description": "Leverage human capital, navigate the sandwich generation, and plan retirement withdrawal strategies.",
+  "level": "advanced",
+  "estimatedTime": "20 min",
+  "lessons": [
+    {
+      "lessonId": "p10_adv_L1_en",
+      "title": "Family Office Structure and Multi-Generational Governance",
+      "order": 1,
+      "sections": [
+        {
+          "id": "sec_p10_adv_L1",
+          "title": "Family Office Structure and Multi-Generational Governance",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "For ultra-high-net-worth families, wealth management moves into a \"Family Office\" structure. This is a private firm that manages the investments, trusts, and legal affairs of a single family. Advanced planning involves creating a \"Family Constitution\"—a document that defines the family's values, mission, and the rules for how wealth is distributed and who can work in the family business."
+            },
+            {
+              "type": "p",
+              "text": "This level of governance prevents the \"Shirtsleeves to Shirtsleeves in Three Generations\" phenomenon. It ensures that the wealth is not just \"handed over\" but \"managed\" across generations. By establishing a professional investment committee and a clear succession plan, you ensure that your family's empire remains intact and continues to grow for centuries."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Draft a \"Family Mission Statement\" that defines the top three values you want your wealth to support for your grandchildren and beyond."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_adv_L2_en",
+      "title": "Global Tax Residency and Nomad Capitalist Strategy",
+      "order": 2,
+      "sections": [
+        {
+          "id": "sec_p10_adv_L2",
+          "title": "Global Tax Residency and Nomad Capitalist Strategy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Advanced wealth is mobile. The \"Nomad Capitalist\" strategy involves going \"where you are treated best.\" This means strategically choosing your residency and citizenship to optimize for tax, safety, and investment freedom. You may live in one country, have your business in a second, and keep your investments in a third."
+            },
+            {
+              "type": "p",
+              "text": "By diversifying your legal and geographical ties, you reduce the risk of any single government's policies damaging your wealth. It requires a sophisticated understanding of \"Physical vs. Tax Residency\" and international tax treaties. It is the ultimate level of personal and financial freedom, ensuring that you are a \"Global Citizen\" whose prosperity is independent of any single nation's economic fate."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify three countries that offer \"Digital Nomad\" or \"Golden Visa\" residencies. Compare their tax rates on \"Foreign Sourced Income.\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_adv_L3_en",
+      "title": "Philanthropic Engineering and Social Impact",
+      "order": 3,
+      "sections": [
+        {
+          "id": "sec_p10_adv_L3",
+          "title": "Philanthropic Engineering and Social Impact",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "At the highest level, wealth is a tool for systemic change. Advanced philanthropic engineering involves moving beyond simple charity to \"Impact Investing\" and \"Strategic Giving.\" This means using your capital to fund businesses or non-profits that solve specific social problems while potentially providing a financial return that can be reinvested into the same cause."
+            },
+            {
+              "type": "p",
+              "text": "By applying the same rigour to your giving as you do to your investing, you maximize the \"Social Return on Investment\" (SROI). You can build hospitals, fund university chairs, or solve regional water crises. This transforms your legacy from a \"pile of money\" into a \"living force for good\" in the world, ensuring that your name is remembered for the impact you made rather than just the balance in your bank account."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Identify one social or environmental problem you are passionate about. Research an \"Impact Fund\" that is working to solve it through scalable business models."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lessonId": "p10_adv_L4_en",
+      "title": "Eternal Legacy and Spiritual Capital",
+      "order": 4,
+      "sections": [
+        {
+          "id": "sec_p10_adv_L4",
+          "title": "Eternal Legacy and Spiritual Capital",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The final lesson of the advanced tier is the integration of financial wealth with \"Spiritual Capital.\" In the MENA context, this involves aligning your life's work with a higher purpose. It is the understanding that you are a \"trustee\" of your wealth, not just an owner. Your eternal legacy is built on the \"Barakah\" (blessing) you created and the lives you improved."
+            },
+            {
+              "type": "p",
+              "text": "By finalizing your Will (Wasiyya), establishing your Waqf, and ensuring your heirs are spiritually and financially grounded, you complete your mission. You leave behind a \"Capital Ecosystem\" that continues to produce value, goodness, and wisdom long after you are gone. This is the true meaning of Rasmalak (Your Capital)—it is the sum of your life's integrity, impact, and the light you leave for the generations to follow."
+            },
+            {
+              "type": "action_prompt",
+              "text": "Review your entire journey through the Rasmalak curriculum. Write down the one \"Final Goal\" that summarizes what you want your life's capital to achieve after your work is done."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
