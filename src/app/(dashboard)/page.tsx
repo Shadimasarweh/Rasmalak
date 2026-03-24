@@ -280,7 +280,7 @@ export default function OverviewPage() {
         type: 'salary_missing',
         severity: 'warning',
         messageEn: `Your salary usually arrives by the 25th. It hasn't been recorded yet this month.`,
-        messageAr: `عادةً ما يصل راتبك بحلول ال25 من الشهر. لم يتم تسجيله بعد هذا الشهر.`,
+        messageAr: `عادةً ما يصل راتبك بحلول ال٢٥ من الشهر. لم يتم تسجيله بعد هذا الشهر.`,
         actionHref: '/transactions/new/income',
         actionLabelEn: 'Add income',
         actionLabelAr: 'إضافة دخل',
@@ -739,7 +739,7 @@ export default function OverviewPage() {
           {/* Stats Row */}
           <div style={{ display: 'flex', gap: 'var(--spacing-6)', marginBottom: 'var(--spacing-5)', flexWrap: 'wrap' }}>
             {[
-              { labelId: 'dashboard.lessons_completed', label: 'Lessons Completed', value: '2', iconColor: 'var(--ds-primary)', bg: 'rgba(45,106,79,0.1)', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+              { labelId: 'dashboard.lessons_completed', label: 'Lessons Completed', value: intl.formatNumber(2), iconColor: 'var(--ds-primary)', bg: 'rgba(45,106,79,0.1)', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
               { labelId: 'dashboard.current_streak', label: 'Current Streak', value: intl.formatMessage({ id: 'dashboard.days_count', defaultMessage: '{count} days' }, { count: intl.formatNumber(3) }), iconColor: '#D4920A', bg: 'rgba(212,146,10,0.12)', icon: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z' },
               { labelId: 'dashboard.time_spent', label: 'Time Spent', value: isRTL ? '١٣ د' : '13m', iconColor: 'var(--color-accent-growth)', bg: 'var(--color-accent-growth-subtle)', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
             ].map(stat => (

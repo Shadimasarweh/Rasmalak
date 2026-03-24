@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Link from 'next/link';
-import { getAllCourses, getCourseIdForLocale, getCourse } from '@/data/courses';
+import { getAllCourses } from '@/data/courses';
 import { getTotalSections } from '@/types/course';
 import type { CourseData, CourseLevel } from '@/types/course';
 import { supabase } from '@/lib/supabaseClient';
@@ -38,6 +38,11 @@ import {
    ============================================ */
 
 type LearnTab = 'home' | 'articles' | 'videos' | 'topics' | 'achievements';
+
+const ARABIC_INDIC = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'] as const;
+function toArabicNumerals(str: string): string {
+  return str.replace(/[0-9]/g, (d) => ARABIC_INDIC[+d]);
+}
 
 const PAGE_BG = 'var(--ds-bg-page)';
 const LEARN_GREEN = 'var(--ds-primary)';
@@ -266,7 +271,7 @@ function TabSwitcher({
 const ARTICLE_CARDS = [
   { titleEn: 'The Power of Compound Interest', titleAr: 'قوة الفائدة المركبة', tagEn: 'INVESTING · BEGINNER', tagAr: 'استثمار · مبتدئ', readMin: 8, descEn: 'Learn how your money grows exponentially over time.', descAr: 'تعلّم كيف ينمو مالك بشكل أُسّي مع مرور الوقت.' },
   { titleEn: 'How to Read a Balance Sheet', titleAr: 'كيف تقرأ الميزانية العمومية', tagEn: 'FINANCE · INTERMEDIATE', tagAr: 'مالية · متوسط', readMin: 12, descEn: 'Master the fundamentals of financial statements.', descAr: 'أتقن أساسيات القوائم المالية.' },
-  { titleEn: 'Gold vs Real Estate: Where to Invest in 2025', titleAr: 'الذهب مقابل العقارات: أين تستثمر في 2025', tagEn: 'WEALTH · ADVANCED', tagAr: 'ثروة · متقدم', readMin: 10, descEn: 'Compare two major asset classes for the year ahead.', descAr: 'قارن بين فئتين رئيسيتين من الأصول للعام القادم.' },
+  { titleEn: 'Gold vs Real Estate: Where to Invest in 2025', titleAr: 'الذهب مقابل العقارات: أين تستثمر في ٢٠٢٥', tagEn: 'WEALTH · ADVANCED', tagAr: 'ثروة · متقدم', readMin: 10, descEn: 'Compare two major asset classes for the year ahead.', descAr: 'قارن بين فئتين رئيسيتين من الأصول للعام القادم.' },
   { titleEn: 'Understanding Inflation and Your Savings', titleAr: 'فهم التضخم وتأثيره على مدخراتك', tagEn: 'ECONOMICS · BEGINNER', tagAr: 'اقتصاد · مبتدئ', readMin: 6, descEn: 'How inflation erodes purchasing power and how to protect savings.', descAr: 'كيف يقلل التضخم القوة الشرائية وكيف تحمي مدخراتك.' },
   { titleEn: 'ETFs Explained Simply', titleAr: 'صناديق المؤشرات المتداولة بشكل مبسط', tagEn: 'INVESTING · INTERMEDIATE', tagAr: 'استثمار · متوسط', readMin: 9, descEn: 'A beginner-friendly guide to exchange-traded funds.', descAr: 'دليل مبسط لصناديق المؤشرات المتداولة.' },
   { titleEn: 'Building an Emergency Fund', titleAr: 'بناء صندوق الطوارئ', tagEn: 'PERSONAL FINANCE · BEGINNER', tagAr: 'مالية شخصية · مبتدئ', readMin: 5, descEn: 'Steps to build a safety net for unexpected expenses.', descAr: 'خطوات لبناء شبكة أمان للنفقات غير المتوقعة.' },
@@ -389,7 +394,7 @@ function VideosTab({ language }: { language: string }) {
                   borderRadius: '8px',
                 }}
               >
-                {card.duration}
+                {isRtl ? toArabicNumerals(card.duration) : card.duration}
               </span>
             </div>
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: isRtl ? 'right' : 'left' }}>
@@ -496,13 +501,13 @@ const ACHIEVEMENT_BADGES = [
   },
   {
     titleEn: 'Quick Learner', titleAr: 'المتعلم السريع',
-    conditionEn: 'Complete 5 lessons in a week', conditionAr: 'أكمل 5 دروس في أسبوع',
+    conditionEn: 'Complete 5 lessons in a week', conditionAr: 'أكمل ٥ دروس في أسبوع',
     icon: 'flame',
     progressEn: '0 / 5 lessons this week', progressAr: '٠ / ٥ دروس هذا الأسبوع',
   },
   {
     titleEn: 'Consistent', titleAr: 'المثابر',
-    conditionEn: '7-day learning streak', conditionAr: 'سلسلة تعلم 7 أيام',
+    conditionEn: '7-day learning streak', conditionAr: 'سلسلة تعلم ٧ أيام',
     icon: 'trending',
     progressEn: '0 / 7 day streak', progressAr: '٠ / ٧ أيام متتالية',
   },
@@ -526,13 +531,13 @@ const ACHIEVEMENT_BADGES = [
   },
   {
     titleEn: 'Scholar', titleAr: 'العالم',
-    conditionEn: 'Read 10 articles', conditionAr: 'اقرأ 10 مقالات',
+    conditionEn: 'Read 10 articles', conditionAr: 'اقرأ ١٠ مقالات',
     icon: 'book',
     progressEn: '0 / 10 articles', progressAr: '٠ / ١٠ مقالات',
   },
   {
     titleEn: 'Video Student', titleAr: 'طالب الفيديو',
-    conditionEn: 'Watch 5 videos', conditionAr: 'شاهد 5 فيديوهات',
+    conditionEn: 'Watch 5 videos', conditionAr: 'شاهد ٥ فيديوهات',
     icon: 'play',
     progressEn: '0 / 5 videos', progressAr: '٠ / ٥ فيديوهات',
   },
@@ -657,11 +662,6 @@ function AccordionCourseCard({
   const level = course.level ?? 'beginner';
   const badgeColor = BADGE_COLORS[level];
 
-  const otherLocale = course.locale === 'ar' ? 'en' : 'ar';
-  const otherCourseId = getCourseIdForLocale(course.courseId, otherLocale);
-  const otherCourse = getCourse(otherCourseId);
-  const subtitleText = otherCourse?.title ?? null;
-
   return (
     <Link
       href={`/learn/courses/${course.courseId}`}
@@ -705,18 +705,6 @@ function AccordionCourseCard({
           <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
             {course.title}
           </h3>
-
-          {/* Subtitle (other locale) */}
-          {subtitleText && (
-            <span style={{
-              fontSize: '13px', fontWeight: 400, color: 'var(--ds-text-muted)',
-              display: 'block', marginTop: '2px',
-              direction: otherLocale === 'ar' ? 'rtl' : 'ltr',
-              textAlign: otherLocale === 'ar' ? 'right' : 'left',
-            }}>
-              {subtitleText}
-            </span>
-          )}
 
           {/* Description — 2 line clamp */}
           <p style={{
@@ -887,7 +875,7 @@ export default function LearnPage() {
   const { courses, progressMap } = useLearnPageData();
 
   const [activeTab, setActiveTab] = useState<LearnTab>('home');
-  const [openAccordion, setOpenAccordion] = useState<CourseLevel | null>('beginner');
+  const [openAccordion, setOpenAccordion] = useState<CourseLevel | null>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
