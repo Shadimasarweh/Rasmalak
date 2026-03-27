@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int5_L1_en",
-      "title": "Fundamental Analysis: The P/E Ratio Intermediate investors move beyond \"gut feelings\" to Fundamental Analysis. The Price-to-Earnings (P/E) ratio is a key metric used to determine if a stock is overvalued or undervalued, calculated by dividing the share price by the earnings per share (EPS). A high P/E might suggest high future growth expectations, while a low P/E could indicate a \"value\" bargain or a company in trouble. Comparing a company’s P/E to its industry average helps you decide if the price you are paying is reasonable. Action: Select a major company listed on Tadawul or Amman Stock Exchange and find its current P/E ratio. Compare it to a competitor in the same sector.",
+      "title": "Fundamental Analysis: The P/E Ratio",
       "order": 1,
       "sections": [
         {
           "id": "sec_int5_L1",
-          "title": "Fundamental Analysis: The P/E Ratio Intermediate investors move beyond \"gut feelings\" to Fundamental Analysis. The Price-to-Earnings (P/E) ratio is a key metric used to determine if a stock is overvalued or undervalued, calculated by dividing the share price by the earnings per share (EPS). A high P/E might suggest high future growth expectations, while a low P/E could indicate a \"value\" bargain or a company in trouble. Comparing a company’s P/E to its industry average helps you decide if the price you are paying is reasonable. Action: Select a major company listed on Tadawul or Amman Stock Exchange and find its current P/E ratio. Compare it to a competitor in the same sector.",
+          "title": "Fundamental Analysis: The P/E Ratio",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int5_L2_en",
-      "title": "Understanding Dividend Yield For many investors in the MENA region, cash flow is as important as price growth. Dividend Yield is a financial ratio that shows how much a company pays out in dividends each year relative to its stock price, expressed as a percentage. This represents a form of passive income. Intermediate investors use this metric to compare the \"cash return\" of a stock to the interest they would receive from a standard bank account. Action: Identify a high-dividend-paying company in your local market and calculate its yield based on the last four quarterly payouts.",
+      "title": "Understanding Dividend Yield",
       "order": 2,
       "sections": [
         {
           "id": "sec_int5_L2",
-          "title": "Understanding Dividend Yield For many investors in the MENA region, cash flow is as important as price growth. Dividend Yield is a financial ratio that shows how much a company pays out in dividends each year relative to its stock price, expressed as a percentage. This represents a form of passive income. Intermediate investors use this metric to compare the \"cash return\" of a stock to the interest they would receive from a standard bank account. Action: Identify a high-dividend-paying company in your local market and calculate its yield based on the last four quarterly payouts.",
+          "title": "Understanding Dividend Yield",
           "blocks": [
             {
               "type": "p",
@@ -42,12 +42,12 @@
     },
     {
       "lessonId": "int5_L3_en",
-      "title": "Correlation and Portfolio Rebalancing Diversification is only effective if your assets are not highly correlated—meaning they don't all move in the same direction at the same time. Intermediate investors look for low correlation, such as simultaneously owning gold, real estate, and stocks. Furthermore, you must rebalance your portfolio annually to return to your original risk level. If stocks grow to represent 80% of your wealth instead of a target 60%, you should sell some and buy other assets to maintain balance. Action: Review your current investments. Are they all in the same industry or country? If so, identify one asset class that usually moves differently.",
+      "title": "Correlation and Portfolio Rebalancing",
       "order": 3,
       "sections": [
         {
           "id": "sec_int5_L3",
-          "title": "Correlation and Portfolio Rebalancing Diversification is only effective if your assets are not highly correlated—meaning they don't all move in the same direction at the same time. Intermediate investors look for low correlation, such as simultaneously owning gold, real estate, and stocks. Furthermore, you must rebalance your portfolio annually to return to your original risk level. If stocks grow to represent 80% of your wealth instead of a target 60%, you should sell some and buy other assets to maintain balance. Action: Review your current investments. Are they all in the same industry or country? If so, identify one asset class that usually moves differently.",
+          "title": "Correlation and Portfolio Rebalancing",
           "blocks": [
             {
               "type": "p",

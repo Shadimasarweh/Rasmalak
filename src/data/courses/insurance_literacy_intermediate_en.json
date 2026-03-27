@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int6_L1_en",
-      "title": "Self-Insurance and Higher Deductibles As your emergency fund and wealth grow, you can practice \"Self-Insurance\". This involves choosing a higher deductible on your insurance policies, which significantly lowers your monthly premiums. Over several years, the savings in premiums often far exceed the cost of the deductible. This strategy effectively uses your emergency fund to handle small risks while keeping insurance only for catastrophic events. Action: Ask your insurance provider for a quote with a deductible that is double your current one. Calculate how many months of premium savings it would take to cover it.",
+      "title": "Self-Insurance and Higher Deductibles",
       "order": 1,
       "sections": [
         {
           "id": "sec_int6_L1",
-          "title": "Self-Insurance and Higher Deductibles As your emergency fund and wealth grow, you can practice \"Self-Insurance\". This involves choosing a higher deductible on your insurance policies, which significantly lowers your monthly premiums. Over several years, the savings in premiums often far exceed the cost of the deductible. This strategy effectively uses your emergency fund to handle small risks while keeping insurance only for catastrophic events. Action: Ask your insurance provider for a quote with a deductible that is double your current one. Calculate how many months of premium savings it would take to cover it.",
+          "title": "Self-Insurance and Higher Deductibles",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int6_L2_en",
-      "title": "Liability Limits and Umbrella Policies Intermediate literacy means looking beyond whether an item is covered to how much is covered. Liability Limits represent the maximum amount an insurance company will pay; if damages exceed this, you are personally responsible, which could lead to bankruptcy. Intermediate users often purchase an \"Umbrella Policy\"—additional liability insurance that sits on top of home and auto policies. This inexpensive layer provides extra protection for your assets against lawsuits and extreme claims. Action: Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the medical bills?.",
+      "title": "Liability Limits and Umbrella Policies",
       "order": 2,
       "sections": [
         {
           "id": "sec_int6_L2",
-          "title": "Liability Limits and Umbrella Policies Intermediate literacy means looking beyond whether an item is covered to how much is covered. Liability Limits represent the maximum amount an insurance company will pay; if damages exceed this, you are personally responsible, which could lead to bankruptcy. Intermediate users often purchase an \"Umbrella Policy\"—additional liability insurance that sits on top of home and auto policies. This inexpensive layer provides extra protection for your assets against lawsuits and extreme claims. Action: Check your car insurance policy for the \"Third Party Liability\" limit. Ask yourself: if I caused a 3-car accident, would this amount cover all the medical bills?.",
+          "title": "Liability Limits and Umbrella Policies",
           "blocks": [
             {
               "type": "p",
@@ -42,12 +42,12 @@
     },
     {
       "lessonId": "int6_L3_en",
-      "title": "Cash Value vs. Term Life Insurance There is a major debate regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period, while Whole Life acts as both insurance and an investment vehicle that builds \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference\". This means paying less for term insurance and putting the saved money into higher-growth investments like stocks, rather than paying higher fees to an insurance company to manage it for you. Action: Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount.",
+      "title": "Cash Value vs. Term Life Insurance",
       "order": 3,
       "sections": [
         {
           "id": "sec_int6_L3",
-          "title": "Cash Value vs. Term Life Insurance There is a major debate regarding Term Life vs. Whole Life (Cash Value) insurance. Term insurance is cheap and covers you for a set period, while Whole Life acts as both insurance and an investment vehicle that builds \"cash value\" over time. Intermediate users often follow the strategy: \"Buy term and invest the difference\". This means paying less for term insurance and putting the saved money into higher-growth investments like stocks, rather than paying higher fees to an insurance company to manage it for you. Action: Compare the monthly premium of a Term Life policy versus a Whole Life policy for the same payout amount.",
+          "title": "Cash Value vs. Term Life Insurance",
           "blocks": [
             {
               "type": "p",

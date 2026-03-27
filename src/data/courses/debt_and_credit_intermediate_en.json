@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int4_L1_en",
-      "title": "The Concept of Financial Leverage Leverage is the strategic use of borrowed money to increase the potential return on an investment. For example, using a mortgage to buy a rental property allows you to control a large asset with a small amount of your own cash, potentially amplifying your gains if the property value rises. However, leverage is a double-edged sword; while it amplifies gains, it also amplifies losses and increases risk. Intermediate users learn to use leverage only for productive, income-generating assets rather than consumer items. Action: Research a \"buy-to-let\" scenario. Calculate the ROI if you bought a property with 100% cash versus a 25% down payment and a mortgage.",
+      "title": "The Concept of Financial Leverage",
       "order": 1,
       "sections": [
         {
           "id": "sec_int4_L1",
-          "title": "The Concept of Financial Leverage Leverage is the strategic use of borrowed money to increase the potential return on an investment. For example, using a mortgage to buy a rental property allows you to control a large asset with a small amount of your own cash, potentially amplifying your gains if the property value rises. However, leverage is a double-edged sword; while it amplifies gains, it also amplifies losses and increases risk. Intermediate users learn to use leverage only for productive, income-generating assets rather than consumer items. Action: Research a \"buy-to-let\" scenario. Calculate the ROI if you bought a property with 100% cash versus a 25% down payment and a mortgage.",
+          "title": "The Concept of Financial Leverage",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int4_L2_en",
-      "title": "Credit Utilization Ratio and Your Score Your credit score is heavily influenced by your \"Credit Utilization Ratio,\" which is the amount of credit you are using compared to your total available limit. High utilization—such as using 90% of your limit—signals high risk to banks and can significantly lower your score. Intermediate users aim to keep this ratio below 30%. Lowering your utilization is the fastest way to \"boost\" your credit score without needing an increase in income. Action: Divide your total current credit card balances by your total credit limits. If the result is over 30%, create a plan to pay it down.",
+      "title": "Credit Utilization Ratio and Your Score",
       "order": 2,
       "sections": [
         {
           "id": "sec_int4_L2",
-          "title": "Credit Utilization Ratio and Your Score Your credit score is heavily influenced by your \"Credit Utilization Ratio,\" which is the amount of credit you are using compared to your total available limit. High utilization—such as using 90% of your limit—signals high risk to banks and can significantly lower your score. Intermediate users aim to keep this ratio below 30%. Lowering your utilization is the fastest way to \"boost\" your credit score without needing an increase in income. Action: Divide your total current credit card balances by your total credit limits. If the result is over 30%, create a plan to pay it down.",
+          "title": "Credit Utilization Ratio and Your Score",
           "blocks": [
             {
               "type": "p",
@@ -42,12 +42,12 @@
     },
     {
       "lessonId": "int4_L3_en",
-      "title": "Arbitrage: Borrowing to Earn Arbitrage is the practice of taking advantage of interest rate differences between two markets. In finance, this could involve taking a low-interest loan (e.g., 3%) and investing that money in a guaranteed or high-probability asset that pays a higher rate (e.g., 6%). The difference between the two rates is your net profit. This is an advanced-intermediate move that requires high discipline and should never be attempted with high-risk \"destructive\" debt. Action: Look at the interest rate of a low-cost personal loan and compare it to the current yield of a low-risk government bond or a reliable dividend fund.",
+      "title": "Arbitrage: Borrowing to Earn",
       "order": 3,
       "sections": [
         {
           "id": "sec_int4_L3",
-          "title": "Arbitrage: Borrowing to Earn Arbitrage is the practice of taking advantage of interest rate differences between two markets. In finance, this could involve taking a low-interest loan (e.g., 3%) and investing that money in a guaranteed or high-probability asset that pays a higher rate (e.g., 6%). The difference between the two rates is your net profit. This is an advanced-intermediate move that requires high discipline and should never be attempted with high-risk \"destructive\" debt. Action: Look at the interest rate of a low-cost personal loan and compare it to the current yield of a low-risk government bond or a reliable dividend fund.",
+          "title": "Arbitrage: Borrowing to Earn",
           "blocks": [
             {
               "type": "p",
@@ -59,12 +59,12 @@
     },
     {
       "lessonId": "int4_L4_en",
-      "title": "The Debt-to-Income (DTI) Ceiling Banks use the Debt-to-Income (DTI) ratio—the percentage of gross monthly income that goes toward paying debts—to decide if you are \"over-leveraged\". Most lenders have a strict ceiling, typically between 35% and 43%. Intermediate mastery involves managing your DTI proactively to maintain \"Financial Agility\". Keeping your debt payments well below the ceiling ensures that when a great investment opportunity arises, you still have the \"borrowing capacity\" to act quickly. Action: Calculate your DTI: (Total Monthly Debt Payments / Gross Monthly Income) x 100. If it's over 35%, prioritize debt reduction.",
+      "title": "The Debt-to-Income (DTI) Ceiling",
       "order": 4,
       "sections": [
         {
           "id": "sec_int4_L4",
-          "title": "The Debt-to-Income (DTI) Ceiling Banks use the Debt-to-Income (DTI) ratio—the percentage of gross monthly income that goes toward paying debts—to decide if you are \"over-leveraged\". Most lenders have a strict ceiling, typically between 35% and 43%. Intermediate mastery involves managing your DTI proactively to maintain \"Financial Agility\". Keeping your debt payments well below the ceiling ensures that when a great investment opportunity arises, you still have the \"borrowing capacity\" to act quickly. Action: Calculate your DTI: (Total Monthly Debt Payments / Gross Monthly Income) x 100. If it's over 35%, prioritize debt reduction.",
+          "title": "The Debt-to-Income (DTI) Ceiling",
           "blocks": [
             {
               "type": "p",

@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int2_L1_en",
-      "title": "The Zero-Based Budgeting Method Zero-based budgeting is a rigorous strategy where every single unit of currency you earn is assigned a specific job until \"Income minus Expenses\" equals zero. This does not mean you have an empty bank account; rather, it means every riyal is purposefully allocated toward rent, investments, or charity. This method is far superior to basic tracking because it forces you to prioritize your financial goals before the month even begins. It effectively eliminates \"mysterious\" cash leaks and impulsive spending by giving you a clear roadmap for every unit of capital. Action: Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero.",
+      "title": "The Zero-Based Budgeting Method",
       "order": 1,
       "sections": [
         {
           "id": "sec_int2_L1",
-          "title": "The Zero-Based Budgeting Method Zero-based budgeting is a rigorous strategy where every single unit of currency you earn is assigned a specific job until \"Income minus Expenses\" equals zero. This does not mean you have an empty bank account; rather, it means every riyal is purposefully allocated toward rent, investments, or charity. This method is far superior to basic tracking because it forces you to prioritize your financial goals before the month even begins. It effectively eliminates \"mysterious\" cash leaks and impulsive spending by giving you a clear roadmap for every unit of capital. Action: Before the next month begins, allocate every single riyal of your expected income into specific categories in Rasmalak until your balance is zero.",
+          "title": "The Zero-Based Budgeting Method",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int2_L2_en",
-      "title": "Budgeting for Sinking Funds A \"Sinking Fund\" is a proactive savings strategy designed to cover known future expenses by breaking them into manageable monthly installments. Unlike an emergency fund, which is reserved for the unknown, a sinking fund is for the inevitable, such as annual car insurance, home maintenance, or a wedding. By setting aside money incrementally, you eliminate the financial shock and stress of \"big bills\" when they finally arrive. This is the secret to maintaining a smooth financial life and avoiding sudden, unplanned spikes in your monthly spending. Action: Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due.",
+      "title": "Budgeting for Sinking Funds",
       "order": 2,
       "sections": [
         {
           "id": "sec_int2_L2",
-          "title": "Budgeting for Sinking Funds A \"Sinking Fund\" is a proactive savings strategy designed to cover known future expenses by breaking them into manageable monthly installments. Unlike an emergency fund, which is reserved for the unknown, a sinking fund is for the inevitable, such as annual car insurance, home maintenance, or a wedding. By setting aside money incrementally, you eliminate the financial shock and stress of \"big bills\" when they finally arrive. This is the secret to maintaining a smooth financial life and avoiding sudden, unplanned spikes in your monthly spending. Action: Identify one large annual expense you have and create a sinking fund for it by dividing the total cost by the number of months left until it is due.",
+          "title": "Budgeting for Sinking Funds",
           "blocks": [
             {
               "type": "p",
@@ -42,12 +42,12 @@
     },
     {
       "lessonId": "int2_L3_en",
-      "title": "Analyzing Personal Cash Flow Trends Intermediate budgeting moves beyond static monthly snapshots to active trend analysis. By comparing your spending over a 6 to 12-month period, you can identify seasonal patterns—such as higher energy bills in the summer or increased gift spending during religious holidays. Understanding these trends allows you to build a \"buffer\" in your budget during lower-expense months to cover higher-expense ones. This proactive approach ensures your financial plan remains robust and steady throughout the entire year. Action: Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most.",
+      "title": "Analyzing Personal Cash Flow Trends",
       "order": 3,
       "sections": [
         {
           "id": "sec_int2_L3",
-          "title": "Analyzing Personal Cash Flow Trends Intermediate budgeting moves beyond static monthly snapshots to active trend analysis. By comparing your spending over a 6 to 12-month period, you can identify seasonal patterns—such as higher energy bills in the summer or increased gift spending during religious holidays. Understanding these trends allows you to build a \"buffer\" in your budget during lower-expense months to cover higher-expense ones. This proactive approach ensures your financial plan remains robust and steady throughout the entire year. Action: Review your Rasmalak reports from the last 6 months and identify which category has fluctuated the most.",
+          "title": "Analyzing Personal Cash Flow Trends",
           "blocks": [
             {
               "type": "p",
@@ -59,12 +59,12 @@
     },
     {
       "lessonId": "int2_L4_en",
-      "title": "The 1% Rule for Impulse Control For intermediate spenders, the \"1% Rule\" acts as a vital psychological guardrail against impulsive consumption. It dictates that for any non-essential purchase exceeding 1% of your annual gross income, you must observe a mandatory one-week waiting period before completing the transaction. This \"cooling-off\" period allows the initial dopamine hit to fade, enabling a more rational decision based on actual needs rather than fleeting desires. By implementing this rule, you prevent \"death by a thousand cuts\"—the small, impulsive upgrades that collectively drain your wealth-building capital. Action: Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items.",
+      "title": "The 1% Rule for Impulse Control",
       "order": 4,
       "sections": [
         {
           "id": "sec_int2_L4",
-          "title": "The 1% Rule for Impulse Control For intermediate spenders, the \"1% Rule\" acts as a vital psychological guardrail against impulsive consumption. It dictates that for any non-essential purchase exceeding 1% of your annual gross income, you must observe a mandatory one-week waiting period before completing the transaction. This \"cooling-off\" period allows the initial dopamine hit to fade, enabling a more rational decision based on actual needs rather than fleeting desires. By implementing this rule, you prevent \"death by a thousand cuts\"—the small, impulsive upgrades that collectively drain your wealth-building capital. Action: Set a \"Trigger Amount\" (1% of your income) in your budget app to alert you for high-value items.",
+          "title": "The 1% Rule for Impulse Control",
           "blocks": [
             {
               "type": "p",

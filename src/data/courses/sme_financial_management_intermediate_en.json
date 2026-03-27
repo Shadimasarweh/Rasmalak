@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int8_L1_en",
-      "title": "Analyzing Operating Leverage Operating Leverage measures how much a business can increase its operating income by increasing revenue. A business with high fixed costs, like a software platform, has high leverage; once those costs are covered, every additional sale is mostly pure profit. In contrast, a consultancy with high variable costs has low leverage. Intermediate managers analyze this structure to decide when to invest in automation or technology to increase future profit margins. Action: Calculate your \"Degree of Operating Leverage\" by dividing your Percentage Change in Operating Income by your Percentage Change in Sales.",
+      "title": "Analyzing Operating Leverage",
       "order": 1,
       "sections": [
         {
           "id": "sec_int8_L1",
-          "title": "Analyzing Operating Leverage Operating Leverage measures how much a business can increase its operating income by increasing revenue. A business with high fixed costs, like a software platform, has high leverage; once those costs are covered, every additional sale is mostly pure profit. In contrast, a consultancy with high variable costs has low leverage. Intermediate managers analyze this structure to decide when to invest in automation or technology to increase future profit margins. Action: Calculate your \"Degree of Operating Leverage\" by dividing your Percentage Change in Operating Income by your Percentage Change in Sales.",
+          "title": "Analyzing Operating Leverage",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int8_L2_en",
-      "title": "Working Capital Optimization Intermediate management involves optimizing the Cash Conversion Cycle (CCC), which measures how fast you turn an investment in inventory back into cash. The shorter the cycle, the more efficient the business. By reducing collection times (DSO) and negotiating longer payment terms with suppliers (DPO), you can fund your growth using \"other people's money\". Optimizing working capital is often the cheapest way to fund expansion without bank loans or giving away equity. Action: Calculate your CCC: Days Sales Outstanding + Days Inventory Outstanding - Days Payable Outstanding. Aim to lower this number.",
+      "title": "Working Capital Optimization",
       "order": 2,
       "sections": [
         {
           "id": "sec_int8_L2",
-          "title": "Working Capital Optimization Intermediate management involves optimizing the Cash Conversion Cycle (CCC), which measures how fast you turn an investment in inventory back into cash. The shorter the cycle, the more efficient the business. By reducing collection times (DSO) and negotiating longer payment terms with suppliers (DPO), you can fund your growth using \"other people's money\". Optimizing working capital is often the cheapest way to fund expansion without bank loans or giving away equity. Action: Calculate your CCC: Days Sales Outstanding + Days Inventory Outstanding - Days Payable Outstanding. Aim to lower this number.",
+          "title": "Working Capital Optimization",
           "blocks": [
             {
               "type": "p",

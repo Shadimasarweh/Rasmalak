@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int1_L1_en",
-      "title": "The Time Value of Money (TVM) The Time Value of Money is the foundational concept that a dinar or riyal today is worth more than the same amount in the future. This disparity exists because money available now can be invested to earn a return, and inflation simultaneously erodes the purchasing power of future cash. Understanding TVM is essential for making informed decisions regarding loans, investments, and retirement planning. It highlights that delaying an investment doesn't just cost you the principal amount you didn't save, but also the \"compounded growth\" that capital would have generated over time. Action: Use an online calculator to see how much 1,000 JOD/SAR would be worth in 10 years if invested at a 7% annual return versus sitting in cash.",
+      "title": "The Time Value of Money (TVM)",
       "order": 1,
       "sections": [
         {
           "id": "sec_int1_L1",
-          "title": "The Time Value of Money (TVM) The Time Value of Money is the foundational concept that a dinar or riyal today is worth more than the same amount in the future. This disparity exists because money available now can be invested to earn a return, and inflation simultaneously erodes the purchasing power of future cash. Understanding TVM is essential for making informed decisions regarding loans, investments, and retirement planning. It highlights that delaying an investment doesn't just cost you the principal amount you didn't save, but also the \"compounded growth\" that capital would have generated over time. Action: Use an online calculator to see how much 1,000 JOD/SAR would be worth in 10 years if invested at a 7% annual return versus sitting in cash.",
+          "title": "The Time Value of Money (TVM)",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int1_L2_en",
-      "title": "Opportunity Cost in Finance Every financial choice involves an \"Opportunity Cost,\" which represents the value of the next best alternative you sacrifice when making a decision. For instance, spending 5,000 on a luxury item means the cost isn't just the sticker price; it is also the potential profit that money could have earned if placed in a business or stocks. Intermediate financial thinkers move beyond the basic question of \"Can I afford this?\". Instead, they habitually ask, \"What am I giving up in the future by purchasing this today?\" to ensure their current consumption doesn't compromise their long-term security. Action: Think of your last major purchase. Calculate how much that money would have grown to in 5 years if it had been invested at a 5% return instead.",
+      "title": "Opportunity Cost in Finance",
       "order": 2,
       "sections": [
         {
           "id": "sec_int1_L2",
-          "title": "Opportunity Cost in Finance Every financial choice involves an \"Opportunity Cost,\" which represents the value of the next best alternative you sacrifice when making a decision. For instance, spending 5,000 on a luxury item means the cost isn't just the sticker price; it is also the potential profit that money could have earned if placed in a business or stocks. Intermediate financial thinkers move beyond the basic question of \"Can I afford this?\". Instead, they habitually ask, \"What am I giving up in the future by purchasing this today?\" to ensure their current consumption doesn't compromise their long-term security. Action: Think of your last major purchase. Calculate how much that money would have grown to in 5 years if it had been invested at a 5% return instead.",
+          "title": "Opportunity Cost in Finance",
           "blocks": [
             {
               "type": "p",
@@ -42,12 +42,12 @@
     },
     {
       "lessonId": "int1_L3_en",
-      "title": "Nominal vs. Real Interest Rates The interest rate quoted by a bank—for example, 4% on a savings account—is known as the Nominal Rate. However, this figure is often misleading because it does not account for the rising cost of living that occurs during the same period. To find your true profit, you must subtract the inflation rate from the Nominal Rate to calculate the Real Interest Rate. If you earn 4% interest while inflation is 5%, your \"Real\" return is actually -1%, meaning your wealth is shrinking in value even as the numbers on your screen increase. Action: Subtract your country’s current inflation rate from the interest rate on your savings account to find your \"Real\" return.",
+      "title": "Nominal vs. Real Interest Rates",
       "order": 3,
       "sections": [
         {
           "id": "sec_int1_L3",
-          "title": "Nominal vs. Real Interest Rates The interest rate quoted by a bank—for example, 4% on a savings account—is known as the Nominal Rate. However, this figure is often misleading because it does not account for the rising cost of living that occurs during the same period. To find your true profit, you must subtract the inflation rate from the Nominal Rate to calculate the Real Interest Rate. If you earn 4% interest while inflation is 5%, your \"Real\" return is actually -1%, meaning your wealth is shrinking in value even as the numbers on your screen increase. Action: Subtract your country’s current inflation rate from the interest rate on your savings account to find your \"Real\" return.",
+          "title": "Nominal vs. Real Interest Rates",
           "blocks": [
             {
               "type": "p",
@@ -59,12 +59,12 @@
     },
     {
       "lessonId": "int1_L4_en",
-      "title": "Velocity of Money and Economic Circulation The \"Velocity of Money\" measures how frequently a unit of currency changes hands to purchase goods and services within an economy. High velocity indicates a healthy, stimulating economic environment, whereas a drop in velocity often signals stagnation and a lack of consumer confidence. For an individual, increasing personal \"money velocity\" means ensuring capital isn't sitting idle in low-interest accounts. Strategically, you should view your bank balance as a tool rather than a trophy; if money isn't moving toward a goal or beating inflation, it is technically \"dying\". Action: Review your bank accounts and identify \"stagnant capital\"—money that has been idle for over 6 months without serving an emergency or investment purpose.",
+      "title": "Velocity of Money and Economic Circulation",
       "order": 4,
       "sections": [
         {
           "id": "sec_int1_L4",
-          "title": "Velocity of Money and Economic Circulation The \"Velocity of Money\" measures how frequently a unit of currency changes hands to purchase goods and services within an economy. High velocity indicates a healthy, stimulating economic environment, whereas a drop in velocity often signals stagnation and a lack of consumer confidence. For an individual, increasing personal \"money velocity\" means ensuring capital isn't sitting idle in low-interest accounts. Strategically, you should view your bank balance as a tool rather than a trophy; if money isn't moving toward a goal or beating inflation, it is technically \"dying\". Action: Review your bank accounts and identify \"stagnant capital\"—money that has been idle for over 6 months without serving an emergency or investment purpose.",
+          "title": "Velocity of Money and Economic Circulation",
           "blocks": [
             {
               "type": "p",
@@ -76,12 +76,12 @@
     },
     {
       "lessonId": "int1_L5_en",
-      "title": "The Psychology of Sunk Costs A \"Sunk Cost\" refers to money already spent that cannot be recovered. Many people fall into the cognitive trap of continuing to invest in failing projects or keeping bad assets simply because they have already committed resources to them, mistakenly believing more investment will \"save\" the initial loss. Intermediate mastery involves adopting a \"Day Zero\" mindset, where you ignore past losses and make decisions based solely on future potential. Ask yourself: \"If I didn't already own this, would I buy it today at its current price?\" If the answer is no, it’s time to cut your losses and redirect that capital elsewhere. Action: Identify one subscription or investment you are keeping only because you \"already paid for it.\" Decide today whether to cut it.",
+      "title": "The Psychology of Sunk Costs",
       "order": 5,
       "sections": [
         {
           "id": "sec_int1_L5",
-          "title": "The Psychology of Sunk Costs A \"Sunk Cost\" refers to money already spent that cannot be recovered. Many people fall into the cognitive trap of continuing to invest in failing projects or keeping bad assets simply because they have already committed resources to them, mistakenly believing more investment will \"save\" the initial loss. Intermediate mastery involves adopting a \"Day Zero\" mindset, where you ignore past losses and make decisions based solely on future potential. Ask yourself: \"If I didn't already own this, would I buy it today at its current price?\" If the answer is no, it’s time to cut your losses and redirect that capital elsewhere. Action: Identify one subscription or investment you are keeping only because you \"already paid for it.\" Decide today whether to cut it.",
+          "title": "The Psychology of Sunk Costs",
           "blocks": [
             {
               "type": "p",

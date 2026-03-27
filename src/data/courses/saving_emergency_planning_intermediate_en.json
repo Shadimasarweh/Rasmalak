@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int3_L1_en",
-      "title": "High-Yield Savings and Money Market Funds Once a basic savings habit is established, intermediate users focus on maximizing the yield on their liquid cash. This involves moving beyond standard savings accounts toward High-Yield Savings Accounts (HYSA) or Money Market Funds (MMF), which offer higher profit-sharing rates while maintaining necessary liquidity. By earning an additional 2% to 4% on your cash, you significantly reduce the amount that inflation \"steals\" from your safety net each year. This ensures that your emergency fund isn't just sitting idle but is actively working to preserve its own purchasing power. Action: Compare the annual profit rate of your current savings account with at least two Money Market Funds or High-Yield options available in your region.",
+      "title": "High-Yield Savings and Money Market Funds",
       "order": 1,
       "sections": [
         {
           "id": "sec_int3_L1",
-          "title": "High-Yield Savings and Money Market Funds Once a basic savings habit is established, intermediate users focus on maximizing the yield on their liquid cash. This involves moving beyond standard savings accounts toward High-Yield Savings Accounts (HYSA) or Money Market Funds (MMF), which offer higher profit-sharing rates while maintaining necessary liquidity. By earning an additional 2% to 4% on your cash, you significantly reduce the amount that inflation \"steals\" from your safety net each year. This ensures that your emergency fund isn't just sitting idle but is actively working to preserve its own purchasing power. Action: Compare the annual profit rate of your current savings account with at least two Money Market Funds or High-Yield options available in your region.",
+          "title": "High-Yield Savings and Money Market Funds",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int3_L2_en",
-      "title": "Tiering Your Emergency Fund A full 6-month emergency fund is a substantial amount of cash to keep in a single low-interest account. Intermediate planning involves \"tiering\" this fund: keeping one month of expenses in an instant-access account for immediate crises, while the remaining five months are placed in slightly less liquid, higher-earning instruments like short-term CDs. This strategy ensures that you have \"cash under the mattress\" for tonight's emergency while the bulk of your safety net earns a better return. It optimizes the balance between immediate accessibility and capital growth. Action: Decide on a \"Tier 1\" amount (immediate cash) and a \"Tier 2\" amount (higher-earning) for your total emergency fund.",
+      "title": "Tiering Your Emergency Fund",
       "order": 2,
       "sections": [
         {
           "id": "sec_int3_L2",
-          "title": "Tiering Your Emergency Fund A full 6-month emergency fund is a substantial amount of cash to keep in a single low-interest account. Intermediate planning involves \"tiering\" this fund: keeping one month of expenses in an instant-access account for immediate crises, while the remaining five months are placed in slightly less liquid, higher-earning instruments like short-term CDs. This strategy ensures that you have \"cash under the mattress\" for tonight's emergency while the bulk of your safety net earns a better return. It optimizes the balance between immediate accessibility and capital growth. Action: Decide on a \"Tier 1\" amount (immediate cash) and a \"Tier 2\" amount (higher-earning) for your total emergency fund.",
+          "title": "Tiering Your Emergency Fund",
           "blocks": [
             {
               "type": "p",
@@ -42,12 +42,12 @@
     },
     {
       "lessonId": "int3_L3_en",
-      "title": "Opportunity Cost of Over-Saving While saving is vital, it is possible to save too much. If an emergency fund covers 24 months of expenses but sits in a low-interest account, the \"Opportunity Cost\" is incredibly high, as that excess cash could be earning 7% to 10% in stocks or real estate. Intermediate savers learn to find the \"Sweet Spot\"—having enough for security, but not so much that they miss out on the long-term wealth created by investing. Once the 6-month safety net is reached, every additional unit of currency should be directed toward productive, wealth-building assets. Action: If your emergency fund exceeds 6 months, calculate how much that \"excess\" would be worth in 10 years if invested in a diversified stock index instead.",
+      "title": "Opportunity Cost of Over-Saving",
       "order": 3,
       "sections": [
         {
           "id": "sec_int3_L3",
-          "title": "Opportunity Cost of Over-Saving While saving is vital, it is possible to save too much. If an emergency fund covers 24 months of expenses but sits in a low-interest account, the \"Opportunity Cost\" is incredibly high, as that excess cash could be earning 7% to 10% in stocks or real estate. Intermediate savers learn to find the \"Sweet Spot\"—having enough for security, but not so much that they miss out on the long-term wealth created by investing. Once the 6-month safety net is reached, every additional unit of currency should be directed toward productive, wealth-building assets. Action: If your emergency fund exceeds 6 months, calculate how much that \"excess\" would be worth in 10 years if invested in a diversified stock index instead.",
+          "title": "Opportunity Cost of Over-Saving",
           "blocks": [
             {
               "type": "p",

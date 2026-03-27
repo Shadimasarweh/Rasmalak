@@ -8,12 +8,12 @@
   "lessons": [
     {
       "lessonId": "int7_L1_en",
-      "title": "Understanding Legal Entities (LLC vs. Sole Proprietorship) As your business grows, its legal structure becomes a critical shield for your personal wealth. A Sole Proprietorship is simple but offers no separation; you are personally liable for all debts and lawsuits. An LLC (Limited Liability Company) creates a \"corporate veil\" that protects your home and personal savings from business failures. Moving to an LLC is a professional milestone that signals you are building an entity that exists independently of you, which is essential for attracting investors. Action: Check the local cost and requirements for registering an LLC in your country and compare the liability protection to your current status.",
+      "title": "Understanding Legal Entities (LLC vs. Sole Proprietorship)",
       "order": 1,
       "sections": [
         {
           "id": "sec_int7_L1",
-          "title": "Understanding Legal Entities (LLC vs. Sole Proprietorship) As your business grows, its legal structure becomes a critical shield for your personal wealth. A Sole Proprietorship is simple but offers no separation; you are personally liable for all debts and lawsuits. An LLC (Limited Liability Company) creates a \"corporate veil\" that protects your home and personal savings from business failures. Moving to an LLC is a professional milestone that signals you are building an entity that exists independently of you, which is essential for attracting investors. Action: Check the local cost and requirements for registering an LLC in your country and compare the liability protection to your current status.",
+          "title": "Understanding Legal Entities (LLC vs. Sole Proprietorship)",
           "blocks": [
             {
               "type": "p",
@@ -25,12 +25,12 @@
     },
     {
       "lessonId": "int7_L2_en",
-      "title": "Tax-Efficient Investment Vehicles Intermediate tax literacy involves choosing where to hold assets to minimize the long-term tax \"drag\" on your portfolio. In many regions, specific accounts like retirement funds or insurance-linked products offer tax-deferred or tax-free growth. By placing high-growth assets in these protected accounts while keeping lower-tax assets in standard accounts, you optimize your total net return. Understanding these legal frameworks ensures your hard-earned capital works as efficiently as possible for your future. Action: Research if your country offers any \"tax-shielded\" accounts and list which of your current assets would benefit most from being moved there.",
+      "title": "Tax-Efficient Investment Vehicles",
       "order": 2,
       "sections": [
         {
           "id": "sec_int7_L2",
-          "title": "Tax-Efficient Investment Vehicles Intermediate tax literacy involves choosing where to hold assets to minimize the long-term tax \"drag\" on your portfolio. In many regions, specific accounts like retirement funds or insurance-linked products offer tax-deferred or tax-free growth. By placing high-growth assets in these protected accounts while keeping lower-tax assets in standard accounts, you optimize your total net return. Understanding these legal frameworks ensures your hard-earned capital works as efficiently as possible for your future. Action: Research if your country offers any \"tax-shielded\" accounts and list which of your current assets would benefit most from being moved there.",
+          "title": "Tax-Efficient Investment Vehicles",
           "blocks": [
             {
               "type": "p",
