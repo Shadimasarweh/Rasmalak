@@ -1,0 +1,155 @@
+{
+  "articleId": "personal_loan_2026_en",
+  "locale": "en",
+  "title": "Should You Take a Personal Loan in 2026?",
+  "description": "The real question is not whether you can get a loan — it's whether you should. Learn a clear decision framework before you sign anything.",
+  "tagEn": "PERSONAL FINANCE · LOANS",
+  "tagAr": "مالية شخصية · قروض",
+  "readMin": 6,
+  "sections": [
+    {
+      "id": "sec_pl_1",
+      "title": "The real question",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "The real question is not \"Can you get a loan?\" It's: \"Should you?\""
+        },
+        {
+          "type": "p",
+          "text": "In 2026, personal loans are easier than ever to access across Jordan, GCC, and Egypt. Banks are competing aggressively, approvals are faster, and offers look attractive. But what most people miss is that a personal loan is not extra money — it's an advance on your future income."
+        },
+        {
+          "type": "p",
+          "text": "Before you sign anything, you need to understand what you're actually committing to — not just monthly payments, but long-term impact on your financial flexibility."
+        }
+      ]
+    },
+    {
+      "id": "sec_pl_2",
+      "title": "When a personal loan might make sense",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "A personal loan is not always bad. In some cases, it's actually a smart financial move:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Debt consolidation: replacing high-interest debt with a lower rate",
+            "Essential needs: medical expenses, urgent family obligations",
+            "Income-generating use: investing in a skill, tool, or small business"
+          ]
+        },
+        {
+          "type": "key_insight",
+          "title": "When loans work",
+          "text": "In these situations, the loan is solving a real problem or creating future value."
+        }
+      ]
+    },
+    {
+      "id": "sec_pl_3",
+      "title": "When it's a bad idea (most of the time)",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Let's be honest — most personal loans are taken for:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Lifestyle upgrades",
+            "Travel",
+            "Electronics",
+            "Social pressure"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "This is where things go wrong. You are locking your future income into paying for something that:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Loses value quickly",
+            "Does not generate income",
+            "Creates long-term financial pressure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sec_pl_4",
+      "title": "The hidden cost people ignore",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Most people only look at the monthly payment. That's a mistake. You should always ask:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "What is the total repayment amount?",
+            "How much interest am I paying overall?",
+            "What percentage of my income will this take monthly?"
+          ]
+        },
+        {
+          "type": "key_insight",
+          "title": "The real cost",
+          "text": "A loan that \"feels affordable\" monthly can quietly drain your finances for years."
+        }
+      ]
+    },
+    {
+      "id": "sec_pl_5",
+      "title": "A simple decision framework",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Before taking a loan, ask yourself:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Is this need or want?",
+            "Will this improve my financial situation?",
+            "Can I still save at least 10–20% of my income after taking it?",
+            "Do I have an emergency buffer?"
+          ]
+        },
+        {
+          "type": "action_prompt",
+          "text": "If you hesitate on any of these — stop."
+        }
+      ]
+    },
+    {
+      "id": "sec_pl_6",
+      "title": "What you should do next",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Don't guess. Run the numbers."
+        },
+        {
+          "type": "p",
+          "text": "Use the Rasmalak Loan Calculator to:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "See your real total repayment",
+            "Understand your monthly burden",
+            "Compare scenarios before committing"
+          ]
+        },
+        {
+          "type": "action_prompt",
+          "text": "And if you're unsure, ask the Rasmalak Mustasharak AI: \"Should I take this loan based on my income?\""
+        }
+      ]
+    }
+  ]
+}
