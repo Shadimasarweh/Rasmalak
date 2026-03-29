@@ -13,7 +13,7 @@ export default function BudgetSettingsPage() {
   const router = useRouter();
   const { t, language, isRTL } = useTranslation();
   const currency = useCurrency();
-  const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
+  const { monthlyBudget, categoryBudgets, saveAll } = useBudget();
 
   const [tempMonthlyBudget, setTempMonthlyBudget] = useState(monthlyBudget.toString());
   const [tempCategoryBudgets, setTempCategoryBudgets] = useState<Record<string, string>>({});
@@ -31,20 +31,16 @@ export default function BudgetSettingsPage() {
     setTempCategoryBudgets(initial);
   }, [categoryBudgets]);
 
-  const handleSave = () => {
-    // Save monthly budget
+  const handleSave = async () => {
     const monthly = parseFloat(tempMonthlyBudget) || 0;
-    setMonthlyBudget(monthly);
-
-    // Save category budgets
+    const categories: Record<string, number> = {};
     Object.entries(tempCategoryBudgets).forEach(([categoryId, value]) => {
       const amount = parseFloat(value) || 0;
       if (amount > 0) {
-        setCategoryBudget(categoryId, amount);
-      } else {
-        removeCategoryBudget(categoryId);
+        categories[categoryId] = amount;
       }
     });
+    await saveAll(monthly, categories);
 
     setIsSaved(true);
     setTimeout(() => {
