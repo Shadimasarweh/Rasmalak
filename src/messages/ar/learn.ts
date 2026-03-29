@@ -125,4 +125,9 @@ export default {
   'course.tutor_welcome': 'تحتاج مساعدة في الدورة؟',
   'course.tutor_welcome_sub': 'اسألني عن أي موضوع أو مفهوم أو أي شيء في هذه الدورة وسأساعدك.',
   'course.tutor_send': 'إرسال',
+  // Article viewer
+  'article.not_found': 'المقال غير موجود',
+  'article.back_to_learn': 'العودة للتعلّم',
+  'article.back_to_articles': 'العودة للمقالات',
+  'article.read_article': 'اقرأ المقال',
 };

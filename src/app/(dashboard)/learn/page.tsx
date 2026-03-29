@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Link from 'next/link';
 import { getAllCourses } from '@/data/courses';
+import { getAllArticles } from '@/data/articles';
 import { getTotalSections } from '@/types/course';
 import type { CourseData, CourseLevel } from '@/types/course';
 import { supabase } from '@/lib/supabaseClient';
@@ -267,81 +268,87 @@ function TabSwitcher({
   );
 }
 
-/* ----- Articles tab (placeholder) ----- */
-const ARTICLE_CARDS = [
-  { titleEn: 'The Power of Compound Interest', titleAr: 'قوة الفائدة المركبة', tagEn: 'INVESTING · BEGINNER', tagAr: 'استثمار · مبتدئ', readMin: 8, descEn: 'Learn how your money grows exponentially over time.', descAr: 'تعلّم كيف ينمو مالك بشكل أُسّي مع مرور الوقت.' },
-  { titleEn: 'How to Read a Balance Sheet', titleAr: 'كيف تقرأ الميزانية العمومية', tagEn: 'FINANCE · INTERMEDIATE', tagAr: 'مالية · متوسط', readMin: 12, descEn: 'Master the fundamentals of financial statements.', descAr: 'أتقن أساسيات القوائم المالية.' },
-  { titleEn: 'Gold vs Real Estate: Where to Invest in 2025', titleAr: 'الذهب مقابل العقارات: أين تستثمر في ٢٠٢٥', tagEn: 'WEALTH · ADVANCED', tagAr: 'ثروة · متقدم', readMin: 10, descEn: 'Compare two major asset classes for the year ahead.', descAr: 'قارن بين فئتين رئيسيتين من الأصول للعام القادم.' },
-  { titleEn: 'Understanding Inflation and Your Savings', titleAr: 'فهم التضخم وتأثيره على مدخراتك', tagEn: 'ECONOMICS · BEGINNER', tagAr: 'اقتصاد · مبتدئ', readMin: 6, descEn: 'How inflation erodes purchasing power and how to protect savings.', descAr: 'كيف يقلل التضخم القوة الشرائية وكيف تحمي مدخراتك.' },
-  { titleEn: 'ETFs Explained Simply', titleAr: 'صناديق المؤشرات المتداولة بشكل مبسط', tagEn: 'INVESTING · INTERMEDIATE', tagAr: 'استثمار · متوسط', readMin: 9, descEn: 'A beginner-friendly guide to exchange-traded funds.', descAr: 'دليل مبسط لصناديق المؤشرات المتداولة.' },
-  { titleEn: 'Building an Emergency Fund', titleAr: 'بناء صندوق الطوارئ', tagEn: 'PERSONAL FINANCE · BEGINNER', tagAr: 'مالية شخصية · مبتدئ', readMin: 5, descEn: 'Steps to build a safety net for unexpected expenses.', descAr: 'خطوات لبناء شبكة أمان للنفقات غير المتوقعة.' },
-];
-
+/* ----- Articles tab ----- */
 function ArticlesTab({ language, minReadLabel }: { language: string; minReadLabel: (min: number) => string }) {
   const isRtl = language === 'ar';
+  const articles = useMemo(() => getAllArticles(language), [language]);
+
   return (
     <div className="learn-accordion-grid" style={{ marginTop: '16px' }}>
-      {ARTICLE_CARDS.map((card, i) => (
-        <div
-          key={i}
-          style={{
-            background: 'var(--ds-bg-card)',
-            borderRadius: '16px',
-            boxShadow: 'var(--ds-shadow-card)',
-            overflow: 'hidden',
-            border: '0.5px solid var(--ds-border)',
-            opacity: 0.7,
-            cursor: 'default',
-            direction: isRtl ? 'rtl' : 'ltr',
-            textAlign: isRtl ? 'right' : 'left',
-          }}
+      {articles.map((article) => (
+        <Link
+          key={article.articleId}
+          href={`/learn/articles/${article.articleId}`}
+          style={{ textDecoration: 'none', display: 'block' }}
         >
-          <div style={{ position: 'relative', height: '80px', background: 'linear-gradient(135deg, #2D6A4F 0%, #1B4332 100%)' }}>
-            <span
-              style={{
-                position: 'absolute',
-                top: '8px',
-                [isRtl ? 'left' : 'right']: '8px',
-                fontSize: '11px',
-                fontWeight: 500,
-                color: '#FFFFFF',
-                background: 'rgba(0,0,0,0.2)',
-                padding: '4px 8px',
-                borderRadius: '8px',
-              }}
-            >
-              {minReadLabel(card.readMin)}
-            </span>
+          <div
+            style={{
+              background: 'var(--ds-bg-card)',
+              borderRadius: '16px',
+              boxShadow: 'var(--ds-shadow-card)',
+              overflow: 'hidden',
+              border: '0.5px solid var(--ds-border)',
+              cursor: 'pointer',
+              direction: isRtl ? 'rtl' : 'ltr',
+              textAlign: isRtl ? 'right' : 'left',
+              transition: 'box-shadow 0.2s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--ds-shadow-card)'; }}
+          >
+            <div style={{ position: 'relative', height: '80px', background: 'linear-gradient(135deg, #2D6A4F 0%, #1B4332 100%)' }}>
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  [isRtl ? 'left' : 'right']: '8px',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  color: '#FFFFFF',
+                  background: 'rgba(0,0,0,0.2)',
+                  padding: '4px 8px',
+                  borderRadius: '8px',
+                }}
+              >
+                {minReadLabel(article.readMin)}
+              </span>
+            </div>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                {article.title}
+              </h3>
+              <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>
+                {isRtl ? article.tagAr : article.tagEn}
+              </span>
+              <p style={{
+                fontSize: '14px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6,
+                display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+              }}>
+                {article.description}
+              </p>
+              <button
+                style={{
+                  marginTop: '4px',
+                  background: 'var(--ds-primary)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  minHeight: '44px',
+                  cursor: 'pointer',
+                  alignSelf: isRtl ? 'flex-end' : 'flex-start',
+                  transition: 'background-color 150ms ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
+              >
+                {language === 'ar' ? 'اقرأ المقال' : 'Read Article'}
+              </button>
+            </div>
           </div>
-          <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-              {isRtl ? card.titleAr : card.titleEn}
-            </h3>
-            <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>
-              {isRtl ? card.tagAr : card.tagEn}
-            </span>
-            <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6 }}>
-              {isRtl ? card.descAr : card.descEn}
-            </p>
-            <button
-              style={{
-                background: 'transparent',
-                color: 'var(--ds-primary)',
-                border: '1.5px solid var(--ds-btn-secondary-border)',
-                borderRadius: '8px',
-                padding: '10px 16px',
-                fontSize: '13px',
-                fontWeight: 500,
-                minHeight: '44px',
-                cursor: 'default',
-                alignSelf: isRtl ? 'flex-end' : 'flex-start',
-                marginTop: '8px',
-              }}
-            >
-              {language === 'ar' ? 'قريباً' : 'Coming soon'}
-            </button>
-          </div>
-        </div>
+        </Link>
       ))}
     </div>
   );
