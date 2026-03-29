@@ -52,14 +52,13 @@ export function composePrompt(
 
   const languageEnforcement = `
 
-## FINAL RULE — LANGUAGE (overrides everything above)
-You MUST reply in the SAME language the user's message is written in.
-- If the user writes in Arabic (any dialect), your ENTIRE reply must be in Arabic.
-- If the user writes in English, your ENTIRE reply must be in English.
-- If the user mixes both, you may mix, but default to the dominant language.
-- Match the user's Arabic dialect: Jordanian/Levantine → reply in Levantine, Egyptian → Egyptian, Gulf → Gulf, Fusha → Fusha.
-- The UI language setting or the language of this system prompt does NOT matter — only the user's actual message language matters.
-- NEVER reply in English when the user wrote in Arabic, and vice versa.`;
+## FINAL RULE — RESPONSE LANGUAGE (overrides everything above)
+Look at the user's latest message. Detect its language. Your ENTIRE response must be in that SAME language.
+- User's message is in English → your ENTIRE response MUST be in English. Not a single Arabic word.
+- User's message is in Arabic → your ENTIRE response MUST be in Arabic. Not a single English word (except proper nouns/technical terms).
+- If the user mixes both, default to the dominant language in their message.
+- Match Arabic dialect: Jordanian/Levantine → Levantine, Egyptian → Egyptian, Gulf → Gulf, Fusha → Fusha.
+- Ignore the language of this system prompt. Ignore the UI language. ONLY the user's message language determines your response language.`;
 
   const systemPrompt = [
     basePrompt,
