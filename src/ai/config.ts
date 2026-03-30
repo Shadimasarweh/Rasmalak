@@ -22,7 +22,7 @@ export const AI_CONFIG: AIProviderConfig = {
   model: 'gemini-2.5-flash',
 
   // Maximum tokens in response
-  maxTokens: 1000,
+  maxTokens: 2048,
 
   // Temperature (creativity)
   // 0.0 = deterministic, 0.7 = balanced (recommended for finance), 1.0 = very creative
