@@ -464,17 +464,12 @@ export const useStore = create<AppState>()(
     {
       name: 'rasmalak-storage',
       partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-        transactions: state.transactions,
         currency: state.currency,
         baseCurrency: state.baseCurrency,
-        userName: state.userName,
         language: state.language,
         theme: state.theme,
         accentColor: state.accentColor,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
-        onboardingData: state.onboardingData,
       }),
     }
   )

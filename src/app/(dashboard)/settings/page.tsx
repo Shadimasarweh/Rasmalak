@@ -1353,6 +1353,19 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
     setIsUpdatingPassword(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) throw new Error('No user session');
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+      if (signInError) {
+        setPasswordError(intl.formatMessage({ id: 'settings.current_password_wrong', defaultMessage: 'Current password is incorrect' }));
+        setIsUpdatingPassword(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
 
@@ -1370,12 +1383,12 @@ function SecurityContent({ intl }: { intl: ReturnType<typeof useIntl> }) {
 
   const handleSignOutSession = (index: number) => {
     // In production, this would call an API to invalidate the session
-    console.log('Sign out session:', index);
+    if (process.env.NODE_ENV === 'development') console.log('Sign out session:', index);
   };
 
   const handleSignOutAllSessions = () => {
     // In production, this would call an API to invalidate all other sessions
-    console.log('Sign out all other sessions');
+    if (process.env.NODE_ENV === 'development') console.log('Sign out all other sessions');
   };
 
   return (

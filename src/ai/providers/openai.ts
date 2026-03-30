@@ -103,7 +103,7 @@ export async function sendChatCompletion(
   if (!apiKey) {
     return {
       success: false,
-      error: 'OpenAI API key not configured. Set OPENAI_API_KEY in .env.local',
+      error: 'AI service is not configured. Please contact support.',
     };
   }
 
@@ -145,7 +145,7 @@ export async function sendChatCompletion(
       const errorData = await response.json() as OpenAIError;
       return {
         success: false,
-        error: errorData.error?.message || `OpenAI API error: ${response.status}`,
+        error: `AI service error. Please try again later.`,
       };
     }
 

@@ -133,15 +133,16 @@ export default {
   day_fri: 'Fri',
   day_sat: 'Sat',
 
-  // Financial Health Score
-  health_score: 'Financial health score',
-  health_details: 'Details',
-  health_savings_rate: 'Savings rate',
-  health_budget_adherence: 'Budget adherence',
-  health_emergency_fund: 'Emergency fund',
-  health_goal_progress: 'Goal progress',
-  health_consistency: 'Tracking consistency',
-  health_literacy: 'Financial literacy',
+  // Monthly Financial Summary
+  monthly_summary: 'Monthly Summary',
+  net_cash_flow: 'Net Cash Flow',
+  vs_last_month: 'vs last month',
+  top_spending: 'Top Spending',
+  no_expenses_yet: 'No expenses this month',
+  budget_usage: 'Budget Usage',
+  used: 'used',
+  categories_within_budget: '{count} of {total} within budget',
+  view_transactions: 'View Transactions',
 
   // Coaching empty state
   coach_add_title: 'Add a transaction',

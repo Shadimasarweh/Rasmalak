@@ -42,8 +42,8 @@ export default function SignupPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError(intl.formatMessage({ id: 'auth.password_too_short', defaultMessage: 'Password must be at least 6 characters' }));
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError(intl.formatMessage({ id: 'auth.password_requirements', defaultMessage: 'Password must be at least 8 characters with uppercase, lowercase, and a number' }));
       return;
     }
 
@@ -66,8 +66,12 @@ export default function SignupPage() {
   // Password strength indicator
   const getPasswordStrength = () => {
     if (password.length === 0) return 0;
-    if (password.length < 6) return 1;
-    if (password.length < 10) return 2;
+    if (password.length < 8) return 1;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    if (!hasUpper || !hasLower || !hasNumber) return 1;
+    if (password.length < 12) return 2;
     return 3;
   };
 

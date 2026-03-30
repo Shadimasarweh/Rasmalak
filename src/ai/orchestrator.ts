@@ -60,8 +60,23 @@ function getModelForAttachments(...args: Parameters<typeof openaiGetModel>) {
   return isGemini ? geminiGetModel(...args) : openaiGetModel(...args);
 }
 
-// In-memory conversation history (preserved from original service)
+// In-memory conversation history
 const conversationHistories = new Map<string, AIMessage[]>();
+
+/**
+ * Escape user input to resist prompt injection attacks.
+ * Neutralizes markdown/prompt delimiters that could break prompt structure.
+ */
+function escapeUserInput(input: string): string {
+  return input
+    .replace(/^(#{1,6})\s/gm, '\\$1 ')
+    .replace(/^---+$/gm, '—')
+    .replace(/```/g, '\\`\\`\\`')
+    .replace(/\[INST\]/gi, '[inst]')
+    .replace(/\[\/INST\]/gi, '[/inst]')
+    .replace(/<\|[^|]*\|>/g, '')
+    .replace(/<<SYS>>|<\/SYS>>/gi, '');
+}
 
 const ACTIONABLE_INTENTS = new Set([
   'analyze_spending', 'category_breakdown', 'compare_periods',
@@ -117,12 +132,13 @@ export class AIOrchestrator {
 
     // ── 6. Compose prompt from agent template ──
     const history = this.getHistory(input.conversationId);
+    const sanitizedMessage = escapeUserInput(input.message);
     const composed = composePrompt(agent, {
       language: input.language,
       contextSlices: contextSelection.financialSlices,
       memoryFields: contextSelection.memoryFields,
       deterministic,
-      userMessage: input.message,
+      userMessage: sanitizedMessage,
       conversationHistory: history.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
       attachments: input.attachments,
     });
@@ -404,7 +420,7 @@ export class AIOrchestrator {
   private addToHistory(conversationId: string, role: 'user' | 'assistant', content: string): void {
     const history = conversationHistories.get(conversationId) || [];
     history.push({
-      id: `msg_${Date.now()}`,
+      id: `msg_${crypto.randomUUID()}`,
       role,
       content,
       timestamp: new Date().toISOString(),

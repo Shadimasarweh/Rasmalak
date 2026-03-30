@@ -4,6 +4,9 @@ import { createContext, useContext, useState, useCallback, useEffect, ReactNode 
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 
+const isDev = process.env.NODE_ENV === 'development';
+const devLog = (...args: unknown[]) => { if (isDev) console.log(...args); };
+
 /* ============================================
    TRANSACTION STORE
    Supabase-backed state management for transactions.
@@ -61,24 +64,24 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   // Fetch transactions from Supabase when auth is ready and user changes
   useEffect(() => {
     const fetchTransactions = async () => {
-      console.log('[TransactionStore] fetchTransactions called - initialized:', initialized, 'user:', user?.id);
+      devLog('[TransactionStore] fetchTransactions called - initialized:', initialized, 'user:', user?.id);
       
       // Wait for auth to be initialized
       if (!initialized) {
-        console.log('[TransactionStore] Auth not initialized, skipping fetch');
+        devLog('[TransactionStore] Auth not initialized, skipping fetch');
         return;
       }
 
       if (!user) {
         // Not authenticated, no transactions to fetch
-        console.log('[TransactionStore] No user, clearing transactions');
+        devLog('[TransactionStore] No user, clearing transactions');
         setTransactions([]);
         return;
       }
 
       // Verify Supabase session is valid
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('[TransactionStore] Supabase session for fetch:', sessionData.session?.user?.id);
+      devLog('[TransactionStore] Supabase session for fetch:', sessionData.session?.user?.id);
       
       if (!sessionData.session) {
         console.error('[TransactionStore] No Supabase session - cannot fetch transactions');
@@ -86,7 +89,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         return;
       }
       
-      console.log('[TransactionStore] Fetching transactions for user:', user.id);
+      devLog('[TransactionStore] Fetching transactions for user:', user.id);
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
@@ -103,7 +106,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      console.log('[TransactionStore] Fetched transactions:', data?.length || 0);
+      devLog('[TransactionStore] Fetched transactions:', data?.length || 0);
       if (data) {
         // Map Supabase rows to Transaction interface
         const mapped: Transaction[] = data.map((row) => ({
@@ -124,11 +127,11 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   // Add transaction with user_id from auth store
   const addTransaction = useCallback(async (transaction: Omit<Transaction, 'id'>) => {
-    console.log('[TransactionStore] addTransaction called:', transaction);
+    devLog('[TransactionStore] addTransaction called:', transaction);
     
     // Read auth state - check both initialized and user
     const { user, initialized } = getAuthState();
-    console.log('[TransactionStore] Auth state:', { initialized, userId: user?.id });
+    devLog('[TransactionStore] Auth state:', { initialized, userId: user?.id });
 
     if (!initialized) {
       console.warn('[TransactionStore] Cannot add transaction: auth not initialized yet');
@@ -142,14 +145,17 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     // Double-check by getting the session directly from Supabase
     const { data: sessionData } = await supabase.auth.getSession();
-    console.log('[TransactionStore] Supabase session user:', sessionData.session?.user?.id);
-    console.log('[TransactionStore] Auth store user:', user.id);
+    devLog('[TransactionStore] Supabase session user:', sessionData.session?.user?.id);
+    devLog('[TransactionStore] Auth store user:', user.id);
     
     // Use the Supabase session user if available, otherwise fall back to auth store
     const userId = sessionData.session?.user?.id || user.id;
     
-    // Insert into Supabase with user_id = user.id
-    console.log('[TransactionStore] Inserting transaction for user:', userId);
+    if (!Number.isFinite(transaction.amount) || transaction.amount <= 0 || transaction.amount > 1_000_000_000) {
+      console.error('[TransactionStore] Invalid transaction amount');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('transactions')
       .insert({
@@ -169,7 +175,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log('[TransactionStore] Transaction inserted successfully:', data);
+    devLog('[TransactionStore] Transaction inserted successfully:', data);
     if (data) {
       // Add to local state after successful insert
       const newTransaction: Transaction = {

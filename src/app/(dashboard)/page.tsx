@@ -11,7 +11,6 @@ import { DEFAULT_EXPENSE_CATEGORIES, ALL_CATEGORIES, CURRENCIES } from '@/lib/co
 import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
 import { styledNum } from '@/components/StyledNumber';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { calculateHealthScore } from '@/lib/healthScore';
 import { useNotificationStore } from '@/store/notificationStore';
 
 /* ═══════════════════════════════════════════════════
@@ -153,57 +152,76 @@ export default function OverviewPage() {
     { timeOfDay }
   );
 
-  /* ---------- Financial Health Score ---------- */
-  const healthScore = useMemo(() => {
+  /* ---------- Previous Month Data (for trend comparison) ---------- */
+  const previousMonthData = useMemo(() => {
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    const daysInMonth = endOfMonth.getDate();
-    let mIncome = 0;
-    let mExpenses = 0;
-    const loggedDays = new Set<string>();
-    transactions.forEach((tx) => {
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    let prevIncome = 0;
+    let prevExpenses = 0;
+    transactions.forEach(tx => {
       const d = new Date(tx.date);
-      if (d >= startOfMonth && d <= endOfMonth) {
-        if (tx.type === 'income') mIncome += Math.abs(tx.amount);
-        else mExpenses += Math.abs(tx.amount);
-        loggedDays.add(tx.date);
+      if (d >= prevStart && d <= prevEnd) {
+        if (tx.type === 'income') prevIncome += Math.abs(tx.amount);
+        else prevExpenses += Math.abs(tx.amount);
       }
     });
-    const emergencyGoal = savingsGoals.find(g =>
-      g.name.toLowerCase().includes('emergency') || g.name.includes('طوارئ')
-    );
-    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-    let totalExp3m = 0;
-    transactions.forEach((tx) => {
-      const d = new Date(tx.date);
-      if (tx.type === 'expense' && d >= threeMonthsAgo && d <= endOfMonth) {
-        totalExp3m += Math.abs(tx.amount);
-      }
+    return { income: prevIncome, expenses: prevExpenses, cashFlow: prevIncome - prevExpenses };
+  }, [transactions]);
+
+  /* ---------- Top Spending Categories ---------- */
+  const topSpendingCategories = useMemo(() => {
+    const categorySpending: Record<string, number> = {};
+    currentMonthTransactions
+      .filter(tx => tx.type === 'expense')
+      .forEach(tx => {
+        const cat = tx.category || 'other-expense';
+        categorySpending[cat] = (categorySpending[cat] || 0) + Math.abs(tx.amount);
+      });
+    const sorted = Object.entries(categorySpending)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3);
+    const maxAmount = sorted.length > 0 ? sorted[0][1] : 1;
+    return sorted.map(([catId, amount]) => {
+      const cat = ALL_CATEGORIES.find(c => c.id === catId);
+      return {
+        id: catId,
+        name: cat?.name || catId,
+        nameAr: cat?.nameAr || catId,
+        color: cat?.color || '#6B7280',
+        amount,
+        percentage: (amount / maxAmount) * 100,
+      };
     });
-    const goalsOnTrack = savingsGoals.filter(g => {
-      if (g.targetAmount <= 0) return false;
-      const progress = g.currentAmount / g.targetAmount;
-      if (progress >= 1) return true;
-      return progress > 0;
-    }).length;
-    return calculateHealthScore({
-      monthlyIncome: mIncome,
-      monthlyExpenses: mExpenses,
-      budgetLimit: 0,
-      budgetSpent: mExpenses,
-      categoriesOverBudget: 0,
-      totalCategories: 0,
-      emergencyFundCurrent: emergencyGoal ? emergencyGoal.currentAmount : 0,
-      averageMonthlyExpenses: totalExp3m / 3,
-      goalsOnTrack,
-      totalGoals: savingsGoals.length,
-      daysLoggedThisMonth: loggedDays.size,
-      daysInMonth,
-      coursesCompleted: 0,
-      totalCourses: 30,
-    });
-  }, [transactions, savingsGoals]);
+  }, [currentMonthTransactions]);
+
+  /* ---------- Budget Utilization ---------- */
+  const budgetUtilization = useMemo(() => {
+    if (activeBudgets.length === 0) return null;
+    const totalBudgeted = activeBudgets.reduce((s, b) => s + b.limit, 0);
+    const totalSpent = activeBudgets.reduce((s, b) => s + b.spent, 0);
+    const withinBudget = activeBudgets.filter(b => b.spent <= b.limit).length;
+    return {
+      totalBudgeted,
+      totalSpent,
+      percentage: totalBudgeted > 0 ? Math.min((totalSpent / totalBudgeted) * 100, 100) : 0,
+      withinBudget,
+      totalCategories: activeBudgets.length,
+      isOver: totalSpent > totalBudgeted,
+    };
+  }, [activeBudgets]);
+
+  /* ---------- Cash Flow Trend vs Last Month ---------- */
+  const cashFlowTrend = useMemo(() => {
+    const prevCF = previousMonthData.cashFlow;
+    if (prevCF === 0 && monthlyCashFlow === 0) return { direction: 'same' as const, percent: 0 };
+    if (prevCF === 0) return { direction: monthlyCashFlow > 0 ? 'up' as const : 'down' as const, percent: 100 };
+    const change = ((monthlyCashFlow - prevCF) / Math.abs(prevCF)) * 100;
+    return {
+      direction: change > 0 ? 'up' as const : change < 0 ? 'down' as const : 'same' as const,
+      percent: Math.min(Math.abs(Math.round(change)), 999),
+    };
+  }, [monthlyCashFlow, previousMonthData]);
 
   // Smart notification generation
   const addNotification = useNotificationStore(state => state.addNotification);
@@ -287,13 +305,14 @@ export default function OverviewPage() {
       });
     }
 
-    // 4. Health score alert — if below 40
-    if (healthScore.overall < 40) {
+    // 4. Overspending alert — expenses exceed income
+    const totalCurrentExpenses = Object.values(currentSpending).reduce((s, v) => s + v, 0);
+    if (currentMonthIncome > 0 && totalCurrentExpenses > currentMonthIncome) {
       addNotification({
-        type: 'health_score',
+        type: 'spending_alert',
         severity: 'warning',
-        messageEn: `Your financial health score is ${healthScore.overall}/100. Review your spending habits to improve.`,
-        messageAr: `مؤشر صحتك المالية ${intl.formatNumber(healthScore.overall)}/١٠٠. راجع عادات إنفاقك للتحسين.`,
+        messageEn: `You're spending more than you earn this month. Review your expenses to get back on track.`,
+        messageAr: `إنفاقك أكثر من دخلك هذا الشهر. راجع مصروفاتك للعودة إلى المسار الصحيح.`,
         actionHref: '/transactions',
         actionLabelEn: 'Review spending',
         actionLabelAr: 'مراجعة الإنفاق',
@@ -373,99 +392,129 @@ export default function OverviewPage() {
 
       {transactions.length > 0 || skipCoaching ? (
       <>
-      {/* ===== FINANCIAL HEALTH SCORE ===== */}
+      {/* ===== MONTHLY FINANCIAL SUMMARY ===== */}
       <div style={{
         background: 'var(--ds-bg-card)',
         border: '0.5px solid var(--ds-border)',
         borderRadius: '16px',
         padding: '20px 24px',
         boxShadow: 'var(--ds-shadow-card)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '20px',
         direction: isRTL ? 'rtl' : 'ltr',
-        flexWrap: 'wrap',
       }}>
-        {/* Score ring */}
-        {(() => {
-          const r = 30;
-          const circ = 2 * Math.PI * r;
-          const offset = circ * (1 - healthScore.overall / 100);
-          const ringColor = healthScore.overall >= 70 ? 'var(--ds-primary-glow)' : healthScore.overall >= 40 ? 'var(--ds-accent-gold)' : 'var(--ds-error)';
-          return (
-            <div style={{ position: 'relative', width: '72px', height: '72px', flexShrink: 0 }}>
-              <svg width="72" height="72" viewBox="0 0 72 72">
-                <circle cx="36" cy="36" r={r} fill="none" stroke="var(--ds-border)" strokeWidth="4" />
-                <circle cx="36" cy="36" r={r} fill="none"
-                  stroke={ringColor} strokeWidth="4"
-                  strokeDasharray={circ} strokeDashoffset={offset}
-                  strokeLinecap="round" transform="rotate(-90 36 36)"
-                  style={{ transition: 'stroke-dashoffset 600ms ease-out' }} />
-              </svg>
-              <span style={{
-                position: 'absolute', inset: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)',
-              }}>
-                {intl.formatNumber(healthScore.overall)}
-              </span>
-            </div>
-          );
-        })()}
-
-        {/* Info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-            <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
-              {intl.formatMessage({ id: 'dashboard.health_score', defaultMessage: 'Financial health score' })}
-            </p>
-            {(() => {
-              const ratingConfig: Record<string, { bg: string; color: string; border: string; en: string; ar: string }> = {
-                excellent: { bg: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: 'var(--ds-success-border)', en: 'EXCELLENT', ar: 'ممتاز' },
-                good: { bg: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: 'var(--ds-success-border)', en: 'GOOD', ar: 'جيد' },
-                fair: { bg: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)', border: 'var(--ds-warning-border)', en: 'FAIR', ar: 'مقبول' },
-                needs_work: { bg: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: 'var(--ds-error-border)', en: 'NEEDS WORK', ar: 'يحتاج تحسين' },
-              };
-              const rc = ratingConfig[healthScore.rating];
-              return (
-                <span style={{
-                  fontSize: '10px', fontWeight: 500, padding: '2px 8px', borderRadius: '4px',
-                  background: rc.bg, color: rc.color, border: `0.5px solid ${rc.border}`,
-                  letterSpacing: '0.04em',
-                }}>
-                  {isRTL ? rc.ar : rc.en}
-                </span>
-              );
-            })()}
-          </div>
-
-          {/* Sub-scores preview */}
-          <div style={{ display: 'flex', gap: '16px', fontSize: '11px', marginTop: '8px', flexWrap: 'wrap' }}>
-            {healthScore.factors.slice(0, 4).map(f => {
-              const names: Record<string, { en: string; ar: string }> = {
-                savings_rate: { en: 'Savings', ar: 'الادخار' },
-                budget_adherence: { en: 'Budget', ar: 'الميزانية' },
-                emergency_fund: { en: 'Emergency', ar: 'الطوارئ' },
-                goal_progress: { en: 'Goals', ar: 'الأهداف' },
-              };
-              const name = names[f.id] || { en: f.id, ar: f.id };
-              const clr = f.status === 'good' ? 'var(--ds-primary)' : f.status === 'fair' ? 'var(--ds-accent-gold)' : 'var(--ds-error)';
-              return (
-                <span key={f.id} style={{ color: clr }}>
-                  {isRTL ? name.ar : name.en} {intl.formatNumber(f.score)}
-                </span>
-              );
-            })}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
+            {intl.formatMessage({ id: 'dashboard.monthly_summary', defaultMessage: 'Monthly Summary' })}
+          </p>
+          <Link href="/transactions" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none', flexShrink: 0 }}>
+            {intl.formatMessage({ id: 'dashboard.view_transactions', defaultMessage: 'View Transactions' })} →
+          </Link>
         </div>
 
-        {/* Details link */}
-        <Link href="/budgets" style={{
-          fontSize: '13px', fontWeight: 500, color: 'var(--ds-primary)',
-          textDecoration: 'none', flexShrink: 0,
-        }}>
-          {intl.formatMessage({ id: 'dashboard.health_details', defaultMessage: 'Details' })} →
-        </Link>
+        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+          {/* Net Cash Flow */}
+          <div style={{ flex: '1 1 140px', minWidth: 0 }}>
+            <p className="ds-label" style={{ marginBottom: '4px' }}>
+              {intl.formatMessage({ id: 'dashboard.net_cash_flow', defaultMessage: 'Net Cash Flow' })}
+            </p>
+            <p style={{
+              fontSize: '22px', fontWeight: 700, margin: '0 0 6px 0',
+              color: monthlyCashFlow >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)',
+            }}>
+              {monthlyCashFlow >= 0 ? '+' : ''}{fmtCurrency(monthlyCashFlow)}
+            </p>
+            {(previousMonthData.income > 0 || previousMonthData.expenses > 0) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{
+                  fontSize: '11px', fontWeight: 500,
+                  color: cashFlowTrend.direction === 'up' ? 'var(--color-accent-growth)' : cashFlowTrend.direction === 'down' ? 'var(--color-danger-text)' : 'var(--color-text-muted)',
+                }}>
+                  {cashFlowTrend.direction === 'up' ? '↑' : cashFlowTrend.direction === 'down' ? '↓' : '→'} {intl.formatNumber(cashFlowTrend.percent)}%
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                  {intl.formatMessage({ id: 'dashboard.vs_last_month', defaultMessage: 'vs last month' })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="ds-divider-v" style={{ height: 'auto', alignSelf: 'stretch' }} />
+
+          {/* Top Spending */}
+          <div style={{ flex: '1.5 1 180px', minWidth: 0 }}>
+            <p className="ds-label" style={{ marginBottom: '8px' }}>
+              {intl.formatMessage({ id: 'dashboard.top_spending', defaultMessage: 'Top Spending' })}
+            </p>
+            {topSpendingCategories.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {topSpendingCategories.map(cat => (
+                  <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cat.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-primary)', fontWeight: 500, minWidth: '60px' }}>
+                      {isRTL ? cat.nameAr : cat.name}
+                    </span>
+                    <div style={{ flex: 1, height: '4px', borderRadius: '2px', background: 'var(--ds-border)', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', borderRadius: '2px', background: cat.color,
+                        width: mounted ? `${cat.percentage}%` : '0%',
+                        transition: 'width 600ms ease-out',
+                      }} />
+                    </div>
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 500, flexShrink: 0 }}>
+                      {currencySymbol} {fmtLocale(cat.amount)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.no_expenses_yet', defaultMessage: 'No expenses this month' })}
+              </p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="ds-divider-v" style={{ height: 'auto', alignSelf: 'stretch' }} />
+
+          {/* Budget Usage */}
+          <div style={{ flex: '1 1 140px', minWidth: 0 }}>
+            <p className="ds-label" style={{ marginBottom: '8px' }}>
+              {intl.formatMessage({ id: 'dashboard.budget_usage', defaultMessage: 'Budget Usage' })}
+            </p>
+            {budgetUtilization ? (
+              <>
+                <div className="ds-progress" style={{ height: '6px', marginBottom: '8px' }}>
+                  <div className="ds-progress-fill" style={{
+                    width: mounted ? `${budgetUtilization.percentage}%` : '0%',
+                    background: budgetUtilization.isOver ? 'var(--color-danger-text)' : 'var(--ds-primary)',
+                    transition: 'width 600ms ease-out',
+                  }} />
+                </div>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: '0 0 2px 0' }}>
+                  {intl.formatNumber(Math.round(budgetUtilization.percentage))}%
+                  <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--color-text-muted)', marginInlineStart: '4px' }}>
+                    {intl.formatMessage({ id: 'dashboard.used', defaultMessage: 'used' })}
+                  </span>
+                </p>
+                <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0 }}>
+                  {intl.formatMessage(
+                    { id: 'dashboard.categories_within_budget', defaultMessage: '{count} of {total} within budget' },
+                    { count: intl.formatNumber(budgetUtilization.withinBudget), total: intl.formatNumber(budgetUtilization.totalCategories) }
+                  )}
+                </p>
+              </>
+            ) : (
+              <div>
+                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '0 0 6px 0' }}>
+                  {intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}
+                </p>
+                <Link href="/budgets" style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none' }}>
+                  {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ===== TOP CARDS ROW ===== */}

@@ -11,7 +11,7 @@ import {
 } from '@/store/useStore';
 import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
-import { useUser as useAuthUser } from '@/store/authStore';
+import { useUser as useAuthUser, useSession } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
 import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType } from '@/ai/types';
 
@@ -451,6 +451,7 @@ export default function MustasharakPage() {
   const language = useLanguage();
   const userName = useUserName();
   const authUser = useAuthUser();
+  const session = useSession();
   
   // Get user data for context
   const { transactions } = useTransactions();
@@ -603,13 +604,15 @@ export default function MustasharakPage() {
       
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
+        },
         body: JSON.stringify({
           message: messageText.trim(),
           conversationId,
           language,
           context,
-          userId: authUser?.id,
           attachments: messageAttachments,
         }),
       });
@@ -691,7 +694,10 @@ export default function MustasharakPage() {
     if (action.action === 'send_message') {
       sendMessage(action.payload);
     } else if (action.action === 'navigate') {
-      window.location.href = action.payload;
+      const target = action.payload?.trim();
+      if (target && target.startsWith('/') && !target.startsWith('//') && !target.includes('://')) {
+        window.location.href = target;
+      }
     }
   };
   
