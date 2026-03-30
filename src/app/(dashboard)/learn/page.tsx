@@ -326,12 +326,13 @@ function ArticlesTab({ language, minReadLabel }: { language: string; minReadLabe
               }}>
                 {article.description}
               </p>
-              <button
+              <span
                 style={{
                   marginTop: '4px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   background: 'var(--ds-primary)',
                   color: '#FFFFFF',
-                  border: 'none',
                   borderRadius: '8px',
                   padding: '10px 18px',
                   fontSize: '13px',
@@ -341,11 +342,9 @@ function ArticlesTab({ language, minReadLabel }: { language: string; minReadLabe
                   alignSelf: isRtl ? 'flex-end' : 'flex-start',
                   transition: 'background-color 150ms ease',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
               >
                 {language === 'ar' ? 'اقرأ المقال' : 'Read Article'}
-              </button>
+              </span>
             </div>
           </div>
         </Link>
