@@ -1,0 +1,181 @@
+{
+  "articleId": "financially_stuck_en",
+  "locale": "en",
+  "title": "Why Most People Stay Financially Stuck (Even With a Good Salary)",
+  "description": "Most people don't have a money problem — they have a behavior problem. Discover the patterns that keep you stuck and what to do about it.",
+  "tagEn": "FINANCIAL BEHAVIOR · BUDGETING",
+  "tagAr": "سلوك مالي · ميزانية",
+  "readMin": 7,
+  "sections": [
+    {
+      "id": "sec_fs_1",
+      "title": "The uncomfortable truth",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Most people don't have a money problem. They have a behavior problem."
+        },
+        {
+          "type": "p",
+          "text": "Across the Arab world, you'll find the same pattern:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "People earning decent salaries",
+            "Yet struggling to save",
+            "Living month to month",
+            "Feeling constant financial pressure"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "It's easy to blame income. But if income alone solved the problem, high earners would all be financially secure — and they're not."
+        }
+      ]
+    },
+    {
+      "id": "sec_fs_2",
+      "title": "The real issue: unconscious financial behavior",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Most financial decisions are not logical — they're automatic. People:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Spend without tracking",
+            "Upgrade their lifestyle as income increases",
+            "Justify purchases emotionally",
+            "Avoid looking at their financial reality"
+          ]
+        },
+        {
+          "type": "key_insight",
+          "title": "Small habits, big impact",
+          "text": "These aren't big, obvious mistakes. They're small, repeated behaviors that quietly shape your financial life."
+        }
+      ]
+    },
+    {
+      "id": "sec_fs_3",
+      "title": "The trap of lifestyle inflation",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "One of the biggest hidden problems is lifestyle inflation. As income increases:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Spending increases faster",
+            "Expectations rise",
+            "\"Needs\" expand"
+          ]
+        },
+        {
+          "type": "example",
+          "title": "Lifestyle inflation in action",
+          "rows": [
+            { "label": "Salary increase", "value": "+200 JOD" },
+            { "label": "Spending increase", "value": "+250 JOD" },
+            { "label": "Net result", "value": "No progress — just a more expensive life" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sec_fs_4",
+      "title": "The cultural pressure factor",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "In many Arab societies, money is not just financial — it's social."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Appearance matters",
+            "Generosity is expected",
+            "Social comparison is constant"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "This creates invisible pressure to spend — on gatherings, on brands, on maintaining a certain image — even when it doesn't match your financial reality."
+        }
+      ]
+    },
+    {
+      "id": "sec_fs_5",
+      "title": "Why awareness changes everything",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "People who improve financially don't rely on motivation — they rely on visibility. They know:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Where their money goes",
+            "What they can afford",
+            "What needs to change"
+          ]
+        },
+        {
+          "type": "key_insight",
+          "title": "Control through clarity",
+          "text": "This awareness creates control. And control creates progress."
+        }
+      ]
+    },
+    {
+      "id": "sec_fs_6",
+      "title": "A simple shift that works",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Instead of asking: \"How can I earn more?\" Start asking: \"Do I actually understand my money?\""
+        },
+        {
+          "type": "p",
+          "text": "Because:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "What you don't track → you can't control",
+            "What you don't control → will control you"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sec_fs_7",
+      "title": "What you should do next",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Start small — but start properly."
+        },
+        {
+          "type": "p",
+          "text": "Track your expenses for 7–14 days. Use Rasmalak Predictive Budgeting to:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Automatically categorize your spending",
+            "Identify unnecessary expenses",
+            "Show future impact of your habits"
+          ]
+        },
+        {
+          "type": "action_prompt",
+          "text": "Then ask Rasmalak Mustasharak AI: \"Where am I overspending, and what should I fix first?\""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "articleId": "ahmed_1000_jod_en",
+  "locale": "en",
+  "title": "Ahmed Earns 1,000 JOD — Why He Still Feels Broke",
+  "description": "A real case study: how invisible spending leaks drain a decent salary, and the simple tracking method that changed everything.",
+  "tagEn": "CASE STUDY · EXPENSE TRACKING",
+  "tagAr": "دراسة حالة · تتبع المصاريف",
+  "readMin": 5,
+  "sections": [
+    {
+      "id": "sec_ah_1",
+      "title": "Ahmed's situation",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ahmed is 29. He earns 1,000 JOD per month. And yet, by the end of every month, he feels the same: \"I don't know where my money goes.\""
+        },
+        {
+          "type": "p",
+          "text": "This is not a rare case. It's the norm."
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_2",
+      "title": "Step 1: The numbers (what Ahmed thinks)",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ahmed believes his spending looks like this:"
+        },
+        {
+          "type": "example",
+          "title": "Ahmed's estimated budget",
+          "rows": [
+            { "label": "Rent", "value": "350 JOD" },
+            { "label": "Transportation", "value": "150 JOD" },
+            { "label": "Food", "value": "200 JOD" },
+            { "label": "Other", "value": "300 JOD" },
+            { "label": "Total", "value": "1,000 JOD" }
+          ]
+        },
+        {
+          "type": "p",
+          "text": "From his perspective, everything is under control."
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_3",
+      "title": "Step 2: The reality (what actually happens)",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "When Ahmed tracked his spending for one month, the real picture looked different:"
+        },
+        {
+          "type": "example",
+          "title": "Ahmed's actual spending",
+          "rows": [
+            { "label": "Rent", "value": "350 JOD" },
+            { "label": "Transportation", "value": "150 JOD" },
+            { "label": "Food", "value": "240 JOD" },
+            { "label": "Subscriptions", "value": "60 JOD" },
+            { "label": "Cafés & dining out", "value": "120 JOD" },
+            { "label": "Online purchases", "value": "90 JOD" },
+            { "label": "Miscellaneous", "value": "110 JOD" },
+            { "label": "Total", "value": "1,120 JOD" }
+          ]
+        },
+        {
+          "type": "key_insight",
+          "title": "The gap",
+          "text": "He was overspending by 120 JOD — without realizing it."
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_4",
+      "title": "The problem is not income — it's visibility",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ahmed's issue is not how much he earns. It's that he doesn't see the full picture."
+        },
+        {
+          "type": "p",
+          "text": "Small expenses:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Feel insignificant individually",
+            "But accumulate significantly"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "This is how financial leakage happens."
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_5",
+      "title": "The hidden pattern",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Ahmed's spending had three key issues:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Untracked small expenses (coffee, delivery, apps)",
+            "Recurring subscriptions he forgot about",
+            "No predefined limits per category"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "None of these felt like \"big problems.\" But together, they created a constant deficit."
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_6",
+      "title": "The turning point",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "After one month of tracking, Ahmed made three simple changes:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Set a limit for dining out",
+            "Cancelled unnecessary subscriptions",
+            "Reduced impulse purchases"
+          ]
+        },
+        {
+          "type": "p",
+          "text": "Result:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Saved ~150 JOD/month",
+            "Reduced stress",
+            "Gained control"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_7",
+      "title": "What this means for you",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "If you feel like Ahmed, the issue is not discipline. It's clarity. You cannot fix what you cannot see."
+        }
+      ]
+    },
+    {
+      "id": "sec_ah_8",
+      "title": "What you should do next",
+      "blocks": [
+        {
+          "type": "p",
+          "text": "Track your expenses for 30 days. Use Rasmalak Expense Tracking & Insights to:"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Automatically categorize spending",
+            "Identify hidden leaks",
+            "Get actionable recommendations"
+          ]
+        },
+        {
+          "type": "action_prompt",
+          "text": "Then ask Mustasharak: \"Where is my money actually going — and what should I change first?\""
+        }
+      ]
+    }
+  ]
+}

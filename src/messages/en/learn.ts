@@ -118,4 +118,9 @@ export default {
   'course.next': 'Next',
   'course.previous': 'Previous',
   'course.complete_course': 'Complete Course',
+  // Article viewer
+  'article.not_found': 'Article not found',
+  'article.back_to_learn': 'Back to Learn',
+  'article.back_to_articles': 'Back to Articles',
+  'article.read_article': 'Read Article',
 };
