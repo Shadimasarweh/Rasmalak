@@ -50,16 +50,15 @@ export function composePrompt(
       : 'The user has attached a file/image. Analyze the attached content and perform the requested task.';
   }
 
-  const languageEnforcement = `
+  const detectedLang = detectMessageLanguage(params.userMessage);
+  const langDirective =
+    detectedLang === 'ar'
+      ? 'The user wrote in Arabic. Your ENTIRE reply MUST be in Arabic (match their dialect — Jordanian, Egyptian, Gulf, or Fusha). Do NOT reply in English.'
+      : detectedLang === 'en'
+      ? 'The user wrote in English. Your ENTIRE reply MUST be in English. Do NOT reply in Arabic.'
+      : 'The user mixed Arabic and English. Reply in Arabic as the default, matching their dialect.';
 
-## FINAL RULE — LANGUAGE (overrides everything above)
-You MUST reply in the SAME language the user's message is written in.
-- If the user writes in Arabic (any dialect), your ENTIRE reply must be in Arabic.
-- If the user writes in English, your ENTIRE reply must be in English.
-- If the user mixes both, you may mix, but default to the dominant language.
-- Match the user's Arabic dialect: Jordanian/Levantine → reply in Levantine, Egyptian → Egyptian, Gulf → Gulf, Fusha → Fusha.
-- The UI language setting or the language of this system prompt does NOT matter — only the user's actual message language matters.
-- NEVER reply in English when the user wrote in Arabic, and vice versa.`;
+  const languageEnforcement = `\n\n## LANGUAGE RULE (highest priority — overrides everything)\n${langDirective}`;
 
   const systemPrompt = [
     basePrompt,
@@ -74,6 +73,21 @@ You MUST reply in the SAME language the user's message is written in.
     attachmentInstructions,
     tokenEstimate,
   };
+}
+
+/**
+ * Detect the language of a user message by counting Arabic vs Latin characters.
+ * Returns 'ar', 'en', or 'mixed'.
+ */
+function detectMessageLanguage(message: string): 'ar' | 'en' | 'mixed' {
+  const arabicChars = (message.match(/[\u0600-\u06FF]/g) || []).length;
+  const latinChars = (message.match(/[a-zA-Z]/g) || []).length;
+  const total = arabicChars + latinChars;
+  if (total === 0) return 'en';
+  const arabicRatio = arabicChars / total;
+  if (arabicRatio >= 0.6) return 'ar';
+  if (arabicRatio <= 0.2) return 'en';
+  return 'mixed';
 }
 
 /**
