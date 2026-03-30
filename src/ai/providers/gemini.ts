@@ -119,7 +119,7 @@ export async function sendChatCompletion(
   if (!apiKey) {
     return {
       success: false,
-      error: 'Gemini API key not configured. Set GOOGLE_AI_API_KEY in .env.local',
+      error: 'AI service is not configured. Please contact support.',
     };
   }
 
@@ -202,18 +202,18 @@ export async function sendChatCompletion(
     if (!response.ok || data.error) {
       return {
         success: false,
-        error: data.error?.message || `Gemini API error: ${response.status}`,
+        error: 'AI service error. Please try again later.',
       };
     }
 
     if (!data.candidates || data.candidates.length === 0) {
-      return { success: false, error: 'No response from Gemini' };
+      return { success: false, error: 'No response from AI service.' };
     }
 
     const candidate = data.candidates[0];
 
     if (candidate.finishReason === 'SAFETY') {
-      return { success: false, error: 'Response blocked by Gemini safety filters' };
+      return { success: false, error: 'Response blocked by safety filters.' };
     }
 
     const text = candidate.content?.parts
@@ -222,7 +222,7 @@ export async function sendChatCompletion(
       .trim();
 
     if (!text) {
-      return { success: false, error: 'Empty response content from Gemini' };
+      return { success: false, error: 'Empty response from AI service.' };
     }
 
     const usage: UsageInfo = {

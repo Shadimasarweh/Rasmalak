@@ -407,3 +407,14 @@ export function setToStorage<T>(key: string, value: T): void {
     console.error('Error saving to localStorage:', error);
   }
 }
+
+/**
+ * Validate password meets security requirements:
+ * 8+ characters, at least one uppercase, one lowercase, one number.
+ */
+export function validatePassword(password: string): boolean {
+  return password.length >= 8
+    && /[A-Z]/.test(password)
+    && /[a-z]/.test(password)
+    && /[0-9]/.test(password);
+}

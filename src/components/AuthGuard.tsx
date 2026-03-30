@@ -7,8 +7,7 @@ import { useIsAuthenticated } from '@/store/useStore';
 const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  // TODO: TEMP BYPASS — remove this before production
-  const DEV_BYPASS_AUTH = true;
+  const DEV_BYPASS_AUTH = process.env.NODE_ENV === 'development';
 
   const router = useRouter();
   const pathname = usePathname();

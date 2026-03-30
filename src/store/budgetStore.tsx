@@ -87,6 +87,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
   const setMonthlyBudget = useCallback(
     (amount: number) => {
+      if (!Number.isFinite(amount) || amount < 0 || amount > 1_000_000_000) return;
       setMonthlyBudgetLocal(amount);
       setCategoryBudgetsLocal((prev) => {
         upsertBudget(amount, prev);
@@ -98,6 +99,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
   const setCategoryBudget = useCallback(
     (category: string, limit: number) => {
+      if (!Number.isFinite(limit) || limit < 0 || limit > 1_000_000_000) return;
       setCategoryBudgetsLocal((prev) => {
         const next = { ...prev, [category]: limit };
         setMonthlyBudgetLocal((m) => {

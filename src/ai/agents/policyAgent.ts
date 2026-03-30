@@ -69,6 +69,21 @@ const PROHIBITED_PATTERNS: Array<{
 ];
 
 /**
+ * Normalize text for more robust pattern matching:
+ * collapse whitespace, strip diacritics, normalize Unicode.
+ */
+function normalizeForMatching(text: string): string {
+  return text
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/[.\-_*~`]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
  * Evaluate AI output against Rasmalak policy rules.
  * Pure function — no LLM call, no side effects.
  */
@@ -77,9 +92,10 @@ export function evaluatePolicy(
   _deterministic?: DeterministicOutputs | null,
 ): PolicyViolation[] {
   const violations: PolicyViolation[] = [];
+  const normalized = normalizeForMatching(output);
 
   for (const rule of PROHIBITED_PATTERNS) {
-    const match = output.match(rule.pattern);
+    const match = normalized.match(rule.pattern) || output.match(rule.pattern);
     if (match) {
       violations.push({
         rule: rule.rule,

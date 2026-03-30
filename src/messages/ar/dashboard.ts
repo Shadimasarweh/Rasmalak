@@ -145,15 +145,16 @@ export default {
   rec_investing: 'مقدمة في الاستثمار',
   rec_investing_desc: 'نمِّ ثروتك',
 
-  // مؤشر الصحة المالية
-  health_score: 'مؤشر الصحة المالية',
-  health_details: 'التفاصيل',
-  health_savings_rate: 'معدل الادخار',
-  health_budget_adherence: 'الالتزام بالميزانية',
-  health_emergency_fund: 'صندوق الطوارئ',
-  health_goal_progress: 'تقدم الأهداف',
-  health_consistency: 'انتظام التسجيل',
-  health_literacy: 'الثقافة المالية',
+  // الملخص المالي الشهري
+  monthly_summary: 'الملخص الشهري',
+  net_cash_flow: 'صافي التدفق النقدي',
+  vs_last_month: 'مقارنة بالشهر الماضي',
+  top_spending: 'أعلى الإنفاق',
+  no_expenses_yet: 'لا توجد مصروفات هذا الشهر',
+  budget_usage: 'استخدام الميزانية',
+  used: 'مستخدم',
+  categories_within_budget: '{count} من {total} ضمن الحد',
+  view_transactions: 'عرض المعاملات',
 
   // حالة التوجيه الفارغة
   coach_add_title: 'أضف معاملة',

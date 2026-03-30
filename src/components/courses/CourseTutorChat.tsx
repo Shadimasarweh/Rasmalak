@@ -6,7 +6,7 @@ import { useTransactions } from '@/store/transactionStore';
 import { useCurrency, useLanguage, useOnboardingData, useUserName } from '@/store/useStore';
 import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
-import { useUser as useAuthUser } from '@/store/authStore';
+import { useUser as useAuthUser, useSession } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
 import { AIMessage, AIResponse } from '@/ai/types';
 import type { Lesson } from '@/types/course';
@@ -123,6 +123,7 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
   const intl = useIntl();
   const language = useLanguage();
   const authUser = useAuthUser();
+  const session = useSession();
 
   const { transactions } = useTransactions();
   const currency = useCurrency();
@@ -220,13 +221,15 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
 
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
+        },
         body: JSON.stringify({
           message: augmentedMessage,
           conversationId,
           language,
           context,
-          userId: authUser?.id,
         }),
       });
 

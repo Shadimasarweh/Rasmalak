@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, ArrowRight, ArrowLeft, Sparkles, ShieldCheck, CheckCircle, Eye, EyeOff } from 'lucide-react';
@@ -17,15 +17,35 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [hasValidSession, setHasValidSession] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
+  useEffect(() => {
+    async function checkRecoverySession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setIsCheckingSession(false);
+        setError(t.auth.invalidResetLink || 'Invalid or expired reset link. Please request a new one.');
+        return;
+      }
+      setHasValidSession(true);
+      setIsCheckingSession(false);
+    }
+    checkRecoverySession();
+  }, [t.auth.invalidResetLink]);
+
+  const validatePassword = (pw: string): boolean => {
+    return pw.length >= 8 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (password.length < 6) {
-      setError(t.auth.passwordTooShort || 'Password must be at least 6 characters');
+    if (!validatePassword(password)) {
+      setError(t.auth.passwordRequirements || 'Password must be at least 8 characters with uppercase, lowercase, and a number');
       return;
     }
 
@@ -121,7 +141,7 @@ export default function ResetPasswordPage() {
                     placeholder="••••••••"
                     className="input w-full ps-12 pe-12"
                     required
-                    minLength={6}
+                    minLength={8}
                     autoComplete="new-password"
                   />
                   <button
@@ -151,7 +171,7 @@ export default function ResetPasswordPage() {
                     placeholder="••••••••"
                     className="input w-full ps-12 pe-4"
                     required
-                    minLength={6}
+                    minLength={8}
                     autoComplete="new-password"
                   />
                 </div>
@@ -160,8 +180,8 @@ export default function ResetPasswordPage() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={isLoading || !password || !confirmPassword}
-                className={`w-full ds-btn ds-btn-primary py-4 text-base ${isLoading || !password || !confirmPassword ? 'opacity-70' : ''}`}
+                disabled={isLoading || !password || !confirmPassword || !hasValidSession || isCheckingSession}
+                className={`w-full ds-btn ds-btn-primary py-4 text-base ${isLoading || !password || !confirmPassword || !hasValidSession ? 'opacity-70' : ''}`}
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">

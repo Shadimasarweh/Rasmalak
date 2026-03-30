@@ -9,15 +9,53 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { orchestrator } from '@/ai/orchestrator';
 import { ChatResponse, UserFinancialContext, MessageAttachment } from '@/ai/types';
 import { AI_SAFETY, AI_FEATURES } from '@/ai/config';
 import { buildEmptyContext } from '@/ai/context';
 
 // ============================================
-// RATE LIMITING (Simple in-memory)
+// AUTH HELPERS
 // ============================================
 
+async function authenticateRequest(request: NextRequest): Promise<{ userId: string } | null> {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+
+  const token = authHeader.slice(7);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return null;
+
+  return { userId: user.id };
+}
+
+// ============================================
+// CORS
+// ============================================
+
+const ALLOWED_ORIGINS = new Set([
+  'https://rasmalak.vercel.app',
+  'http://localhost:3000',
+]);
+
+function getCorsOrigin(request: NextRequest): string {
+  const origin = request.headers.get('origin') || '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : '';
+}
+
+// ============================================
+// RATE LIMITING (In-memory with bounded size)
+// Limitation: resets on server restart, per-instance only.
+// TODO: migrate to Redis or Supabase for distributed rate limiting.
+// ============================================
+
+const MAX_RATE_LIMIT_ENTRIES = 10_000;
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function checkRateLimit(userId: string): boolean {
@@ -28,6 +66,10 @@ function checkRateLimit(userId: string): boolean {
   const existing = rateLimitMap.get(userId);
   
   if (!existing || now > existing.resetAt) {
+    if (rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+      const firstKey = rateLimitMap.keys().next().value;
+      if (firstKey) rateLimitMap.delete(firstKey);
+    }
     rateLimitMap.set(userId, { count: 1, resetAt: now + windowMs });
     return true;
   }
@@ -41,6 +83,18 @@ function checkRateLimit(userId: string): boolean {
 }
 
 // ============================================
+// OUTPUT SANITIZATION
+// ============================================
+
+function sanitizeLLMOutput(text: string): string {
+  return text
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<\/?(?:script|iframe|object|embed|form|input|button|link|meta|style)\b[^>]*>/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/javascript\s*:/gi, '');
+}
+
+// ============================================
 // REQUEST VALIDATION
 // ============================================
 
@@ -49,7 +103,6 @@ interface ChatRequestBody {
   conversationId?: string;
   language: 'ar' | 'en';
   context?: UserFinancialContext;
-  userId?: string;
   attachments?: MessageAttachment[];
 }
 
@@ -82,9 +135,13 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
     if (attachments.length > 5) {
       return { valid: false, error: 'Maximum 5 attachments allowed' };
     }
+    const SAFE_FILENAME = /^[a-zA-Z0-9_\-][a-zA-Z0-9_\-. ]{0,254}$/;
     for (const att of attachments) {
       if (!att.type || !att.content || !att.filename) {
         return { valid: false, error: 'Invalid attachment format' };
+      }
+      if (!SAFE_FILENAME.test(att.filename) || att.filename.includes('..')) {
+        return { valid: false, error: 'Invalid attachment filename' };
       }
       if (att.content.length > 10 * 1024 * 1024) {
         return { valid: false, error: 'Attachment too large. Maximum 10MB' };
@@ -104,7 +161,6 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
       conversationId: data.conversationId as string | undefined,
       language: language as 'ar' | 'en',
       context: data.context as UserFinancialContext | undefined,
-      userId: data.userId as string | undefined,
       attachments,
     },
   };
@@ -123,6 +179,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
     }, { status: 503 });
   }
   
+  const authResult = await authenticateRequest(request);
+  if (!authResult) {
+    return NextResponse.json({
+      success: false,
+      conversationId: '',
+      error: 'Authentication required',
+    }, { status: 401 });
+  }
+  
   try {
     const body = await request.json();
     
@@ -135,10 +200,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       }, { status: 400 });
     }
     
-    const { message, conversationId, language, context, userId, attachments } = validation.data;
+    const { message, conversationId, language, context, attachments } = validation.data;
+    const userId = authResult.userId;
     
-    const userKey = userId || request.headers.get('x-forwarded-for') || 'anonymous';
-    if (!checkRateLimit(userKey)) {
+    if (!checkRateLimit(userId)) {
       return NextResponse.json({
         success: false,
         conversationId: conversationId || '',
@@ -148,12 +213,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       }, { status: 429 });
     }
     
-    const convId = conversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const convId = conversationId || `conv_${crypto.randomUUID()}`;
     const userContext = context || buildEmptyContext('JOD', language);
     
     if (AI_SAFETY.enableLogging) {
       console.log('[Chat API] Request:', {
-        userId: userKey,
+        userId,
         conversationId: convId,
         messageLength: message.length,
         language,
@@ -162,15 +227,22 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       });
     }
     
-    // Route through the orchestrator pipeline
-    const result = await orchestrator.process({
-      message,
-      context: userContext,
-      conversationId: convId,
-      language,
-      userId,
-      attachments,
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 35_000);
+
+    let result;
+    try {
+      result = await orchestrator.process({
+        message,
+        context: userContext,
+        conversationId: convId,
+        language,
+        userId,
+        attachments,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
     
     if (AI_SAFETY.enableLogging) {
       console.log('[Chat API] Response:', {
@@ -184,9 +256,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       });
     }
     
+    const sanitizedResponse = {
+      ...result.response,
+      message: sanitizeLLMOutput(result.response.message),
+      ...(result.response.messageAr && { messageAr: sanitizeLLMOutput(result.response.messageAr) }),
+    };
+
     return NextResponse.json({
       success: true,
-      response: result.response,
+      response: sanitizedResponse,
       conversationId: convId,
     });
     
@@ -205,13 +283,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
 // OPTIONS (CORS)
 // ============================================
 
-export async function OPTIONS(): Promise<NextResponse> {
+export async function OPTIONS(request: NextRequest): Promise<NextResponse> {
+  const origin = getCorsOrigin(request);
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      ...(origin && { 'Access-Control-Allow-Origin': origin }),
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Vary': 'Origin',
     },
   });
 }

@@ -241,5 +241,5 @@ export function useCourseProgress(): CourseProgressState {
 }
 
 function awardCourseCompletion(courseId: string) {
-  console.log(`[CourseProgress] Course completed: ${courseId}`);
+  if (process.env.NODE_ENV === 'development') console.log(`[CourseProgress] Course completed: ${courseId}`);
 }

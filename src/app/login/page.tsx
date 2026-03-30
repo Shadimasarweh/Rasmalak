@@ -19,6 +19,8 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(0);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -30,6 +32,12 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
+    if (Date.now() < lockedUntil) {
+      const secondsLeft = Math.ceil((lockedUntil - Date.now()) / 1000);
+      setError(intl.formatMessage({ id: 'auth.too_many_attempts', defaultMessage: `Too many attempts. Please wait ${secondsLeft} seconds.` }, { seconds: secondsLeft }));
+      return;
+    }
+
     if (!email || !password) {
       setError(intl.formatMessage({ id: 'auth.email_required', defaultMessage: 'Email and password are required' }));
       return;
@@ -40,8 +48,15 @@ export default function LoginPage() {
     setIsLoading(false);
 
     if (result.success) {
+      setFailedAttempts(0);
       router.push('/');
     } else {
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+      if (newAttempts >= 3) {
+        const backoffMs = Math.min(1000 * Math.pow(2, newAttempts - 3), 60_000);
+        setLockedUntil(Date.now() + backoffMs);
+      }
       setError(result.error || intl.formatMessage({ id: 'auth.login_error', defaultMessage: 'Login failed' }));
     }
   };
