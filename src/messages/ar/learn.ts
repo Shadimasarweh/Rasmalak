@@ -36,7 +36,7 @@ export default {
   wealth_building: 'بناء الثروة',
   islamic_finance: 'التمويل الإسلامي',
   modules: 'وحدات',
-  latest_articles: 'أحدث المقالات',
+  latest_articles: 'أحدث الرؤى',
   budget_rule_title: 'قاعدة الميزانية ٥٠/٣٠/٢٠',
   emergency_funds_title: 'صندوق الطوارئ: كم يكفي؟',
   compound_interest_title: 'الفائدة المركبة ببساطة',
@@ -62,13 +62,13 @@ export default {
   // Mode selectors
   'mode.home': 'الرئيسية',
   'mode.paths': 'المسارات',
-  'mode.articles': 'مقالات',
+  'mode.articles': 'رؤى مالية',
   'mode.videos': 'فيديوهات',
   'mode.topics': 'المواضيع',
   'mode.achievements': 'الإنجازات',
   // Tab switcher (learn page)
   'tab.home': 'الرئيسية',
-  'tab.articles': 'مقالات',
+  'tab.articles': 'رؤى مالية',
   'tab.videos': 'فيديوهات',
   'tab.topics': 'المواضيع والمهارات',
   'tab.achievements': 'الإنجازات',
@@ -88,11 +88,11 @@ export default {
   recommended: 'مقترح لك',
   recommendation_text: 'بناءً على اهتماماتك، ابدأ بالميزانية ١٠١.',
   recently_added: 'أُضيف مؤخراً',
-  featured_articles: 'مقالات مميزة',
+  featured_articles: 'رؤى مميزة',
   featured_courses: 'دورات مميزة',
   current_path: 'تابع مسارك',
   available_paths: 'المسارات المتاحة',
-  all_articles: 'كل المقالات',
+  all_articles: 'كل الرؤى',
   all_videos: 'كل الفيديوهات',
   // Topic card template
   lessons_count: '{count} دروس',
@@ -128,6 +128,8 @@ export default {
   // Article viewer
   'article.not_found': 'المقال غير موجود',
   'article.back_to_learn': 'العودة للتعلّم',
-  'article.back_to_articles': 'العودة للمقالات',
+  'article.back_to_articles': 'العودة للرؤى',
+  'articles.heading': 'رؤى مالية عملية',
+  'articles.subheading': 'افهم خياراتك واتخذ قرارات مالية أفضل',
   'article.read_article': 'اقرأ المقال',
 };

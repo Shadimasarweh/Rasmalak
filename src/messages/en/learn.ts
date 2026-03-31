@@ -36,7 +36,7 @@ export default {
   wealth_building: 'Wealth Building',
   islamic_finance: 'Islamic Finance',
   modules: 'Modules',
-  latest_articles: 'Latest Articles',
+  latest_articles: 'Latest Insights',
   budget_rule_title: 'The 50/30/20 Budget Rule Explained',
   emergency_funds_title: 'Emergency Funds: How Much is Enough?',
   compound_interest_title: 'Understanding Compound Interest',
@@ -62,13 +62,13 @@ export default {
   // Mode selectors
   'mode.home': 'Home',
   'mode.paths': 'Learning Paths',
-  'mode.articles': 'Articles',
+  'mode.articles': 'Insights',
   'mode.videos': 'Videos',
   'mode.topics': 'Topics & Skills',
   'mode.achievements': 'Achievements',
   // Tab switcher (learn page)
   'tab.home': 'Home',
-  'tab.articles': 'Articles',
+  'tab.articles': 'Insights',
   'tab.videos': 'Videos',
   'tab.topics': 'Topics & Skills',
   'tab.achievements': 'Achievements',
@@ -88,11 +88,11 @@ export default {
   recommended: 'Recommended for you',
   recommendation_text: 'Based on your profile, start with Budgeting 101.',
   recently_added: 'Recently added',
-  featured_articles: 'Featured Articles',
+  featured_articles: 'Featured Insights',
   featured_courses: 'Featured Courses',
   current_path: 'Continue Your Path',
   available_paths: 'Available Paths',
-  all_articles: 'All Articles',
+  all_articles: 'All Insights',
   all_videos: 'All Videos',
   // Topic card template
   lessons_count: '{count} Lessons',
@@ -121,6 +121,8 @@ export default {
   // Article viewer
   'article.not_found': 'Article not found',
   'article.back_to_learn': 'Back to Learn',
-  'article.back_to_articles': 'Back to Articles',
+  'article.back_to_articles': 'Back to Insights',
+  'articles.heading': 'Practical Financial Insights',
+  'articles.subheading': 'Understand your options. Make better money decisions.',
   'article.read_article': 'Read Article',
 };

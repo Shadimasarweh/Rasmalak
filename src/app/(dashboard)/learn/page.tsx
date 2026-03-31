@@ -213,7 +213,7 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
 /* ----- Tab switcher ----- */
 const TABS: { id: LearnTab; labelKey: string; labelDefault: string }[] = [
   { id: 'home', labelKey: 'learn.tab.home', labelDefault: 'Home' },
-  { id: 'articles', labelKey: 'learn.tab.articles', labelDefault: 'Articles' },
+  { id: 'articles', labelKey: 'learn.tab.articles', labelDefault: 'Insights' },
   { id: 'videos', labelKey: 'learn.tab.videos', labelDefault: 'Videos' },
   { id: 'topics', labelKey: 'learn.tab.topics', labelDefault: 'Topics & Skills' },
   { id: 'achievements', labelKey: 'learn.tab.achievements', labelDefault: 'Achievements' },
@@ -269,86 +269,224 @@ function TabSwitcher({
 }
 
 /* ----- Articles tab ----- */
-function ArticlesTab({ language, minReadLabel }: { language: string; minReadLabel: (min: number) => string }) {
+
+function getWeekKey(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = d.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + mondayOffset);
+  return monday.toISOString().slice(0, 10);
+}
+
+function formatWeekLabel(weekStart: string, language: string, intl: ReturnType<typeof useIntl>): string {
+  const start = new Date(weekStart + 'T00:00:00');
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  if (language === 'ar') {
+    const startStr = intl.formatDate(start, { month: 'short', day: 'numeric' });
+    const endStr = intl.formatDate(end, { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${startStr} – ${endStr}`;
+  }
+  const startStr = intl.formatDate(start, { month: 'short', day: 'numeric' });
+  const endStr = intl.formatDate(end, { month: 'short', day: 'numeric', year: 'numeric' });
+  return `${startStr} – ${endStr}`;
+}
+
+interface WeekGroup {
+  weekKey: string;
+  articles: ReturnType<typeof getAllArticles>;
+}
+
+function ArticlesTab({ language, minReadLabel, intl }: { language: string; minReadLabel: (min: number) => string; intl: ReturnType<typeof useIntl> }) {
   const isRtl = language === 'ar';
   const articles = useMemo(() => getAllArticles(language), [language]);
 
+  const weekGroups = useMemo<WeekGroup[]>(() => {
+    const grouped = new Map<string, typeof articles>();
+    for (const article of articles) {
+      const key = getWeekKey(article.publishedDate);
+      const existing = grouped.get(key) || [];
+      existing.push(article);
+      grouped.set(key, existing);
+    }
+    return Array.from(grouped.entries())
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([weekKey, arts]) => ({ weekKey, articles: arts }));
+  }, [articles]);
+
+  const [openWeeks, setOpenWeeks] = useState<Set<string>>(() => {
+    const first = weekGroups[0]?.weekKey;
+    return first ? new Set([first]) : new Set();
+  });
+
+  const toggleWeek = (key: string) => {
+    setOpenWeeks((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
   return (
-    <div className="learn-accordion-grid" style={{ marginTop: '16px' }}>
-      {articles.map((article) => (
-        <Link
-          key={article.articleId}
-          href={`/learn/articles/${article.articleId}`}
-          style={{ textDecoration: 'none', display: 'block' }}
-        >
-          <div
-            style={{
-              background: 'var(--ds-bg-card)',
-              borderRadius: '16px',
-              boxShadow: 'var(--ds-shadow-card)',
-              overflow: 'hidden',
-              border: '0.5px solid var(--ds-border)',
-              cursor: 'pointer',
-              direction: isRtl ? 'rtl' : 'ltr',
-              textAlign: isRtl ? 'right' : 'left',
-              transition: 'box-shadow 0.2s ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--ds-shadow-card)'; }}
-          >
-            <div style={{ position: 'relative', height: '80px', background: 'linear-gradient(135deg, #2D6A4F 0%, #1B4332 100%)' }}>
-              <span
+    <div style={{ marginTop: '16px' }}>
+      <div style={{ marginBottom: '20px', direction: isRtl ? 'rtl' : 'ltr', textAlign: isRtl ? 'right' : 'left' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)', margin: 0 }}>
+          {intl.formatMessage({ id: 'learn.articles.heading', defaultMessage: 'Practical Financial Insights' })}
+        </h2>
+        <p style={{ fontSize: '15px', color: 'var(--ds-text-body)', margin: '6px 0 0', lineHeight: 1.5 }}>
+          {intl.formatMessage({ id: 'learn.articles.subheading', defaultMessage: 'Understand your options. Make better money decisions.' })}
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {weekGroups.map(({ weekKey, articles: weekArticles }) => {
+          const isOpen = openWeeks.has(weekKey);
+          const weekLabel = formatWeekLabel(weekKey, language, intl);
+          const articleCount = weekArticles.length;
+
+          return (
+            <div
+              key={weekKey}
+              style={{
+                background: 'var(--ds-bg-card)',
+                borderRadius: '16px',
+                boxShadow: 'var(--ds-shadow-card)',
+                border: '0.5px solid var(--ds-border)',
+                overflow: 'hidden',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => toggleWeek(weekKey)}
                 style={{
-                  position: 'absolute',
-                  top: '8px',
-                  [isRtl ? 'left' : 'right']: '8px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  color: '#FFFFFF',
-                  background: 'rgba(0,0,0,0.2)',
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                }}
-              >
-                {minReadLabel(article.readMin)}
-              </span>
-            </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-                {article.title}
-              </h3>
-              <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>
-                {isRtl ? article.tagAr : article.tagEn}
-              </span>
-              <p style={{
-                fontSize: '14px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6,
-                display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
-              }}>
-                {article.description}
-              </p>
-              <span
-                style={{
-                  marginTop: '4px',
-                  display: 'inline-flex',
+                  width: '100%',
+                  display: 'flex',
                   alignItems: 'center',
-                  background: 'var(--ds-primary)',
-                  color: '#FFFFFF',
-                  borderRadius: '8px',
-                  padding: '10px 18px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  minHeight: '44px',
+                  justifyContent: 'space-between',
+                  padding: '16px 20px',
+                  background: 'transparent',
+                  border: 'none',
                   cursor: 'pointer',
-                  alignSelf: isRtl ? 'flex-end' : 'flex-start',
-                  transition: 'background-color 150ms ease',
+                  direction: isRtl ? 'rtl' : 'ltr',
+                  textAlign: isRtl ? 'right' : 'left',
+                  minHeight: '56px',
+                  gap: '12px',
                 }}
               >
-                {language === 'ar' ? 'اقرأ المقال' : 'Read Article'}
-              </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+                    {weekLabel}
+                  </span>
+                  <span style={{ fontSize: '12px', color: 'var(--ds-text-body)' }}>
+                    {language === 'ar'
+                      ? `${intl.formatNumber(articleCount)} ${articleCount === 1 ? 'مقال' : 'مقالات'}`
+                      : `${articleCount} ${articleCount === 1 ? 'article' : 'articles'}`}
+                  </span>
+                </div>
+                <ChevronDown
+                  size={18}
+                  style={{
+                    color: 'var(--ds-text-body)',
+                    transition: 'transform 200ms ease',
+                    transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    flexShrink: 0,
+                  }}
+                />
+              </button>
+
+              {isOpen && (
+                <div
+                  style={{
+                    padding: '0 16px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    borderTop: '0.5px solid var(--ds-border)',
+                    paddingTop: '16px',
+                  }}
+                >
+                  {weekArticles.map((article) => (
+                    <Link
+                      key={article.articleId}
+                      href={`/learn/articles/${article.articleId}`}
+                      style={{ textDecoration: 'none', display: 'block' }}
+                    >
+                      <div
+                        style={{
+                          background: 'var(--ds-bg-page)',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '0.5px solid var(--ds-border)',
+                          cursor: 'pointer',
+                          direction: isRtl ? 'rtl' : 'ltr',
+                          textAlign: isRtl ? 'right' : 'left',
+                          transition: 'box-shadow 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
+                      >
+                        <div style={{ position: 'relative', height: '64px', background: 'linear-gradient(135deg, #2D6A4F 0%, #1B4332 100%)' }}>
+                          <span
+                            style={{
+                              position: 'absolute',
+                              top: '8px',
+                              [isRtl ? 'left' : 'right']: '8px',
+                              fontSize: '10px',
+                              fontWeight: 500,
+                              color: '#FFFFFF',
+                              background: 'rgba(0,0,0,0.2)',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                            }}
+                          >
+                            {minReadLabel(article.readMin)}
+                          </span>
+                        </div>
+                        <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                            {article.title}
+                          </h3>
+                          <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>
+                            {isRtl ? article.tagAr : article.tagEn}
+                          </span>
+                          <p style={{
+                            fontSize: '13px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.5,
+                            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+                          }}>
+                            {article.description}
+                          </p>
+                          <span
+                            style={{
+                              marginTop: '4px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              background: 'var(--ds-primary)',
+                              color: '#FFFFFF',
+                              borderRadius: '8px',
+                              padding: '8px 16px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              minHeight: '40px',
+                              cursor: 'pointer',
+                              alignSelf: isRtl ? 'flex-end' : 'flex-start',
+                              transition: 'background-color 150ms ease',
+                            }}
+                          >
+                            {language === 'ar' ? 'اقرأ المقال' : 'Read Article'}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        </Link>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -934,6 +1072,7 @@ export default function LearnPage() {
         {activeTab === 'articles' && (
           <ArticlesTab
             language={language}
+            intl={intl}
             minReadLabel={(min) => (language === 'ar' ? `${intl.formatNumber(min)} دقيقة قراءة` : `${min} MIN READ`)}
           />
         )}

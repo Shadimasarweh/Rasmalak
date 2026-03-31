@@ -14,5 +14,6 @@ export interface ArticleData {
   tagEn: string;
   tagAr: string;
   readMin: number;
+  publishedDate: string;
   sections: ArticleSection[];
 }

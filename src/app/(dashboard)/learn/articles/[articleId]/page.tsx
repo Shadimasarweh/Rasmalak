@@ -2,24 +2,154 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useIntl } from 'react-intl';
+import Link from 'next/link';
 import { getArticle, getArticleIdForLocale } from '@/data/articles';
 import { useStore } from '@/store/useStore';
 import { ArrowLeft, ArrowRight, Clock } from 'lucide-react';
 import type { Block } from '@/types/course';
+import type { ReactNode } from 'react';
 import {
-  TextBlock,
   BulletListBlock,
   KeyInsightBlock as KeyInsightComp,
   ExampleBlock as ExampleComp,
   ComparisonBlock as ComparisonComp,
-  ActionPromptBlock as ActionPromptComp,
   CheckpointBlock as CheckpointComp,
 } from '@/components/courses/blocks';
+
+const TOOL_REFERENCES: { pattern: string; route: string }[] = [
+  { pattern: 'Rasmalak Loan Calculator', route: '/calculators/simple-loan' },
+  { pattern: 'Loan Calculator', route: '/calculators/simple-loan' },
+  { pattern: 'Rasmalak Mustasharak AI', route: '/chat' },
+  { pattern: 'Mustasharak AI', route: '/chat' },
+  { pattern: 'Mustasharak', route: '/chat' },
+  { pattern: 'Rasmalak Expense Tracking & Insights', route: '/transactions' },
+  { pattern: 'Expense Tracking & Insights', route: '/transactions' },
+  { pattern: 'Rasmalak Predictive Budgeting', route: '/budgets' },
+  { pattern: 'Predictive Budgeting', route: '/budgets' },
+  { pattern: 'أدوات Rasmalak لتتبع وتحليل المصاريف', route: '/transactions' },
+  { pattern: 'حاسبة القروض', route: '/calculators/simple-loan' },
+  { pattern: 'تخطيط الميزانية الذكي في Rasmalak', route: '/budgets' },
+  { pattern: 'تخطيط الميزانية الذكي', route: '/budgets' },
+  { pattern: 'مستشارك للذكاء الاصطناعي', route: '/chat' },
+  { pattern: 'مستشارك', route: '/chat' },
+];
+
+const LINK_STYLE: React.CSSProperties = {
+  color: 'var(--ds-primary)',
+  fontWeight: 600,
+  textDecoration: 'underline',
+  textDecorationColor: 'var(--ds-primary)',
+  textUnderlineOffset: '3px',
+  cursor: 'pointer',
+  transition: 'opacity 150ms ease',
+};
+
+function linkifyText(text: string): ReactNode {
+  const sortedRefs = [...TOOL_REFERENCES].sort(
+    (a, b) => b.pattern.length - a.pattern.length
+  );
+
+  const parts: ReactNode[] = [];
+  let remaining = text;
+  let keyIdx = 0;
+
+  while (remaining.length > 0) {
+    let earliest = -1;
+    let matchedRef: (typeof TOOL_REFERENCES)[number] | null = null;
+    let matchIdx = Infinity;
+
+    for (const ref of sortedRefs) {
+      const idx = remaining.indexOf(ref.pattern);
+      if (idx !== -1 && idx < matchIdx) {
+        matchIdx = idx;
+        matchedRef = ref;
+        earliest = idx;
+      }
+    }
+
+    if (earliest === -1 || !matchedRef) {
+      parts.push(remaining);
+      break;
+    }
+
+    if (earliest > 0) {
+      parts.push(remaining.slice(0, earliest));
+    }
+
+    parts.push(
+      <Link key={keyIdx++} href={matchedRef.route} style={LINK_STYLE}>
+        {matchedRef.pattern}
+      </Link>
+    );
+
+    remaining = remaining.slice(earliest + matchedRef.pattern.length);
+  }
+
+  return parts.length === 1 && typeof parts[0] === 'string' ? text : <>{parts}</>;
+}
+
+function LinkedTextBlock({ text }: { text: string }) {
+  return (
+    <p
+      style={{
+        fontSize: '0.9375rem',
+        lineHeight: 1.85,
+        color: 'var(--color-text-secondary)',
+        marginBottom: 'var(--spacing-3)',
+        maxWidth: '680px',
+      }}
+    >
+      {linkifyText(text)}
+    </p>
+  );
+}
+
+function LinkedActionPromptBlock({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        border: '1px dashed var(--color-border)',
+        borderRadius: 'var(--radius-md)',
+        padding: 'var(--spacing-4)',
+        marginBottom: 'var(--spacing-4)',
+        display: 'flex',
+        gap: '12px',
+        alignItems: 'flex-start',
+      }}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="var(--color-text-muted)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ flexShrink: 0, marginTop: '2px' }}
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      <p
+        style={{
+          fontSize: '0.875rem',
+          lineHeight: 1.7,
+          color: 'var(--color-text-secondary)',
+          fontStyle: 'italic',
+          margin: 0,
+        }}
+      >
+        {linkifyText(text)}
+      </p>
+    </div>
+  );
+}
 
 function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
   switch (block.type) {
     case 'p':
-      return <TextBlock text={block.text} />;
+      return <LinkedTextBlock text={block.text} />;
     case 'ul':
       return <BulletListBlock items={block.items} />;
     case 'key_insight':
@@ -36,7 +166,7 @@ function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
         />
       );
     case 'action_prompt':
-      return <ActionPromptComp text={block.text} />;
+      return <LinkedActionPromptBlock text={block.text} />;
     case 'checkpoint':
       return <CheckpointComp title={block.title} items={block.items} isRtl={isRtl} />;
     default:
