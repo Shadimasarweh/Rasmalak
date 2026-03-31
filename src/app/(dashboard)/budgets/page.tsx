@@ -178,7 +178,7 @@ export default function BudgetsPage() {
   const language = useLanguage();
   const currency = useCurrency();
   const isRTL = language === 'ar';
-  const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
+  const { monthlyBudget, categoryBudgets, saveAll } = useBudget();
   const { transactions: realTransactions } = useTransactions();
 
   // TEMP: fake transactions for visual testing — DELETE before production
@@ -390,19 +390,15 @@ export default function BudgetsPage() {
     setConfirmedPatterns(prev => ({ ...prev, [id]: false }));
   };
 
-  const handleSave = () => {
-    // Save monthly budget
-    setMonthlyBudget(monthlyBudgetValue);
-
-    // Save category budgets
+  const handleSave = async () => {
+    const categories: Record<string, number> = {};
     Object.entries(tempBudgets).forEach(([catId, value]) => {
       const amount = parseFloat(value) || 0;
       if (amount > 0) {
-        setCategoryBudget(catId, amount);
-      } else {
-        removeCategoryBudget(catId);
+        categories[catId] = amount;
       }
     });
+    await saveAll(monthlyBudgetValue, categories);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
   };

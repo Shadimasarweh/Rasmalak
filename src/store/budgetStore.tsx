@@ -10,6 +10,7 @@ interface BudgetStore {
   setMonthlyBudget: (amount: number) => void;
   setCategoryBudget: (category: string, limit: number) => void;
   removeCategoryBudget: (category: string) => void;
+  saveAll: (monthly: number, categories: Record<string, number>) => Promise<void>;
 }
 
 const BudgetContext = createContext<BudgetStore | null>(null);
@@ -126,12 +127,22 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     [upsertBudget],
   );
 
+  const saveAll = useCallback(
+    async (monthly: number, categories: Record<string, number>) => {
+      setMonthlyBudgetLocal(monthly);
+      setCategoryBudgetsLocal(categories);
+      await upsertBudget(monthly, categories);
+    },
+    [upsertBudget],
+  );
+
   const store: BudgetStore = {
     monthlyBudget,
     categoryBudgets,
     setMonthlyBudget,
     setCategoryBudget,
     removeCategoryBudget,
+    saveAll,
   };
 
   return (
