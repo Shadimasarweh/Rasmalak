@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Receipt,
-  ShieldCheck,
   GraduationCap,
   Calculator,
   MessageSquareText,
@@ -23,7 +22,6 @@ import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useS
 const navItems = [
   { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard', smeOnly: false },
   { id: 'budgets', path: '/transactions', icon: Receipt, labelAr: 'الميزانيات', labelEn: 'Budgets', smeOnly: false },
-  { id: 'emergency-fund', path: '/emergency-fund', icon: ShieldCheck, labelAr: 'صندوق الطوارئ', labelEn: 'Emergency Fund', smeOnly: false },
   { id: 'learn', path: '/learn', icon: GraduationCap, labelAr: 'تعلّم', labelEn: 'Learn', smeOnly: false },
   { id: 'chat', path: '/chat', icon: MessageSquareText, labelAr: 'مستشارك', labelEn: 'Mustasharak', smeOnly: false },
   { id: 'tools', path: '/tools', icon: Calculator, labelAr: 'الأدوات', labelEn: 'Tools', smeOnly: false },
