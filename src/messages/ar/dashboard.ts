@@ -164,15 +164,15 @@ export default {
 
   // حالة التوجيه الفارغة
   coach_add_title: 'أضف معاملة',
-  coach_add_subtitle: 'Add a transaction',
+  coach_add_subtitle: 'أضف أول معاملة',
   coach_add_desc: 'سجّل أول دخل أو مصروف لبدء التتبع.',
   coach_add_cta: 'أضف الآن',
   coach_budget_title: 'حدد ميزانية',
-  coach_budget_subtitle: 'Set a budget',
+  coach_budget_subtitle: 'حدد ميزانيتك',
   coach_budget_desc: 'تحكم في إنفاقك بحدود شهرية لكل فئة.',
   coach_budget_cta: 'حدد الميزانية',
   coach_goal_title: 'أنشئ هدفاً',
-  coach_goal_subtitle: 'Create a goal',
+  coach_goal_subtitle: 'أنشئ هدفاً مالياً',
   coach_goal_desc: 'ادخر نحو شيء مهم — صندوق طوارئ، سفر، أو شراء كبير.',
   coach_goal_cta: 'أنشئ هدفاً',
   coach_ai_nudge: 'أضف أول معاملة وسأبدأ بتحليل أنماط إنفاقك.',

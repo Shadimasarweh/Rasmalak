@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getAllCourses } from '@/data/courses';
 import { getAllArticles } from '@/data/articles';
@@ -1017,8 +1018,13 @@ export default function LearnPage() {
   const language = useStore((s) => s.language);
   const isRtl = language === 'ar';
   const { courses, progressMap } = useLearnPageData();
+  const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<LearnTab>('home');
+  const VALID_TABS: LearnTab[] = ['home', 'articles', 'videos', 'topics', 'achievements'];
+  const tabParam = searchParams.get('tab') as LearnTab | null;
+  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'home';
+
+  const [activeTab, setActiveTab] = useState<LearnTab>(initialTab);
   const [openAccordion, setOpenAccordion] = useState<CourseLevel | null>(null);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);

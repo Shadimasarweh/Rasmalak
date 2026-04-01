@@ -203,7 +203,7 @@ export default function ArticlePage() {
           </h2>
           <button
             type="button"
-            onClick={() => router.push('/learn')}
+            onClick={() => router.push('/learn?tab=articles')}
             style={{
               marginTop: '16px',
               padding: '10px 20px',
@@ -230,7 +230,7 @@ export default function ArticlePage() {
       {/* Back button */}
       <button
         type="button"
-        onClick={() => router.push('/learn')}
+        onClick={() => router.push('/learn?tab=articles')}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -373,7 +373,7 @@ export default function ArticlePage() {
         >
           <button
             type="button"
-            onClick={() => router.push('/learn')}
+            onClick={() => router.push('/learn?tab=articles')}
             style={{
               width: '100%',
               padding: '12px 24px',

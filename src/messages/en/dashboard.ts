@@ -152,15 +152,15 @@ export default {
 
   // Coaching empty state
   coach_add_title: 'Add a transaction',
-  coach_add_subtitle: 'أضف أول معاملة',
+  coach_add_subtitle: 'Add your first transaction',
   coach_add_desc: 'Record your first income or expense to start tracking.',
   coach_add_cta: 'Add now',
   coach_budget_title: 'Set a budget',
-  coach_budget_subtitle: 'حدد ميزانيتك',
+  coach_budget_subtitle: 'Define your budget',
   coach_budget_desc: 'Control your spending with monthly limits per category.',
   coach_budget_cta: 'Set budget',
   coach_goal_title: 'Create a goal',
-  coach_goal_subtitle: 'أنشئ هدفاً مالياً',
+  coach_goal_subtitle: 'Set a financial goal',
   coach_goal_desc: 'Save toward something meaningful — emergency fund, travel, or a purchase.',
   coach_goal_cta: 'Create goal',
   coach_ai_nudge: 'Add your first transaction and I\'ll start analyzing your spending patterns.',

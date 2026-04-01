@@ -70,7 +70,7 @@ export default {
   monthly_expenses: 'المصروفات',
 
   // حالة فارغة
-  empty_state_subtitle: 'Record your transactions',
+  empty_state_subtitle: 'سجّل معاملاتك المالية',
   empty_add_expense: 'أضف مصروف',
   empty_add_income: 'أضف دخل',
 

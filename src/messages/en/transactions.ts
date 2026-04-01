@@ -52,7 +52,7 @@ export default {
   error_date_required: 'Date is required',
 
   // Empty state coaching
-  empty_state_subtitle: 'سجّل معاملاتك المالية',
+  empty_state_subtitle: 'Record your transactions',
   empty_add_expense: 'Add expense',
   empty_add_income: 'Add income',
 

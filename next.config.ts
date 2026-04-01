@@ -10,6 +10,20 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          '**/node_modules/**',
+          '**/test-results/**',
+          '**/tests/**',
+          '**/.auth/**',
+        ],
+      };
+    }
+    return config;
+  },
   async headers() {
     return [
       {
