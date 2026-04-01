@@ -12,6 +12,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { Skeleton } from '@/components/ui/Skeleton';
 import { calculateHealthScore } from '@/lib/healthScore';
 import { useBudget } from '@/store/budgetStore';
+import { useEmergencyFund } from '@/store/emergencyFundStore';
 
 /* ============================================
    TRANSACTIONS PAGE
@@ -571,6 +572,22 @@ export default function TransactionsPage() {
       .slice(0, 5);
   }, [spendingByCategory]);
 
+  // Emergency fund (dedicated store)
+  const { fund: emergencyFund } = useEmergencyFund();
+
+  const avgMonthlyExpenses = useMemo(() => {
+    const now = new Date();
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+    const expenses = transactions
+      .filter(tx => tx.type === 'expense' && new Date(tx.date) >= threeMonthsAgo)
+      .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+    return expenses / 3;
+  }, [transactions]);
+
+  const efMonthsCovered = emergencyFund && avgMonthlyExpenses > 0
+    ? Math.round((emergencyFund.currentAmount / avgMonthlyExpenses) * 10) / 10
+    : 0;
+
   // Health score
   const { categoryBudgets } = useBudget();
   const healthScore = useMemo(() => {
@@ -592,15 +609,6 @@ export default function TransactionsPage() {
         if ((spendingByCategory[cat.id] || 0) > limit) categoriesOverBudget++;
       }
     });
-    const emergencyGoal = savingsGoals.find(g =>
-      g.name.toLowerCase().includes('emergency') || g.name.includes('طوارئ')
-    );
-    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-    let totalExp3m = 0;
-    transactions.forEach((tx: Transaction) => {
-      const d = new Date(tx.date);
-      if (tx.type === 'expense' && d >= threeMonthsAgo && d <= endOfMonth) totalExp3m += Math.abs(tx.amount);
-    });
     const goalsOnTrack = savingsGoals.filter(g => g.targetAmount > 0 && g.currentAmount / g.targetAmount > 0).length;
     return calculateHealthScore({
       monthlyIncome,
@@ -609,8 +617,8 @@ export default function TransactionsPage() {
       budgetSpent: monthlyExpenses,
       categoriesOverBudget,
       totalCategories: totalCatsWithBudget,
-      emergencyFundCurrent: emergencyGoal ? emergencyGoal.currentAmount : 0,
-      averageMonthlyExpenses: totalExp3m / 3,
+      emergencyFundCurrent: emergencyFund ? emergencyFund.currentAmount : 0,
+      averageMonthlyExpenses: avgMonthlyExpenses,
       goalsOnTrack,
       totalGoals: savingsGoals.length,
       daysLoggedThisMonth: loggedDays.size,
@@ -618,7 +626,7 @@ export default function TransactionsPage() {
       coursesCompleted: 0,
       totalCourses: 30,
     });
-  }, [transactions, savingsGoals, spendingByCategory, categoryBudgets, monthlyIncome, monthlyExpenses]);
+  }, [transactions, savingsGoals, spendingByCategory, categoryBudgets, monthlyIncome, monthlyExpenses, emergencyFund, avgMonthlyExpenses]);
 
   // Handle delete with confirmation per Contract Section 4
   const handleDeleteClick = (transaction: Transaction) => {
@@ -1293,6 +1301,109 @@ export default function TransactionsPage() {
                 </Link>
               </div>
             </div>
+          </div>
+
+          {/* ===== EMERGENCY FUND ===== */}
+          <div style={{
+            background: 'var(--ds-bg-card)', border: '0.5px solid var(--ds-border)', borderRadius: '16px',
+            padding: '20px 24px', boxShadow: 'var(--ds-shadow-card)', marginBottom: '16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🛡️</span>
+                {intl.formatMessage({ id: 'dashboard.ef_title', defaultMessage: 'Emergency Fund' })}
+              </p>
+              {emergencyFund && (
+                <Link href="/emergency-fund" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none' }}>
+                  {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View' })}
+                </Link>
+              )}
+            </div>
+
+            {emergencyFund ? (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ padding: '12px', background: 'var(--ds-bg-tinted)', borderRadius: '12px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
+                      {intl.formatMessage({ id: 'dashboard.ef_balance', defaultMessage: 'Balance' })}
+                    </p>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--ds-primary)', margin: 0 }}>
+                      {currencySymbol} {styledNum(intl.formatNumber(emergencyFund.currentAmount))}
+                    </p>
+                  </div>
+                  <div style={{ padding: '12px', background: 'var(--ds-bg-tinted)', borderRadius: '12px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
+                      {intl.formatMessage({ id: 'dashboard.ef_target', defaultMessage: 'Target' })}
+                    </p>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--ds-text-heading)', margin: 0 }}>
+                      {currencySymbol} {styledNum(intl.formatNumber(emergencyFund.targetAmount))}
+                    </p>
+                  </div>
+                  <div style={{ padding: '12px', background: 'var(--ds-bg-tinted)', borderRadius: '12px' }}>
+                    <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
+                      {intl.formatMessage({ id: 'dashboard.ef_months_covered_label', defaultMessage: 'Months of expenses covered' })}
+                    </p>
+                    <p style={{
+                      fontSize: '1.1rem', fontWeight: 700, margin: 0,
+                      color: efMonthsCovered >= 6 ? 'var(--ds-success, #16a34a)' : efMonthsCovered >= 3 ? 'var(--ds-warning, #D97706)' : 'var(--ds-error, #DC2626)',
+                    }}>
+                      {intl.formatMessage({ id: 'dashboard.ef_months_covered', defaultMessage: '{months} months covered' }, { months: efMonthsCovered })}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-heading)' }}>
+                      {intl.formatNumber(emergencyFund.targetAmount > 0 ? Math.min((emergencyFund.currentAmount / emergencyFund.targetAmount) * 100, 100) : 0, { maximumFractionDigits: 0 })}%
+                    </span>
+                    <span style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
+                      {intl.formatMessage({ id: 'dashboard.ef_recommended', defaultMessage: '6 months recommended' })}
+                    </span>
+                  </div>
+                  <div style={{ height: '8px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: mounted ? `${Math.min((emergencyFund.currentAmount / (emergencyFund.targetAmount || 1)) * 100, 100)}%` : '0%',
+                      height: '100%',
+                      borderRadius: '4px',
+                      transition: 'width 600ms ease-out',
+                      background: efMonthsCovered >= 6 ? 'var(--ds-success, #16a34a)' : efMonthsCovered >= 3 ? 'var(--ds-warning, #D97706)' : 'var(--ds-primary)',
+                    }} />
+                  </div>
+                </div>
+
+                <Link href="/emergency-fund" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '8px 16px', background: 'var(--ds-primary)', color: '#FFFFFF',
+                  borderRadius: '10px', fontSize: '13px', fontWeight: 600, textDecoration: 'none',
+                }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_add_funds', defaultMessage: 'Add Funds' })}
+                </Link>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', paddingBlock: '20px' }}>
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '14px',
+                  background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', margin: '0 auto 12px',
+                }}>
+                  <span style={{ fontSize: '1.5rem' }}>🛡️</span>
+                </div>
+                <p style={{ fontWeight: 600, color: 'var(--ds-text-heading)', marginBottom: '4px' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_no_fund', defaultMessage: 'Start your emergency fund' })}
+                </p>
+                <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '12px' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_no_fund_desc', defaultMessage: 'Build a safety net for unexpected expenses.' })}
+                </p>
+                <Link href="/emergency-fund" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '8px 16px', background: 'var(--ds-primary)', color: '#FFFFFF',
+                  borderRadius: '10px', fontSize: '13px', fontWeight: 600, textDecoration: 'none',
+                }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_create_cta', defaultMessage: 'Create Emergency Fund' })}
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* ===== SAVINGS GOALS ===== */}

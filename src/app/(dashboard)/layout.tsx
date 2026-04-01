@@ -5,6 +5,7 @@ import { AuthGuard, Sidebar, Header } from '@/components';
 import { TransactionProvider } from '@/store/transactionStore';
 import { BudgetProvider } from '@/store/budgetStore';
 import { GoalsProvider } from '@/store/goalsStore';
+import { EmergencyFundProvider } from '@/store/emergencyFundStore';
 import QuickAddFAB from '@/components/QuickAddFAB';
 
 export default function DashboardLayout({
@@ -19,6 +20,7 @@ export default function DashboardLayout({
       <TransactionProvider>
       <BudgetProvider>
       <GoalsProvider>
+      <EmergencyFundProvider>
       {/* Flex container: sidebar + main content side by side */}
       <div className="flex min-h-screen w-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         {/* Sidebar - hidden on mobile (shows as drawer), sticky on desktop */}
@@ -36,6 +38,7 @@ export default function DashboardLayout({
         </div>
       </div>
       <QuickAddFAB />
+      </EmergencyFundProvider>
       </GoalsProvider>
       </BudgetProvider>
       </TransactionProvider>

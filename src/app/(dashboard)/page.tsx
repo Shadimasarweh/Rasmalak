@@ -12,6 +12,7 @@ import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
 import { styledNum } from '@/components/StyledNumber';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useNotificationStore } from '@/store/notificationStore';
+import { useEmergencyFund } from '@/store/emergencyFundStore';
 
 /* ═══════════════════════════════════════════════════
    Dashboard — Overview Page
@@ -100,6 +101,21 @@ export default function OverviewPage() {
       });
     return inProgress[0] || savingsGoals[0];
   }, [savingsGoals]);
+
+  const { fund: emergencyFund } = useEmergencyFund();
+
+  const avgMonthlyExpenses = useMemo(() => {
+    const now = new Date();
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+    const expenses = transactions
+      .filter(tx => tx.type === 'expense' && new Date(tx.date) >= threeMonthsAgo)
+      .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+    return expenses / 3;
+  }, [transactions]);
+
+  const monthsCovered = emergencyFund && avgMonthlyExpenses > 0
+    ? Math.round((emergencyFund.currentAmount / avgMonthlyExpenses) * 10) / 10
+    : 0;
 
   /* ---------- Weekly Spending ---------- */
   const weeklySpending = useMemo(() => {
@@ -731,6 +747,116 @@ export default function OverviewPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ===== EMERGENCY FUND ===== */}
+      <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>
+        <div className="ds-section-header" style={{ marginBottom: 'var(--spacing-4)' }}>
+          <h2 className="ds-title-section" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
+            <span style={{ fontSize: '1.25rem' }}>🛡️</span>
+            {intl.formatMessage({ id: 'dashboard.ef_title', defaultMessage: 'Emergency Fund' })}
+          </h2>
+          {emergencyFund && (
+            <Link href="/emergency-fund" className="ds-link-action">
+              {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View' })}
+            </Link>
+          )}
+        </div>
+
+        {emergencyFund ? (
+          <div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-4)', marginBottom: 'var(--spacing-4)' }}>
+              <div style={{ padding: 'var(--spacing-3)', background: 'var(--color-bg-surface-2)', borderRadius: 'var(--radius-lg)' }}>
+                <p className="ds-label" style={{ marginBottom: 'var(--spacing-1)' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_balance', defaultMessage: 'Balance' })}
+                </p>
+                <p className="ds-metric-sm" style={{ color: 'var(--color-primary)' }}>
+                  {currencySymbol} {fmtLocale(emergencyFund.currentAmount)}
+                </p>
+              </div>
+              <div style={{ padding: 'var(--spacing-3)', background: 'var(--color-bg-surface-2)', borderRadius: 'var(--radius-lg)' }}>
+                <p className="ds-label" style={{ marginBottom: 'var(--spacing-1)' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_target', defaultMessage: 'Target' })}
+                </p>
+                <p className="ds-metric-sm">
+                  {currencySymbol} {fmtLocale(emergencyFund.targetAmount)}
+                </p>
+              </div>
+              <div style={{ padding: 'var(--spacing-3)', background: 'var(--color-bg-surface-2)', borderRadius: 'var(--radius-lg)' }}>
+                <p className="ds-label" style={{ marginBottom: 'var(--spacing-1)' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_months_covered_label', defaultMessage: 'Months of expenses covered' })}
+                </p>
+                <p className="ds-metric-sm" style={{ color: monthsCovered >= 6 ? 'var(--color-success)' : monthsCovered >= 3 ? 'var(--color-accent-gold)' : 'var(--color-error)' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_months_covered', defaultMessage: '{months} months covered' }, { months: monthsCovered })}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 'var(--spacing-3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-1)' }}>
+                <span className="ds-label">{intl.formatNumber(emergencyFund.targetAmount > 0 ? Math.min((emergencyFund.currentAmount / emergencyFund.targetAmount) * 100, 100) : 0, { maximumFractionDigits: 0 })}%</span>
+                <span className="ds-label" style={{ color: 'var(--color-text-muted)' }}>
+                  {intl.formatMessage({ id: 'dashboard.ef_recommended', defaultMessage: '6 months recommended' })}
+                </span>
+              </div>
+              <div className="ds-progress" style={{ height: '10px' }}>
+                <div
+                  className="ds-progress-fill"
+                  style={{
+                    width: mounted ? `${Math.min((emergencyFund.currentAmount / (emergencyFund.targetAmount || 1)) * 100, 100)}%` : '0%',
+                    background: monthsCovered >= 6 ? 'var(--color-success)' : monthsCovered >= 3 ? 'var(--color-accent-gold)' : 'var(--color-primary)',
+                    transition: 'width 600ms ease-out',
+                  }}
+                />
+              </div>
+            </div>
+
+            <Link
+              href="/emergency-fund"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--spacing-2)',
+                padding: 'var(--spacing-2) var(--spacing-4)',
+                background: 'var(--color-primary)',
+                color: '#FFFFFF',
+                borderRadius: 'var(--radius-lg)',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                textDecoration: 'none',
+                transition: 'opacity 150ms',
+              }}
+            >
+              {intl.formatMessage({ id: 'dashboard.ef_add_funds', defaultMessage: 'Add Funds' })}
+            </Link>
+          </div>
+        ) : (
+          <div className="ds-empty-state" style={{ paddingBlock: 'var(--spacing-6)' }}>
+            <div className="ds-icon-box-lg" style={{ background: 'var(--color-primary-light)', marginBottom: 'var(--spacing-3)' }}>
+              <span style={{ fontSize: '1.5rem' }}>🛡️</span>
+            </div>
+            <p style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 'var(--spacing-1)' }}>
+              {intl.formatMessage({ id: 'dashboard.ef_no_fund', defaultMessage: 'Start your emergency fund' })}
+            </p>
+            <p className="ds-supporting" style={{ marginBottom: 'var(--spacing-3)' }}>
+              {intl.formatMessage({ id: 'dashboard.ef_no_fund_desc', defaultMessage: 'Build a safety net for unexpected expenses.' })}
+            </p>
+            <Link href="/emergency-fund" className="ds-link-action" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 'var(--spacing-2)',
+              padding: 'var(--spacing-2) var(--spacing-4)',
+              background: 'var(--color-primary)',
+              color: '#FFFFFF',
+              borderRadius: 'var(--radius-lg)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+            }}>
+              {intl.formatMessage({ id: 'dashboard.ef_create_cta', defaultMessage: 'Create Emergency Fund' })}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* ===== MIDDLE: SPENDING + BUDGETS ===== */}

@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Toast } from '@/components/ui/Toast';
 import { useGoals, getMonthlyFundingAmount, goalFundingCategoryId } from '@/store/goalsStore';
 import { calculateHealthScore } from '@/lib/healthScore';
+import { useEmergencyFund } from '@/store/emergencyFundStore';
 
 /* ===== ICONS (module scope — Fault Log F-007) ===== */
 const ArrowLeftIcon = () => (
@@ -205,6 +206,7 @@ export default function BudgetsPage() {
   const transactions = realTransactions.length > 0 ? realTransactions : _fakeTransactions;
 
   const { savingsGoals } = useGoals();
+  const { fund: emergencyFund } = useEmergencyFund();
 
   const currencyInfo = CURRENCIES.find((c) => c.code === currency);
   const currencySymbol = isRTL
@@ -286,9 +288,6 @@ export default function BudgetsPage() {
         if ((spendingByCategory[cat.id] || 0) > limit) categoriesOverBudget++;
       }
     });
-    const emergencyGoal = savingsGoals.find(g =>
-      g.name.toLowerCase().includes('emergency') || g.name.includes('طوارئ')
-    );
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
     let totalExp3m = 0;
     transactions.forEach((tx: Transaction) => {
@@ -308,7 +307,7 @@ export default function BudgetsPage() {
       budgetSpent: totalSpent,
       categoriesOverBudget,
       totalCategories: totalCatsWithBudget,
-      emergencyFundCurrent: emergencyGoal ? emergencyGoal.currentAmount : 0,
+      emergencyFundCurrent: emergencyFund ? emergencyFund.currentAmount : 0,
       averageMonthlyExpenses: totalExp3m / 3,
       goalsOnTrack,
       totalGoals: savingsGoals.length,
@@ -317,7 +316,7 @@ export default function BudgetsPage() {
       coursesCompleted: 0,
       totalCourses: 30,
     });
-  }, [transactions, savingsGoals, spendingByCategory, categoryBudgets, tempBudgets, displayBudget, totalSpent]);
+  }, [transactions, savingsGoals, spendingByCategory, categoryBudgets, tempBudgets, displayBudget, totalSpent, emergencyFund]);
 
   // Recurring transaction detection
   interface RecurringPattern {
