@@ -699,20 +699,70 @@ const ACHIEVEMENT_ICONS: Record<string, any> = {
   play: Play,
 };
 
-function AchievementsTab({ language }: { language: string }) {
+function AchievementsTab({
+  language,
+  progressMap,
+  courses,
+}: {
+  language: string;
+  progressMap: Record<string, number>;
+  courses: CourseData[];
+}) {
   const isAr = language === 'ar';
   const isRtl = language === 'ar';
+
+  const completedByLevel = useMemo(() => {
+    const counts = { beginner: 0, intermediate: 0, advanced: 0 };
+    for (const course of courses) {
+      if ((progressMap[course.courseId] ?? 0) >= 100) {
+        const level = (course.level ?? 'beginner') as CourseLevel;
+        counts[level]++;
+      }
+    }
+    return counts;
+  }, [progressMap, courses]);
+
+  const coursesByLevel = useMemo(() => {
+    const counts = { beginner: 0, intermediate: 0, advanced: 0 };
+    for (const course of courses) {
+      const level = (course.level ?? 'beginner') as CourseLevel;
+      counts[level]++;
+    }
+    return counts;
+  }, [courses]);
+
+  const hasAnyProgress = Object.values(progressMap).some((p) => p > 0);
+
+  // [current, total] for each badge in ACHIEVEMENT_BADGES order
+  const badgeProgress: [number, number][] = [
+    [hasAnyProgress ? 1 : 0, 1],
+    [0, 5],
+    [0, 7],
+    [completedByLevel.beginner, coursesByLevel.beginner || 10],
+    [completedByLevel.intermediate, coursesByLevel.intermediate || 8],
+    [completedByLevel.advanced, coursesByLevel.advanced || 10],
+    [0, 10],
+    [0, 5],
+  ];
+
   return (
     <div style={{ marginTop: '16px' }} className="learn-achievements-grid">
       {ACHIEVEMENT_BADGES.map((badge, i) => {
+        const [current, total] = badgeProgress[i] ?? [0, 1];
+        const unlocked = current >= total;
+        const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
         const IconComponent = ACHIEVEMENT_ICONS[badge.icon] || Lock;
+        const progressLabel = isAr
+          ? `${toArabicNumerals(String(current))} / ${toArabicNumerals(String(total))}`
+          : `${current} / ${total}`;
+
         return (
           <div
             key={i}
             style={{
-              opacity: 0.7,
+              opacity: unlocked ? 1 : 0.7,
               background: 'var(--ds-bg-card)',
-              border: '0.5px solid var(--ds-border)',
+              border: `0.5px solid ${unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-border)'}`,
               borderRadius: '16px',
               padding: '20px 24px',
               boxShadow: 'var(--ds-shadow-card)',
@@ -720,54 +770,36 @@ function AchievementsTab({ language }: { language: string }) {
               direction: isRtl ? 'rtl' : 'ltr',
             }}
           >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginBottom: '12px',
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
               <div style={{
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                background: 'var(--ds-bg-tinted)',
+                background: unlocked ? 'rgba(217,119,6,0.1)' : 'var(--ds-bg-tinted)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <IconComponent size={28} style={{ color: 'var(--ds-primary)', opacity: 0.5 }} />
+                <IconComponent
+                  size={28}
+                  style={{ color: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-primary)', opacity: unlocked ? 1 : 0.5 }}
+                />
               </div>
             </div>
 
-            <h3 style={{
-              fontSize: '15px',
-              fontWeight: 500,
-              color: 'var(--ds-text-heading)',
-              margin: 0,
-              marginBottom: '4px',
-            }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
               {isAr ? badge.titleAr : badge.titleEn}
             </h3>
 
-            <p style={{
-              fontSize: '12px',
-              fontWeight: 500,
-              color: 'var(--ds-text-muted)',
-              margin: 0,
-              marginBottom: '12px',
-            }}>
+            <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', margin: 0, marginBottom: '12px' }}>
               {isAr ? badge.conditionAr : badge.conditionEn}
             </p>
 
-            <div style={{
-              height: '4px',
-              background: 'var(--ds-bg-tinted)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-            }}>
+            <div style={{ height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
               <div style={{
-                width: '0%',
+                width: `${pct}%`,
                 height: '100%',
-                background: 'var(--ds-primary-glow)',
+                background: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-primary-glow)',
                 borderRadius: '4px',
               }} />
             </div>
@@ -775,11 +807,11 @@ function AchievementsTab({ language }: { language: string }) {
             <span style={{
               fontSize: '11px',
               fontWeight: 500,
-              color: 'var(--ds-text-muted)',
+              color: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-text-muted)',
               marginTop: '6px',
               display: 'block',
             }}>
-              {isAr ? badge.progressAr : badge.progressEn}
+              {unlocked ? (isAr ? 'مكتمل ✓' : 'Completed ✓') : progressLabel}
             </span>
           </div>
         );
@@ -1088,7 +1120,7 @@ export default function LearnPage() {
         {activeTab === 'topics' && (
           <TopicsTab language={language} />
         )}
-        {activeTab === 'achievements' && <AchievementsTab language={language} />}
+        {activeTab === 'achievements' && <AchievementsTab language={language} progressMap={progressMap} courses={courses} />}
       </div>
     </div>
   );

@@ -345,6 +345,7 @@ function MessageAttachments({ attachments }: { attachments: MessageAttachment[] 
 function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolean }) {
   return (
     <div
+      data-role={isUser ? 'user' : 'assistant'}
       style={{
         display: 'flex',
         justifyContent: isUser ? 'flex-end' : 'flex-start',

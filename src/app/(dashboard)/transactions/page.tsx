@@ -389,33 +389,7 @@ export default function TransactionsPage() {
   const { transactions: realTransactions, deleteTransaction, getTotalIncome, getTotalExpenses, getNetBalance } =
     useTransactions();
 
-  // TEMP: fake transactions for visual testing — DELETE before production
-  const _fakeTxns = useMemo(() => {
-    const now = new Date();
-    const d = (monthsBack: number, day: number = 5) =>
-      new Date(now.getFullYear(), now.getMonth() - monthsBack, day).toISOString();
-    return [
-      { id: 'f1', type: 'income' as const, amount: 3500, currency: 'JOD', category: 'salary', date: d(0, 1), description: 'الراتب||Salary', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f2', type: 'expense' as const, amount: 450, currency: 'JOD', category: 'food', date: d(0, 3), description: 'بقالة||Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
-      { id: 'f3', type: 'expense' as const, amount: 800, currency: 'JOD', category: 'housing', date: d(0, 1), description: 'إيجار||Rent', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f4', type: 'expense' as const, amount: 200, currency: 'JOD', category: 'transport', date: d(0, 5), description: 'وقود||Gas', user_id: '', isRecurring: false, recurringEndDate: null },
-      { id: 'f5', type: 'expense' as const, amount: 45, currency: 'JOD', category: 'entertainment', date: d(0, 10), description: 'نتفليكس||Netflix', user_id: '', isRecurring: true, recurringEndDate: '2026-12-31' },
-      { id: 'f6', type: 'expense' as const, amount: 120, currency: 'JOD', category: 'shopping', date: d(0, 12), description: 'ملابس||Clothes', user_id: '', isRecurring: false, recurringEndDate: null },
-      { id: 'f7', type: 'expense' as const, amount: 75, currency: 'JOD', category: 'health', date: d(0, 1), description: 'اشتراك نادي||Gym membership', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f8', type: 'income' as const, amount: 3500, currency: 'JOD', category: 'salary', date: d(1, 1), description: 'الراتب||Salary', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f9', type: 'expense' as const, amount: 430, currency: 'JOD', category: 'food', date: d(1, 3), description: 'بقالة||Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
-      { id: 'f10', type: 'expense' as const, amount: 800, currency: 'JOD', category: 'housing', date: d(1, 1), description: 'إيجار||Rent', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f11', type: 'expense' as const, amount: 190, currency: 'JOD', category: 'transport', date: d(1, 5), description: 'وقود||Gas', user_id: '', isRecurring: false, recurringEndDate: null },
-      { id: 'f12', type: 'expense' as const, amount: 45, currency: 'JOD', category: 'entertainment', date: d(1, 10), description: 'نتفليكس||Netflix', user_id: '', isRecurring: true, recurringEndDate: '2026-12-31' },
-      { id: 'f13', type: 'expense' as const, amount: 75, currency: 'JOD', category: 'health', date: d(1, 1), description: 'اشتراك نادي||Gym membership', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f14', type: 'income' as const, amount: 3500, currency: 'JOD', category: 'salary', date: d(2, 1), description: 'الراتب||Salary', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f15', type: 'expense' as const, amount: 470, currency: 'JOD', category: 'food', date: d(2, 3), description: 'بقالة||Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
-      { id: 'f16', type: 'expense' as const, amount: 800, currency: 'JOD', category: 'housing', date: d(2, 1), description: 'إيجار||Rent', user_id: '', isRecurring: true, recurringEndDate: null },
-      { id: 'f17', type: 'expense' as const, amount: 45, currency: 'JOD', category: 'entertainment', date: d(2, 10), description: 'نتفليكس||Netflix', user_id: '', isRecurring: true, recurringEndDate: '2026-12-31' },
-      { id: 'f18', type: 'expense' as const, amount: 75, currency: 'JOD', category: 'health', date: d(2, 1), description: 'اشتراك نادي||Gym membership', user_id: '', isRecurring: true, recurringEndDate: null },
-    ];
-  }, []);
-  const transactions = realTransactions.length > 0 ? realTransactions : _fakeTxns;
+  const transactions = realTransactions;
 
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
 

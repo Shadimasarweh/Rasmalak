@@ -78,7 +78,7 @@ export default function MortgagePayoffCalculatorPage() {
   const [loanAmount, setLoanAmount] = useState('');
   const [interestRate, setInterestRate] = useState('');
   const [loanTerm, setLoanTerm] = useState('');
-  const [paymentsPerYear, setPaymentsPerYear] = useState('');
+  const [paymentsPerYear, setPaymentsPerYear] = useState('12');
   const [startDate, setStartDate] = useState('');
   const [extraPayment, setExtraPayment] = useState('');
   const [lenderName, setLenderName] = useState('');

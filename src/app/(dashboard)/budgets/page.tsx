@@ -182,28 +182,7 @@ export default function BudgetsPage() {
   const { monthlyBudget, categoryBudgets, saveAll } = useBudget();
   const { transactions: realTransactions } = useTransactions();
 
-  // TEMP: fake transactions for visual testing — DELETE before production
-  const _fakeTransactions: Transaction[] = [
-    { id: 'f1', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date().toISOString(), description: 'Salary', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f2', type: 'expense', amount: 450, currency: 'JOD', category: 'food-dining', date: new Date().toISOString(), description: 'Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f3', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date().toISOString(), description: 'Rent', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f4', type: 'expense', amount: 200, currency: 'JOD', category: 'transportation', date: new Date().toISOString(), description: 'Gas', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f5', type: 'expense', amount: 150, currency: 'JOD', category: 'entertainment', date: new Date().toISOString(), description: 'Movies', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f6', type: 'expense', amount: 120, currency: 'JOD', category: 'shopping', date: new Date().toISOString(), description: 'Clothes', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f7', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: new Date().toISOString(), description: 'Pharmacy', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f8', type: 'expense', amount: 380, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 15).toISOString(), description: 'Last month groceries', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f9', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month rent', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f10', type: 'expense', amount: 300, currency: 'JOD', category: 'transportation', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 10).toISOString(), description: 'Last month gas', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f11', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month salary', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f12', type: 'expense', amount: 90, currency: 'JOD', category: 'entertainment', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 20).toISOString(), description: 'Last month movies', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f13', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago salary', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f14', type: 'expense', amount: 600, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 10).toISOString(), description: '2 months ago food', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f15', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago rent', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f16', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago salary', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f17', type: 'expense', amount: 500, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 12).toISOString(), description: '3 months ago food', user_id: '', isRecurring: false, recurringEndDate: null },
-    { id: 'f18', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago rent', user_id: '', isRecurring: false, recurringEndDate: null },
-  ];
-  const transactions = realTransactions.length > 0 ? realTransactions : _fakeTransactions;
+  const transactions = realTransactions;
 
   const { savingsGoals } = useGoals();
   const { fund: emergencyFund } = useEmergencyFund();
