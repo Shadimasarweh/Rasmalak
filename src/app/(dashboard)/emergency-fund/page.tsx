@@ -91,9 +91,13 @@ export default function EmergencyFundPage() {
   if (loading) {
     return (
       <div className="ds-page" style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
-        <Skeleton className="h-8 w-48 mb-4" />
-        <Skeleton className="h-48 w-full mb-4" />
-        <Skeleton className="h-32 w-full" />
+        <Skeleton width="12rem" height="2rem" borderRadius="8px" />
+        <div style={{ marginTop: 'var(--spacing-4)' }}>
+          <Skeleton width="100%" height="12rem" borderRadius="12px" />
+        </div>
+        <div style={{ marginTop: 'var(--spacing-4)' }}>
+          <Skeleton width="100%" height="8rem" borderRadius="12px" />
+        </div>
       </div>
     );
   }
