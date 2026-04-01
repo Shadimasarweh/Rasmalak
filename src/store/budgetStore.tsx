@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 
@@ -19,22 +19,25 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
   const [monthlyBudget, setMonthlyBudgetLocal] = useState(0);
   const [categoryBudgets, setCategoryBudgetsLocal] = useState<Record<string, number>>({});
 
+  const monthlyRef = useRef(0);
+  const categoriesRef = useRef<Record<string, number>>({});
+
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
 
-  // Fetch budget from Supabase
   useEffect(() => {
     const fetchBudget = async () => {
       if (!initialized || !user) {
         setMonthlyBudgetLocal(0);
         setCategoryBudgetsLocal({});
+        monthlyRef.current = 0;
+        categoriesRef.current = {};
         return;
       }
 
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
-        setMonthlyBudgetLocal(0);
-        setCategoryBudgetsLocal({});
+        console.warn('[BudgetStore] No active session, skipping fetch');
         return;
       }
 
@@ -45,16 +48,17 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows found, which is fine for new users
-        console.error('[BudgetStore] Error fetching budget:', error.message);
+        console.error('[BudgetStore] Error fetching budget:', error.message, error.code);
         return;
       }
 
       if (data) {
-        setMonthlyBudgetLocal(Number(data.monthly_budget) || 0);
-        setCategoryBudgetsLocal(
-          (data.category_budgets as Record<string, number>) ?? {},
-        );
+        const m = Number(data.monthly_budget) || 0;
+        const c = (data.category_budgets as Record<string, number>) ?? {};
+        setMonthlyBudgetLocal(m);
+        setCategoryBudgetsLocal(c);
+        monthlyRef.current = m;
+        categoriesRef.current = c;
       }
     };
 
@@ -62,12 +66,20 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
   }, [user, initialized]);
 
   const upsertBudget = useCallback(
-    async (monthly: number, categories: Record<string, number>) => {
+    async (monthly: number, categories: Record<string, number>): Promise<boolean> => {
       const { user, initialized } = getAuthState();
-      if (!initialized || !user) return;
+      if (!initialized || !user) {
+        console.warn('[BudgetStore] Cannot save: auth not ready');
+        return false;
+      }
 
       const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData.session?.user?.id || user.id;
+      if (!sessionData.session) {
+        console.error('[BudgetStore] Cannot save: no active session');
+        return false;
+      }
+
+      const userId = sessionData.session.user.id;
 
       const { error } = await supabase.from('budgets').upsert(
         {
@@ -80,8 +92,11 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
       );
 
       if (error) {
-        console.error('[BudgetStore] Error upserting budget:', error.message);
+        console.error('[BudgetStore] Error saving budget:', error.message, error.code, error.details);
+        return false;
       }
+
+      return true;
     },
     [],
   );
@@ -90,10 +105,8 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     (amount: number) => {
       if (!Number.isFinite(amount) || amount < 0 || amount > 1_000_000_000) return;
       setMonthlyBudgetLocal(amount);
-      setCategoryBudgetsLocal((prev) => {
-        upsertBudget(amount, prev);
-        return prev;
-      });
+      monthlyRef.current = amount;
+      upsertBudget(amount, categoriesRef.current);
     },
     [upsertBudget],
   );
@@ -101,28 +114,20 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
   const setCategoryBudget = useCallback(
     (category: string, limit: number) => {
       if (!Number.isFinite(limit) || limit < 0 || limit > 1_000_000_000) return;
-      setCategoryBudgetsLocal((prev) => {
-        const next = { ...prev, [category]: limit };
-        setMonthlyBudgetLocal((m) => {
-          upsertBudget(m, next);
-          return m;
-        });
-        return next;
-      });
+      const next = { ...categoriesRef.current, [category]: limit };
+      setCategoryBudgetsLocal(next);
+      categoriesRef.current = next;
+      upsertBudget(monthlyRef.current, next);
     },
     [upsertBudget],
   );
 
   const removeCategoryBudget = useCallback(
     (category: string) => {
-      setCategoryBudgetsLocal((prev) => {
-        const { [category]: _, ...rest } = prev;
-        setMonthlyBudgetLocal((m) => {
-          upsertBudget(m, rest);
-          return m;
-        });
-        return rest;
-      });
+      const { [category]: _, ...rest } = categoriesRef.current;
+      setCategoryBudgetsLocal(rest);
+      categoriesRef.current = rest;
+      upsertBudget(monthlyRef.current, rest);
     },
     [upsertBudget],
   );
@@ -132,6 +137,8 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
       if (!Number.isFinite(monthly) || monthly < 0) return;
       setMonthlyBudgetLocal(monthly);
       setCategoryBudgetsLocal(categories);
+      monthlyRef.current = monthly;
+      categoriesRef.current = categories;
       upsertBudget(monthly, categories);
     },
     [upsertBudget],
