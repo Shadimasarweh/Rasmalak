@@ -169,31 +169,21 @@ export default function OverviewPage() {
     return { income: prevIncome, expenses: prevExpenses, cashFlow: prevIncome - prevExpenses };
   }, [transactions]);
 
-  /* ---------- Top Spending Categories ---------- */
-  const topSpendingCategories = useMemo(() => {
-    const categorySpending: Record<string, number> = {};
-    currentMonthTransactions
-      .filter(tx => tx.type === 'expense')
-      .forEach(tx => {
-        const cat = tx.category || 'other-expense';
-        categorySpending[cat] = (categorySpending[cat] || 0) + Math.abs(tx.amount);
-      });
-    const sorted = Object.entries(categorySpending)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3);
-    const maxAmount = sorted.length > 0 ? sorted[0][1] : 1;
-    return sorted.map(([catId, amount]) => {
-      const cat = ALL_CATEGORIES.find(c => c.id === catId);
-      return {
-        id: catId,
-        name: cat?.name || catId,
-        nameAr: cat?.nameAr || catId,
-        color: cat?.color || '#6B7280',
-        amount,
-        percentage: (amount / maxAmount) * 100,
-      };
+  /* ---------- Year-to-Date Cumulative Cash Flow ---------- */
+  const ytdCashFlow = useMemo(() => {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    let income = 0;
+    let expenses = 0;
+    transactions.forEach(tx => {
+      const d = new Date(tx.date);
+      if (d >= startOfYear && d <= now) {
+        if (tx.type === 'income') income += Math.abs(tx.amount);
+        else expenses += Math.abs(tx.amount);
+      }
     });
-  }, [currentMonthTransactions]);
+    return { income, expenses, net: income - expenses };
+  }, [transactions]);
 
   /* ---------- Budget Utilization ---------- */
   const budgetUtilization = useMemo(() => {
@@ -440,35 +430,77 @@ export default function OverviewPage() {
           {/* Divider */}
           <div className="ds-divider-v" style={{ height: 'auto', alignSelf: 'stretch' }} />
 
-          {/* Top Spending */}
+          {/* YTD Cumulative Cash Flow */}
           <div style={{ flex: '1.5 1 180px', minWidth: 0 }}>
             <p className="ds-label" style={{ marginBottom: '8px' }}>
-              {intl.formatMessage({ id: 'dashboard.top_spending', defaultMessage: 'Top Spending' })}
+              {intl.formatMessage({ id: 'dashboard.ytd_cash_flow', defaultMessage: 'Year to Date Cash Flow' })}
             </p>
-            {topSpendingCategories.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {topSpendingCategories.map(cat => (
-                  <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cat.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: '12px', color: 'var(--color-text-primary)', fontWeight: 500, minWidth: '60px' }}>
-                      {isRTL ? cat.nameAr : cat.name}
-                    </span>
-                    <div style={{ flex: 1, height: '4px', borderRadius: '2px', background: 'var(--ds-border)', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', borderRadius: '2px', background: cat.color,
-                        width: mounted ? `${cat.percentage}%` : '0%',
-                        transition: 'width 600ms ease-out',
-                      }} />
-                    </div>
-                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 500, flexShrink: 0 }}>
-                      {currencySymbol} {fmtLocale(cat.amount)}
+            {(ytdCashFlow.income > 0 || ytdCashFlow.expenses > 0) ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* YTD bar */}
+                <div style={{ height: '6px', borderRadius: '3px', background: 'var(--ds-border)', overflow: 'hidden', display: 'flex' }}>
+                  {(() => {
+                    const total = ytdCashFlow.income + ytdCashFlow.expenses;
+                    const incPct = total > 0 ? (ytdCashFlow.income / total) * 100 : 50;
+                    return (
+                      <>
+                        <div style={{
+                          height: '100%',
+                          width: mounted ? `${incPct}%` : '0%',
+                          background: 'var(--color-accent-growth)',
+                          borderRadius: '3px 0 0 3px',
+                          transition: 'width 600ms ease-out',
+                        }} />
+                        <div style={{
+                          height: '100%',
+                          width: mounted ? `${100 - incPct}%` : '0%',
+                          background: 'var(--color-danger-text)',
+                          borderRadius: '0 3px 3px 0',
+                          transition: 'width 600ms ease-out',
+                        }} />
+                      </>
+                    );
+                  })()}
+                </div>
+                {/* Income / Expenses rows */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-accent-growth)', flexShrink: 0 }} />
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                      {intl.formatMessage({ id: 'dashboard.ytd_income', defaultMessage: 'Income' })}
                     </span>
                   </div>
-                ))}
+                  <span style={{ fontSize: '12px', color: 'var(--color-accent-growth)', fontWeight: 600 }}>
+                    {currencySymbol} {fmtLocale(ytdCashFlow.income)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-danger-text)', flexShrink: 0 }} />
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                      {intl.formatMessage({ id: 'dashboard.ytd_expenses', defaultMessage: 'Expenses' })}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '12px', color: 'var(--color-danger-text)', fontWeight: 600 }}>
+                    {currencySymbol} {fmtLocale(ytdCashFlow.expenses)}
+                  </span>
+                </div>
+                {/* Net line */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '0.5px solid var(--ds-border)', paddingTop: '6px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                    {intl.formatMessage({ id: 'dashboard.ytd_net', defaultMessage: 'Net' })}
+                  </span>
+                  <span style={{
+                    fontSize: '13px', fontWeight: 700,
+                    color: ytdCashFlow.net >= 0 ? 'var(--color-accent-growth)' : 'var(--color-danger-text)',
+                  }}>
+                    {ytdCashFlow.net >= 0 ? '+' : ''}{currencySymbol} {fmtLocale(ytdCashFlow.net)}
+                  </span>
+                </div>
               </div>
             ) : (
               <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>
-                {intl.formatMessage({ id: 'dashboard.no_expenses_yet', defaultMessage: 'No expenses this month' })}
+                {intl.formatMessage({ id: 'dashboard.no_ytd_data', defaultMessage: 'No transactions this year' })}
               </p>
             )}
           </div>
@@ -520,15 +552,42 @@ export default function OverviewPage() {
       {/* ===== TOP CARDS ROW ===== */}
       <div className="ds-grid">
         {/* ── Hero: Total Balance ── */}
-        <div className="ds-card-hero ds-col-4" style={{ minHeight: '180px' }}>
-          <p className="ds-label" style={{ color: 'var(--color-text-on-hero-dim)', marginBottom: 'var(--spacing-2)', textTransform: 'uppercase' }}>
+        <div
+          className={totalBalance < 0 ? 'ds-col-4' : 'ds-card-hero ds-col-4'}
+          style={{
+            minHeight: '180px',
+            ...(totalBalance < 0
+              ? {
+                  background: 'linear-gradient(135deg, #7F1D1D 0%, #991B1B 50%, #DC2626 100%)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-xl)',
+                  padding: 'var(--spacing-5)',
+                  boxShadow: '0 4px 24px rgba(220, 38, 38, 0.25)',
+                  position: 'relative' as const,
+                  overflow: 'hidden',
+                  color: '#FFFFFF',
+                }
+              : {}),
+          }}
+        >
+          <p className="ds-label" style={{ color: 'rgba(255,255,255,0.65)', marginBottom: 'var(--spacing-2)', textTransform: 'uppercase' }}>
             {intl.formatMessage({ id: 'dashboard.total_balance', defaultMessage: 'Total Balance' })}
           </p>
-          <div className="ds-metric" style={{ color: 'var(--color-text-on-hero)', fontSize: 'clamp(1.5rem, 4vw, 2.25rem)' }}>
+          <div className="ds-metric" style={{ color: '#FFFFFF', fontSize: 'clamp(1.5rem, 4vw, 2.25rem)' }}>
             {fmtCurrency(totalBalance)}
           </div>
+          {totalBalance < 0 && hasTransactions && (
+            <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: 'var(--spacing-2)', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {intl.formatMessage({ id: 'dashboard.negative_balance_warning', defaultMessage: 'Expenses exceed income' })}
+            </p>
+          )}
           {!hasTransactions && (
-            <p className="ds-supporting" style={{ color: 'var(--color-text-on-hero-dim)', marginTop: 'var(--spacing-2)' }}>
+            <p className="ds-supporting" style={{ color: 'rgba(255,255,255,0.65)', marginTop: 'var(--spacing-2)' }}>
               {intl.formatMessage({ id: 'dashboard.add_first_transaction_hint', defaultMessage: 'Add your first transaction to see your balance' })}
             </p>
           )}
@@ -548,9 +607,15 @@ export default function OverviewPage() {
           {/* Decorative icon */}
           <div style={{ position: 'absolute', top: 'var(--spacing-5)', insetInlineEnd: 'var(--spacing-5)' }}>
             <div className="ds-icon-box" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)' }}>
-              <svg style={{ width: '1.5rem', height: '1.5rem', color: 'rgba(255,255,255,0.5)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-              </svg>
+              {totalBalance < 0 ? (
+                <svg style={{ width: '1.5rem', height: '1.5rem', color: 'rgba(255,255,255,0.5)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              ) : (
+                <svg style={{ width: '1.5rem', height: '1.5rem', color: 'rgba(255,255,255,0.5)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              )}
             </div>
           </div>
         </div>

@@ -53,3 +53,6 @@ next-env.d.ts
 # binary artifacts
 *.pdf
 *.zip
+.env.test.local
+.env.test.local
+tests/.auth/

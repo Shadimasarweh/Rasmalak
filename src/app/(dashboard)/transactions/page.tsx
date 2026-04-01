@@ -297,22 +297,56 @@ function TransactionRow({
         return desc;
       })()}</td>
       <td className="ds-table-cell">
-        <span
-          style={{
-            display: 'inline-block',
-            padding: '2px 8px',
-            fontSize: '10px',
-            fontWeight: 500,
-            letterSpacing: '0.04em',
-            borderRadius: '4px',
-            background: isIncome ? 'var(--ds-success-bg)' : 'var(--ds-error-bg)',
-            color: isIncome ? 'var(--ds-success-text)' : 'var(--ds-error-text)',
-            border: isIncome ? '0.5px solid var(--ds-success-border)' : '0.5px solid var(--ds-error-border)',
-            textTransform: 'capitalize',
-          }}
-        >
-          {typeLabel}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+          <span
+            style={{
+              display: 'inline-block',
+              padding: '2px 8px',
+              fontSize: '10px',
+              fontWeight: 500,
+              letterSpacing: '0.04em',
+              borderRadius: '4px',
+              background: isIncome ? 'var(--ds-success-bg)' : 'var(--ds-error-bg)',
+              color: isIncome ? 'var(--ds-success-text)' : 'var(--ds-error-text)',
+              border: isIncome ? '0.5px solid var(--ds-success-border)' : '0.5px solid var(--ds-error-border)',
+              textTransform: 'capitalize',
+            }}
+          >
+            {typeLabel}
+          </span>
+          {transaction.isRecurring && (
+            <span
+              title={
+                transaction.recurringEndDate
+                  ? intl.formatMessage(
+                      { id: 'transactions.recurring_until', defaultMessage: 'Until {date}' },
+                      { date: intl.formatDate(new Date(transaction.recurringEndDate), { month: 'short', day: 'numeric', year: 'numeric' }) }
+                    )
+                  : intl.formatMessage({ id: 'transactions.recurring_indefinite', defaultMessage: 'Repeats until cancelled' })
+              }
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '3px',
+                padding: '2px 6px',
+                fontSize: '10px',
+                fontWeight: 500,
+                borderRadius: '4px',
+                background: 'var(--ds-primary-light, #F0F7F4)',
+                color: 'var(--ds-primary)',
+                border: '0.5px solid var(--ds-primary)',
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="17 1 21 5 17 9" />
+                <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                <polyline points="7 23 3 19 7 15" />
+                <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+              </svg>
+              {intl.formatMessage({ id: 'transactions.recurring_badge', defaultMessage: 'Recurring' })}
+            </span>
+          )}
+        </div>
       </td>
       <td
         className="ds-table-cell"
@@ -360,26 +394,26 @@ export default function TransactionsPage() {
     new Date(_now.getFullYear(), _now.getMonth() - monthsBack, day).toISOString();
   const _fakeTxns: Transaction[] = [
     // This month
-    { id: 'f1', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: _d(0, 1), description: 'الراتب||Salary', user_id: '' },
-    { id: 'f2', type: 'expense', amount: 450, currency: 'JOD', category: 'food', date: _d(0, 3), description: 'بقالة||Groceries', user_id: '' },
-    { id: 'f3', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: _d(0, 1), description: 'إيجار||Rent', user_id: '' },
-    { id: 'f4', type: 'expense', amount: 200, currency: 'JOD', category: 'transport', date: _d(0, 5), description: 'وقود||Gas', user_id: '' },
-    { id: 'f5', type: 'expense', amount: 45, currency: 'JOD', category: 'entertainment', date: _d(0, 10), description: 'نتفليكس||Netflix', user_id: '' },
-    { id: 'f6', type: 'expense', amount: 120, currency: 'JOD', category: 'shopping', date: _d(0, 12), description: 'ملابس||Clothes', user_id: '' },
-    { id: 'f7', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: _d(0, 1), description: 'اشتراك نادي||Gym membership', user_id: '' },
+    { id: 'f1', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: _d(0, 1), description: 'الراتب||Salary', user_id: '', isRecurring: true, recurringEndDate: null },
+    { id: 'f2', type: 'expense', amount: 450, currency: 'JOD', category: 'food', date: _d(0, 3), description: 'بقالة||Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f3', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: _d(0, 1), description: 'إيجار||Rent', user_id: '', isRecurring: true, recurringEndDate: null },
+    { id: 'f4', type: 'expense', amount: 200, currency: 'JOD', category: 'transport', date: _d(0, 5), description: 'وقود||Gas', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f5', type: 'expense', amount: 45, currency: 'JOD', category: 'entertainment', date: _d(0, 10), description: 'نتفليكس||Netflix', user_id: '', isRecurring: true, recurringEndDate: '2026-12-31' },
+    { id: 'f6', type: 'expense', amount: 120, currency: 'JOD', category: 'shopping', date: _d(0, 12), description: 'ملابس||Clothes', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f7', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: _d(0, 1), description: 'اشتراك نادي||Gym membership', user_id: '', isRecurring: true, recurringEndDate: null },
     // Last month (same day pattern — ~30 days apart)
-    { id: 'f8', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: _d(1, 1), description: 'الراتب||Salary', user_id: '' },
-    { id: 'f9', type: 'expense', amount: 430, currency: 'JOD', category: 'food', date: _d(1, 3), description: 'بقالة||Groceries', user_id: '' },
-    { id: 'f10', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: _d(1, 1), description: 'إيجار||Rent', user_id: '' },
-    { id: 'f11', type: 'expense', amount: 190, currency: 'JOD', category: 'transport', date: _d(1, 5), description: 'وقود||Gas', user_id: '' },
-    { id: 'f12', type: 'expense', amount: 45, currency: 'JOD', category: 'entertainment', date: _d(1, 10), description: 'نتفليكس||Netflix', user_id: '' },
-    { id: 'f13', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: _d(1, 1), description: 'اشتراك نادي||Gym membership', user_id: '' },
+    { id: 'f8', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: _d(1, 1), description: 'الراتب||Salary', user_id: '', isRecurring: true, recurringEndDate: null },
+    { id: 'f9', type: 'expense', amount: 430, currency: 'JOD', category: 'food', date: _d(1, 3), description: 'بقالة||Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f10', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: _d(1, 1), description: 'إيجار||Rent', user_id: '', isRecurring: true, recurringEndDate: null },
+    { id: 'f11', type: 'expense', amount: 190, currency: 'JOD', category: 'transport', date: _d(1, 5), description: 'وقود||Gas', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f12', type: 'expense', amount: 45, currency: 'JOD', category: 'entertainment', date: _d(1, 10), description: 'نتفليكس||Netflix', user_id: '', isRecurring: true, recurringEndDate: '2026-12-31' },
+    { id: 'f13', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: _d(1, 1), description: 'اشتراك نادي||Gym membership', user_id: '', isRecurring: true, recurringEndDate: null },
     // 2 months ago
-    { id: 'f14', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: _d(2, 1), description: 'الراتب||Salary', user_id: '' },
-    { id: 'f15', type: 'expense', amount: 470, currency: 'JOD', category: 'food', date: _d(2, 3), description: 'بقالة||Groceries', user_id: '' },
-    { id: 'f16', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: _d(2, 1), description: 'إيجار||Rent', user_id: '' },
-    { id: 'f17', type: 'expense', amount: 45, currency: 'JOD', category: 'entertainment', date: _d(2, 10), description: 'نتفليكس||Netflix', user_id: '' },
-    { id: 'f18', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: _d(2, 1), description: 'اشتراك نادي||Gym membership', user_id: '' },
+    { id: 'f14', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: _d(2, 1), description: 'الراتب||Salary', user_id: '', isRecurring: true, recurringEndDate: null },
+    { id: 'f15', type: 'expense', amount: 470, currency: 'JOD', category: 'food', date: _d(2, 3), description: 'بقالة||Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f16', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: _d(2, 1), description: 'إيجار||Rent', user_id: '', isRecurring: true, recurringEndDate: null },
+    { id: 'f17', type: 'expense', amount: 45, currency: 'JOD', category: 'entertainment', date: _d(2, 10), description: 'نتفليكس||Netflix', user_id: '', isRecurring: true, recurringEndDate: '2026-12-31' },
+    { id: 'f18', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: _d(2, 1), description: 'اشتراك نادي||Gym membership', user_id: '', isRecurring: true, recurringEndDate: null },
   ];
   const transactions = realTransactions.length > 0 ? realTransactions : _fakeTxns;
 

@@ -70,6 +70,7 @@ export default {
   budget_remaining: 'Remaining: {amount}',
   goal_achieved: 'Goal achieved!',
   add_first_transaction_hint: 'Add your first transaction to see your balance',
+  negative_balance_warning: 'Expenses exceed income',
   overspent_this_month: 'Overspent {amount} this month',
   // Learning section
   learning_progress: 'Learning Progress',
@@ -139,6 +140,11 @@ export default {
   vs_last_month: 'vs last month',
   top_spending: 'Top Spending',
   no_expenses_yet: 'No expenses this month',
+  ytd_cash_flow: 'Year to Date Cash Flow',
+  ytd_income: 'Income',
+  ytd_expenses: 'Expenses',
+  ytd_net: 'Net',
+  no_ytd_data: 'No transactions this year',
   budget_usage: 'Budget Usage',
   used: 'used',
   categories_within_budget: '{count} of {total} within budget',
@@ -158,4 +164,20 @@ export default {
   coach_goal_desc: 'Save toward something meaningful — emergency fund, travel, or a purchase.',
   coach_goal_cta: 'Create goal',
   coach_ai_nudge: 'Add your first transaction and I\'ll start analyzing your spending patterns.',
+
+  // Goal funding
+  goals_monthly_funding: 'Monthly Funding',
+  goals_funding_none: 'No monthly funding',
+  goals_funding_fixed: 'Fixed amount per month',
+  goals_funding_percentage: 'Percentage of goal per month',
+  goals_funding_preview: 'You will set aside {amount} per month',
+  goals_funding_monthly_label: 'Monthly: {amount}',
+  goals_funding_amount_label: 'Monthly Amount',
+  goals_funding_percent_label: 'Monthly Percentage',
+
+  // Budget goal funding section
+  budgets_goal_funding: 'Goal Funding',
+  budgets_goal_funding_desc: 'Auto-created from your savings goals',
+  budgets_monthly_goal_funding: 'Monthly {goal} Funding',
+  budgets_goal_funding_edit_hint: 'Edit from Goals page',
 };

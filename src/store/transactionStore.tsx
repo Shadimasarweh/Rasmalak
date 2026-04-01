@@ -33,6 +33,8 @@ export interface Transaction {
   category: string | null;             // Category (nullable per contract)
   description?: string;                // Optional metadata
   user_id?: string;
+  isRecurring: boolean;
+  recurringEndDate: string | null;     // ISO 8601 date or null for indefinite
 }
 
 /* ===== STORE INTERFACE ===== */
@@ -117,6 +119,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
           type: row.type,
           category: row.category,
           description: row.note || row.description,
+          isRecurring: row.is_recurring ?? false,
+          recurringEndDate: row.recurring_end_date ?? null,
         }));
         setTransactions(mapped);
       }
@@ -166,6 +170,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         category: transaction.category,
         note: transaction.description || null,
         date: transaction.date,
+        is_recurring: transaction.isRecurring ?? false,
+        recurring_end_date: transaction.recurringEndDate || null,
       })
       .select()
       .single();
@@ -186,6 +192,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         type: data.type,
         category: data.category,
         description: data.note,
+        isRecurring: data.is_recurring ?? false,
+        recurringEndDate: data.recurring_end_date ?? null,
       };
       setTransactions(prev => [newTransaction, ...prev]);
     }

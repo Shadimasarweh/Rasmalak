@@ -88,4 +88,11 @@ export default {
   recurring_charges: 'الرسوم المتكررة',
   recurring_auto_detected: 'تم اكتشافها تلقائياً من مصروفاتك',
   annual_total: 'المجموع السنوي',
+
+  // خيار المعاملة المتكررة
+  recurring_transaction: 'معاملة متكررة',
+  recurring_end_date: 'تاريخ الانتهاء (اختياري)',
+  recurring_indefinite: 'تتكرر حتى الإلغاء',
+  recurring_badge: 'متكرر',
+  recurring_until: 'حتى {date}',
 };

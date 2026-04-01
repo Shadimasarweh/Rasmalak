@@ -11,7 +11,7 @@ import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Toast } from '@/components/ui/Toast';
-import { useGoals } from '@/store/goalsStore';
+import { useGoals, getMonthlyFundingAmount, goalFundingCategoryId } from '@/store/goalsStore';
 import { calculateHealthScore } from '@/lib/healthScore';
 
 /* ===== ICONS (module scope — Fault Log F-007) ===== */
@@ -178,29 +178,29 @@ export default function BudgetsPage() {
   const language = useLanguage();
   const currency = useCurrency();
   const isRTL = language === 'ar';
-  const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
+  const { monthlyBudget, categoryBudgets, saveAll } = useBudget();
   const { transactions: realTransactions } = useTransactions();
 
   // TEMP: fake transactions for visual testing — DELETE before production
   const _fakeTransactions: Transaction[] = [
-    { id: 'f1', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date().toISOString(), description: 'Salary', user_id: '' },
-    { id: 'f2', type: 'expense', amount: 450, currency: 'JOD', category: 'food-dining', date: new Date().toISOString(), description: 'Groceries', user_id: '' },
-    { id: 'f3', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date().toISOString(), description: 'Rent', user_id: '' },
-    { id: 'f4', type: 'expense', amount: 200, currency: 'JOD', category: 'transportation', date: new Date().toISOString(), description: 'Gas', user_id: '' },
-    { id: 'f5', type: 'expense', amount: 150, currency: 'JOD', category: 'entertainment', date: new Date().toISOString(), description: 'Movies', user_id: '' },
-    { id: 'f6', type: 'expense', amount: 120, currency: 'JOD', category: 'shopping', date: new Date().toISOString(), description: 'Clothes', user_id: '' },
-    { id: 'f7', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: new Date().toISOString(), description: 'Pharmacy', user_id: '' },
-    { id: 'f8', type: 'expense', amount: 380, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 15).toISOString(), description: 'Last month groceries', user_id: '' },
-    { id: 'f9', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month rent', user_id: '' },
-    { id: 'f10', type: 'expense', amount: 300, currency: 'JOD', category: 'transportation', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 10).toISOString(), description: 'Last month gas', user_id: '' },
-    { id: 'f11', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month salary', user_id: '' },
-    { id: 'f12', type: 'expense', amount: 90, currency: 'JOD', category: 'entertainment', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 20).toISOString(), description: 'Last month movies', user_id: '' },
-    { id: 'f13', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago salary', user_id: '' },
-    { id: 'f14', type: 'expense', amount: 600, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 10).toISOString(), description: '2 months ago food', user_id: '' },
-    { id: 'f15', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago rent', user_id: '' },
-    { id: 'f16', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago salary', user_id: '' },
-    { id: 'f17', type: 'expense', amount: 500, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 12).toISOString(), description: '3 months ago food', user_id: '' },
-    { id: 'f18', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago rent', user_id: '' },
+    { id: 'f1', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date().toISOString(), description: 'Salary', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f2', type: 'expense', amount: 450, currency: 'JOD', category: 'food-dining', date: new Date().toISOString(), description: 'Groceries', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f3', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date().toISOString(), description: 'Rent', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f4', type: 'expense', amount: 200, currency: 'JOD', category: 'transportation', date: new Date().toISOString(), description: 'Gas', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f5', type: 'expense', amount: 150, currency: 'JOD', category: 'entertainment', date: new Date().toISOString(), description: 'Movies', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f6', type: 'expense', amount: 120, currency: 'JOD', category: 'shopping', date: new Date().toISOString(), description: 'Clothes', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f7', type: 'expense', amount: 75, currency: 'JOD', category: 'health', date: new Date().toISOString(), description: 'Pharmacy', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f8', type: 'expense', amount: 380, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 15).toISOString(), description: 'Last month groceries', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f9', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month rent', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f10', type: 'expense', amount: 300, currency: 'JOD', category: 'transportation', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 10).toISOString(), description: 'Last month gas', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f11', type: 'income', amount: 3500, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString(), description: 'Last month salary', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f12', type: 'expense', amount: 90, currency: 'JOD', category: 'entertainment', date: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 20).toISOString(), description: 'Last month movies', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f13', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago salary', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f14', type: 'expense', amount: 600, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 10).toISOString(), description: '2 months ago food', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f15', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString(), description: '2 months ago rent', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f16', type: 'income', amount: 3200, currency: 'JOD', category: 'salary', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago salary', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f17', type: 'expense', amount: 500, currency: 'JOD', category: 'food-dining', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 12).toISOString(), description: '3 months ago food', user_id: '', isRecurring: false, recurringEndDate: null },
+    { id: 'f18', type: 'expense', amount: 800, currency: 'JOD', category: 'housing', date: new Date(new Date().getFullYear(), new Date().getMonth() - 3, 1).toISOString(), description: '3 months ago rent', user_id: '', isRecurring: false, recurringEndDate: null },
   ];
   const transactions = realTransactions.length > 0 ? realTransactions : _fakeTransactions;
 
@@ -211,23 +211,27 @@ export default function BudgetsPage() {
     ? currencyInfo?.symbolAr || currencyInfo?.symbol || currency
     : currencyInfo?.symbol || currency;
 
-  // Temp state for editing
+  // Temp state for editing — only sync from store when user hasn't started editing
   const [tempMonthlyBudget, setTempMonthlyBudget] = useState('');
   const [tempBudgets, setTempBudgets] = useState<Record<string, string>>({});
   const [isSaved, setIsSaved] = useState(false);
-
-  // Initialize from store
-  useEffect(() => {
-    setTempMonthlyBudget(monthlyBudget > 0 ? monthlyBudget.toString() : '');
-  }, [monthlyBudget]);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    const initial: Record<string, string> = {};
-    DEFAULT_EXPENSE_CATEGORIES.forEach((cat) => {
-      initial[cat.id] = categoryBudgets[cat.id]?.toString() || '';
-    });
-    setTempBudgets(initial);
-  }, [categoryBudgets]);
+    if (!isDirty) {
+      setTempMonthlyBudget(monthlyBudget > 0 ? monthlyBudget.toString() : '');
+    }
+  }, [monthlyBudget, isDirty]);
+
+  useEffect(() => {
+    if (!isDirty) {
+      const initial: Record<string, string> = {};
+      DEFAULT_EXPENSE_CATEGORIES.forEach((cat) => {
+        initial[cat.id] = categoryBudgets[cat.id]?.toString() || '';
+      });
+      setTempBudgets(initial);
+    }
+  }, [categoryBudgets, isDirty]);
 
   // Compute spending per category for current month
   const spendingByCategory = useMemo(() => {
@@ -391,18 +395,23 @@ export default function BudgetsPage() {
   };
 
   const handleSave = () => {
-    // Save monthly budget
-    setMonthlyBudget(monthlyBudgetValue);
-
-    // Save category budgets
+    const finalCategories: Record<string, number> = {};
     Object.entries(tempBudgets).forEach(([catId, value]) => {
       const amount = parseFloat(value) || 0;
       if (amount > 0) {
-        setCategoryBudget(catId, amount);
-      } else {
-        removeCategoryBudget(catId);
+        finalCategories[catId] = amount;
       }
     });
+
+    // Preserve goal-funding entries that aren't part of the form
+    Object.entries(categoryBudgets).forEach(([catId, value]) => {
+      if (catId.startsWith('goal-funding-') && value > 0) {
+        finalCategories[catId] = value;
+      }
+    });
+
+    saveAll(monthlyBudgetValue, finalCategories);
+    setIsDirty(false);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
   };
@@ -496,7 +505,7 @@ export default function BudgetsPage() {
           <input
             type="number"
             value={tempMonthlyBudget}
-            onChange={(e) => setTempMonthlyBudget(e.target.value)}
+            onChange={(e) => { setTempMonthlyBudget(e.target.value); setIsDirty(true); }}
             placeholder="0"
             style={{
               flex: 1,
@@ -812,12 +821,139 @@ export default function BudgetsPage() {
             spent={spendingByCategory[cat.id] || 0}
             budgetValue={tempBudgets[cat.id] || ''}
             currencySymbol={currencySymbol}
-            onChange={(v) => setTempBudgets((prev) => ({ ...prev, [cat.id]: v }))}
+            onChange={(v) => { setTempBudgets((prev) => ({ ...prev, [cat.id]: v })); setIsDirty(true); }}
             isRTL={isRTL}
             fmtNumber={(v) => intl.formatNumber(v)}
           />
         ))}
       </div>
+
+      {/* Goal Funding section */}
+      {(() => {
+        const fundedGoals = savingsGoals.filter(g => getMonthlyFundingAmount(g) > 0);
+        if (fundedGoals.length === 0) return null;
+        return (
+          <div
+            className="ds-card"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--spacing-1)',
+              marginBottom: 'var(--spacing-2)',
+            }}
+          >
+            <div style={{ marginBottom: '8px' }}>
+              <h2
+                style={{
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  color: 'var(--ds-text-heading)',
+                  fontFeatureSettings: '"kern" 1',
+                  marginBottom: '2px',
+                }}
+              >
+                {intl.formatMessage({ id: 'dashboard.budgets_goal_funding', defaultMessage: 'Goal Funding' })}
+              </h2>
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_goal_funding_desc', defaultMessage: 'Auto-created from your savings goals' })}
+              </p>
+            </div>
+
+            {fundedGoals.map((goal) => {
+              const catId = goalFundingCategoryId(goal.id);
+              const monthlyAmount = getMonthlyFundingAmount(goal);
+              const spent = spendingByCategory[catId] || 0;
+              const percentage = monthlyAmount > 0 ? Math.min((spent / monthlyAmount) * 100, 100) : 0;
+              const isOver = spent > monthlyAmount;
+
+              return (
+                <div
+                  key={goal.id}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    backgroundColor: 'var(--ds-bg-input)',
+                    border: '0.5px solid var(--ds-border)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      style={{
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: goal.color,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          color: 'var(--ds-text-heading)',
+                          margin: 0,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {intl.formatMessage(
+                          { id: 'dashboard.budgets_monthly_goal_funding', defaultMessage: 'Monthly {goal} Funding' },
+                          { goal: goal.name }
+                        )}
+                      </p>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        color: 'var(--ds-text-heading)',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {currencySymbol} {styledNum(intl.formatNumber(monthlyAmount))}
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div style={{ height: '4px', borderRadius: '2px', background: 'var(--ds-border)', overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        borderRadius: '2px',
+                        width: `${percentage}%`,
+                        background: isOver ? 'var(--color-danger-text)' : goal.color,
+                        transition: 'width 400ms ease-out',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: isOver ? 'var(--color-danger-text)' : 'var(--ds-text-muted)' }}>
+                      {intl.formatMessage({ id: 'dashboard.spent', defaultMessage: 'Spent' })}: {currencySymbol} {styledNum(intl.formatNumber(spent))}
+                    </span>
+                    <Link
+                      href="/goals"
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        color: 'var(--ds-primary)',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      {intl.formatMessage({ id: 'dashboard.budgets_goal_funding_edit_hint', defaultMessage: 'Edit from Goals page' })}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Save button */}
       <button

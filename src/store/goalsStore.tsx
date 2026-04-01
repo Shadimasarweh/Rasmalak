@@ -4,6 +4,8 @@ import { createContext, useContext, useState, useCallback, useEffect, ReactNode 
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 
+export type FundingType = 'none' | 'fixed' | 'percentage';
+
 export interface SavingsGoal {
   id: string;
   name: string;
@@ -12,6 +14,23 @@ export interface SavingsGoal {
   currentAmount: number;
   deadline?: string;
   color: string;
+  fundingType: FundingType;
+  fundingValue: number;
+}
+
+export function getMonthlyFundingAmount(goal: SavingsGoal): number {
+  switch (goal.fundingType) {
+    case 'fixed':
+      return goal.fundingValue;
+    case 'percentage':
+      return (goal.fundingValue / 100) * goal.targetAmount;
+    default:
+      return 0;
+  }
+}
+
+export function goalFundingCategoryId(goalId: string): string {
+  return `goal-funding-${goalId}`;
 }
 
 interface GoalsStore {
@@ -63,6 +82,8 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
           currentAmount: Number(row.current_amount),
           deadline: row.deadline ?? undefined,
           color: row.color,
+          fundingType: (row.funding_type as FundingType) || 'none',
+          fundingValue: Number(row.funding_value) || 0,
         }));
         setSavingsGoals(mapped);
       }
@@ -88,6 +109,8 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
         current_amount: goal.currentAmount,
         deadline: goal.deadline || null,
         color: goal.color,
+        funding_type: goal.fundingType || 'none',
+        funding_value: goal.fundingValue || 0,
       })
       .select()
       .single();
@@ -106,6 +129,8 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
         currentAmount: Number(data.current_amount),
         deadline: data.deadline ?? undefined,
         color: data.color,
+        fundingType: (data.funding_type as FundingType) || 'none',
+        fundingValue: Number(data.funding_value) || 0,
       };
       setSavingsGoals((prev) => [...prev, newGoal]);
     }
@@ -123,6 +148,8 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
       if (updates.currentAmount !== undefined) dbUpdates.current_amount = updates.currentAmount;
       if (updates.deadline !== undefined) dbUpdates.deadline = updates.deadline || null;
       if (updates.color !== undefined) dbUpdates.color = updates.color;
+      if (updates.fundingType !== undefined) dbUpdates.funding_type = updates.fundingType;
+      if (updates.fundingValue !== undefined) dbUpdates.funding_value = updates.fundingValue;
 
       const { error } = await supabase
         .from('savings_goals')

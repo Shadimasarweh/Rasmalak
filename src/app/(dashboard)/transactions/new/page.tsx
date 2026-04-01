@@ -242,6 +242,8 @@ export default function AddExpensePage() {
   const [category, setCategory] = useState<string | null>(null);
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringEndDate, setRecurringEndDate] = useState('');
 
   // Validation state
   const [errors, setErrors] = useState<{ amount?: string; category?: string; date?: string }>({});
@@ -274,7 +276,6 @@ export default function AddExpensePage() {
   const handleSubmit = () => {
     if (!validate()) return;
 
-    // Create transaction per Contract Section 4
     addTransaction({
       amount: parseFloat(amount),
       currency: currency,
@@ -282,6 +283,8 @@ export default function AddExpensePage() {
       type: 'expense',
       category: category,
       description: description || undefined,
+      isRecurring,
+      recurringEndDate: isRecurring && recurringEndDate ? recurringEndDate : null,
     });
 
     // Redirect to transactions page
@@ -497,6 +500,78 @@ export default function AddExpensePage() {
                 resize: 'none',
               }}
             />
+          </div>
+
+          {/* ===== RECURRING TOGGLE ===== */}
+          <div style={{ marginBottom: 'var(--spacing-3)' }}>
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                cursor: 'pointer',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: isRecurring ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+                background: isRecurring ? 'rgba(45, 106, 79, 0.06)' : 'var(--ds-bg-input)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={isRecurring}
+                onChange={(e) => {
+                  setIsRecurring(e.target.checked);
+                  if (!e.target.checked) setRecurringEndDate('');
+                }}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  accentColor: 'var(--ds-primary)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)' }}>
+                {intl.formatMessage({ id: 'transactions.recurring_transaction', defaultMessage: 'Recurring transaction' })}
+              </span>
+            </label>
+
+            {isRecurring && (
+              <div style={{ marginTop: '10px' }}>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: 'var(--ds-text-heading)',
+                    marginBottom: '6px',
+                  }}
+                >
+                  {intl.formatMessage({ id: 'transactions.recurring_end_date', defaultMessage: 'End date (optional)' })}
+                </p>
+                <input
+                  type="date"
+                  value={recurringEndDate}
+                  onChange={(e) => setRecurringEndDate(e.target.value)}
+                  min={date || undefined}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    fontSize: '14px',
+                    color: 'var(--ds-text-heading)',
+                    background: 'var(--ds-bg-input)',
+                    border: '0.5px solid var(--ds-border)',
+                    borderRadius: '8px',
+                    outline: 'none',
+                  }}
+                />
+                {!recurringEndDate && (
+                  <p style={{ fontSize: '11px', color: 'var(--ds-text-muted)', marginTop: '4px' }}>
+                    {intl.formatMessage({ id: 'transactions.recurring_indefinite', defaultMessage: 'Repeats until cancelled' })}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ===== FOOTER ACTIONS ===== */}

@@ -70,4 +70,11 @@ export default {
   recurring_charges: 'Recurring charges',
   recurring_auto_detected: 'Auto-detected from your expenses',
   annual_total: 'Annual total',
+
+  // Recurring transaction toggle
+  recurring_transaction: 'Recurring transaction',
+  recurring_end_date: 'End date (optional)',
+  recurring_indefinite: 'Repeats until cancelled',
+  recurring_badge: 'Recurring',
+  recurring_until: 'Until {date}',
 };

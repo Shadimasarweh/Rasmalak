@@ -63,6 +63,7 @@ export default {
   budget_remaining: 'المتبقي: {amount}',
   goal_achieved: 'تحقق الهدف!',
   add_first_transaction_hint: 'أضف أول معاملة عشان تشوف رصيدك',
+  negative_balance_warning: 'المصروفات تتجاوز الدخل',
   overspent_this_month: 'تجاوزت الميزانية بـ {amount} هذا الشهر',
   // Learning section
   learning_progress: 'تقدم التعلم',
@@ -151,6 +152,11 @@ export default {
   vs_last_month: 'مقارنة بالشهر الماضي',
   top_spending: 'أعلى الإنفاق',
   no_expenses_yet: 'لا توجد مصروفات هذا الشهر',
+  ytd_cash_flow: 'التدفق النقدي التراكمي للسنة',
+  ytd_income: 'الدخل',
+  ytd_expenses: 'المصروفات',
+  ytd_net: 'الصافي',
+  no_ytd_data: 'لا توجد معاملات هذا العام',
   budget_usage: 'استخدام الميزانية',
   used: 'مستخدم',
   categories_within_budget: '{count} من {total} ضمن الحد',
@@ -170,4 +176,20 @@ export default {
   coach_goal_desc: 'ادخر نحو شيء مهم — صندوق طوارئ، سفر، أو شراء كبير.',
   coach_goal_cta: 'أنشئ هدفاً',
   coach_ai_nudge: 'أضف أول معاملة وسأبدأ بتحليل أنماط إنفاقك.',
+
+  // تمويل الأهداف
+  goals_monthly_funding: 'التمويل الشهري',
+  goals_funding_none: 'بدون تمويل شهري',
+  goals_funding_fixed: 'مبلغ ثابت شهرياً',
+  goals_funding_percentage: 'نسبة من الهدف شهرياً',
+  goals_funding_preview: 'ستخصص {amount} شهرياً',
+  goals_funding_monthly_label: 'شهرياً: {amount}',
+  goals_funding_amount_label: 'المبلغ الشهري',
+  goals_funding_percent_label: 'النسبة الشهرية',
+
+  // قسم تمويل الأهداف في الميزانية
+  budgets_goal_funding: 'تمويل الأهداف',
+  budgets_goal_funding_desc: 'يتم إنشاؤها تلقائياً من أهداف الادخار',
+  budgets_monthly_goal_funding: 'تمويل {goal} الشهري',
+  budgets_goal_funding_edit_hint: 'التعديل من صفحة الأهداف',
 };

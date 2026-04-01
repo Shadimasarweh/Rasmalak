@@ -29,6 +29,8 @@ export default function QuickAddFAB() {
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<string | null>(null);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringEndDate, setRecurringEndDate] = useState('');
 
   // Detect mobile
   useEffect(() => {
@@ -44,6 +46,8 @@ export default function QuickAddFAB() {
       setAmount('');
       setCategory(null);
       setType('expense');
+      setIsRecurring(false);
+      setRecurringEndDate('');
     }
   }, [isOpen]);
 
@@ -91,6 +95,8 @@ export default function QuickAddFAB() {
       type,
       category: category!,
       description: undefined,
+      isRecurring,
+      recurringEndDate: isRecurring && recurringEndDate ? recurringEndDate : null,
     });
     setIsOpen(false);
   };
@@ -281,6 +287,70 @@ export default function QuickAddFAB() {
                 </p>
               </div>
             )}
+
+            {/* Recurring toggle */}
+            <div style={{ marginBottom: '12px' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: isRecurring ? '0.5px solid #2D6A4F' : '0.5px solid #E5E7EB',
+                  background: isRecurring ? 'rgba(45, 106, 79, 0.06)' : '#F9FAFB',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isRecurring}
+                  onChange={(e) => {
+                    setIsRecurring(e.target.checked);
+                    if (!e.target.checked) setRecurringEndDate('');
+                  }}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    accentColor: '#2D6A4F',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
+                  {intl.formatMessage({ id: 'transactions.recurring_transaction', defaultMessage: 'Recurring transaction' })}
+                </span>
+              </label>
+
+              {isRecurring && (
+                <div style={{ marginTop: '8px' }}>
+                  <p style={{ fontSize: '12px', fontWeight: 500, color: '#374151', margin: '0 0 6px 0' }}>
+                    {intl.formatMessage({ id: 'transactions.recurring_end_date', defaultMessage: 'End date (optional)' })}
+                  </p>
+                  <input
+                    type="date"
+                    value={recurringEndDate}
+                    onChange={(e) => setRecurringEndDate(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      fontSize: '14px',
+                      color: '#374151',
+                      background: '#F9FAFB',
+                      border: '0.5px solid #E5E7EB',
+                      borderRadius: '8px',
+                      outline: 'none',
+                    }}
+                  />
+                  {!recurringEndDate && (
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '4px 0 0 0' }}>
+                      {intl.formatMessage({ id: 'transactions.recurring_indefinite', defaultMessage: 'Repeats until cancelled' })}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Submit button */}
             <button

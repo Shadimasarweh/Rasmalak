@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
-import { useGoals } from '@/store/goalsStore';
+import { useGoals, getMonthlyFundingAmount, goalFundingCategoryId } from '@/store/goalsStore';
+import type { FundingType } from '@/store/goalsStore';
+import { useBudget } from '@/store/budgetStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -195,7 +197,7 @@ function GoalCard({
   isRTL,
   intl,
 }: {
-  goal: { id: string; name: string; nameAr: string; targetAmount: number; currentAmount: number; deadline?: string; color: string };
+  goal: { id: string; name: string; nameAr: string; targetAmount: number; currentAmount: number; deadline?: string; color: string; fundingType: FundingType; fundingValue: number };
   currencySymbol: string;
   onAddFunds: () => void;
   onDelete: () => void;
@@ -205,6 +207,7 @@ function GoalCard({
   const percentage = goal.targetAmount > 0 ? Math.min((goal.currentAmount / goal.targetAmount) * 100, 100) : 0;
   const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
   const isComplete = percentage >= 100;
+  const monthlyFunding = getMonthlyFundingAmount(goal);
 
   return (
     <div
@@ -338,6 +341,37 @@ function GoalCard({
         </div>
       </div>
 
+      {/* Monthly funding info */}
+      {monthlyFunding > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            background: goal.color + '0A',
+            border: `0.5px solid ${goal.color}20`,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={goal.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span style={{ fontSize: '12px', fontWeight: 500, color: goal.color }}>
+            {intl.formatMessage(
+              { id: 'dashboard.goals_funding_monthly_label', defaultMessage: 'Monthly: {amount}' },
+              { amount: `${currencySymbol} ${styledNum(intl.formatNumber(monthlyFunding))}` }
+            )}
+            {goal.fundingType === 'percentage' && (
+              <span style={{ color: 'var(--ds-text-muted)', fontWeight: 400 }}>
+                {' '}({intl.formatNumber(goal.fundingValue)}%)
+              </span>
+            )}
+          </span>
+        </div>
+      )}
+
       {/* Add Funds button */}
       {!isComplete && (
         <button
@@ -389,24 +423,36 @@ function CreateGoalForm({
   currencySymbol: string;
   isRTL: boolean;
   onCancel: () => void;
-  onSave: (data: { name: string; nameAr: string; targetAmount: number; deadline?: string; color: string; currentAmount: number }) => void;
+  onSave: (data: { name: string; nameAr: string; targetAmount: number; deadline?: string; color: string; currentAmount: number; fundingType: FundingType; fundingValue: number }) => void;
   intl: ReturnType<typeof useIntl>;
 }) {
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
   const [deadline, setDeadline] = useState('');
   const [selectedColor, setSelectedColor] = useState(GOAL_COLORS[0]);
+  const [fundingType, setFundingType] = useState<FundingType>('none');
+  const [fundingValue, setFundingValue] = useState('');
+
+  const targetAmount = parseFloat(target) || 0;
+  const fundingNum = parseFloat(fundingValue) || 0;
+  const previewAmount = fundingType === 'fixed'
+    ? fundingNum
+    : fundingType === 'percentage'
+      ? (fundingNum / 100) * targetAmount
+      : 0;
 
   const handleSubmit = () => {
     const amount = parseFloat(target);
     if (!name.trim() || !amount || amount <= 0) return;
     onSave({
       name: name.trim(),
-      nameAr: name.trim(), // same value — single name field
+      nameAr: name.trim(),
       targetAmount: amount,
       deadline: deadline || undefined,
       color: selectedColor,
       currentAmount: 0,
+      fundingType,
+      fundingValue: fundingNum,
     });
   };
 
@@ -490,6 +536,86 @@ function CreateGoalForm({
         />
       </div>
 
+      {/* Monthly Funding */}
+      <div>
+        <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_monthly_funding', defaultMessage: 'Monthly Funding' })}</label>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {(['none', 'fixed', 'percentage'] as const).map((ft) => {
+            const active = fundingType === ft;
+            const labelKey = ft === 'none' ? 'goals_funding_none' : ft === 'fixed' ? 'goals_funding_fixed' : 'goals_funding_percentage';
+            const labelDefault = ft === 'none' ? 'No monthly funding' : ft === 'fixed' ? 'Fixed amount' : '% of goal';
+            return (
+              <button
+                key={ft}
+                type="button"
+                onClick={() => { setFundingType(ft); if (ft === 'none') setFundingValue(''); }}
+                style={{
+                  padding: '8px 14px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  border: active ? '1.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+                  borderRadius: '8px',
+                  background: active ? 'var(--ds-bg-tinted)' : 'transparent',
+                  color: active ? 'var(--ds-primary)' : 'var(--ds-text-body)',
+                  cursor: 'pointer',
+                }}
+              >
+                {intl.formatMessage({ id: `dashboard.${labelKey}`, defaultMessage: labelDefault })}
+              </button>
+            );
+          })}
+        </div>
+
+        {fundingType === 'fixed' && (
+          <div style={{ marginTop: '10px' }}>
+            <label style={{ ...labelStyle, fontSize: '12px' }}>
+              {intl.formatMessage({ id: 'dashboard.goals_funding_amount_label', defaultMessage: 'Monthly Amount' })}
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>
+                {currencySymbol}
+              </span>
+              <input
+                type="number"
+                value={fundingValue}
+                onChange={(e) => setFundingValue(e.target.value)}
+                placeholder="0"
+                style={{ ...inputStyle, direction: 'ltr' }}
+              />
+            </div>
+          </div>
+        )}
+
+        {fundingType === 'percentage' && (
+          <div style={{ marginTop: '10px' }}>
+            <label style={{ ...labelStyle, fontSize: '12px' }}>
+              {intl.formatMessage({ id: 'dashboard.goals_funding_percent_label', defaultMessage: 'Monthly Percentage' })}
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <input
+                type="number"
+                value={fundingValue}
+                onChange={(e) => setFundingValue(e.target.value)}
+                placeholder="0"
+                min="0"
+                max="100"
+                style={{ ...inputStyle, direction: 'ltr' }}
+              />
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>%</span>
+            </div>
+          </div>
+        )}
+
+        {fundingType !== 'none' && previewAmount > 0 && (
+          <p style={{ fontSize: '12px', color: 'var(--ds-primary)', fontWeight: 500, marginTop: '8px' }}>
+            {intl.formatMessage(
+              { id: 'dashboard.goals_funding_preview', defaultMessage: 'You will set aside {amount} per month' },
+              { amount: `${currencySymbol} ${intl.formatNumber(previewAmount)}` }
+            )}
+          </p>
+        )}
+      </div>
+
       {/* Color picker */}
       <div>
         <label style={labelStyle}>{intl.formatMessage({ id: 'dashboard.goals_color', defaultMessage: 'Color' })}</label>
@@ -562,6 +688,7 @@ export default function GoalsPage() {
   const currency = useCurrency();
   const isRTL = language === 'ar';
   const { savingsGoals, addSavingsGoal, updateSavingsGoal, deleteSavingsGoal } = useGoals();
+  const { setCategoryBudget, removeCategoryBudget, categoryBudgets } = useBudget();
 
   const currencyInfo = CURRENCIES.find((c) => c.code === currency);
   const currencySymbol = isRTL
@@ -570,6 +697,35 @@ export default function GoalsPage() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [addFundsGoalId, setAddFundsGoalId] = useState<string | null>(null);
+
+  // Sync goal funding amounts into budget categories
+  const prevGoalIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const currentIds = new Set<string>();
+    for (const goal of savingsGoals) {
+      const catId = goalFundingCategoryId(goal.id);
+      const amount = getMonthlyFundingAmount(goal);
+      currentIds.add(goal.id);
+      if (amount > 0) {
+        if (categoryBudgets[catId] !== amount) {
+          setCategoryBudget(catId, amount);
+        }
+      } else if (categoryBudgets[catId] !== undefined) {
+        removeCategoryBudget(catId);
+      }
+    }
+    // Clean up budgets for deleted goals
+    for (const prevId of prevGoalIdsRef.current) {
+      if (!currentIds.has(prevId)) {
+        const catId = goalFundingCategoryId(prevId);
+        if (categoryBudgets[catId] !== undefined) {
+          removeCategoryBudget(catId);
+        }
+      }
+    }
+    prevGoalIdsRef.current = currentIds;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savingsGoals]);
 
   const addFundsGoal = savingsGoals.find((g) => g.id === addFundsGoalId);
 

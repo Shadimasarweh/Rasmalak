@@ -26,6 +26,10 @@ export const DEFAULT_INCOME_CATEGORIES: Category[] = [
 
 export const ALL_CATEGORIES = [...DEFAULT_EXPENSE_CATEGORIES, ...DEFAULT_INCOME_CATEGORIES];
 
+export function isGoalFundingCategory(categoryId: string): boolean {
+  return categoryId.startsWith('goal-funding-');
+}
+
 // Currency Options - Common Arab-region currencies
 export const CURRENCIES = [
   { code: 'JOD', name: 'Jordanian Dinar', nameAr: 'دينار أردني', symbol: 'JOD', symbolAr: 'د.أ' },
