@@ -3,7 +3,8 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useIntl } from 'react-intl';
-import { getCourse, getCourseNumber } from '@/data/courses';
+import { getCourse, getCourseNumber, getCourseIdForLocale } from '@/data/courses';
+import { useStore } from '@/store/useStore';
 import { CourseProgressProvider } from '@/store/courseProgressStore';
 import CourseSidebar from '@/components/courses/CourseSidebar';
 import CourseContent from '@/components/courses/CourseContent';
@@ -16,6 +17,17 @@ export default function CourseViewerPage() {
   const courseId = params.courseId as string;
 
   const course = getCourse(courseId);
+  const language = useStore((s) => s.language);
+
+  useEffect(() => {
+    if (!course) return;
+    if (course.locale === language) return;
+    const targetId = getCourseIdForLocale(courseId, language);
+    const targetCourse = getCourse(targetId);
+    if (targetCourse) {
+      router.replace(`/learn/courses/${targetId}`);
+    }
+  }, [language, course, courseId, router]);
 
   const lessonsPerPage = useMemo(() => {
     if (!course) return 1;

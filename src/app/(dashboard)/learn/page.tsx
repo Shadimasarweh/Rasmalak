@@ -82,11 +82,17 @@ function useLearnPageData() {
     const map: Record<string, number> = {};
     const localProgress = getAllLocalProgress();
     for (const course of courses) {
-      const localData = localProgress[course.courseId];
-      if (localData) {
+      const baseCourseId = course.courseId.replace(/_(en|ar)$/, '');
+      const enData = localProgress[`${baseCourseId}_en`];
+      const arData = localProgress[`${baseCourseId}_ar`];
+      const merged = new Set<string>();
+      for (const d of [enData, arData]) {
+        if (!d) continue;
+        for (const id of d.completedSectionIds ?? []) merged.add(id);
+      }
+      if (merged.size > 0) {
         const total = getTotalSections(course);
-        const done = localData.completedSectionIds?.length ?? 0;
-        map[course.courseId] = total > 0 ? Math.round((done / total) * 100) : 0;
+        map[course.courseId] = total > 0 ? Math.round((merged.size / total) * 100) : 0;
       }
     }
     setProgressMap((prev) => ({ ...prev, ...map }));
@@ -97,16 +103,23 @@ function useLearnPageData() {
         const { data } = await supabase
           .from('course_progress')
           .select('course_id, completed_section_ids, locale')
-          .eq('user_id', user.id)
-          .eq('locale', language);
+          .eq('user_id', user.id);
         if (!data) return;
-        const supaMap: Record<string, number> = {};
+        const sectionsByBase = new Map<string, Set<string>>();
         for (const row of data) {
-          const course = courses.find((c) => c.courseId === row.course_id);
-          if (course) {
+          const base = (row.course_id as string).replace(/_(en|ar)$/, '');
+          if (!sectionsByBase.has(base)) sectionsByBase.set(base, new Set());
+          for (const id of (row.completed_section_ids as string[]) ?? []) {
+            sectionsByBase.get(base)!.add(id);
+          }
+        }
+        const supaMap: Record<string, number> = {};
+        for (const course of courses) {
+          const base = course.courseId.replace(/_(en|ar)$/, '');
+          const ids = sectionsByBase.get(base);
+          if (ids && ids.size > 0) {
             const total = getTotalSections(course);
-            const done = (row.completed_section_ids as string[])?.length ?? 0;
-            supaMap[row.course_id] = total > 0 ? Math.round((done / total) * 100) : 0;
+            supaMap[course.courseId] = total > 0 ? Math.round((ids.size / total) * 100) : 0;
           }
         }
         setProgressMap((prev) => {

@@ -255,6 +255,31 @@
           ]
         }
       ]
+    },
+    {
+      "lessonId": "adv10_L11_en",
+      "title": "Final Charge: Mentoring the Next Generation of Architects",
+      "order": 11,
+      "sections": [
+        {
+          "id": "sec_adv10_L11",
+          "title": "Final Charge: Mentoring the Next Generation of Architects",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Your journey from \"working for money\" to \"managing money\" to \"engineering capital\" is complete. The structures you have built—trusts, businesses, waqf—are designed to operate without you. True sovereignty means the system endures beyond your presence."
+            },
+            {
+              "type": "p",
+              "text": "Your final responsibility is stewardship through teaching. Select a successor—a child, a protégé, a partner—and begin transferring not just assets but knowledge. Walk them through every structure, every safeguard, every principle in this advanced path. The real measure of your architecture is whether it thrives when you step away."
+            },
+            {
+              "type": "p",
+              "text": "Action: Schedule a recurring session with your chosen successor to review one component of your financial architecture each month. Document your reasoning, not just the mechanics—intent is the hardest thing to transfer, and the most important."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
