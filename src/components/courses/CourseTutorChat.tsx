@@ -2,13 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useIntl } from 'react-intl';
-import { useTransactions } from '@/store/transactionStore';
-import { useCurrency, useLanguage, useOnboardingData, useUserName } from '@/store/useStore';
-import { useBudget } from '@/store/budgetStore';
-import { useGoals } from '@/store/goalsStore';
-import { useUser as useAuthUser, useSession } from '@/store/authStore';
-import { buildUserContext } from '@/ai/context';
-import { AIMessage, AIResponse } from '@/ai/types';
+import { useLanguage } from '@/store/useStore';
+import { useSession } from '@/store/authStore';
+import { AIMessage } from '@/ai/types';
 import type { Lesson } from '@/types/course';
 
 /* ===== ICONS ===== */
@@ -112,6 +108,7 @@ function TutorMessageBubble({ message, isUser }: { message: AIMessage; isUser: b
 /* ===== PROPS ===== */
 
 interface CourseTutorChatProps {
+  courseId: string;
   courseTitle: string;
   currentLessons: Lesson[];
   onOpenChange?: (open: boolean) => void;
@@ -119,17 +116,10 @@ interface CourseTutorChatProps {
 
 /* ===== MAIN COMPONENT ===== */
 
-export default function CourseTutorChat({ courseTitle, currentLessons, onOpenChange }: CourseTutorChatProps) {
+export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, currentLessons: _currentLessons, onOpenChange }: CourseTutorChatProps) {
   const intl = useIntl();
   const language = useLanguage();
-  const authUser = useAuthUser();
   const session = useSession();
-
-  const { transactions } = useTransactions();
-  const currency = useCurrency();
-  const { monthlyBudget, categoryBudgets } = useBudget();
-  const { savingsGoals } = useGoals();
-  const onboardingData = useOnboardingData();
 
   const STORAGE_KEY = 'course-tutor-open';
   const [isOpen, setIsOpen] = useState(() => {
@@ -140,7 +130,6 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -167,29 +156,10 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
     }
   }, [isOpen]);
 
-  const buildContext = useCallback(() => {
-    return buildUserContext({
-      transactions,
-      currency,
-      language,
-      monthlyBudget,
-      categoryBudgets,
-      savingsGoals,
-      onboardingData,
-    });
-  }, [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData]);
-
-  // Build a course context summary so the AI knows what the user is studying
-  const buildCourseContextPrefix = useCallback(() => {
-    const lessonList = currentLessons.map((l, i) => {
-      const sectionTitles = l.sections.map((s) => s.title).join(', ');
-      return `Lesson ${l.order}: ${l.title} (sections: ${sectionTitles})`;
-    }).join('\n');
-
-    return language === 'ar'
-      ? `[سياق المساعد: المستخدم يدرس دورة "${courseTitle}". الدروس الحالية المعروضة:\n${lessonList}]\n\n`
-      : `[Tutor context: The user is studying the course "${courseTitle}". Currently viewing:\n${lessonList}]\n\n`;
-  }, [courseTitle, currentLessons, language]);
+  // Keep a plain-text history for the tutor API (no financial data)
+  const [conversationHistory, setConversationHistory] = useState<
+    Array<{ role: 'user' | 'assistant'; content: string }>
+  >([]);
 
   const sendMessage = useCallback(async (messageText: string) => {
     if (!messageText.trim()) return;
@@ -215,40 +185,35 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
     setIsLoading(true);
 
     try {
-      const context = buildContext();
-      const coursePrefix = buildCourseContextPrefix();
-      const augmentedMessage = coursePrefix + messageText.trim();
-
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/tutor', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
         },
         body: JSON.stringify({
-          message: augmentedMessage,
-          conversationId,
+          message: messageText.trim(),
+          courseId,
           language,
-          context,
+          conversationHistory,
         }),
       });
 
       const data = await response.json();
 
-      if (data.success && data.response) {
-        if (!conversationId) {
-          setConversationId(data.conversationId);
-        }
-
+      if (data.success && data.content) {
         const assistantMessage: AIMessage = {
           id: `tutor_${Date.now()}_assistant`,
           role: 'assistant',
-          content: data.response.message,
+          content: data.content,
           timestamp: new Date().toISOString(),
-          intent: data.response.intent,
-          confidence: data.response.confidence,
         };
 
+        setConversationHistory(prev => [
+          ...prev,
+          { role: 'user', content: messageText.trim() },
+          { role: 'assistant', content: data.content },
+        ]);
         setMessages(prev => [...prev.slice(0, -1), assistantMessage]);
       } else {
         const errorMessage: AIMessage = {
@@ -277,7 +242,7 @@ export default function CourseTutorChat({ courseTitle, currentLessons, onOpenCha
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, conversationId, language, buildContext, buildCourseContextPrefix, authUser?.id]);
+  }, [isLoading, courseId, language, conversationHistory, session?.access_token]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

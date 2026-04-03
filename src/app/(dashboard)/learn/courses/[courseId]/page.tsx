@@ -267,6 +267,7 @@ export default function CourseViewerPage() {
       </div>
 
       <CourseTutorChat
+        courseId={courseId}
         courseTitle={course.title}
         currentLessons={currentPageLessons}
         onOpenChange={setTutorOpen}
