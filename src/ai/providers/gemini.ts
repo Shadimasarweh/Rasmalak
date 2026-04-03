@@ -265,6 +265,14 @@ export async function sendChatCompletionWithRetry(
     }
   }
 
+  // Primary model exhausted — try fallback model if configured
+  const fallbackModel = AI_CONFIG.fallbackModel;
+  if (fallbackModel && fallbackModel !== AI_CONFIG.model) {
+    const fallbackResult = await sendChatCompletion(messages, { ...options, model: fallbackModel });
+    if (fallbackResult.success) return fallbackResult;
+    lastError = fallbackResult.error;
+  }
+
   return { success: false, error: lastError };
 }
 

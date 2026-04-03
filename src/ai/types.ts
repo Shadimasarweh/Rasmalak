@@ -311,6 +311,7 @@ export type AIProvider = 'openai' | 'gemini' | 'vertex' | 'local';
 export interface AIProviderConfig {
   provider: AIProvider;
   model: string;
+  fallbackModel?: string;
   maxTokens: number;
   temperature: number;
 }

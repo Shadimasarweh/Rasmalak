@@ -17,9 +17,12 @@ export const AI_CONFIG: AIProviderConfig = {
   provider: 'gemini' as AIProvider,
 
   // Which model to use
-  // Gemini: 'gemini-2.5-flash', 'gemini-3-flash-preview'
+  // Gemini: 'gemini-3.1-pro-preview', 'gemini-2.5-pro', 'gemini-2.5-flash'
   // OpenAI: 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3.1-pro-preview',
+
+  // Fallback model used if the primary model fails or returns an error
+  fallbackModel: 'gemini-3-pro-preview',
 
   // Maximum tokens in response
   maxTokens: 2048,
