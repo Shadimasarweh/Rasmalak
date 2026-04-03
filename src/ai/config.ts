@@ -16,10 +16,13 @@ export const AI_CONFIG: AIProviderConfig = {
   // Options: 'gemini' | 'openai' | 'vertex' | 'local'
   provider: 'gemini' as AIProvider,
 
-  // Which model to use
+  // Which model to use for complex financial analysis
   // Gemini: 'gemini-3.1-pro-preview', 'gemini-2.5-pro', 'gemini-2.5-flash'
   // OpenAI: 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'
   model: 'gemini-3.1-pro-preview',
+
+  // Fast model for simple intents (greetings, explanations, out-of-scope)
+  flashModel: 'gemini-2.5-flash',
 
   // Fallback model used if the primary model fails or returns an error
   fallbackModel: 'gemini-3-pro-preview',

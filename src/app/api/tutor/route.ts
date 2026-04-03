@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getCourse } from '@/data/courses';
 import { sendChatCompletionWithRetry } from '@/ai/providers/gemini';
-import { AI_SAFETY } from '@/ai/config';
+import { AI_SAFETY, AI_CONFIG } from '@/ai/config';
 import type {
   CourseData, Lesson, Section,
   ParagraphBlock, ListBlock, KeyInsightBlock, ExampleBlock,
@@ -231,7 +231,8 @@ export async function POST(request: NextRequest) {
   ];
 
   const result = await sendChatCompletionWithRetry(messages, {
-    temperature: 0.4, // lower than default for more factual, on-topic answers
+    model: AI_CONFIG.flashModel ?? AI_CONFIG.model,
+    temperature: 0.4,
     max_tokens: 1024,
   });
 

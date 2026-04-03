@@ -78,6 +78,19 @@ function escapeUserInput(input: string): string {
     .replace(/<<SYS>>|<\/SYS>>/gi, '');
 }
 
+// Intents that use the fast Flash model instead of Pro
+const FLASH_INTENTS = new Set([
+  'greeting', 'gratitude', 'unclear', 'out_of_scope',
+  'explain_concept', 'learning_recommendation',
+]);
+
+function selectModelForIntent(intent: string): string | undefined {
+  if (FLASH_INTENTS.has(intent)) {
+    return AI_CONFIG.flashModel;
+  }
+  return undefined; // undefined → sendChatCompletionWithRetry uses AI_CONFIG.model
+}
+
 const ACTIONABLE_INTENTS = new Set([
   'analyze_spending', 'category_breakdown', 'compare_periods',
   'savings_advice', 'goal_progress', 'goal_planning',
@@ -90,6 +103,61 @@ function intentToMetric(intent: string): string {
   if (['budget_status', 'budget_advice', 'overspending_alert'].includes(intent)) return 'budget';
   if (['predict_end_of_month', 'simulate_scenario'].includes(intent)) return 'cashflow';
   return 'spending';
+}
+
+/**
+ * Pure-math deterministic layer. Exported so the streaming route
+ * can run it without instantiating the full orchestrator class.
+ */
+export function computeDeterministicFromContext(
+  context: import('./types').UserFinancialContext,
+): DeterministicOutputs {
+  let recurringMonthly = 0;
+  for (const r of context.patterns.recurringExpenses) {
+    switch (r.frequency) {
+      case 'weekly':  recurringMonthly += r.amount * (52 / 12); break;
+      case 'monthly': recurringMonthly += r.amount; break;
+      case 'yearly':  recurringMonthly += r.amount / 12; break;
+    }
+  }
+
+  const discretionary = Math.max(0, context.totalExpenses - recurringMonthly);
+  const curExp = context.currentMonth.expenses;
+  const curInc = context.currentMonth.income;
+  const expDelta = context.comparedToLastMonth.expenseChange;
+  const incDelta = context.comparedToLastMonth.incomeChange;
+  const prevExp = expDelta !== 0 ? curExp / (1 + expDelta / 100) : curExp;
+  const prevInc = incDelta !== 0 ? curInc / (1 + incDelta / 100) : curInc;
+
+  const monthlyExpenses = [prevExp, curExp].filter(v => Number.isFinite(v) && v >= 0);
+  const monthlyIncome = [prevInc, curInc].filter(v => Number.isFinite(v) && v >= 0);
+  const goals = context.goals.map(g => ({ target: g.targetAmount, current: g.currentAmount }));
+
+  const signalSummary: SignalSummary = {
+    totalIncome: context.totalIncome,
+    totalExpenses: context.totalExpenses,
+    recurringExpenses: recurringMonthly,
+    discretionaryExpenses: discretionary,
+    monthlyExpenses,
+    monthlyIncome,
+    goals: goals.length > 0 ? goals : undefined,
+  };
+
+  const signals = computeFinancialSignals(signalSummary);
+  const advisory = deriveAdvisoryState(signals);
+  const health = computeFinancialHealth(signals);
+  const now = new Date();
+  const daysElapsed = now.getDate();
+
+  const projections = computeProjections(
+    context.netBalance,
+    context.currentMonth.expenses,
+    daysElapsed,
+    context.currentMonth.daysRemaining,
+    context.budget?.monthlyLimit,
+  );
+
+  return { financialHealth: health, signals, advisory, projections };
 }
 
 export class AIOrchestrator {
@@ -158,7 +226,10 @@ export class AIOrchestrator {
       input.attachments,
     ) as any; // Provider adapters return compatible but loosely-typed messages
 
-    const model = getModelForAttachments(input.attachments);
+    const attachmentModel = getModelForAttachments(input.attachments);
+    const intentModel = selectModelForIntent(intentResult.intent);
+    // Attachment model takes priority (vision requirement); otherwise use intent-based tier
+    const model = attachmentModel !== AI_CONFIG.model ? attachmentModel : (intentModel ?? AI_CONFIG.model);
 
     let llmResult = await sendChatCompletionWithRetry(messages, {
       ...(model !== AI_CONFIG.model && { model }),
@@ -354,62 +425,13 @@ export class AIOrchestrator {
   // ──────────────────────────────────────────
 
   private computeDeterministic(input: OrchestratorInput): DeterministicOutputs {
-    return this.computeDeterministicFromContext(input.context);
+    return computeDeterministicFromContext(input.context);
   }
 
   private computeDeterministicFromContext(
     context: import('./types').UserFinancialContext,
   ): DeterministicOutputs {
-    let recurringMonthly = 0;
-    for (const r of context.patterns.recurringExpenses) {
-      switch (r.frequency) {
-        case 'weekly':  recurringMonthly += r.amount * (52 / 12); break;
-        case 'monthly': recurringMonthly += r.amount; break;
-        case 'yearly':  recurringMonthly += r.amount / 12; break;
-      }
-    }
-
-    const discretionary = Math.max(0, context.totalExpenses - recurringMonthly);
-
-    const curExp = context.currentMonth.expenses;
-    const curInc = context.currentMonth.income;
-    const expDelta = context.comparedToLastMonth.expenseChange;
-    const incDelta = context.comparedToLastMonth.incomeChange;
-
-    const prevExp = expDelta !== 0 ? curExp / (1 + expDelta / 100) : curExp;
-    const prevInc = incDelta !== 0 ? curInc / (1 + incDelta / 100) : curInc;
-
-    const monthlyExpenses = [prevExp, curExp].filter(v => Number.isFinite(v) && v >= 0);
-    const monthlyIncome = [prevInc, curInc].filter(v => Number.isFinite(v) && v >= 0);
-
-    const goals = context.goals.map(g => ({ target: g.targetAmount, current: g.currentAmount }));
-
-    const signalSummary: SignalSummary = {
-      totalIncome: context.totalIncome,
-      totalExpenses: context.totalExpenses,
-      recurringExpenses: recurringMonthly,
-      discretionaryExpenses: discretionary,
-      monthlyExpenses,
-      monthlyIncome,
-      goals: goals.length > 0 ? goals : undefined,
-    };
-
-    const signals = computeFinancialSignals(signalSummary);
-    const advisory = deriveAdvisoryState(signals);
-    const health = computeFinancialHealth(signals);
-
-    const now = new Date();
-    const daysElapsed = now.getDate();
-
-    const projections = computeProjections(
-      context.netBalance,
-      context.currentMonth.expenses,
-      daysElapsed,
-      context.currentMonth.daysRemaining,
-      context.budget?.monthlyLimit,
-    );
-
-    return { financialHealth: health, signals, advisory, projections };
+    return computeDeterministicFromContext(context);
   }
 
   private getHistory(conversationId: string): AIMessage[] {

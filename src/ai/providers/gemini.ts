@@ -60,8 +60,10 @@ type UsageInfo = { prompt_tokens: number; completion_tokens: number; total_token
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-function buildUrl(model: string, apiKey: string): string {
-  return `${GEMINI_BASE}/${model}:generateContent?key=${apiKey}`;
+function buildUrl(model: string, apiKey: string, stream = false): string {
+  const method = stream ? 'streamGenerateContent' : 'generateContent';
+  const extra = stream ? '&alt=sse' : '';
+  return `${GEMINI_BASE}/${model}:${method}?key=${apiKey}${extra}`;
 }
 
 /**
@@ -106,26 +108,16 @@ function convertSchemaForGemini(schema: Record<string, unknown>): Record<string,
   return out;
 }
 
-// ============================================
-// GEMINI CLIENT
-// ============================================
-
-export async function sendChatCompletion(
+/**
+ * Convert OpenAI-style message array → Gemini request body.
+ * Shared by both the standard and streaming send functions.
+ */
+function buildGeminiRequest(
   messages: Array<{ role: string; content: string | unknown[] }>,
   options?: ChatCompletionOptions
-): Promise<{ success: true; content: string; usage: UsageInfo } | { success: false; error: string }> {
-  const apiKey = getProviderApiKey();
-
-  if (!apiKey) {
-    return {
-      success: false,
-      error: 'AI service is not configured. Please contact support.',
-    };
-  }
-
+): { requestBody: GeminiRequest; model: string } {
   const model = options?.model ?? AI_CONFIG.model;
 
-  // Convert OpenAI-style messages → Gemini format
   let systemInstruction: GeminiRequest['systemInstruction'] | undefined;
   const contents: GeminiContent[] = [];
 
@@ -150,9 +142,7 @@ export async function sendChatCompletion(
           const imageUrl = part.image_url as { url: string };
           const dataMatch = imageUrl.url.match(/^data:([^;]+);base64,(.+)$/);
           if (dataMatch) {
-            parts.push({
-              inlineData: { mimeType: dataMatch[1], data: dataMatch[2] },
-            });
+            parts.push({ inlineData: { mimeType: dataMatch[1], data: dataMatch[2] } });
           } else {
             parts.push({ text: `[Image: ${imageUrl.url}]` });
           }
@@ -175,14 +165,24 @@ export async function sendChatCompletion(
     generationConfig.responseSchema = convertSchemaForGemini(options.responseSchema.schema);
   }
 
-  const requestBody: GeminiRequest = {
-    contents,
-    generationConfig,
-  };
+  const requestBody: GeminiRequest = { contents, generationConfig };
+  if (systemInstruction) requestBody.systemInstruction = systemInstruction;
 
-  if (systemInstruction) {
-    requestBody.systemInstruction = systemInstruction;
-  }
+  return { requestBody, model };
+}
+
+// ============================================
+// GEMINI CLIENT — STANDARD (non-streaming)
+// ============================================
+
+export async function sendChatCompletion(
+  messages: Array<{ role: string; content: string | unknown[] }>,
+  options?: ChatCompletionOptions
+): Promise<{ success: true; content: string; usage: UsageInfo } | { success: false; error: string }> {
+  const apiKey = getProviderApiKey();
+  if (!apiKey) return { success: false, error: 'AI service is not configured. Please contact support.' };
+
+  const { requestBody, model } = buildGeminiRequest(messages, options);
 
   try {
     const controller = new AbortController();
@@ -200,10 +200,7 @@ export async function sendChatCompletion(
     const data = (await response.json()) as GeminiResponse;
 
     if (!response.ok || data.error) {
-      return {
-        success: false,
-        error: 'AI service error. Please try again later.',
-      };
+      return { success: false, error: 'AI service error. Please try again later.' };
     }
 
     if (!data.candidates || data.candidates.length === 0) {
@@ -211,19 +208,12 @@ export async function sendChatCompletion(
     }
 
     const candidate = data.candidates[0];
-
     if (candidate.finishReason === 'SAFETY') {
       return { success: false, error: 'Response blocked by safety filters.' };
     }
 
-    const text = candidate.content?.parts
-      ?.map((p) => p.text ?? '')
-      .join('')
-      .trim();
-
-    if (!text) {
-      return { success: false, error: 'Empty response from AI service.' };
-    }
+    const text = candidate.content?.parts?.map((p) => p.text ?? '').join('').trim();
+    if (!text) return { success: false, error: 'Empty response from AI service.' };
 
     const usage: UsageInfo = {
       prompt_tokens: data.usageMetadata?.promptTokenCount ?? 0,
@@ -234,9 +224,7 @@ export async function sendChatCompletion(
     return { success: true, content: text, usage };
   } catch (error) {
     if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        return { success: false, error: 'Request timed out. Please try again.' };
-      }
+      if (error.name === 'AbortError') return { success: false, error: 'Request timed out. Please try again.' };
       return { success: false, error: `Network error: ${error.message}` };
     }
     return { success: false, error: 'Unknown error occurred' };
@@ -255,14 +243,10 @@ export async function sendChatCompletionWithRetry(
     }
 
     const result = await sendChatCompletion(messages, options);
-
     if (result.success) return result;
 
     lastError = result.error;
-
-    if (result.error.includes('API key') || result.error.includes('401') || result.error.includes('403')) {
-      break;
-    }
+    if (result.error.includes('API key') || result.error.includes('401') || result.error.includes('403')) break;
   }
 
   // Primary model exhausted — try fallback model if configured
@@ -274,6 +258,77 @@ export async function sendChatCompletionWithRetry(
   }
 
   return { success: false, error: lastError };
+}
+
+// ============================================
+// GEMINI CLIENT — STREAMING
+// ============================================
+
+/**
+ * Stream a chat completion from Gemini using SSE.
+ * Yields raw text chunks as they arrive.
+ * Caller is responsible for timeout / abort handling.
+ */
+export async function* sendStreamingChatCompletion(
+  messages: Array<{ role: string; content: string | unknown[] }>,
+  options?: ChatCompletionOptions,
+  signal?: AbortSignal
+): AsyncGenerator<string, void, unknown> {
+  const apiKey = getProviderApiKey();
+  if (!apiKey) return;
+
+  const { requestBody, model } = buildGeminiRequest(messages, options);
+
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(model, apiKey, true), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+      signal,
+    });
+  } catch {
+    return;
+  }
+
+  if (!response.ok || !response.body) return;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      // SSE lines are separated by \n; events are separated by \n\n
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const jsonStr = line.slice(6).trim();
+        if (!jsonStr) continue;
+
+        try {
+          const chunk = JSON.parse(jsonStr) as GeminiResponse;
+          if (chunk.error) return;
+
+          const text = chunk.candidates?.[0]?.content?.parts
+            ?.map((p) => p.text ?? '')
+            .join('') ?? '';
+
+          if (text) yield text;
+        } catch {
+          // malformed chunk — skip
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 // ============================================
@@ -320,7 +375,7 @@ export function formatMessagesForProvider(
   return messages;
 }
 
-export function getModelForAttachments(attachments?: MessageAttachment[]): string {
+export function getModelForAttachments(_attachments?: MessageAttachment[]): string {
   // Gemini Flash handles vision natively -- no model switch needed
   return AI_CONFIG.model;
 }

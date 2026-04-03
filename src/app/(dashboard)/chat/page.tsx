@@ -573,12 +573,12 @@ export default function MustasharakPage() {
     setAttachments(prev => prev.filter(a => a.id !== attachmentId));
   };
   
-  // Send message to AI
+  // Send message to AI with streaming
   const sendMessage = useCallback(async (messageText: string, messageAttachments?: MessageAttachment[]) => {
     const hasAttachments = messageAttachments && messageAttachments.length > 0;
     if (!messageText.trim() && !hasAttachments) return;
     if (isLoading) return;
-    
+
     const userMessage: AIMessage = {
       id: `msg_${Date.now()}_user`,
       role: 'user',
@@ -586,24 +586,83 @@ export default function MustasharakPage() {
       timestamp: new Date().toISOString(),
       attachments: messageAttachments,
     };
-    
-    const loadingMessage: AIMessage = {
-      id: `msg_${Date.now()}_loading`,
+
+    // For messages with attachments, fall back to /api/chat (non-streaming) since
+    // the streaming route doesn't handle attachment vision yet.
+    if (hasAttachments) {
+      const loadingMsg: AIMessage = {
+        id: `msg_${Date.now()}_loading`,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date().toISOString(),
+        isLoading: true,
+      };
+      setMessages(prev => [...prev, userMessage, loadingMsg]);
+      setInputValue('');
+      setAttachments([]);
+      setIsLoading(true);
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
+          },
+          body: JSON.stringify({ message: messageText.trim(), conversationId, language, context: buildContext(), attachments: messageAttachments }),
+        });
+        const data = await response.json();
+        if (data.success && data.response) {
+          if (!conversationId) setConversationId(data.conversationId);
+          setMessages(prev => [...prev.slice(0, -1), {
+            id: `msg_${Date.now()}_assistant`,
+            role: 'assistant',
+            content: data.response.message,
+            timestamp: new Date().toISOString(),
+            intent: data.response.intent,
+            confidence: data.response.confidence,
+          } as AIMessage]);
+          setLastResponse(data.response);
+        } else {
+          setMessages(prev => [...prev.slice(0, -1), {
+            id: `msg_${Date.now()}_error`,
+            role: 'assistant',
+            content: data.error || (language === 'ar' ? 'حدث خطأ.' : 'An error occurred.'),
+            timestamp: new Date().toISOString(),
+            isError: true,
+          } as AIMessage]);
+        }
+      } catch {
+        setMessages(prev => [...prev.slice(0, -1), {
+          id: `msg_${Date.now()}_error`,
+          role: 'assistant',
+          content: language === 'ar' ? 'خطأ في الاتصال.' : 'Connection error.',
+          timestamp: new Date().toISOString(),
+          isError: true,
+        } as AIMessage]);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // ── Streaming path ──
+    const streamingMsgId = `msg_${crypto.randomUUID()}_assistant`;
+    const streamingMsg: AIMessage = {
+      id: streamingMsgId,
       role: 'assistant',
       content: '',
       timestamp: new Date().toISOString(),
       isLoading: true,
     };
-    
-    setMessages(prev => [...prev, userMessage, loadingMessage]);
+
+    setMessages(prev => [...prev, userMessage, streamingMsg]);
     setInputValue('');
-    setAttachments([]); // Clear attachments after sending
+    setAttachments([]);
     setIsLoading(true);
-    
+
     try {
-      const context = buildContext();
-      
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -613,71 +672,90 @@ export default function MustasharakPage() {
           message: messageText.trim(),
           conversationId,
           language,
-          context,
-          attachments: messageAttachments,
+          context: buildContext(),
         }),
       });
-      
-      const data = await response.json();
-      
-      if (data.success && data.response) {
-        // Update conversation ID
-        if (!conversationId) {
-          setConversationId(data.conversationId);
-        }
-        
-        // Replace loading message with actual response
-        const assistantMessage: AIMessage = {
-          id: `msg_${Date.now()}_assistant`,
-          role: 'assistant',
-          content: data.response.message,
-          timestamp: new Date().toISOString(),
-          intent: data.response.intent,
-          confidence: data.response.confidence,
-        };
-        
-        setMessages(prev => [
-          ...prev.slice(0, -1), // Remove loading message
-          assistantMessage,
-        ]);
-        
-        setLastResponse(data.response);
-      } else {
-        // Error response
-        const errorMessage: AIMessage = {
-          id: `msg_${Date.now()}_error`,
-          role: 'assistant',
-          content: data.error || (language === 'ar' ? 'حدث خطأ. الرجاء المحاولة مرة أخرى.' : 'An error occurred. Please try again.'),
-          timestamp: new Date().toISOString(),
-          isError: true,
-          errorMessage: data.error,
-        };
-        
-        setMessages(prev => [
-          ...prev.slice(0, -1), // Remove loading message
-          errorMessage,
-        ]);
+
+      if (!response.ok || !response.body) {
+        throw new Error('Stream unavailable');
       }
-    } catch (error) {
-      // Network error
-      const errorMessage: AIMessage = {
-        id: `msg_${Date.now()}_error`,
-        role: 'assistant',
-        content: language === 'ar' 
-          ? 'خطأ في الاتصال. الرجاء التحقق من الإنترنت والمحاولة مرة أخرى.'
-          : 'Connection error. Please check your internet and try again.',
-        timestamp: new Date().toISOString(),
-        isError: true,
-      };
-      
-      setMessages(prev => [
-        ...prev.slice(0, -1), // Remove loading message
-        errorMessage,
-      ]);
+
+      if (!conversationId) {
+        const convId = response.headers.get('X-Conversation-Id');
+        if (convId) setConversationId(convId);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let hasContent = false;
+
+      // Switch from loading state to empty streaming state on first read
+      setMessages(prev => prev.map(msg =>
+        msg.id === streamingMsgId ? { ...msg, isLoading: false } : msg
+      ));
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          if (raw === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(raw) as { text?: string; error?: string };
+
+            if (parsed.error) {
+              setMessages(prev => prev.map(msg =>
+                msg.id === streamingMsgId
+                  ? { ...msg, content: parsed.error!, isError: true, errorMessage: parsed.error }
+                  : msg
+              ));
+              return;
+            }
+
+            if (parsed.text) {
+              hasContent = true;
+              setMessages(prev => prev.map(msg =>
+                msg.id === streamingMsgId
+                  ? { ...msg, content: msg.content + parsed.text }
+                  : msg
+              ));
+            }
+          } catch { /* malformed chunk */ }
+        }
+      }
+
+      if (!hasContent) {
+        setMessages(prev => prev.map(msg =>
+          msg.id === streamingMsgId
+            ? { ...msg, content: language === 'ar' ? 'لم أتلقَّ ردًا. الرجاء المحاولة مرة أخرى.' : 'No response received. Please try again.', isError: true }
+            : msg
+        ));
+      }
+    } catch {
+      setMessages(prev => prev.map(msg =>
+        msg.id === streamingMsgId
+          ? {
+              ...msg,
+              isLoading: false,
+              content: language === 'ar'
+                ? 'خطأ في الاتصال. الرجاء التحقق من الإنترنت والمحاولة مرة أخرى.'
+                : 'Connection error. Please check your internet and try again.',
+              isError: true,
+            }
+          : msg
+      ));
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, conversationId, language, buildContext]);
+  }, [isLoading, conversationId, language, buildContext, session?.access_token]);
   
   // Handle form submit
   const handleSubmit = (e: React.FormEvent) => {
