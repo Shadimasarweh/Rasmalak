@@ -1134,15 +1134,6 @@ export default function OverviewPage() {
                 color: '#2D6A4F',
               },
               {
-                titleId: 'dashboard.rec_saving',
-                titleDefault: 'Emergency Fund',
-                titleAr: 'صندوق الطوارئ',
-                descId: 'dashboard.rec_saving_desc',
-                descDefault: 'Start saving today',
-                descAr: 'ابدأ الادخار اليوم',
-                color: '#0E7490',
-              },
-              {
                 titleId: 'dashboard.rec_investing',
                 titleDefault: 'Investing 101',
                 titleAr: 'مقدمة في الاستثمار',
