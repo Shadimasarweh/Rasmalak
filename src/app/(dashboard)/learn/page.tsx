@@ -92,7 +92,7 @@ function useLearnPageData() {
       }
       if (merged.size > 0) {
         const total = getTotalSections(course);
-        map[course.courseId] = total > 0 ? Math.round((merged.size / total) * 100) : 0;
+        map[course.courseId] = total > 0 ? Math.min(100, Math.round((merged.size / total) * 100)) : 0;
       }
     }
     setProgressMap((prev) => ({ ...prev, ...map }));
@@ -119,7 +119,7 @@ function useLearnPageData() {
           const ids = sectionsByBase.get(base);
           if (ids && ids.size > 0) {
             const total = getTotalSections(course);
-            supaMap[course.courseId] = total > 0 ? Math.round((ids.size / total) * 100) : 0;
+            supaMap[course.courseId] = total > 0 ? Math.min(100, Math.round((ids.size / total) * 100)) : 0;
           }
         }
         setProgressMap((prev) => {
