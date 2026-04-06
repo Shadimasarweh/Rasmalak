@@ -19,7 +19,7 @@ export default function EmergencyFundPage() {
   const currencySymbol = isRTL ? currencyInfo?.symbolAr || currencyInfo?.symbol || currency : currencyInfo?.symbol || currency;
 
   const { transactions } = useTransactions();
-  const { fund, deposits, loading, createFund, updateTarget, addDeposit, deleteDeposit } = useEmergencyFund();
+  const { fund, deposits, loading, createFund, updateTarget, setMonthlyContribution, addDeposit, deleteDeposit } = useEmergencyFund();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -27,6 +27,8 @@ export default function EmergencyFundPage() {
   // Setup form state
   const [targetInput, setTargetInput] = useState('');
   const [showTargetForm, setShowTargetForm] = useState(false);
+  const [contributionInput, setContributionInput] = useState('');
+  const [showContributionForm, setShowContributionForm] = useState(false);
 
   // Deposit form state
   const [depositAmount, setDepositAmount] = useState('');
@@ -69,6 +71,14 @@ export default function EmergencyFundPage() {
     await updateTarget(val);
     setTargetInput('');
     setShowTargetForm(false);
+  };
+
+  const handleSetContribution = async () => {
+    const val = parseFloat(contributionInput);
+    if (val == null || val < 0) return;
+    await setMonthlyContribution(val);
+    setContributionInput('');
+    setShowContributionForm(false);
   };
 
   const handleDeposit = async () => {
@@ -270,6 +280,52 @@ export default function EmergencyFundPage() {
           <p className="ds-supporting" style={{ marginTop: 'var(--spacing-1)' }}>
             {intl.formatMessage({ id: 'dashboard.ef_recommended', defaultMessage: '6 months recommended' })}
           </p>
+        </div>
+
+        <div className="ds-card" style={{ padding: 'var(--spacing-5)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+            <p className="ds-label" style={{ textTransform: 'uppercase' }}>
+              {intl.formatMessage({ id: 'dashboard.ef_monthly_contribution', defaultMessage: 'Monthly Contribution' })}
+            </p>
+            <button
+              onClick={() => { setShowContributionForm(!showContributionForm); setContributionInput(String(fund.monthlyContribution || '')); }}
+              style={{ fontSize: '0.75rem', color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+            >
+              {intl.formatMessage({ id: 'dashboard.ef_update_contribution', defaultMessage: 'Update' })}
+            </button>
+          </div>
+          <p className="ds-metric" style={{ color: fund.monthlyContribution > 0 ? 'var(--color-primary)' : 'var(--color-text-muted)', fontSize: 'clamp(1.25rem, 3vw, 1.75rem)' }}>
+            {fund.monthlyContribution > 0 ? fmtCur(fund.monthlyContribution) : intl.formatMessage({ id: 'dashboard.ef_not_set', defaultMessage: 'Not set' })}
+          </p>
+          {fund.monthlyContribution > 0 && (
+            <p className="ds-supporting" style={{ marginTop: 'var(--spacing-1)' }}>
+              {intl.formatMessage({ id: 'dashboard.ef_contribution_budget_note', defaultMessage: 'Reserved in your monthly budget' })}
+            </p>
+          )}
+          {showContributionForm && (
+            <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginTop: 'var(--spacing-3)' }}>
+              <input
+                type="number"
+                value={contributionInput}
+                onChange={e => setContributionInput(e.target.value)}
+                placeholder="0"
+                style={{
+                  flex: 1, padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--color-border-default)', background: 'var(--color-bg-card)',
+                  color: 'var(--color-text-primary)', fontSize: '0.875rem',
+                }}
+              />
+              <button
+                onClick={handleSetContribution}
+                style={{
+                  padding: 'var(--spacing-2) var(--spacing-3)', background: 'var(--color-primary)',
+                  color: '#FFF', borderRadius: 'var(--radius-md)', border: 'none', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                }}
+              >
+                ✓
+              </button>
+            </div>
+          )}
         </div>
 
         {avgMonthlyExpenses > 0 && (

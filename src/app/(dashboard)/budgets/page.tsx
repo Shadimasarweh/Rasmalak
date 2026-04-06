@@ -933,6 +933,96 @@ export default function BudgetsPage() {
         );
       })()}
 
+      {/* Emergency Fund Contribution */}
+      {emergencyFund && emergencyFund.monthlyContribution > 0 && (
+        <div
+          className="ds-card"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--spacing-1)',
+            marginBottom: 'var(--spacing-2)',
+          }}
+        >
+          <div style={{ marginBottom: '8px' }}>
+            <h2
+              style={{
+                fontSize: '18px',
+                fontWeight: 600,
+                color: 'var(--ds-text-heading)',
+                fontFeatureSettings: '"kern" 1',
+                marginBottom: '2px',
+              }}
+            >
+              {intl.formatMessage({ id: 'dashboard.budgets_ef_contribution', defaultMessage: 'Emergency Fund' })}
+            </h2>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0 }}>
+              {intl.formatMessage({ id: 'dashboard.budgets_ef_contribution_desc', defaultMessage: 'Reserved monthly from your budget' })}
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              padding: '12px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--ds-bg-input)',
+              border: '0.5px solid var(--ds-border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  backgroundColor: '#2D6A4F',
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: 'var(--ds-text-heading)',
+                    margin: 0,
+                  }}
+                >
+                  {intl.formatMessage({ id: 'dashboard.budgets_ef_monthly', defaultMessage: 'Monthly Contribution' })}
+                </p>
+              </div>
+              <span
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: 'var(--ds-text-heading)',
+                  flexShrink: 0,
+                }}
+              >
+                {currencySymbol} {styledNum(intl.formatNumber(emergencyFund.monthlyContribution))}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Link
+                href="/emergency-fund"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  color: 'var(--ds-primary)',
+                  textDecoration: 'none',
+                }}
+              >
+                {intl.formatMessage({ id: 'dashboard.budgets_ef_edit_hint', defaultMessage: 'Edit from Emergency Fund page' })}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Save button */}
       <button
         type="button"

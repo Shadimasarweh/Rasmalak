@@ -8,6 +8,7 @@ export interface EmergencyFund {
   id: string;
   targetAmount: number;
   currentAmount: number;
+  monthlyContribution: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,6 +27,7 @@ interface EmergencyFundStore {
   loading: boolean;
   createFund: (targetAmount: number) => Promise<void>;
   updateTarget: (targetAmount: number) => Promise<void>;
+  setMonthlyContribution: (amount: number) => Promise<void>;
   addDeposit: (amount: number, note?: string) => Promise<void>;
   deleteDeposit: (depositId: string) => Promise<void>;
 }
@@ -76,6 +78,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
           id: fundData.id,
           targetAmount: Number(fundData.target_amount),
           currentAmount: Number(fundData.current_amount),
+          monthlyContribution: Number(fundData.monthly_contribution ?? 0),
           createdAt: fundData.created_at,
           updatedAt: fundData.updated_at,
         });
@@ -131,6 +134,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
         id: data.id,
         targetAmount: Number(data.target_amount),
         currentAmount: Number(data.current_amount),
+        monthlyContribution: Number(data.monthly_contribution ?? 0),
         createdAt: data.created_at,
         updatedAt: data.updated_at,
       });
@@ -151,6 +155,22 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
     }
 
     setFund(prev => prev ? { ...prev, targetAmount, updatedAt: new Date().toISOString() } : null);
+  }, [fund]);
+
+  const setMonthlyContribution = useCallback(async (amount: number) => {
+    if (!fund) return;
+
+    const { error } = await supabase
+      .from('emergency_funds')
+      .update({ monthly_contribution: amount, updated_at: new Date().toISOString() })
+      .eq('id', fund.id);
+
+    if (error) {
+      console.error('[EmergencyFundStore] Error updating monthly contribution:', error.message);
+      return;
+    }
+
+    setFund(prev => prev ? { ...prev, monthlyContribution: amount, updatedAt: new Date().toISOString() } : null);
   }, [fund]);
 
   const addDeposit = useCallback(async (amount: number, note?: string) => {
@@ -234,6 +254,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
     loading,
     createFund,
     updateTarget,
+    setMonthlyContribution,
     addDeposit,
     deleteDeposit,
   };
