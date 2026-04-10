@@ -152,12 +152,12 @@ function fmtCurrency(value: number, currencySymbol: string, isArabic: boolean): 
 }
 
 function fmtNum(value: number, isArabic: boolean, decimals: number = 2): string {
-  if (isArabic) return formatNumberArabic(value, decimals);
+  if (isArabic) return rtl(formatNumberArabic(value, decimals));
   return formatNumber(value, decimals);
 }
 
 function fmtDate(date: Date, isArabic: boolean): string {
-  if (isArabic) return formatDateArabic(date);
+  if (isArabic) return rtl(formatDateArabic(date));
   return formatDate(date);
 }
 
@@ -216,7 +216,7 @@ export async function generateMortgagePayoffPDF(
   const inputRows = [
     [lbl(labels.loanAmount, isArabic), fmtCurrency(input.loanAmount, currencySymbol, isArabic)],
     [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.annualInterestRate))}%`) : `${input.annualInterestRate}%`],
-    [lbl(labels.loanTerm, isArabic), isArabic ? rtl(`${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`) : `${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
+    [lbl(labels.loanTerm, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.loanTermYears))} ${yearsLabel}`) : `${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
     [lbl(labels.paymentsPerYear, isArabic), fmtNum(input.paymentsPerYear, isArabic, 0)],
     [lbl(labels.startDate, isArabic), fmtDate(new Date(input.startDate), isArabic)],
     [lbl(labels.extraPayment, isArabic), fmtCurrency(input.extraPayment, currencySymbol, isArabic)],
@@ -228,7 +228,7 @@ export async function generateMortgagePayoffPDF(
     [lbl(labels.scheduledPayment, isArabic), fmtCurrency(result.summary.scheduledPayment, currencySymbol, isArabic)],
     [lbl(labels.scheduledPayments, isArabic), fmtNum(result.summary.scheduledNumberOfPayments, isArabic, 0)],
     [lbl(labels.actualPayments, isArabic), fmtNum(result.summary.actualNumberOfPayments, isArabic, 0)],
-    [lbl(labels.yearsSaved, isArabic), isArabic ? rtl(`${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`) : `${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`],
+    [lbl(labels.yearsSaved, isArabic), isArabic ? rtl(`${toArabicNumerals(formatNumber(result.summary.yearsSaved))} ${yearsLabel}`) : `${fmtNum(result.summary.yearsSaved, isArabic)} ${yearsLabel}`],
     [lbl(labels.totalEarlyPayments, isArabic), fmtCurrency(result.summary.totalEarlyPayments, currencySymbol, isArabic)],
     [lbl(labels.totalInterest, isArabic), fmtCurrency(result.summary.totalInterest, currencySymbol, isArabic)],
     [lbl(labels.totalPaid, isArabic), fmtCurrency(result.summary.totalPaid, currencySymbol, isArabic)],
@@ -317,29 +317,29 @@ export async function generateMortgagePayoffPDF(
   };
 
   // ===== BUILD CONTENT =====
-  // Header section (part of content, not the repeating header)
-  const headerContent = {
+  const titleCol = {
     stack: [
-      // Navy background + emerald line are drawn via background function
-      {
-        columns: [
-          {
-            stack: [
-              { text: lbl(labels.title, isArabic), fontSize: 16, bold: true, color: WHITE, alignment: isArabic ? 'right' : 'left' },
-              { text: lbl(labels.subtitle, isArabic), fontSize: 9, color: '#CCCCCC', alignment: isArabic ? 'right' : 'left', marginTop: 2 },
-            ],
-            width: '*',
-          },
-          {
-            stack: [
-              { text: 'Rasmalak AI', fontSize: 11, bold: true, color: WHITE, alignment: isArabic ? 'left' : 'right', font: 'Roboto' },
-              { text: generatedDateStr, fontSize: 7, color: '#CCCCCC', alignment: isArabic ? 'left' : 'right', marginTop: 2 },
-            ],
-            width: 'auto',
-          },
-        ],
-      },
+      { text: lbl(labels.title, isArabic), fontSize: 16, bold: true, color: WHITE, alignment: 'right' as const },
+      { text: lbl(labels.subtitle, isArabic), fontSize: 9, color: '#CCCCCC', alignment: 'right' as const, marginTop: 2 },
     ],
+    width: '*',
+  };
+  const brandCol = {
+    stack: [
+      { text: 'Rasmalak AI', fontSize: 11, bold: true, color: WHITE, alignment: 'left' as const, font: 'Roboto' },
+      { text: generatedDateStr, fontSize: 7, color: '#CCCCCC', alignment: 'left' as const, marginTop: 2, font: fontFamily },
+    ],
+    width: 'auto',
+  };
+  const headerContent = {
+    stack: [{
+      columns: isArabic
+        ? [brandCol, titleCol]
+        : [
+            { ...titleCol, stack: titleCol.stack.map(t => ({ ...t, alignment: 'left' as const })) },
+            { ...brandCol, stack: brandCol.stack.map(t => ({ ...t, alignment: 'right' as const })) },
+          ],
+    }],
     marginBottom: 15,
   };
 
@@ -388,14 +388,17 @@ export async function generateMortgagePayoffPDF(
 
     // Background: draw navy bar + emerald line on first page
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    background: (currentPage: number): any[] => {
+    background: (currentPage: number): any => {
       if (currentPage === 1) {
-        return [
-          { canvas: [{ type: 'rect', x: 0, y: 0, w: 842, h: 32, color: NAVY }] },
-          { canvas: [{ type: 'rect', x: 0, y: 32, w: 842, h: 2, color: EMERALD }] },
-        ];
+        return {
+          canvas: [
+            { type: 'rect', x: 0, y: 0, w: 842, h: 32, color: NAVY },
+            { type: 'rect', x: 0, y: 32, w: 842, h: 2, color: EMERALD },
+          ],
+          absolutePosition: { x: 0, y: 0 },
+        };
       }
-      return [];
+      return null;
     },
 
     content: [

@@ -12,6 +12,8 @@ import {
   fmtNum,
   lbl,
   rtl,
+  toArabicNumerals,
+  formatNumber,
   formatDateArabic,
   formatDate,
   thinGridLayout,
@@ -104,12 +106,12 @@ export async function generateCompoundSavingsPDF(
     : `${labels.generatedOn}: ${formatDate(now)}`;
 
   const fmtPct = (v: number) => isArabic
-    ? rtl(`${fmtNum(v * 100, isArabic)}%`)
+    ? rtl(`${toArabicNumerals(formatNumber(v * 100, 2))}%`)
     : `${(v * 100).toFixed(2)}%`;
 
   // Input table
   const inputRows = [
-    [lbl(labels.yearsToInvest, isArabic), isArabic ? rtl(`${fmtNum(input.yearsToInvest, isArabic, 0)} ${labels.years}`) : `${input.yearsToInvest} ${labels.years}`],
+    [lbl(labels.yearsToInvest, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.yearsToInvest))} ${labels.years}`) : `${input.yearsToInvest} ${labels.years}`],
     [lbl(labels.initialInvestment, isArabic), fmtCurrency(input.initialInvestment, currencySymbol, isArabic)],
     [lbl(labels.annualInterestRate, isArabic), fmtPct(input.annualInterestRate)],
     [lbl(labels.depositAmount, isArabic), fmtCurrency(input.depositAmount, currencySymbol, isArabic)],

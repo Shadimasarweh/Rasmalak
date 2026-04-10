@@ -47,11 +47,10 @@ export function formatNumber(value: number, decimals: number = 2): string {
 }
 
 /**
- * Format a number with Arabic-Indic numerals, wrapped in RTL.
+ * Format a number with Arabic-Indic numerals (no RTL embedding — callers wrap).
  */
 export function formatNumberArabic(value: number, decimals: number = 2): string {
-  const formatted = formatNumber(value, decimals);
-  return rtl(toArabicNumerals(formatted));
+  return toArabicNumerals(formatNumber(value, decimals));
 }
 
 /**
@@ -65,10 +64,10 @@ export function formatDate(date: Date): string {
 }
 
 /**
- * Format a date with Arabic-Indic numerals, wrapped in RTL.
+ * Format a date with Arabic-Indic numerals (no RTL embedding — callers wrap).
  */
 export function formatDateArabic(date: Date): string {
-  return rtl(toArabicNumerals(formatDate(date)));
+  return toArabicNumerals(formatDate(date));
 }
 
 // ===== FONT LOADING =====

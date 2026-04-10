@@ -98,8 +98,8 @@ export async function generateCreditCardPDF(
   // Input table
   const inputRows = [
     [lbl(labels.currentBalance, isArabic), fmtCurrency(input.currentBalance, currencySymbol, isArabic)],
-    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${fmtNum(input.annualInterestRate, isArabic)}%`) : `${input.annualInterestRate}%`],
-    [lbl(labels.minPaymentPercent, isArabic), isArabic ? rtl(`${fmtNum(input.minPaymentPercent, isArabic)}%`) : `${input.minPaymentPercent}%`],
+    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.annualInterestRate))}%`) : `${input.annualInterestRate}%`],
+    [lbl(labels.minPaymentPercent, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.minPaymentPercent))}%`) : `${input.minPaymentPercent}%`],
     [lbl(labels.plusInterest, isArabic), lbl(input.minPaymentPlusInterest ? labels.yes : labels.no, isArabic)],
     [lbl(labels.minPaymentFloor, isArabic), fmtCurrency(input.minPaymentFloor, currencySymbol, isArabic)],
     [lbl(labels.fixedPayment, isArabic), input.fixedMonthlyPayment > 0 ? fmtCurrency(input.fixedMonthlyPayment, currencySymbol, isArabic) : '-'],

@@ -14,6 +14,8 @@ import {
   fmtNum,
   lbl,
   rtl,
+  toArabicNumerals,
+  formatNumber,
   formatDateArabic,
   formatDate,
   thinGridLayout,
@@ -108,8 +110,10 @@ export async function generateHomeAffordabilityPDF(
     ? rtl(`${labels.generatedOn}: ${formatDateArabic(now)}`)
     : `${labels.generatedOn}: ${formatDate(now)}`;
 
-  // Helper
-  const pctStr = (v: number) => isArabic ? rtl(`${fmtNum(v, isArabic)}%`) : `${v}%`;
+  // Helper — build a single RTL-embedded percentage string
+  const pctStr = (v: number) => isArabic
+    ? rtl(`${toArabicNumerals(formatNumber(v, 2))}%`)
+    : `${v}%`;
 
   // Build rows
   const incomeRows = [
@@ -146,7 +150,7 @@ export async function generateHomeAffordabilityPDF(
   ];
 
   const financingRows = [
-    [lbl(labels.mortgageTerm, isArabic), isArabic ? rtl(`${fmtNum(input.mortgageTermYears, isArabic, 0)} ${labels.years}`) : `${input.mortgageTermYears} ${labels.years}`],
+    [lbl(labels.mortgageTerm, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.mortgageTermYears))} ${labels.years}`) : `${input.mortgageTermYears} ${labels.years}`],
     [lbl(labels.interestRate, isArabic), pctStr(input.annualInterestRate)],
   ];
 
@@ -156,8 +160,12 @@ export async function generateHomeAffordabilityPDF(
     [lbl(labels.m4Funds, isArabic), fmtCurrency(result.m4MaxPIFunds, currencySymbol, isArabic)],
     [lbl(labels.maxPIPayment, isArabic), fmtCurrency(result.maxPIPayment, currencySymbol, isArabic)],
     [lbl(labels.loanAmount, isArabic), fmtCurrency(result.loanAmount, currencySymbol, isArabic)],
-    [lbl(labels.downPayment, isArabic), `${fmtCurrency(result.downPaymentAmount, currencySymbol, isArabic)} (${pctStr(result.downPaymentPercent)})`],
-    [lbl(labels.closingCosts, isArabic), `${fmtCurrency(result.estimatedClosingCosts, currencySymbol, isArabic)} (${pctStr(result.closingCostsPercent)})`],
+    [lbl(labels.downPayment, isArabic), isArabic
+      ? rtl(`${toArabicNumerals(formatNumber(result.downPaymentAmount))} ${currencySymbol} (${toArabicNumerals(formatNumber(result.downPaymentPercent, 2))}%)`)
+      : `${currencySymbol} ${formatNumber(result.downPaymentAmount)} (${result.downPaymentPercent}%)`],
+    [lbl(labels.closingCosts, isArabic), isArabic
+      ? rtl(`${toArabicNumerals(formatNumber(result.estimatedClosingCosts))} ${currencySymbol} (${toArabicNumerals(formatNumber(result.closingCostsPercent, 2))}%)`)
+      : `${currencySymbol} ${formatNumber(result.estimatedClosingCosts)} (${result.closingCostsPercent}%)`],
     [lbl(labels.maxHomePrice, isArabic), fmtCurrency(result.maxHomePrice, currencySymbol, isArabic)],
   ];
 
@@ -193,14 +201,18 @@ export async function generateHomeAffordabilityPDF(
     pageSize: 'A4',
     pageMargins: [30, 15, 30, 25],
     defaultStyle: { font: fontFamily, fontSize: 9 },
-    background: (currentPage: number) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    background: (currentPage: number): any => {
       if (currentPage === 1) {
-        return [
-          { canvas: [{ type: 'rect', x: 0, y: 0, w: 595, h: 32, color: NAVY }] },
-          { canvas: [{ type: 'rect', x: 0, y: 32, w: 595, h: 2, color: '#10B981' }] },
-        ];
+        return {
+          canvas: [
+            { type: 'rect', x: 0, y: 0, w: 595, h: 32, color: NAVY },
+            { type: 'rect', x: 0, y: 32, w: 595, h: 2, color: '#10B981' },
+          ],
+          absolutePosition: { x: 0, y: 0 },
+        };
       }
-      return [];
+      return null;
     },
     content,
     footer: buildFooter(labels.generatedBy, labels.page, labels.of, isArabic, fontFamily),

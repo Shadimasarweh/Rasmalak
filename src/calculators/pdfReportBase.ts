@@ -36,15 +36,15 @@ export function fmtCurrency(value: number, currencySymbol: string, isArabic: boo
   return `${currencySymbol} ${formatNumber(value)}`;
 }
 
-/** Format a number */
+/** Format a number, RTL-embedded for Arabic */
 export function fmtNum(value: number, isArabic: boolean, decimals: number = 2): string {
-  if (isArabic) return formatNumberArabic(value, decimals);
+  if (isArabic) return rtl(formatNumberArabic(value, decimals));
   return formatNumber(value, decimals);
 }
 
-/** Format a date */
+/** Format a date, RTL-embedded for Arabic */
 export function fmtDate(date: Date, isArabic: boolean): string {
-  if (isArabic) return formatDateArabic(date);
+  if (isArabic) return rtl(formatDateArabic(date));
   return formatDate(date);
 }
 
@@ -131,41 +131,50 @@ export function buildHeaderContent(
   isArabic: boolean,
   fontFamily: string,
 ) {
-  return {
+  const titleCol = {
     stack: [
-      {
-        columns: [
-          {
-            stack: [
-              { text: lbl(title, isArabic), fontSize: 16, bold: true, color: WHITE, alignment: isArabic ? 'right' : 'left' },
-              { text: lbl(subtitle, isArabic), fontSize: 9, color: '#CCCCCC', alignment: isArabic ? 'right' : 'left', marginTop: 2 },
-            ],
-            width: '*',
-          },
-          {
-            stack: [
-              { text: 'Rasmalak AI', fontSize: 11, bold: true, color: WHITE, alignment: isArabic ? 'left' : 'right', font: 'Roboto' },
-              { text: generatedDateStr, fontSize: 7, color: '#CCCCCC', alignment: isArabic ? 'left' : 'right', marginTop: 2 },
-            ],
-            width: 'auto',
-          },
-        ],
-      },
+      { text: lbl(title, isArabic), fontSize: 16, bold: true, color: WHITE, alignment: 'right' as const },
+      { text: lbl(subtitle, isArabic), fontSize: 9, color: '#CCCCCC', alignment: 'right' as const, marginTop: 2 },
     ],
+    width: '*',
+  };
+
+  const brandCol = {
+    stack: [
+      { text: 'Rasmalak AI', fontSize: 11, bold: true, color: WHITE, alignment: 'left' as const, font: 'Roboto' },
+      { text: generatedDateStr, fontSize: 7, color: '#CCCCCC', alignment: 'left' as const, marginTop: 2, font: fontFamily },
+    ],
+    width: 'auto',
+  };
+
+  // For Arabic (RTL): brand on left, title on right.
+  // For English (LTR): title on left, brand on right — swap alignments and column order.
+  const columns = isArabic
+    ? [brandCol, titleCol]
+    : [
+        { ...titleCol, stack: titleCol.stack.map(t => ({ ...t, alignment: 'left' as const })) },
+        { ...brandCol, stack: brandCol.stack.map(t => ({ ...t, alignment: 'right' as const })) },
+      ];
+
+  return {
+    stack: [{ columns }],
     marginBottom: 15,
   };
 }
 
-/** Build the background (navy bar + emerald line on first page) */
+/** Build the background (navy bar + emerald line on first page, landscape A4) */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildBackground(currentPage: number): any[] {
+export function buildBackground(currentPage: number): any {
   if (currentPage === 1) {
-    return [
-      { canvas: [{ type: 'rect', x: 0, y: 0, w: 842, h: 32, color: NAVY }] },
-      { canvas: [{ type: 'rect', x: 0, y: 32, w: 842, h: 2, color: EMERALD }] },
-    ];
+    return {
+      canvas: [
+        { type: 'rect', x: 0, y: 0, w: 842, h: 32, color: NAVY },
+        { type: 'rect', x: 0, y: 32, w: 842, h: 2, color: EMERALD },
+      ],
+      absolutePosition: { x: 0, y: 0 },
+    };
   }
-  return [];
+  return null;
 }
 
 /** Build footer with page numbers */

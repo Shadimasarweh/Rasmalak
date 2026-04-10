@@ -13,6 +13,7 @@ import {
   fmtDate,
   lbl,
   rtl,
+  toArabicNumerals,
   formatDateArabic,
   formatDate,
   thinGridLayout,
@@ -87,8 +88,8 @@ export async function generateSimpleLoanPDF(
   // Input table
   const inputRows = [
     [lbl(labels.loanAmount, isArabic), fmtCurrency(input.loanAmount, currencySymbol, isArabic)],
-    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${fmtNum(input.annualInterestRate, isArabic)}%`) : `${input.annualInterestRate}%`],
-    [lbl(labels.loanPeriod, isArabic), isArabic ? rtl(`${fmtNum(input.loanPeriodYears, isArabic, 0)} ${labels.years}`) : `${input.loanPeriodYears} ${labels.years}`],
+    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.annualInterestRate))}%`) : `${input.annualInterestRate}%`],
+    [lbl(labels.loanPeriod, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.loanPeriodYears))} ${labels.years}`) : `${input.loanPeriodYears} ${labels.years}`],
     [lbl(labels.startDate, isArabic), fmtDate(new Date(input.startDate), isArabic)],
   ];
 
