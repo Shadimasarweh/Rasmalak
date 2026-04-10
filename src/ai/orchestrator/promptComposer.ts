@@ -60,8 +60,12 @@ export function composePrompt(
 
   const languageEnforcement = `\n\n## LANGUAGE RULE (highest priority — overrides everything)\n${langDirective}`;
 
+  // Inject CRM context if available (populated by CRM chat panel)
+  const crmContext = (params as Record<string, unknown>).crmContext as string | undefined;
+
   const systemPrompt = [
     basePrompt,
+    crmContext || null,
     attachmentInstructions,
     languageEnforcement,
   ].filter(Boolean).join('\n\n');

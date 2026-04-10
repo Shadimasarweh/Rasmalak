@@ -10,6 +10,8 @@ import learn from './learn';
 import chat from './chat';
 import tools from './tools';
 import onboarding from './onboarding';
+import crm from './crm';
+import org from './org';
 
 // Flatten all domain messages into a single object with prefixed keys
 function flatten(obj: Record<string, string>, prefix: string): Record<string, string> {
@@ -33,6 +35,8 @@ const messages: Record<string, string> = {
   ...flatten(chat, 'chat'),
   ...flatten(tools, 'tools'),
   ...flatten(onboarding, 'onboarding'),
+  ...flatten(crm, 'crm'),
+  ...flatten(org, 'org'),
 };
 
 export default messages;

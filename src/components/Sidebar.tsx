@@ -14,10 +14,13 @@ import {
   ChevronRight,
   LogOut,
   Users,
+  Briefcase,
   X,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useStore';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuthStore } from '@/store/authStore';
 
 const navItems = [
   { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard', smeOnly: false },
@@ -26,6 +29,7 @@ const navItems = [
   { id: 'chat', path: '/chat', icon: MessageSquareText, labelAr: 'مستشارك', labelEn: 'Mustasharak', smeOnly: false },
   { id: 'tools', path: '/tools', icon: Calculator, labelAr: 'الأدوات', labelEn: 'Tools', smeOnly: false },
   { id: 'community', path: '/community', icon: Users, labelAr: 'المجتمع', labelEn: 'Community', smeOnly: true },
+  { id: 'crm', path: '/crm', icon: Briefcase, labelAr: 'إدارة العملاء', labelEn: 'CRM', smeOnly: false, crmOnly: true },
 ];
 
 const bottomNavItems = [
@@ -48,7 +52,35 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
   const displayName = user?.name || userName || (language === 'ar' ? 'مستخدم' : 'User');
 
   const isSmeUser = onboardingData?.segment === 'sme' || onboardingData?.segment === 'self_employed';
-  const visibleNavItems = navItems.filter(item => !item.smeOnly || isSmeUser);
+  const [isCrmUser, setIsCrmUser] = useState(false);
+  const authUser = useAuthStore((state) => state.user);
+
+  // Check if user belongs to any org (for crmOnly nav gating)
+  useEffect(() => {
+    const checkCrmAccess = async () => {
+      if (!authUser) { setIsCrmUser(false); return; }
+      try {
+        const { data, error } = await supabase
+          .from('org_members')
+          .select('id')
+          .eq('user_id', authUser.id)
+          .eq('is_active', true)
+          .limit(1);
+        if (!error && data && data.length > 0) {
+          setIsCrmUser(true);
+        }
+      } catch {
+        // Silently fail — CRM link just won't show
+      }
+    };
+    checkCrmAccess();
+  }, [authUser]);
+
+  const visibleNavItems = navItems.filter(item => {
+    if ((item as Record<string, unknown>).crmOnly) return isCrmUser;
+    if (item.smeOnly) return isSmeUser;
+    return true;
+  });
 
   // Close mobile sidebar on route change
   useEffect(() => {
