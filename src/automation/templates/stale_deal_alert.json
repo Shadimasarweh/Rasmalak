@@ -1,0 +1,36 @@
+{
+  "slug": "stale_deal_alert",
+  "name": "Stale Deal Alert",
+  "nameAr": "تنبيه الصفقة الراكدة",
+  "description": "Notifies the assigned rep when a deal has no activity for 7 days. Escalates to manager after 14 days.",
+  "descriptionAr": "ينبّه المندوب المسؤول عند عدم وجود نشاط على صفقة لمدة ٧ أيام. يصعّد للمدير بعد ١٤ يومًا.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "no_activity",
+  "triggerConfig": { "days": 7 },
+  "conditions": [
+    { "field": "status", "operator": "not_equals", "value": "won" },
+    { "field": "status", "operator": "not_equals", "value": "lost" }
+  ],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "Stale deal: {{title}}",
+        "body": "No activity for 7+ days on deal {{title}} ({{value}} {{currency}}). Please follow up.",
+        "assignee": true
+      },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Follow up on stale deal: {{title}}",
+        "dueInDays": 1,
+        "priority": "high"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": true
+}

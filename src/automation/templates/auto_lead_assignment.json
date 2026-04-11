@@ -1,0 +1,29 @@
+{
+  "slug": "auto_lead_assignment",
+  "name": "Auto Lead Assignment",
+  "nameAr": "التعيين التلقائي للعملاء المحتملين",
+  "description": "Automatically assigns new contacts to sales reps using round-robin distribution and sends an instant notification.",
+  "descriptionAr": "يعيّن تلقائيًا جهات الاتصال الجديدة لمندوبي المبيعات بالتناوب ويرسل إشعارًا فوريًا.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "contact_created",
+  "triggerConfig": {},
+  "conditions": [],
+  "actions": [
+    {
+      "type": "assign_to",
+      "config": { "method": "round_robin" },
+      "order": 0
+    },
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "New lead assigned: {{name}}",
+        "body": "You have been assigned a new contact: {{name}} from {{company}}.",
+        "assignee": true
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": true
+}

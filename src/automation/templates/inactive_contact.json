@@ -1,0 +1,30 @@
+{
+  "slug": "inactive_contact",
+  "name": "Inactive Contact Re-engagement",
+  "nameAr": "إعادة تفعيل العميل غير النشط",
+  "description": "When a contact has no activity for 60 days, creates a re-engagement task to reconnect and explore new opportunities.",
+  "descriptionAr": "عند عدم وجود نشاط لجهة اتصال لمدة ٦٠ يومًا، ينشئ مهمة إعادة تواصل لاستكشاف فرص جديدة.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "no_activity",
+  "triggerConfig": { "days": 60 },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Re-engage: {{name}}",
+        "description": "No activity in 60+ days. Reach out to check in and explore new opportunities.",
+        "dueInDays": 3,
+        "priority": "low"
+      },
+      "order": 0
+    },
+    {
+      "type": "add_tag",
+      "config": { "tag": "re-engagement" },
+      "order": 1
+    }
+  ],
+  "isFeatured": false
+}

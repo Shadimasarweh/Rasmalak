@@ -1,0 +1,27 @@
+{
+  "slug": "friday_pause",
+  "name": "Friday Pause",
+  "nameAr": "إيقاف يوم الجمعة",
+  "description": "Pauses all automated outreach on Fridays (Gulf weekend). Queues messages for Saturday delivery. Respects the cultural significance of Jumu'ah.",
+  "descriptionAr": "يوقف جميع الرسائل الآلية يوم الجمعة (عطلة نهاية الأسبوع في الخليج). يؤجل الرسائل ليوم السبت. يحترم القيمة الثقافية ليوم الجمعة.",
+  "category": "mena",
+  "region": "MENA",
+  "triggerType": "scheduled",
+  "triggerConfig": {
+    "schedule": "daily",
+    "description": "Checks if today is Friday and pauses outreach"
+  },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "Friday Pause Active",
+        "body": "Automated outreach paused for Friday. Messages will be delivered on Saturday.",
+        "assignee": true
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": true
+}

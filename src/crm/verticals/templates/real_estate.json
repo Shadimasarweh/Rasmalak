@@ -1,0 +1,62 @@
+{
+  "slug": "real_estate",
+  "name": "Real Estate",
+  "nameAr": "العقارات",
+  "description": "Complete real estate CRM with property viewing pipeline, buyer management, and deal tracking.",
+  "descriptionAr": "نظام إدارة علاقات العملاء العقاري الشامل مع مسار عرض العقارات وإدارة المشترين وتتبع الصفقات.",
+  "industry": "real_estate",
+  "region": "MENA",
+  "icon": "Building2",
+  "pipelineConfig": {
+    "name": "Property Sales Pipeline",
+    "nameAr": "مسار مبيعات العقارات",
+    "stages": [
+      { "name": "Inquiry", "nameAr": "استفسار", "probability": 10, "color": "#6B7280" },
+      { "name": "Viewing Scheduled", "nameAr": "معاينة مجدولة", "probability": 20, "color": "#3B82F6" },
+      { "name": "Viewed", "nameAr": "تمت المعاينة", "probability": 35, "color": "#8B5CF6" },
+      { "name": "Offer Made", "nameAr": "تم تقديم عرض", "probability": 50, "color": "#F59E0B" },
+      { "name": "Negotiation", "nameAr": "التفاوض", "probability": 65, "color": "#EF4444" },
+      { "name": "Under Contract", "nameAr": "تحت العقد", "probability": 85, "color": "#10B981" },
+      { "name": "Closed", "nameAr": "مُغلق", "probability": 100, "color": "#2D6A4F", "isWon": true }
+    ]
+  },
+  "customFields": {
+    "contact": [
+      { "key": "budget_range", "label": "Budget Range", "labelAr": "نطاق الميزانية", "type": "text" },
+      { "key": "preferred_areas", "label": "Preferred Areas", "labelAr": "المناطق المفضلة", "type": "text" },
+      { "key": "property_type_preference", "label": "Property Type", "labelAr": "نوع العقار المفضل", "type": "text" },
+      { "key": "family_size", "label": "Family Size", "labelAr": "حجم العائلة", "type": "number" },
+      { "key": "financing_status", "label": "Financing Status", "labelAr": "حالة التمويل", "type": "text" }
+    ],
+    "deal": [
+      { "key": "property_type", "label": "Property Type", "labelAr": "نوع العقار", "type": "text" },
+      { "key": "area_sqm", "label": "Area (sqm)", "labelAr": "المساحة (م²)", "type": "number" },
+      { "key": "location", "label": "Location", "labelAr": "الموقع", "type": "text" },
+      { "key": "floor", "label": "Floor", "labelAr": "الطابق", "type": "number" },
+      { "key": "furnished", "label": "Furnished", "labelAr": "مفروش", "type": "text" },
+      { "key": "parking", "label": "Parking", "labelAr": "مواقف", "type": "number" }
+    ]
+  },
+  "workflowTemplates": [
+    {
+      "name": "Viewing Reminder",
+      "nameAr": "تذكير بالمعاينة",
+      "triggerType": "scheduled",
+      "triggerConfig": { "schedule": "daily" },
+      "conditions": [],
+      "actions": [{ "type": "create_task", "config": { "title": "Prepare for property viewing", "dueInDays": 0, "priority": "high" }, "order": 0 }]
+    },
+    {
+      "name": "Post-Viewing Follow-up",
+      "nameAr": "متابعة بعد المعاينة",
+      "triggerType": "deal_stage_changed",
+      "triggerConfig": { "toStage": "Viewed" },
+      "conditions": [],
+      "actions": [{ "type": "create_task", "config": { "title": "Follow up after viewing: {{title}}", "dueInDays": 1, "priority": "high" }, "order": 0 }]
+    }
+  ],
+  "aiPrompts": {
+    "context": "This is a real estate CRM. When advising on deals, consider property market dynamics, viewing conversion rates, seasonal patterns, and MENA real estate regulations. Key metrics: inquiry-to-viewing rate, viewing-to-offer rate, days on market.",
+    "contextAr": "هذا نظام إدارة عقارات. عند تقديم النصائح، راعِ ديناميكيات سوق العقارات ومعدلات تحويل المعاينات والأنماط الموسمية ولوائح العقارات في المنطقة."
+  }
+}

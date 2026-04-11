@@ -1,0 +1,33 @@
+{
+  "slug": "deal_won_celebration",
+  "name": "Deal Won Celebration",
+  "nameAr": "الاحتفال بكسب الصفقة",
+  "description": "When a deal is won, posts a celebration to Slack and creates an onboarding task for the account manager.",
+  "descriptionAr": "عند كسب صفقة، ينشر إشعار احتفال في سلاك وينشئ مهمة تأهيل للمسؤول عن الحساب.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "deal_closed",
+  "triggerConfig": { "outcome": "won" },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "send_slack",
+      "config": {
+        "message": "🎉 Deal won! *{{title}}* — {{value}} {{currency}} closed by the team. Congratulations!",
+        "channelId": ""
+      },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Onboarding: {{title}}",
+        "description": "Deal won. Begin client onboarding process.",
+        "dueInDays": 2,
+        "priority": "high"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": true
+}

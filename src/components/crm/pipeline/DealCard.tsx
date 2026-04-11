@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+import { DealScore } from '@/components/crm/deals/DealScore';
 import type { CrmDeal } from '@/types/crm';
 
 interface DealCardProps {
@@ -97,6 +98,19 @@ export function DealCard({ deal, contactName }: DealCardProps) {
               {new Intl.NumberFormat(intl.locale).format(deal.probability)}%
             </span>
           </div>
+
+          {/* V2: AI Score badge — conditional, only renders when ai_score exists */}
+          {('aiScore' in deal) && (deal as Record<string, unknown>).aiScore != null && (
+            <div style={{ marginTop: '6px', display: 'flex', justifyContent: 'flex-end' }}>
+              <DealScore
+                score={(deal as Record<string, unknown>).aiScore as number}
+                trend={(deal as Record<string, unknown>).aiScoreTrend as string | null}
+                reasoning={null}
+                scoredAt={null}
+                compact
+              />
+            </div>
+          )}
 
           {/* Contact name + close date */}
           <div style={{ marginTop: '6px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--ds-text-muted)' }}>

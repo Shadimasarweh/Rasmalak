@@ -1,0 +1,35 @@
+{
+  "slug": "welcome_sequence",
+  "name": "Welcome Sequence",
+  "nameAr": "سلسلة الترحيب",
+  "description": "When a new contact is created, creates a welcome call task for day 1 and a follow-up check-in task for day 7.",
+  "descriptionAr": "عند إنشاء جهة اتصال جديدة، ينشئ مهمة اتصال ترحيبي في اليوم الأول ومهمة متابعة في اليوم السابع.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "contact_created",
+  "triggerConfig": {},
+  "conditions": [],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Welcome call: {{name}}",
+        "description": "New contact added. Make initial welcome call to introduce Rasmalak services.",
+        "dueInDays": 1,
+        "priority": "high"
+      },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Week 1 check-in: {{name}}",
+        "description": "Follow up one week after initial contact. Ask about needs and schedule demo if interested.",
+        "dueInDays": 7,
+        "priority": "medium"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": true
+}

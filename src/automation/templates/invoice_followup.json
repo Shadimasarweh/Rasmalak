@@ -1,0 +1,35 @@
+{
+  "slug": "invoice_followup",
+  "name": "Invoice Follow-up",
+  "nameAr": "متابعة الفاتورة",
+  "description": "When a deal is won, creates a task to send an invoice and follow up on payment within 7 days.",
+  "descriptionAr": "عند كسب صفقة، ينشئ مهمة لإرسال فاتورة ومتابعة الدفع خلال ٧ أيام.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "deal_closed",
+  "triggerConfig": { "outcome": "won" },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Send invoice for {{title}}",
+        "description": "Deal won. Prepare and send invoice for {{value}} {{currency}}.",
+        "dueInDays": 1,
+        "priority": "high"
+      },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Follow up on invoice: {{title}}",
+        "description": "Check if invoice has been received and discuss payment timeline.",
+        "dueInDays": 7,
+        "priority": "medium"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": false
+}

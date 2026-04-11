@@ -1,0 +1,27 @@
+{
+  "slug": "meeting_prep",
+  "name": "Meeting Preparation",
+  "nameAr": "التحضير للاجتماع",
+  "description": "One day before a scheduled meeting, creates a preparation task with contact background and deal context.",
+  "descriptionAr": "قبل يوم من اجتماع مجدول، ينشئ مهمة تحضيرية تتضمن خلفية العميل وسياق الصفقة.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "task_completed",
+  "triggerConfig": {},
+  "conditions": [
+    { "field": "title", "operator": "contains", "value": "meeting" }
+  ],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Prepare for meeting: {{title}}",
+        "description": "Review contact history, recent communications, and deal status before the meeting.",
+        "dueInDays": 0,
+        "priority": "high"
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

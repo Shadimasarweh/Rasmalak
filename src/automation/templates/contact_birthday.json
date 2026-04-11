@@ -1,0 +1,25 @@
+{
+  "slug": "contact_birthday",
+  "name": "Contact Birthday Greeting",
+  "nameAr": "تهنئة عيد ميلاد العميل",
+  "description": "Creates a task to send a birthday greeting to contacts with a recorded birthday. Strengthens personal relationships.",
+  "descriptionAr": "ينشئ مهمة لإرسال تهنئة عيد ميلاد للعملاء المسجل تاريخ ميلادهم. يعزز العلاقات الشخصية.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "scheduled",
+  "triggerConfig": { "schedule": "daily" },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Send birthday greeting to {{name}}",
+        "description": "Today is {{name}}'s birthday. Send a personalized greeting to maintain the relationship.",
+        "dueInDays": 0,
+        "priority": "low"
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

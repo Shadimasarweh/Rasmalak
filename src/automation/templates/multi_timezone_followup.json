@@ -1,0 +1,32 @@
+{
+  "slug": "multi_timezone_followup",
+  "name": "Multi-Timezone Follow-up",
+  "nameAr": "متابعة متعددة المناطق الزمنية",
+  "description": "Schedules follow-up emails based on the contact's timezone. Optimizes send times for MENA (GST), Levant (EET), and North Africa (CET) regions.",
+  "descriptionAr": "يجدول رسائل المتابعة بناءً على المنطقة الزمنية للعميل. يحسّن أوقات الإرسال لمناطق الخليج والشام وشمال أفريقيا.",
+  "category": "mena",
+  "region": "MENA",
+  "triggerType": "communication_logged",
+  "triggerConfig": {},
+  "conditions": [
+    { "field": "direction", "operator": "equals", "value": "outbound" }
+  ],
+  "actions": [
+    {
+      "type": "wait",
+      "config": { "days": 2, "description": "Wait 2 days before follow-up" },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Follow up with {{contact.name}} (timezone-optimized)",
+        "description": "Previous outreach sent. Schedule follow-up during their business hours.",
+        "dueInDays": 0,
+        "priority": "medium"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": true
+}

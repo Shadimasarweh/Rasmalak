@@ -1,0 +1,49 @@
+/**
+ * Public API: Deal Detail — GET, PATCH, DELETE
+ */
+
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
+import { authenticateApiRequest, withRateLimitHeaders, hasPermission, apiError, apiSingle } from '@/middleware/apiAuth';
+
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const auth = await authenticateApiRequest(request);
+  if ('error' in auth) return auth.error;
+  const { context, rateLimit } = auth;
+  if (!hasPermission(context, 'deals.read')) return apiError('FORBIDDEN', 'Missing permission', 403);
+
+  const { data, error } = await supabase.from('crm_deals').select('*').eq('id', id).eq('org_id', context.orgId).single();
+  if (error || !data) return apiError('NOT_FOUND', 'Deal not found', 404);
+  return withRateLimitHeaders(apiSingle(data), rateLimit);
+}
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const auth = await authenticateApiRequest(request);
+  if ('error' in auth) return auth.error;
+  const { context, rateLimit } = auth;
+  if (!hasPermission(context, 'deals.write')) return apiError('FORBIDDEN', 'Missing permission', 403);
+
+  const body = await request.json();
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  for (const key of ['title', 'title_ar', 'stage_id', 'value', 'currency', 'probability', 'expected_close', 'contact_id', 'company_id', 'assigned_to', 'custom_fields', 'status', 'won_lost_reason']) {
+    if (body[key] !== undefined) updates[key] = body[key];
+  }
+
+  const { data, error } = await supabase.from('crm_deals').update(updates).eq('id', id).eq('org_id', context.orgId).select().single();
+  if (error || !data) return apiError('NOT_FOUND', 'Deal not found', 404);
+  return withRateLimitHeaders(apiSingle(data), rateLimit);
+}
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const auth = await authenticateApiRequest(request);
+  if ('error' in auth) return auth.error;
+  const { context, rateLimit } = auth;
+  if (!hasPermission(context, 'deals.delete')) return apiError('FORBIDDEN', 'Missing permission', 403);
+
+  const { error } = await supabase.from('crm_deals').delete().eq('id', id).eq('org_id', context.orgId);
+  if (error) return apiError('INTERNAL_ERROR', error.message, 500);
+  return withRateLimitHeaders(NextResponse.json({ data: { deleted: true } }), rateLimit);
+}

@@ -924,3 +924,24 @@ export const PLAN_CONTACT_LIMITS: Record<PlanTier, number> = {
   enterprise: Infinity,
   custom: Infinity,
 };
+
+// ── V2 DEAL SCORING EXTENSION ───────────────────────────
+// Extends V1 CrmDeal with AI scoring columns from migration 018.
+// Use this interface when working with scored deals.
+
+export interface CrmDealWithScore extends CrmDeal {
+  aiScore: number | null;
+  aiScoreTrend: string | null;
+  aiScoreReasoning: string | null;
+  aiScoredAt: string | null;
+}
+
+// ── V2 CONTACT SCORING EXTENSION ────────────────────────
+// Extends V1 CrmContact with lead scoring columns from migration 020.
+
+export interface CrmContactWithScore {
+  leadScore: number;
+  leadScoreBreakdown: Record<string, unknown> | null;
+  routedAt: string | null;
+  routedByRule: string | null;
+}

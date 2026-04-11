@@ -1,0 +1,36 @@
+{
+  "slug": "high_value_escalation",
+  "name": "High-Value Deal Escalation",
+  "nameAr": "تصعيد الصفقة عالية القيمة",
+  "description": "When a deal value exceeds the configured threshold, notifies the sales manager and creates a strategy meeting task.",
+  "descriptionAr": "عند تجاوز قيمة الصفقة الحد المحدد، يُبلغ مدير المبيعات وينشئ مهمة اجتماع استراتيجي.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "deal_value_changed",
+  "triggerConfig": { "threshold": 20 },
+  "conditions": [
+    { "field": "value", "operator": "greater_than", "value": 50000 }
+  ],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "High-value deal: {{title}}",
+        "body": "Deal {{title}} now valued at {{value}} {{currency}}. Review and assign senior resources.",
+        "assignee": true
+      },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Strategy meeting for {{title}}",
+        "description": "High-value deal requires strategic planning. Schedule a review meeting.",
+        "dueInDays": 1,
+        "priority": "high"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": false
+}

@@ -1,0 +1,27 @@
+{
+  "slug": "deal_stage_velocity",
+  "name": "Deal Stage Velocity Alert",
+  "nameAr": "تنبيه سرعة مرحلة الصفقة",
+  "description": "Alerts when a deal stays in a stage 2x longer than the org average, indicating it may be stuck.",
+  "descriptionAr": "ينبّه عندما تبقى صفقة في مرحلة ضعف المتوسط، مما يشير إلى احتمال توقفها.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "no_activity",
+  "triggerConfig": { "days": 14 },
+  "conditions": [
+    { "field": "status", "operator": "not_equals", "value": "won" },
+    { "field": "status", "operator": "not_equals", "value": "lost" }
+  ],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "Slow deal: {{title}}",
+        "body": "Deal {{title}} has been in stage for longer than average. Review and take action.",
+        "assignee": true
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

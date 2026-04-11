@@ -1,0 +1,34 @@
+{
+  "slug": "lost_deal_review",
+  "name": "Lost Deal Review",
+  "nameAr": "مراجعة الصفقة الخاسرة",
+  "description": "When a deal is lost, creates a review task for the sales manager to analyze what went wrong.",
+  "descriptionAr": "عند خسارة صفقة، ينشئ مهمة مراجعة للمدير لتحليل أسباب الخسارة.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "deal_closed",
+  "triggerConfig": { "outcome": "lost" },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Review lost deal: {{title}}",
+        "description": "Deal {{title}} was lost. Review the deal history, identify reasons, and document lessons learned.",
+        "dueInDays": 3,
+        "priority": "medium"
+      },
+      "order": 0
+    },
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "Deal lost: {{title}}",
+        "body": "{{title}} ({{value}} {{currency}}) marked as lost. A review task has been created.",
+        "assignee": true
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": false
+}

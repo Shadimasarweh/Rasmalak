@@ -1,0 +1,30 @@
+{
+  "slug": "zakat_season_reminder",
+  "name": "Zakat Season Reminder",
+  "nameAr": "تذكير موسم الزكاة",
+  "description": "During Ramadan and Dhul Hijjah, reminds sales reps to approach high-value contacts about charitable giving partnerships and Zakat-eligible products/services.",
+  "descriptionAr": "خلال رمضان وذي الحجة، يذكّر مندوبي المبيعات بالتواصل مع العملاء الرئيسيين حول شراكات العطاء الخيري والمنتجات المؤهلة للزكاة.",
+  "category": "mena",
+  "region": "MENA",
+  "triggerType": "scheduled",
+  "triggerConfig": {
+    "schedule": "daily",
+    "description": "Runs during Zakat season months"
+  },
+  "conditions": [
+    { "field": "deal.value", "operator": "greater_than", "value": 10000 }
+  ],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Zakat season outreach: {{contact.name}}",
+        "description": "Zakat season is active. Consider reaching out about charitable partnerships or Zakat-eligible offerings.",
+        "dueInDays": 3,
+        "priority": "medium"
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": true
+}

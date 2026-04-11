@@ -1,10 +1,13 @@
 export default {
   // Navigation
+  'nav.dashboard': 'Dashboard',
   'nav.pipeline': 'Pipeline',
   'nav.contacts': 'Contacts',
   'nav.deals': 'Deals',
   'nav.tasks': 'Tasks',
   'nav.reports': 'Reports',
+  'nav.automation': 'Automation',
+  'nav.documents': 'Documents',
   'nav.import': 'Import Data',
   'nav.settings': 'Settings',
   'nav.back': 'Back to Rasmalak',

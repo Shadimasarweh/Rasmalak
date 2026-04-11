@@ -1,0 +1,23 @@
+{
+  "slug": "new_deal_notification",
+  "name": "New Deal Notification",
+  "nameAr": "إشعار صفقة جديدة",
+  "description": "Posts a notification to Slack when a new deal is created, keeping the team informed in real-time.",
+  "descriptionAr": "ينشر إشعارًا في سلاك عند إنشاء صفقة جديدة، لإبقاء الفريق على اطلاع فوري.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "deal_created",
+  "triggerConfig": {},
+  "conditions": [],
+  "actions": [
+    {
+      "type": "send_slack",
+      "config": {
+        "message": "📋 New deal: *{{title}}* — {{value}} {{currency}} added to pipeline.",
+        "channelId": ""
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

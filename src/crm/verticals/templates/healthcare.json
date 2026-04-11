@@ -1,0 +1,60 @@
+{
+  "slug": "healthcare",
+  "name": "Healthcare",
+  "nameAr": "الرعاية الصحية",
+  "description": "Healthcare CRM for patient relationship management with treatment pipeline, referral tracking, and follow-up automation.",
+  "descriptionAr": "نظام إدارة علاقات المرضى مع مسار العلاج وتتبع الإحالات وأتمتة المتابعة.",
+  "industry": "healthcare",
+  "region": "MENA",
+  "icon": "HeartPulse",
+  "pipelineConfig": {
+    "name": "Patient Care Pipeline",
+    "nameAr": "مسار رعاية المرضى",
+    "stages": [
+      { "name": "Referral", "nameAr": "إحالة", "probability": 10, "color": "#6B7280" },
+      { "name": "Consultation Scheduled", "nameAr": "استشارة مجدولة", "probability": 25, "color": "#3B82F6" },
+      { "name": "Consulted", "nameAr": "تمت الاستشارة", "probability": 40, "color": "#8B5CF6" },
+      { "name": "Treatment Plan", "nameAr": "خطة علاجية", "probability": 55, "color": "#F59E0B" },
+      { "name": "In Treatment", "nameAr": "قيد العلاج", "probability": 75, "color": "#EF4444" },
+      { "name": "Follow-up", "nameAr": "متابعة", "probability": 90, "color": "#10B981" },
+      { "name": "Completed", "nameAr": "مكتمل", "probability": 100, "color": "#2D6A4F", "isWon": true }
+    ]
+  },
+  "customFields": {
+    "contact": [
+      { "key": "medical_record_number", "label": "Medical Record #", "labelAr": "رقم السجل الطبي", "type": "text" },
+      { "key": "insurance_provider", "label": "Insurance Provider", "labelAr": "شركة التأمين", "type": "text" },
+      { "key": "insurance_id", "label": "Insurance ID", "labelAr": "رقم التأمين", "type": "text" },
+      { "key": "referring_doctor", "label": "Referring Doctor", "labelAr": "الطبيب المُحيل", "type": "text" },
+      { "key": "blood_type", "label": "Blood Type", "labelAr": "فصيلة الدم", "type": "text" }
+    ],
+    "deal": [
+      { "key": "treatment_type", "label": "Treatment Type", "labelAr": "نوع العلاج", "type": "text" },
+      { "key": "department", "label": "Department", "labelAr": "القسم", "type": "text" },
+      { "key": "estimated_sessions", "label": "Estimated Sessions", "labelAr": "الجلسات المتوقعة", "type": "number" },
+      { "key": "treatment_start", "label": "Treatment Start", "labelAr": "بداية العلاج", "type": "text" }
+    ]
+  },
+  "workflowTemplates": [
+    {
+      "name": "Appointment Reminder",
+      "nameAr": "تذكير بالموعد",
+      "triggerType": "scheduled",
+      "triggerConfig": { "schedule": "daily" },
+      "conditions": [],
+      "actions": [{ "type": "send_notification", "config": { "title": "Upcoming appointment", "body": "Patient has an appointment scheduled. Prepare documents.", "assignee": true }, "order": 0 }]
+    },
+    {
+      "name": "Referral Thank You",
+      "nameAr": "شكر الإحالة",
+      "triggerType": "contact_created",
+      "triggerConfig": {},
+      "conditions": [{ "field": "source", "operator": "equals", "value": "referral" }],
+      "actions": [{ "type": "create_task", "config": { "title": "Send referral thank you to {{referring_doctor}}", "dueInDays": 1, "priority": "medium" }, "order": 0 }]
+    }
+  ],
+  "aiPrompts": {
+    "context": "This is a healthcare CRM. When advising, consider patient care timelines, treatment completion rates, referral sources, insurance processing, and follow-up compliance. Respect patient privacy in all communications.",
+    "contextAr": "هذا نظام إدارة رعاية صحية. عند تقديم النصائح، راعِ الجداول الزمنية لرعاية المرضى ومعدلات إتمام العلاج ومصادر الإحالات ومعالجة التأمين والامتثال للمتابعة."
+  }
+}

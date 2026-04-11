@@ -1,0 +1,59 @@
+{
+  "slug": "retail_distribution",
+  "name": "Retail & Distribution",
+  "nameAr": "التجزئة والتوزيع",
+  "description": "FMCG and retail distribution CRM with account management pipeline, territory tracking, and reorder automation.",
+  "descriptionAr": "نظام إدارة علاقات العملاء للسلع الاستهلاكية والتوزيع بالتجزئة مع مسار إدارة الحسابات وتتبع المناطق وأتمتة إعادة الطلب.",
+  "industry": "retail_distribution",
+  "region": "MENA",
+  "icon": "Store",
+  "pipelineConfig": {
+    "name": "Distribution Pipeline",
+    "nameAr": "مسار التوزيع",
+    "stages": [
+      { "name": "Prospect", "nameAr": "محتمل", "probability": 10, "color": "#6B7280" },
+      { "name": "First Visit", "nameAr": "الزيارة الأولى", "probability": 20, "color": "#3B82F6" },
+      { "name": "Sampling", "nameAr": "عينات", "probability": 35, "color": "#8B5CF6" },
+      { "name": "Negotiation", "nameAr": "التفاوض", "probability": 55, "color": "#F59E0B" },
+      { "name": "Agreement", "nameAr": "اتفاقية", "probability": 80, "color": "#10B981" },
+      { "name": "Active Account", "nameAr": "حساب نشط", "probability": 100, "color": "#2D6A4F", "isWon": true }
+    ]
+  },
+  "customFields": {
+    "contact": [
+      { "key": "store_type", "label": "Store Type", "labelAr": "نوع المتجر", "type": "text" },
+      { "key": "store_size", "label": "Store Size", "labelAr": "حجم المتجر", "type": "text" },
+      { "key": "location_type", "label": "Location Type", "labelAr": "نوع الموقع", "type": "text" },
+      { "key": "payment_terms", "label": "Payment Terms", "labelAr": "شروط الدفع", "type": "text" },
+      { "key": "preferred_delivery_day", "label": "Delivery Day", "labelAr": "يوم التسليم المفضل", "type": "text" }
+    ],
+    "company": [
+      { "key": "distribution_area", "label": "Distribution Area", "labelAr": "منطقة التوزيع", "type": "text" },
+      { "key": "fleet_size", "label": "Fleet Size", "labelAr": "حجم الأسطول", "type": "number" },
+      { "key": "warehouse_count", "label": "Warehouses", "labelAr": "عدد المستودعات", "type": "number" },
+      { "key": "annual_volume", "label": "Annual Volume", "labelAr": "الحجم السنوي", "type": "number" }
+    ]
+  },
+  "workflowTemplates": [
+    {
+      "name": "Visit Reminder",
+      "nameAr": "تذكير بالزيارة",
+      "triggerType": "scheduled",
+      "triggerConfig": { "schedule": "weekly" },
+      "conditions": [],
+      "actions": [{ "type": "create_task", "config": { "title": "Weekly store visit", "dueInDays": 0, "priority": "medium" }, "order": 0 }]
+    },
+    {
+      "name": "Inactive Account Alert",
+      "nameAr": "تنبيه حساب غير نشط",
+      "triggerType": "no_activity",
+      "triggerConfig": { "days": 30 },
+      "conditions": [],
+      "actions": [{ "type": "send_notification", "config": { "title": "Inactive account: {{name}}", "body": "No orders in 30 days. Consider a visit to check inventory.", "assignee": true }, "order": 0 }]
+    }
+  ],
+  "aiPrompts": {
+    "context": "This is a retail/FMCG distribution CRM. When advising, consider order frequency, territory coverage, seasonal demand, payment collection cycles, and shelf space competition. Key metrics: visit-to-order conversion, average order value, reorder rate.",
+    "contextAr": "هذا نظام إدارة توزيع تجزئة. عند تقديم النصائح، راعِ تكرار الطلبات وتغطية المناطق والطلب الموسمي ودورات تحصيل المدفوعات والمنافسة على مساحة الرفوف."
+  }
+}

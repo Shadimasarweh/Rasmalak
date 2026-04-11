@@ -14,6 +14,11 @@ import crm from './crm';
 import org from './org';
 import billing from './billing';
 import integrations from './integrations';
+import automation from './automation';
+import whatsapp from './whatsapp';
+import api from './api';
+import documents from './documents';
+import verticals from './verticals';
 
 // Flatten all domain messages into a single object with prefixed keys
 function flatten(obj: Record<string, string>, prefix: string): Record<string, string> {
@@ -41,6 +46,11 @@ const messages: Record<string, string> = {
   ...flatten(org, 'org'),
   ...flatten(billing, 'billing'),
   ...flatten(integrations, 'integrations'),
+  ...flatten(automation, 'automation'),
+  ...flatten(whatsapp, 'whatsapp'),
+  ...flatten(api, 'api'),
+  ...flatten(documents, 'documents'),
+  ...flatten(verticals, 'verticals'),
 };
 
 export default messages;

@@ -1,0 +1,35 @@
+{
+  "slug": "no_response_escalation",
+  "name": "No Response Escalation",
+  "nameAr": "تصعيد عدم الرد",
+  "description": "If no response is received 3 days after outbound communication, escalates to the sales manager.",
+  "descriptionAr": "إذا لم يُستلم رد خلال ٣ أيام من التواصل الصادر، يصعّد الأمر لمدير المبيعات.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "no_activity",
+  "triggerConfig": { "days": 3 },
+  "conditions": [
+    { "field": "lastCommunication.direction", "operator": "equals", "value": "outbound" }
+  ],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "No response: {{contact.name}}",
+        "body": "No reply in 3 days after outreach to {{contact.name}}. Consider escalating or trying a different channel.",
+        "assignee": true
+      },
+      "order": 0
+    },
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Escalate: no response from {{contact.name}}",
+        "dueInDays": 1,
+        "priority": "high"
+      },
+      "order": 1
+    }
+  ],
+  "isFeatured": false
+}

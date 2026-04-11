@@ -1,0 +1,27 @@
+{
+  "slug": "gulf_business_hours",
+  "name": "Gulf Business Hours",
+  "nameAr": "ساعات العمل الخليجية",
+  "description": "Restricts automated communications to Gulf business hours (Sun-Thu 8AM-5PM GST). Queues after-hours messages for next business day.",
+  "descriptionAr": "يقيّد الاتصالات الآلية بساعات العمل الخليجية (الأحد-الخميس ٨ص-٥م توقيت الخليج). يؤجل الرسائل خارج الدوام ليوم العمل التالي.",
+  "category": "mena",
+  "region": "MENA",
+  "triggerType": "scheduled",
+  "triggerConfig": {
+    "schedule": "hourly",
+    "description": "Checks business hours in Gulf timezone (GST/AST)"
+  },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "Gulf hours check",
+        "body": "Message queue released for Gulf business hours.",
+        "assignee": true
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

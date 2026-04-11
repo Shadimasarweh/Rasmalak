@@ -12,6 +12,9 @@ import {
   Settings,
   ArrowLeft,
   X,
+  Zap,
+  LayoutDashboard,
+  FileText,
 } from 'lucide-react';
 
 interface CrmSidebarProps {
@@ -20,11 +23,14 @@ interface CrmSidebarProps {
 }
 
 const NAV_ITEMS = [
+  { id: 'dashboard', path: '/crm/dashboard', icon: LayoutDashboard, labelKey: 'crm.nav.dashboard', labelDefault: 'Dashboard' },
   { id: 'pipeline', path: '/crm', icon: Kanban, labelKey: 'crm.nav.pipeline', labelDefault: 'Pipeline' },
   { id: 'contacts', path: '/crm/contacts', icon: Users, labelKey: 'crm.nav.contacts', labelDefault: 'Contacts' },
   { id: 'deals', path: '/crm/deals', icon: Handshake, labelKey: 'crm.nav.deals', labelDefault: 'Deals' },
   { id: 'tasks', path: '/crm/tasks', icon: CheckSquare, labelKey: 'crm.nav.tasks', labelDefault: 'Tasks' },
   { id: 'reports', path: '/crm/reports', icon: BarChart3, labelKey: 'crm.nav.reports', labelDefault: 'Reports' },
+  { id: 'automation', path: '/crm/automation', icon: Zap, labelKey: 'crm.nav.automation', labelDefault: 'Automation' },
+  { id: 'documents', path: '/crm/documents', icon: FileText, labelKey: 'crm.nav.documents', labelDefault: 'Documents' },
 ] as const;
 
 const SECONDARY_ITEMS = [

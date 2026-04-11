@@ -1,0 +1,25 @@
+{
+  "slug": "quarterly_review",
+  "name": "Monthly Pipeline Review",
+  "nameAr": "مراجعة خط الأنابيب الشهرية",
+  "description": "Creates a monthly pipeline review task for the sales manager to assess progress and forecast.",
+  "descriptionAr": "ينشئ مهمة مراجعة شهرية لخط الأنابيب للمدير لتقييم التقدم والتوقعات.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "scheduled",
+  "triggerConfig": { "schedule": "monthly" },
+  "conditions": [],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Monthly pipeline review",
+        "description": "Review all open deals, update forecasts, identify at-risk deals, and plan strategy for next month.",
+        "dueInDays": 3,
+        "priority": "high"
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

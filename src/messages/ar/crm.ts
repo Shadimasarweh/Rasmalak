@@ -1,10 +1,13 @@
 export default {
   // Navigation
+  'nav.dashboard': 'لوحة المعلومات',
   'nav.pipeline': 'مسار المبيعات',
   'nav.contacts': 'جهات الاتصال',
   'nav.deals': 'الصفقات',
   'nav.tasks': 'المهام',
   'nav.reports': 'التقارير',
+  'nav.automation': 'الأتمتة',
+  'nav.documents': 'المستندات',
   'nav.import': 'استيراد البيانات',
   'nav.settings': 'الإعدادات',
   'nav.back': 'العودة إلى رسمالك',

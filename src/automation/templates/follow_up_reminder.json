@@ -1,0 +1,27 @@
+{
+  "slug": "follow_up_reminder",
+  "name": "Post-Call Follow-up",
+  "nameAr": "متابعة بعد المكالمة",
+  "description": "After logging a call or meeting, creates a follow-up task in 2 days to check on next steps.",
+  "descriptionAr": "بعد تسجيل مكالمة أو اجتماع، ينشئ مهمة متابعة بعد يومين للاطمئنان على الخطوات التالية.",
+  "category": "sales",
+  "region": null,
+  "triggerType": "communication_logged",
+  "triggerConfig": {},
+  "conditions": [
+    { "field": "type", "operator": "in_list", "value": ["call", "meeting"] }
+  ],
+  "actions": [
+    {
+      "type": "create_task",
+      "config": {
+        "title": "Follow up after {{type}}: {{contact.name}}",
+        "description": "A {{type}} was logged. Follow up on discussed items and confirm next steps.",
+        "dueInDays": 2,
+        "priority": "medium"
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": false
+}

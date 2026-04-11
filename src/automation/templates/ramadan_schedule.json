@@ -1,0 +1,29 @@
+{
+  "slug": "ramadan_schedule",
+  "name": "Ramadan Business Hours",
+  "nameAr": "ساعات العمل في رمضان",
+  "description": "Automatically pauses non-urgent workflows and adjusts task deadlines during Ramadan. Sends a courtesy notice to contacts about modified response times.",
+  "descriptionAr": "يوقف تلقائيًا سير العمل غير العاجل ويعدّل مواعيد المهام خلال شهر رمضان. يرسل إشعارًا للعملاء بتعديل أوقات الاستجابة.",
+  "category": "mena",
+  "region": "MENA",
+  "triggerType": "scheduled",
+  "triggerConfig": {
+    "schedule": "daily",
+    "description": "Runs daily during Ramadan to adjust schedules"
+  },
+  "conditions": [
+    { "field": "settings.ramadanMode", "operator": "equals", "value": true }
+  ],
+  "actions": [
+    {
+      "type": "send_notification",
+      "config": {
+        "title": "Ramadan Schedule Active",
+        "body": "Business hours adjusted for Ramadan. Non-urgent follow-ups paused until after Iftar.",
+        "assignee": true
+      },
+      "order": 0
+    }
+  ],
+  "isFeatured": true
+}
