@@ -13,7 +13,7 @@ export default function BudgetSettingsPage() {
   const router = useRouter();
   const { t, language, isRTL } = useTranslation();
   const currency = useCurrency();
-  const { monthlyBudget, categoryBudgets, setMonthlyBudget, setCategoryBudget, removeCategoryBudget } = useBudget();
+  const { monthlyBudget, categoryBudgets, saveAll } = useBudget();
 
   const [tempMonthlyBudget, setTempMonthlyBudget] = useState(monthlyBudget.toString());
   const [tempCategoryBudgets, setTempCategoryBudgets] = useState<Record<string, string>>({});
@@ -32,19 +32,18 @@ export default function BudgetSettingsPage() {
   }, [categoryBudgets]);
 
   const handleSave = () => {
-    // Save monthly budget
     const monthly = parseFloat(tempMonthlyBudget) || 0;
-    setMonthlyBudget(monthly);
 
-    // Save category budgets
+    // Build the full categories object in one pass, then do a single upsert
+    const finalCategories: Record<string, number> = {};
     Object.entries(tempCategoryBudgets).forEach(([categoryId, value]) => {
       const amount = parseFloat(value) || 0;
       if (amount > 0) {
-        setCategoryBudget(categoryId, amount);
-      } else {
-        removeCategoryBudget(categoryId);
+        finalCategories[categoryId] = amount;
       }
     });
+
+    saveAll(monthly, finalCategories);
 
     setIsSaved(true);
     setTimeout(() => {
@@ -98,8 +97,8 @@ export default function BudgetSettingsPage() {
         {/* Monthly Budget Card */}
         <div className="bg-[var(--color-bg-card)] rounded-lg border border-[var(--color-border)] p-6 mb-6">
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-              <Target className="w-6 h-6 text-indigo-500" />
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary-light)' }}>
+              <Target className="w-6 h-6" style={{ color: 'var(--color-primary)' }} />
             </div>
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
@@ -215,7 +214,7 @@ export default function BudgetSettingsPage() {
             onClick={handleSave}
             disabled={isSaved}
             className={`flex-1 btn btn-primary flex items-center justify-center gap-2 ${
-              isSaved ? 'bg-indigo-500' : ''
+              isSaved ? '' : ''
             }`}
           >
             {isSaved ? (
