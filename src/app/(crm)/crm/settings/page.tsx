@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useIntl } from 'react-intl';
-import { Kanban, Users, FileText, Shield } from 'lucide-react';
+import { Kanban, Users, FileText, Shield, CreditCard, Link2, Activity } from 'lucide-react';
 
 export default function CrmSettingsPage() {
   const intl = useIntl();
@@ -15,6 +15,9 @@ export default function CrmSettingsPage() {
     { path: '/crm/settings/team', icon: Users, title: t('org.settings.team', 'Team Management'), titleAr: 'إدارة الفريق' },
     { path: '/crm/settings/fields', icon: FileText, title: t('org.settings.fields', 'Custom Fields'), titleAr: 'الحقول المخصصة' },
     { path: '/crm/settings/audit', icon: Shield, title: t('org.settings.audit', 'Audit Log'), titleAr: 'سجل المراجعة' },
+    { path: '/crm/settings/billing', icon: CreditCard, title: t('billing.subscription.plan', 'Billing'), titleAr: 'الفوترة' },
+    { path: '/crm/settings/integrations', icon: Link2, title: t('integrations.action.configure', 'Integrations'), titleAr: 'التكاملات' },
+    { path: '/crm/settings/health', icon: Activity, title: t('integrations.health.title', 'System Health'), titleAr: 'صحة النظام' },
   ];
 
   return (
