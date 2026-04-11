@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { useTransactions } from '@/store/transactionStore';
@@ -9,6 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES, CURRENCIES } from '@/lib/constants';
 
 export default function QuickAddFAB() {
+  const pathname = usePathname();
   const intl = useIntl();
   const language = useLanguage();
   const currency = useCurrency();
@@ -103,7 +105,7 @@ export default function QuickAddFAB() {
 
   const categories = type === 'expense' ? DEFAULT_EXPENSE_CATEGORIES : DEFAULT_INCOME_CATEGORIES;
 
-  if (!isMobile || !isAuthReady) return null;
+  if (!isMobile || !isAuthReady || pathname.startsWith('/learn')) return null;
 
   return (
     <>
