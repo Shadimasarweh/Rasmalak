@@ -7,6 +7,7 @@ import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateMortgagePayoff } from '@/calculators/mortgagePayoffCalculator';
 import type { MortgagePayoffInput, MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
 import { generateMortgagePayoffPDF } from '@/calculators/mortgagePayoffReport';
+import { exportMortgagePayoffCSV } from '@/calculators/csvExport';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -90,6 +91,7 @@ export default function MortgagePayoffCalculatorPage() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [calcBtnHover, setCalcBtnHover] = useState(false);
   const [pdfBtnHover, setPdfBtnHover] = useState(false);
+  const [csvBtnHover, setCsvBtnHover] = useState(false);
 
   // Helper to get message
   const t = (key: string, defaultMessage: string, values?: Record<string, string | number>) => {
@@ -188,6 +190,11 @@ export default function MortgagePayoffCalculatorPage() {
     } finally {
       setIsGeneratingPDF(false);
     }
+  };
+
+  const handleDownloadCSV = () => {
+    if (!result) return;
+    exportMortgagePayoffCSV(result, language, currencySymbol);
   };
 
   // Format number for display
@@ -713,43 +720,52 @@ export default function MortgagePayoffCalculatorPage() {
                 </div>
               )}
 
-              {/* Download PDF Button — inside dark context */}
-              <button
-                type="button"
-                onClick={handleDownloadPDF}
-                onMouseEnter={() => setPdfBtnHover(true)}
-                onMouseLeave={() => setPdfBtnHover(false)}
-                disabled={isGeneratingPDF}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  padding: '8px 16px',
-                  background: isGeneratingPDF
-                    ? 'transparent'
-                    : pdfBtnHover
-                      ? 'rgba(34,197,94,0.1)'
-                      : 'transparent',
-                  color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  border: isGeneratingPDF
-                    ? '1.5px solid rgba(156,163,175,0.3)'
-                    : '1.5px solid rgba(74,222,128,0.3)',
-                  borderRadius: '8px',
-                  cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
-                  width: '100%',
-                  opacity: isGeneratingPDF ? 0.5 : 1,
-                  transition: 'background 0.15s ease',
-                }}
-              >
-                <DownloadIcon />
-                {isGeneratingPDF
-                  ? t('mortgage_payoff_generating', 'Generating...')
-                  : t('mortgage_payoff_download_report', 'Download PDF Report')
-                }
-              </button>
+              {/* Download buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleDownloadPDF}
+                  onMouseEnter={() => setPdfBtnHover(true)}
+                  onMouseLeave={() => setPdfBtnHover(false)}
+                  disabled={isGeneratingPDF}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    padding: '8px 16px',
+                    background: isGeneratingPDF
+                      ? 'transparent'
+                      : pdfBtnHover
+                        ? 'rgba(34,197,94,0.1)'
+                        : 'transparent',
+                    color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    border: isGeneratingPDF
+                      ? '1.5px solid rgba(156,163,175,0.3)'
+                      : '1.5px solid rgba(74,222,128,0.3)',
+                    borderRadius: '8px',
+                    cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
+                    width: '100%',
+                    opacity: isGeneratingPDF ? 0.5 : 1,
+                    transition: 'background 0.15s ease',
+                  }}
+                >
+                  <DownloadIcon />
+                  {isGeneratingPDF
+                    ? t('mortgage_payoff_generating', 'Generating...')
+                    : t('mortgage_payoff_download_report', 'Download PDF Report')
+                  }
+                </button>
+                <button type="button" onClick={handleDownloadCSV}
+                  onMouseEnter={() => setCsvBtnHover(true)}
+                  onMouseLeave={() => setCsvBtnHover(false)}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
+                  <DownloadIcon />
+                  {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                </button>
+              </div>
             </div>
           ) : (
             /* Empty state placeholder */

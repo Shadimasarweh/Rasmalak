@@ -7,6 +7,7 @@ import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateHomeAffordability } from '@/calculators/homeAffordabilityCalculator';
 import type { HomeAffordabilityInput, HomeAffordabilityResult } from '@/calculators/homeAffordabilityCalculator';
 import { generateHomeAffordabilityPDF } from '@/calculators/homeAffordabilityReport';
+import { exportHomeAffordabilityCSV } from '@/calculators/csvExport';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -98,6 +99,7 @@ export default function HomeAffordabilityCalculatorPage() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [calcHover, setCalcHover] = useState(false);
   const [pdfHover, setPdfHover] = useState(false);
+  const [csvHover, setCsvHover] = useState(false);
 
   const t = (key: string, defaultMessage: string) =>
     intl.formatMessage({ id: `tools.${key}`, defaultMessage });
@@ -170,6 +172,11 @@ export default function HomeAffordabilityCalculatorPage() {
     } finally {
       setIsGeneratingPDF(false);
     }
+  };
+
+  const handleDownloadCSV = () => {
+    if (!result) return;
+    exportHomeAffordabilityCSV(result, language, currencySymbol);
   };
 
   const formatCurrencyValue = (value: number) =>
@@ -311,14 +318,23 @@ export default function HomeAffordabilityCalculatorPage() {
                   </p>
                 </div>
 
-                {/* PDF button inside dark card */}
-                <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
-                  onMouseEnter={() => setPdfHover(true)}
-                  onMouseLeave={() => setPdfHover(false)}
-                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: isGeneratingPDF ? 'transparent' : (pdfHover ? 'rgba(34,197,94,0.1)' : 'transparent'), color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)', fontSize: '13px', fontWeight: 500, border: isGeneratingPDF ? '1.5px solid rgba(156,163,175,0.3)' : '1.5px solid rgba(74,222,128,0.3)', borderRadius: '8px', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%', transition: 'background 0.15s ease', opacity: isGeneratingPDF ? 0.5 : 1 }}>
-                  <DownloadIcon />
-                  {isGeneratingPDF ? t('home_afford_generating', 'Generating...') : t('home_afford_download_report', 'Download PDF Report')}
-                </button>
+                {/* Download buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
+                    onMouseEnter={() => setPdfHover(true)}
+                    onMouseLeave={() => setPdfHover(false)}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: isGeneratingPDF ? 'transparent' : (pdfHover ? 'rgba(34,197,94,0.1)' : 'transparent'), color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)', fontSize: '13px', fontWeight: 500, border: isGeneratingPDF ? '1.5px solid rgba(156,163,175,0.3)' : '1.5px solid rgba(74,222,128,0.3)', borderRadius: '8px', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%', transition: 'background 0.15s ease', opacity: isGeneratingPDF ? 0.5 : 1 }}>
+                    <DownloadIcon />
+                    {isGeneratingPDF ? t('home_afford_generating', 'Generating...') : t('home_afford_download_report', 'Download PDF Report')}
+                  </button>
+                  <button type="button" onClick={handleDownloadCSV}
+                    onMouseEnter={() => setCsvHover(true)}
+                    onMouseLeave={() => setCsvHover(false)}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
+                    <DownloadIcon />
+                    {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                  </button>
+                </div>
               </div>
             </div>
           ) : (

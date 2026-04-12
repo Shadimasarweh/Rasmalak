@@ -7,6 +7,7 @@ import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateSimpleLoan } from '@/calculators/simpleLoanCalculator';
 import type { SimpleLoanInput, SimpleLoanResult } from '@/calculators/simpleLoanCalculator';
 import { generateSimpleLoanPDF } from '@/calculators/simpleLoanReport';
+import { exportSimpleLoanCSV } from '@/calculators/csvExport';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -76,6 +77,7 @@ export default function SimpleLoanCalculatorPage() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [calcBtnHover, setCalcBtnHover] = useState(false);
   const [pdfBtnHover, setPdfBtnHover] = useState(false);
+  const [csvBtnHover, setCsvBtnHover] = useState(false);
 
   const t = (key: string, defaultMessage: string) =>
     intl.formatMessage({ id: `tools.${key}`, defaultMessage });
@@ -128,6 +130,11 @@ export default function SimpleLoanCalculatorPage() {
     } finally {
       setIsGeneratingPDF(false);
     }
+  };
+
+  const handleDownloadCSV = () => {
+    if (!result) return;
+    exportSimpleLoanCSV(result, language, currencySymbol);
   };
 
   const formatCurrency = (value: number) =>
@@ -260,13 +267,22 @@ export default function SimpleLoanCalculatorPage() {
                 </div>
 
                 {/* PDF button inside dark card */}
-                <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
-                  onMouseEnter={() => setPdfBtnHover(true)}
-                  onMouseLeave={() => setPdfBtnHover(false)}
-                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: isGeneratingPDF ? '#9CA3AF' : pdfBtnHover ? 'rgba(34,197,94,0.1)' : 'transparent', color: isGeneratingPDF ? '#FFFFFF' : 'var(--ds-primary-glow)', fontSize: '13px', fontWeight: 500, border: `1.5px solid ${isGeneratingPDF ? 'transparent' : 'rgba(74,222,128,0.3)'}`, borderRadius: '8px', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%', marginTop: '4px', opacity: isGeneratingPDF ? 0.5 : 1, transition: 'background 0.15s ease' }}>
-                  <DownloadIcon />
-                  {isGeneratingPDF ? t('simple_loan_generating', 'Generating...') : t('simple_loan_download_report', 'Download PDF Report')}
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                  <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
+                    onMouseEnter={() => setPdfBtnHover(true)}
+                    onMouseLeave={() => setPdfBtnHover(false)}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: isGeneratingPDF ? '#9CA3AF' : pdfBtnHover ? 'rgba(34,197,94,0.1)' : 'transparent', color: isGeneratingPDF ? '#FFFFFF' : 'var(--ds-primary-glow)', fontSize: '13px', fontWeight: 500, border: `1.5px solid ${isGeneratingPDF ? 'transparent' : 'rgba(74,222,128,0.3)'}`, borderRadius: '8px', cursor: isGeneratingPDF ? 'not-allowed' : 'pointer', width: '100%', opacity: isGeneratingPDF ? 0.5 : 1, transition: 'background 0.15s ease' }}>
+                    <DownloadIcon />
+                    {isGeneratingPDF ? t('simple_loan_generating', 'Generating...') : t('simple_loan_download_report', 'Download PDF Report')}
+                  </button>
+                  <button type="button" onClick={handleDownloadCSV}
+                    onMouseEnter={() => setCsvBtnHover(true)}
+                    onMouseLeave={() => setCsvBtnHover(false)}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
+                    <DownloadIcon />
+                    {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                  </button>
+                </div>
               </div>
             </div>
           ) : (

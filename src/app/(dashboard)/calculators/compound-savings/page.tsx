@@ -7,6 +7,7 @@ import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateCompoundSavings } from '@/calculators/compoundSavingsCalculator';
 import type { CompoundSavingsInput, CompoundSavingsResult, DepositFrequency } from '@/calculators/compoundSavingsCalculator';
 import { generateCompoundSavingsPDF } from '@/calculators/compoundSavingsReport';
+import { exportCompoundSavingsCSV } from '@/calculators/csvExport';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -78,6 +79,7 @@ export default function CompoundSavingsCalculatorPage() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [calcBtnHover, setCalcBtnHover] = useState(false);
   const [pdfBtnHover, setPdfBtnHover] = useState(false);
+  const [csvBtnHover, setCsvBtnHover] = useState(false);
 
   const t = (key: string, defaultMessage: string) =>
     intl.formatMessage({ id: `tools.${key}`, defaultMessage });
@@ -135,6 +137,11 @@ export default function CompoundSavingsCalculatorPage() {
     } finally {
       setIsGeneratingPDF(false);
     }
+  };
+
+  const handleDownloadCSV = () => {
+    if (!result) return;
+    exportCompoundSavingsCSV(result, language, currencySymbol);
   };
 
   const formatCurrency = (value: number) =>
@@ -364,26 +371,35 @@ export default function CompoundSavingsCalculatorPage() {
                   <SummaryItem label={t('compound_interest_earned', 'Interest Earned')} value={formatCurrency(result.summary.interestEarned)} accent />
                 </div>
 
-                {/* PDF download — inside dark card */}
-                <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
-                  onMouseEnter={() => setPdfBtnHover(true)}
-                  onMouseLeave={() => setPdfBtnHover(false)}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                    padding: '8px 16px',
-                    background: isGeneratingPDF ? 'rgba(156,163,175,0.2)' : pdfBtnHover ? 'rgba(34,197,94,0.1)' : 'transparent',
-                    color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)',
-                    fontSize: '13px', fontWeight: 500,
-                    border: isGeneratingPDF ? '1.5px solid rgba(156,163,175,0.3)' : '1.5px solid rgba(74,222,128,0.3)',
-                    borderRadius: '8px',
-                    cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
-                    width: '100%',
-                    opacity: isGeneratingPDF ? 0.5 : 1,
-                    transition: 'background 0.15s ease',
-                  }}>
-                  <DownloadIcon />
-                  {isGeneratingPDF ? t('compound_generating', 'Generating...') : t('compound_download', 'Download PDF Report')}
-                </button>
+                {/* Download buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button type="button" onClick={handleDownloadPDF} disabled={isGeneratingPDF}
+                    onMouseEnter={() => setPdfBtnHover(true)}
+                    onMouseLeave={() => setPdfBtnHover(false)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                      padding: '8px 16px',
+                      background: isGeneratingPDF ? 'rgba(156,163,175,0.2)' : pdfBtnHover ? 'rgba(34,197,94,0.1)' : 'transparent',
+                      color: isGeneratingPDF ? '#9CA3AF' : 'var(--ds-primary-glow)',
+                      fontSize: '13px', fontWeight: 500,
+                      border: isGeneratingPDF ? '1.5px solid rgba(156,163,175,0.3)' : '1.5px solid rgba(74,222,128,0.3)',
+                      borderRadius: '8px',
+                      cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
+                      width: '100%',
+                      opacity: isGeneratingPDF ? 0.5 : 1,
+                      transition: 'background 0.15s ease',
+                    }}>
+                    <DownloadIcon />
+                    {isGeneratingPDF ? t('compound_generating', 'Generating...') : t('compound_download', 'Download PDF Report')}
+                  </button>
+                  <button type="button" onClick={handleDownloadCSV}
+                    onMouseEnter={() => setCsvBtnHover(true)}
+                    onMouseLeave={() => setCsvBtnHover(false)}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
+                    <DownloadIcon />
+                    {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                  </button>
+                </div>
               </div>
 
               {/* Growth schedule table */}
