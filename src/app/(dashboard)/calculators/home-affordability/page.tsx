@@ -358,23 +358,28 @@ export default function HomeAffordabilityCalculatorPage() {
 
 /* ===== STABLE SUB-COMPONENTS (outside page fn to prevent remount on re-render) ===== */
 
+function toArabicNumerals(s: string): string {
+  return s.replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[+d]);
+}
+
 function NumField({ label, value, onChange, placeholder, error, suffix, isRTL }: {
   label: string; value: string; onChange: (v: string) => void; placeholder: string;
   error?: string; suffix?: string; isRTL?: boolean;
 }) {
+  const displayPlaceholder = isRTL ? toArabicNumerals(placeholder) : placeholder;
   return (
     <div>
       <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '6px' }}>
         {label}{suffix ? ` ${suffix}` : ''}
       </label>
-      <input type="number" step="any" value={value} onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
+      <input type="text" inputMode="decimal" value={value} onChange={e => onChange(e.target.value)}
+        placeholder={displayPlaceholder}
         style={{
           width: '100%', padding: '10px 14px', fontSize: '14px',
           border: `0.5px solid ${error ? 'var(--ds-error)' : 'var(--ds-border)'}`,
           borderRadius: '8px', backgroundColor: 'var(--ds-bg-input)',
           color: 'var(--ds-text-heading)', outline: 'none',
-          direction: 'ltr', textAlign: isRTL ? 'right' : 'left',
+          textAlign: isRTL ? 'right' : 'left',
         }} />
       {error && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{error}</p>}
     </div>

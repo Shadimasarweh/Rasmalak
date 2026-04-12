@@ -212,7 +212,6 @@ export default function MortgagePayoffCalculatorPage() {
     background: 'var(--ds-bg-input)',
     color: 'var(--ds-text-heading)',
     outline: 'none',
-    direction: 'ltr' as const,
     textAlign: (isRTL ? 'right' : 'left') as React.CSSProperties['textAlign'],
   });
 
@@ -337,7 +336,8 @@ export default function MortgagePayoffCalculatorPage() {
                 {t('mortgage_payoff_loan_amount', 'Loan Amount')} ({currencySymbol})
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={loanAmount}
                 onChange={(e) => setLoanAmount(e.target.value)}
                 placeholder={t('mortgage_payoff_loan_amount_placeholder', 'e.g. 200000')}
@@ -364,8 +364,8 @@ export default function MortgagePayoffCalculatorPage() {
                 {t('mortgage_payoff_interest_rate', 'Annual Interest Rate (%)')}
               </label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 value={interestRate}
                 onChange={(e) => setInterestRate(e.target.value)}
                 placeholder={t('mortgage_payoff_interest_rate_placeholder', 'e.g. 5')}
@@ -392,7 +392,8 @@ export default function MortgagePayoffCalculatorPage() {
                 {t('mortgage_payoff_loan_term', 'Loan Term (Years)')}
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={loanTerm}
                 onChange={(e) => setLoanTerm(e.target.value)}
                 placeholder={t('mortgage_payoff_loan_term_placeholder', 'e.g. 30')}
@@ -490,7 +491,8 @@ export default function MortgagePayoffCalculatorPage() {
                 {t('mortgage_payoff_extra_payment', 'Optional Extra Payment')} ({currencySymbol})
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={extraPayment}
                 onChange={(e) => setExtraPayment(e.target.value)}
                 placeholder={t('mortgage_payoff_extra_payment_placeholder', 'e.g. 200')}

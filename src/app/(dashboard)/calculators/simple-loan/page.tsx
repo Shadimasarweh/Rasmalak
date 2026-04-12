@@ -149,7 +149,6 @@ export default function SimpleLoanCalculatorPage() {
     backgroundColor: 'var(--ds-bg-input)',
     color: 'var(--ds-text-heading)',
     outline: 'none',
-    direction: 'ltr',
     textAlign: isRTL ? 'right' : 'left',
   });
 
@@ -195,7 +194,7 @@ export default function SimpleLoanCalculatorPage() {
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '6px' }}>
                 {t('simple_loan_loan_amount', 'Loan Amount')} ({currencySymbol})
               </label>
-              <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)}
+              <input type="text" inputMode="decimal" value={loanAmount} onChange={e => setLoanAmount(e.target.value)}
                 placeholder={t('simple_loan_loan_amount_placeholder', 'e.g. 5000')}
                 style={inputFieldStyle(!!errors.loanAmount)} />
               {errors.loanAmount && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.loanAmount}</p>}
@@ -206,7 +205,7 @@ export default function SimpleLoanCalculatorPage() {
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '6px' }}>
                 {t('simple_loan_interest_rate', 'Annual Interest Rate (%)')}
               </label>
-              <input type="number" step="0.01" value={interestRate} onChange={e => setInterestRate(e.target.value)}
+              <input type="text" inputMode="decimal" value={interestRate} onChange={e => setInterestRate(e.target.value)}
                 placeholder={t('simple_loan_interest_rate_placeholder', 'e.g. 5.5')}
                 style={inputFieldStyle(!!errors.interestRate)} />
               {errors.interestRate && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.interestRate}</p>}
@@ -217,7 +216,7 @@ export default function SimpleLoanCalculatorPage() {
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)', marginBottom: '6px' }}>
                 {t('simple_loan_loan_period', 'Loan Period (Years)')}
               </label>
-              <input type="number" value={loanPeriod} onChange={e => setLoanPeriod(e.target.value)}
+              <input type="text" inputMode="numeric" value={loanPeriod} onChange={e => setLoanPeriod(e.target.value)}
                 placeholder={t('simple_loan_loan_period_placeholder', 'e.g. 5')}
                 style={inputFieldStyle(!!errors.loanPeriod)} />
               {errors.loanPeriod && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.loanPeriod}</p>}

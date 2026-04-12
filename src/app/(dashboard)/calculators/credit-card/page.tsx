@@ -159,7 +159,6 @@ export default function CreditCardCalculatorPage() {
     backgroundColor: 'var(--ds-bg-input)',
     color: 'var(--ds-text-heading)',
     outline: 'none',
-    direction: 'ltr',
     textAlign: isRTL ? 'right' : 'left',
   });
 
@@ -211,7 +210,7 @@ export default function CreditCardCalculatorPage() {
             {/* Current Balance */}
             <div>
               <label style={labelStyle}>{t('credit_card_current_balance', 'Current Balance')} ({currencySymbol})</label>
-              <input type="number" value={balance} onChange={e => setBalance(e.target.value)}
+              <input type="text" inputMode="decimal" value={balance} onChange={e => setBalance(e.target.value)}
                 placeholder={t('credit_card_balance_placeholder', 'e.g. 17000')} style={inputFieldStyle(!!errors.balance)} />
               {errors.balance && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.balance}</p>}
             </div>
@@ -219,7 +218,7 @@ export default function CreditCardCalculatorPage() {
             {/* Interest Rate */}
             <div>
               <label style={labelStyle}>{t('credit_card_interest_rate', 'Annual Interest Rate (%)')}</label>
-              <input type="number" step="0.01" value={rate} onChange={e => setRate(e.target.value)}
+              <input type="text" inputMode="decimal" value={rate} onChange={e => setRate(e.target.value)}
                 placeholder={t('credit_card_rate_placeholder', 'e.g. 21')} style={inputFieldStyle(!!errors.rate)} />
               {errors.rate && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.rate}</p>}
             </div>
@@ -227,7 +226,7 @@ export default function CreditCardCalculatorPage() {
             {/* Min Payment % */}
             <div>
               <label style={labelStyle}>{t('credit_card_min_payment_percent', 'Min Payment % of Balance')}</label>
-              <input type="number" step="0.1" value={minPct} onChange={e => setMinPct(e.target.value)}
+              <input type="text" inputMode="decimal" value={minPct} onChange={e => setMinPct(e.target.value)}
                 placeholder={t('credit_card_min_pct_placeholder', 'e.g. 5')} style={inputFieldStyle(!!errors.minPct)} />
               {errors.minPct && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.minPct}</p>}
             </div>
@@ -245,7 +244,7 @@ export default function CreditCardCalculatorPage() {
             {/* Min Payment Floor */}
             <div>
               <label style={labelStyle}>{t('credit_card_min_payment_floor', 'Min Payment for Low Balance')} ({currencySymbol})</label>
-              <input type="number" value={floor} onChange={e => setFloor(e.target.value)}
+              <input type="text" inputMode="decimal" value={floor} onChange={e => setFloor(e.target.value)}
                 placeholder={t('credit_card_floor_placeholder', 'e.g. 25')} style={inputFieldStyle(!!errors.floor)} />
               {errors.floor && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.floor}</p>}
             </div>
@@ -253,14 +252,14 @@ export default function CreditCardCalculatorPage() {
             {/* Fixed Payment */}
             <div>
               <label style={labelStyle}>{t('credit_card_fixed_payment', 'Fixed Monthly Payment (optional)')} ({currencySymbol})</label>
-              <input type="number" value={fixedPayment} onChange={e => setFixedPayment(e.target.value)}
+              <input type="text" inputMode="decimal" value={fixedPayment} onChange={e => setFixedPayment(e.target.value)}
                 placeholder={t('credit_card_fixed_placeholder', 'e.g. 500')} style={inputFieldStyle(false)} />
             </div>
 
             {/* Intro Months */}
             <div>
               <label style={labelStyle}>{t('credit_card_intro_months', '0% Introductory Period (months)')}</label>
-              <input type="number" value={introMonths} onChange={e => setIntroMonths(e.target.value)}
+              <input type="text" inputMode="numeric" value={introMonths} onChange={e => setIntroMonths(e.target.value)}
                 placeholder={t('credit_card_intro_placeholder', 'e.g. 0')} style={inputFieldStyle(false)} />
             </div>
 

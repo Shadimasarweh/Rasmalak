@@ -161,7 +161,6 @@ export default function CompoundSavingsCalculatorPage() {
     backgroundColor: 'var(--ds-bg-input)',
     color: 'var(--ds-text-heading)',
     outline: 'none',
-    direction: 'ltr',
     textAlign: isRTL ? 'right' : 'left',
   });
 
@@ -248,7 +247,7 @@ export default function CompoundSavingsCalculatorPage() {
               <label style={labelStyle}>
                 {t('compound_years', 'Years to Invest')}
               </label>
-              <input type="number" value={yearsToInvest} onChange={e => setYearsToInvest(e.target.value)}
+              <input type="text" inputMode="numeric" value={yearsToInvest} onChange={e => setYearsToInvest(e.target.value)}
                 placeholder={isRTL ? 'مثال: ١٠' : 'e.g. 10'}
                 style={inputFieldStyle(!!errors.yearsToInvest)} />
               {errors.yearsToInvest && <p style={errorMsgStyle}>{errors.yearsToInvest}</p>}
@@ -259,7 +258,7 @@ export default function CompoundSavingsCalculatorPage() {
               <label style={labelStyle}>
                 {t('compound_initial', 'Initial Investment')} ({currencySymbol})
               </label>
-              <input type="number" value={initialInvestment} onChange={e => setInitialInvestment(e.target.value)}
+              <input type="text" inputMode="decimal" value={initialInvestment} onChange={e => setInitialInvestment(e.target.value)}
                 placeholder={isRTL ? 'مثال: ٥٠٠٠' : 'e.g. 5000'}
                 style={inputFieldStyle(!!errors.initialInvestment)} />
               {errors.initialInvestment && <p style={errorMsgStyle}>{errors.initialInvestment}</p>}
@@ -270,7 +269,7 @@ export default function CompoundSavingsCalculatorPage() {
               <label style={labelStyle}>
                 {t('compound_rate', 'Expected Annual Interest Rate (%)')}
               </label>
-              <input type="number" step="0.01" value={interestRate} onChange={e => setInterestRate(e.target.value)}
+              <input type="text" inputMode="decimal" value={interestRate} onChange={e => setInterestRate(e.target.value)}
                 placeholder={isRTL ? 'مثال: ٤' : 'e.g. 4'}
                 style={inputFieldStyle(!!errors.interestRate)} />
               {errors.interestRate && <p style={errorMsgStyle}>{errors.interestRate}</p>}
@@ -281,7 +280,7 @@ export default function CompoundSavingsCalculatorPage() {
               <label style={labelStyle}>
                 {t('compound_deposit', 'Deposit Amount')} ({currencySymbol})
               </label>
-              <input type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)}
+              <input type="text" inputMode="decimal" value={depositAmount} onChange={e => setDepositAmount(e.target.value)}
                 placeholder={isRTL ? 'مثال: ٥٠' : 'e.g. 50'}
                 style={inputFieldStyle(!!errors.depositAmount)} />
               {errors.depositAmount && <p style={errorMsgStyle}>{errors.depositAmount}</p>}
@@ -310,7 +309,7 @@ export default function CompoundSavingsCalculatorPage() {
               <label style={labelStyle}>
                 {t('compound_extra', 'Additional Annual Investment')} ({currencySymbol})
               </label>
-              <input type="number" value={extraAnnualDeposit} onChange={e => setExtraAnnualDeposit(e.target.value)}
+              <input type="text" inputMode="decimal" value={extraAnnualDeposit} onChange={e => setExtraAnnualDeposit(e.target.value)}
                 placeholder={isRTL ? 'اختياري' : 'Optional'}
                 style={inputFieldStyle(false)} />
               <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '4px' }}>
