@@ -6,8 +6,7 @@ import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateCreditCard } from '@/calculators/creditCardCalculator';
 import type { CreditCardInput, CreditCardResult } from '@/calculators/creditCardCalculator';
-import { generateCreditCardPDF } from '@/calculators/creditCardReport';
-import { exportCreditCardCSV } from '@/calculators/csvExport';
+import { downloadReport } from '@/lib/reportDownload';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -123,9 +122,8 @@ export default function CreditCardCalculatorPage() {
   const handleDownloadPDF = async () => {
     if (!result) return;
     setIsGeneratingPDF(true);
-    await new Promise(resolve => setTimeout(resolve, 100));
     try {
-      const input: CreditCardInput = {
+      await downloadReport('credit-card', 'pdf', language, currencySymbol, {
         currentBalance: parseFloat(balance),
         annualInterestRate: parseFloat(rate),
         minPaymentPercent: parseFloat(minPct),
@@ -133,8 +131,7 @@ export default function CreditCardCalculatorPage() {
         minPaymentFloor: parseFloat(floor) || 25,
         fixedMonthlyPayment: parseFloat(fixedPayment) || 0,
         introMonths: parseInt(introMonths) || 0,
-      };
-      await generateCreditCardPDF(input, result, language, currencySymbol);
+      });
     } catch (err) {
       console.error('PDF generation error:', err);
     } finally {
@@ -142,9 +139,17 @@ export default function CreditCardCalculatorPage() {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadCSV = async () => {
     if (!result) return;
-    exportCreditCardCSV(result, language, currencySymbol);
+    await downloadReport('credit-card', 'xlsx', language, currencySymbol, {
+      currentBalance: parseFloat(balance),
+      annualInterestRate: parseFloat(rate),
+      minPaymentPercent: parseFloat(minPct),
+      minPaymentPlusInterest: plusInterest,
+      minPaymentFloor: parseFloat(floor) || 25,
+      fixedMonthlyPayment: parseFloat(fixedPayment) || 0,
+      introMonths: parseInt(introMonths) || 0,
+    });
   };
 
   const formatCurrencyValue = (value: number) =>
@@ -292,8 +297,8 @@ export default function CreditCardCalculatorPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <SummaryItem label={t('credit_card_first_payment', 'First Payment')} value={formatCurrencyValue(result.summary.firstPayment)} highlight />
                   <SummaryItem label={t('credit_card_max_payment', 'Max Payment')} value={formatCurrencyValue(result.summary.maxPayment)} />
-                  <SummaryItem label={t('credit_card_months_to_payoff', 'Months to Pay Off')} value={`${result.summary.monthsToPayOff}`} />
-                  <SummaryItem label={t('credit_card_years_to_payoff', 'Years to Pay Off')} value={`${result.summary.yearsToPayOff} ${t('credit_card_years', 'years')}`} highlight />
+                  <SummaryItem label={t('credit_card_months_to_payoff', 'Months to Pay Off')} value={styledNum(intl.formatNumber(result.summary.monthsToPayOff, { maximumFractionDigits: 0 }))} />
+                  <SummaryItem label={t('credit_card_years_to_payoff', 'Years to Pay Off')} value={`${styledNum(intl.formatNumber(result.summary.yearsToPayOff, { maximumFractionDigits: 1 }))} ${t('credit_card_years', 'years')}`} highlight />
                   <SummaryItem label={t('credit_card_total_interest', 'Total Interest Paid')} value={formatCurrencyValue(result.summary.totalInterestPaid)} />
                   <SummaryItem label={t('credit_card_total_paid', 'Total Amount Paid')} value={formatCurrencyValue(result.summary.totalAmountPaid)} />
                 </div>
@@ -325,7 +330,7 @@ export default function CreditCardCalculatorPage() {
                   onMouseLeave={() => setCsvBtnHover(false)}
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
                   <DownloadIcon />
-                  {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                  {isRTL ? 'تحميل Excel' : 'Download Excel'}
                 </button>
               </div>
             </div>

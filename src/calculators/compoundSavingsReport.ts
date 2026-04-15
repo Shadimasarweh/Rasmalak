@@ -105,7 +105,7 @@ export async function generateCompoundSavingsPDF(
 
   const fmtPct = (v: number) => isArabic
     ? rtl(`${fmtNum(v * 100, isArabic)}%`)
-    : `${(v * 100).toFixed(2)}%`;
+    : `${(v * 100).toFixed(2)}%`; // English path: ASCII digits intentional
 
   // Input table
   const inputRows = [

@@ -6,8 +6,7 @@ import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateSimpleLoan } from '@/calculators/simpleLoanCalculator';
 import type { SimpleLoanInput, SimpleLoanResult } from '@/calculators/simpleLoanCalculator';
-import { generateSimpleLoanPDF } from '@/calculators/simpleLoanReport';
-import { exportSimpleLoanCSV } from '@/calculators/csvExport';
+import { downloadReport } from '@/lib/reportDownload';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -116,15 +115,13 @@ export default function SimpleLoanCalculatorPage() {
   const handleDownloadPDF = async () => {
     if (!result) return;
     setIsGeneratingPDF(true);
-    await new Promise(resolve => setTimeout(resolve, 100));
     try {
-      const input: SimpleLoanInput = {
+      await downloadReport('simple-loan', 'pdf', language, currencySymbol, {
         loanAmount: parseFloat(loanAmount),
         annualInterestRate: parseFloat(interestRate),
         loanPeriodYears: parseFloat(loanPeriod),
         startDate,
-      };
-      await generateSimpleLoanPDF(input, result, language, currencySymbol);
+      });
     } catch (err) {
       console.error('PDF generation error:', err);
     } finally {
@@ -132,9 +129,14 @@ export default function SimpleLoanCalculatorPage() {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadCSV = async () => {
     if (!result) return;
-    exportSimpleLoanCSV(result, language, currencySymbol);
+    await downloadReport('simple-loan', 'xlsx', language, currencySymbol, {
+      loanAmount: parseFloat(loanAmount),
+      annualInterestRate: parseFloat(interestRate),
+      loanPeriodYears: parseFloat(loanPeriod),
+      startDate,
+    });
   };
 
   const formatCurrency = (value: number) =>
@@ -260,7 +262,7 @@ export default function SimpleLoanCalculatorPage() {
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <SummaryItem label={t('simple_loan_monthly_payment', 'Monthly Payment')} value={formatCurrency(result.summary.monthlyPayment)} highlight />
-                  <SummaryItem label={t('simple_loan_number_of_payments', 'Number of Payments')} value={`${result.summary.numberOfPayments}`} />
+                  <SummaryItem label={t('simple_loan_number_of_payments', 'Number of Payments')} value={styledNum(intl.formatNumber(result.summary.numberOfPayments, { maximumFractionDigits: 0 }))} />
                   <SummaryItem label={t('simple_loan_total_interest', 'Total Interest')} value={formatCurrency(result.summary.totalInterest)} />
                   <SummaryItem label={t('simple_loan_total_cost', 'Total Cost of Loan')} value={formatCurrency(result.summary.totalCost)} accent />
                 </div>
@@ -279,7 +281,7 @@ export default function SimpleLoanCalculatorPage() {
                     onMouseLeave={() => setCsvBtnHover(false)}
                     style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
                     <DownloadIcon />
-                    {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                    {isRTL ? 'تحميل Excel' : 'Download Excel'}
                   </button>
                 </div>
               </div>

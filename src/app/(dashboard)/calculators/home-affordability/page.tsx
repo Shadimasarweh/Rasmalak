@@ -6,8 +6,7 @@ import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateHomeAffordability } from '@/calculators/homeAffordabilityCalculator';
 import type { HomeAffordabilityInput, HomeAffordabilityResult } from '@/calculators/homeAffordabilityCalculator';
-import { generateHomeAffordabilityPDF } from '@/calculators/homeAffordabilityReport';
-import { exportHomeAffordabilityCSV } from '@/calculators/csvExport';
+import { downloadReport } from '@/lib/reportDownload';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -164,9 +163,8 @@ export default function HomeAffordabilityCalculatorPage() {
   const handleDownloadPDF = async () => {
     if (!result) return;
     setIsGeneratingPDF(true);
-    await new Promise(resolve => setTimeout(resolve, 100));
     try {
-      await generateHomeAffordabilityPDF(buildInput(), result, language, currencySymbol);
+      await downloadReport('home-affordability', 'pdf', language, currencySymbol, buildInput() as unknown as Record<string, unknown>);
     } catch (err) {
       console.error('PDF generation error:', err);
     } finally {
@@ -174,9 +172,9 @@ export default function HomeAffordabilityCalculatorPage() {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadCSV = async () => {
     if (!result) return;
-    exportHomeAffordabilityCSV(result, language, currencySymbol);
+    await downloadReport('home-affordability', 'xlsx', language, currencySymbol, buildInput() as unknown as Record<string, unknown>);
   };
 
   const formatCurrencyValue = (value: number) =>
@@ -332,7 +330,7 @@ export default function HomeAffordabilityCalculatorPage() {
                     onMouseLeave={() => setCsvHover(false)}
                     style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
                     <DownloadIcon />
-                    {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                    {isRTL ? 'تحميل Excel' : 'Download Excel'}
                   </button>
                 </div>
               </div>

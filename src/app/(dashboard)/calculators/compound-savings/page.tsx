@@ -6,8 +6,7 @@ import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateCompoundSavings } from '@/calculators/compoundSavingsCalculator';
 import type { CompoundSavingsInput, CompoundSavingsResult, DepositFrequency } from '@/calculators/compoundSavingsCalculator';
-import { generateCompoundSavingsPDF } from '@/calculators/compoundSavingsReport';
-import { exportCompoundSavingsCSV } from '@/calculators/csvExport';
+import { downloadReport } from '@/lib/reportDownload';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -121,17 +120,15 @@ export default function CompoundSavingsCalculatorPage() {
   const handleDownloadPDF = async () => {
     if (!result) return;
     setIsGeneratingPDF(true);
-    await new Promise(resolve => setTimeout(resolve, 100));
     try {
-      const input: CompoundSavingsInput = {
+      await downloadReport('compound-savings', 'pdf', language, currencySymbol, {
         yearsToInvest: parseFloat(yearsToInvest),
         initialInvestment: parseFloat(initialInvestment),
         annualInterestRate: parseFloat(interestRate) / 100,
         depositAmount: parseFloat(depositAmount || '0'),
         depositFrequency,
         extraAnnualDeposit: parseFloat(extraAnnualDeposit || '0'),
-      };
-      await generateCompoundSavingsPDF(input, result, language, currencySymbol);
+      });
     } catch (err) {
       console.error('PDF generation error:', err);
     } finally {
@@ -139,9 +136,16 @@ export default function CompoundSavingsCalculatorPage() {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadCSV = async () => {
     if (!result) return;
-    exportCompoundSavingsCSV(result, language, currencySymbol);
+    await downloadReport('compound-savings', 'xlsx', language, currencySymbol, {
+      yearsToInvest: parseFloat(yearsToInvest),
+      initialInvestment: parseFloat(initialInvestment),
+      annualInterestRate: parseFloat(interestRate) / 100,
+      depositAmount: parseFloat(depositAmount || '0'),
+      depositFrequency,
+      extraAnnualDeposit: parseFloat(extraAnnualDeposit || '0'),
+    });
   };
 
   const formatCurrency = (value: number) =>
@@ -396,7 +400,7 @@ export default function CompoundSavingsCalculatorPage() {
                     onMouseLeave={() => setCsvBtnHover(false)}
                     style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
                     <DownloadIcon />
-                    {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                    {isRTL ? 'تحميل Excel' : 'Download Excel'}
                   </button>
                 </div>
               </div>
@@ -427,7 +431,7 @@ export default function CompoundSavingsCalculatorPage() {
                   <tbody>
                     {result.schedule.map((row) => (
                       <tr key={row.year}>
-                        <td style={cellStyle}>{row.year}</td>
+                        <td style={cellStyle}>{styledNum(intl.formatNumber(row.year, { maximumFractionDigits: 0 }))}</td>
                         <td style={cellStyle}>{formatPercent(row.rate * 100)}</td>
                         <td style={cellStyle}>{formatCurrency(row.interest)}</td>
                         <td style={cellStyle}>{formatCurrency(row.scheduledDeposits + row.extraDeposit)}</td>

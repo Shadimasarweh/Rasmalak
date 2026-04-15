@@ -6,8 +6,7 @@ import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { calculateMortgagePayoff } from '@/calculators/mortgagePayoffCalculator';
 import type { MortgagePayoffInput, MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
-import { generateMortgagePayoffPDF } from '@/calculators/mortgagePayoffReport';
-import { exportMortgagePayoffCSV } from '@/calculators/csvExport';
+import { downloadReport } from '@/lib/reportDownload';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 
@@ -164,17 +163,11 @@ export default function MortgagePayoffCalculatorPage() {
     setErrors({});
   };
 
-  // Download PDF
   const handleDownloadPDF = async () => {
     if (!result) return;
-
     setIsGeneratingPDF(true);
-
-    // Small delay for UI feedback
-    await new Promise(resolve => setTimeout(resolve, 100));
-
     try {
-      const input: MortgagePayoffInput = {
+      await downloadReport('mortgage-payoff', 'pdf', language, currencySymbol, {
         loanAmount: parseFloat(loanAmount),
         annualInterestRate: parseFloat(interestRate),
         loanTermYears: parseFloat(loanTerm),
@@ -182,9 +175,7 @@ export default function MortgagePayoffCalculatorPage() {
         startDate,
         extraPayment: parseFloat(extraPayment) || 0,
         lenderName,
-      };
-
-      await generateMortgagePayoffPDF(input, result, language, currencySymbol);
+      });
     } catch (err) {
       console.error('PDF generation error:', err);
     } finally {
@@ -192,9 +183,17 @@ export default function MortgagePayoffCalculatorPage() {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadCSV = async () => {
     if (!result) return;
-    exportMortgagePayoffCSV(result, language, currencySymbol);
+    await downloadReport('mortgage-payoff', 'xlsx', language, currencySymbol, {
+      loanAmount: parseFloat(loanAmount),
+      annualInterestRate: parseFloat(interestRate),
+      loanTermYears: parseFloat(loanTerm),
+      paymentsPerYear: parseInt(paymentsPerYear),
+      startDate,
+      extraPayment: parseFloat(extraPayment) || 0,
+      lenderName,
+    });
   };
 
   // Format number for display
@@ -641,18 +640,18 @@ export default function MortgagePayoffCalculatorPage() {
                   {/* Scheduled Payments */}
                   <SummaryItem
                     label={t('mortgage_payoff_scheduled_payments', 'Scheduled Number of Payments')}
-                    value={`${result.summary.scheduledNumberOfPayments}`}
+                    value={styledNum(intl.formatNumber(result.summary.scheduledNumberOfPayments, { maximumFractionDigits: 0 }))}
                   />
                   {/* Actual Payments */}
                   <SummaryItem
                     label={t('mortgage_payoff_actual_payments', 'Actual Number of Payments')}
-                    value={`${result.summary.actualNumberOfPayments}`}
+                    value={styledNum(intl.formatNumber(result.summary.actualNumberOfPayments, { maximumFractionDigits: 0 }))}
                     accent={result.summary.yearsSaved > 0}
                   />
                   {/* Years Saved */}
                   <SummaryItem
                     label={t('mortgage_payoff_years_saved', 'Years Saved')}
-                    value={`${result.summary.yearsSaved} ${t('mortgage_payoff_years', 'years')}`}
+                    value={`${styledNum(intl.formatNumber(result.summary.yearsSaved, { maximumFractionDigits: 1 }))} ${t('mortgage_payoff_years', 'years')}`}
                     accent={result.summary.yearsSaved > 0}
                   />
                   {/* Total Early Payments */}
@@ -765,7 +764,7 @@ export default function MortgagePayoffCalculatorPage() {
                   onMouseLeave={() => setCsvBtnHover(false)}
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '8px 16px', background: csvBtnHover ? 'rgba(96,165,250,0.1)' : 'transparent', color: 'rgba(147,197,253,0.9)', fontSize: '13px', fontWeight: 500, border: '1.5px solid rgba(96,165,250,0.3)', borderRadius: '8px', cursor: 'pointer', width: '100%', transition: 'background 0.15s ease' }}>
                   <DownloadIcon />
-                  {isRTL ? 'تحميل CSV / Excel' : 'Download CSV / Excel'}
+                  {isRTL ? 'تحميل Excel' : 'Download Excel'}
                 </button>
               </div>
             </div>

@@ -215,7 +215,7 @@ export async function generateMortgagePayoffPDF(
   // ===== BUILD INPUT PARAMETERS TABLE =====
   const inputRows = [
     [lbl(labels.loanAmount, isArabic), fmtCurrency(input.loanAmount, currencySymbol, isArabic)],
-    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${toArabicNumerals(String(input.annualInterestRate))}%`) : `${input.annualInterestRate}%`],
+    [lbl(labels.interestRate, isArabic), isArabic ? rtl(`${fmtNum(input.annualInterestRate, isArabic)}%`) : `${input.annualInterestRate}%`],
     [lbl(labels.loanTerm, isArabic), isArabic ? rtl(`${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`) : `${fmtNum(input.loanTermYears, isArabic, 0)} ${yearsLabel}`],
     [lbl(labels.paymentsPerYear, isArabic), fmtNum(input.paymentsPerYear, isArabic, 0)],
     [lbl(labels.startDate, isArabic), fmtDate(new Date(input.startDate), isArabic)],
