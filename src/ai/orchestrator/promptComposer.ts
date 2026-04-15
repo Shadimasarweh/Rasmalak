@@ -18,6 +18,79 @@ export interface ComposedPrompt {
 }
 
 /**
+ * Build detailed OCR/document-analysis instructions injected only when attachments are present.
+ */
+function buildAttachmentInstructions(language: 'ar' | 'en', _attachments: MessageAttachment[]): string {
+  if (language === 'ar') {
+    return `## تعليمات تحليل المرفقات
+
+### ١. استخراج النص (OCR)
+- استخرج كل النص المرئي في الصورة بدقة، حرفاً حرفاً
+- حافظ على التنسيق الأصلي قدر الإمكان (أسطر، أعمدة، جداول)
+- إذا كان النص بالعربية، انتبه للأرقام العربية-الهندية (٠١٢٣٤٥٦٧٨٩) والتشكيل
+- إذا كان النص مزيجاً من العربية والإنجليزية، استخرج كليهما
+
+### ٢. تحليل الإيصالات والفواتير
+إذا كانت الصورة إيصالاً أو فاتورة، استخرج هذه البيانات بشكل منظم:
+- **التاجر/المتجر**: الاسم والفرع إن وُجد
+- **التاريخ والوقت**: كما يظهر في الإيصال
+- **العناصر**: كل عنصر مع سعره
+- **المجموع الفرعي**: قبل الضريبة
+- **الضريبة**: نسبتها ومبلغها إن وُجدت
+- **المجموع الكلي**: المبلغ النهائي
+- **العملة**: (دينار، ريال، درهم، جنيه، إلخ)
+- **طريقة الدفع**: نقد، بطاقة، إلخ (إن ظهرت)
+
+### ٣. عرض البيانات
+- اعرض النص المستخرج أولاً في قسم واضح بعنوان "النص المستخرج"
+- ثم قدم ملخصاً منظماً للبيانات المالية
+- إذا كان إيصالاً، اقترح تصنيف المصروف (طعام، تسوق، مواصلات، صحة، ترفيه، إلخ)
+
+### ٤. اقتراح تسجيل المعاملة
+بعد عرض البيانات، اسأل المستخدم سؤالاً واحداً:
+"هل تريدني أسجل هذا كمصروف؟ المبلغ: [المجموع] [العملة] — التصنيف المقترح: [التصنيف]"
+
+### ٥. جودة الصورة
+- إذا كانت الصورة غير واضحة أو مقطوعة، اذكر ذلك بصراحة واطلب صورة أفضل
+- إذا استطعت قراءة جزء فقط، اعرض ما استخرجته ووضّح ما لم تستطع قراءته
+- لا تخترع أو تخمّن أي بيانات غير مرئية بوضوح في الصورة`;
+  }
+
+  return `## Attachment Analysis Instructions
+
+### 1. Text Extraction (OCR)
+- Extract ALL visible text from the image accurately, character by character
+- Preserve the original formatting as much as possible (lines, columns, tables)
+- For Arabic text, pay attention to Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩) and diacritics
+- For mixed Arabic/English text, extract both languages faithfully
+
+### 2. Receipt & Invoice Parsing
+If the image is a receipt or invoice, extract the following in a structured format:
+- **Merchant/Store**: Name and branch if available
+- **Date & Time**: As shown on the receipt
+- **Items**: Each line item with its price
+- **Subtotal**: Before tax
+- **Tax**: Rate and amount if present
+- **Total**: Final amount charged
+- **Currency**: (JOD, SAR, AED, EGP, etc.)
+- **Payment method**: Cash, card, etc. (if shown)
+
+### 3. Data Presentation
+- Show the extracted text first under a clear "Extracted Text" heading
+- Then provide a structured summary of the financial data
+- If it's a receipt, suggest an expense category (food, shopping, transport, health, entertainment, etc.)
+
+### 4. Transaction Logging Offer
+After presenting the data, ask ONE question:
+"Would you like me to log this as an expense? Amount: [total] [currency] — Suggested category: [category]"
+
+### 5. Image Quality
+- If the image is blurry, cropped, or low resolution, state this clearly and ask for a better image
+- If you can only read part of it, show what you extracted and explain what was unreadable
+- Never invent or guess data that is not clearly visible in the image`;
+}
+
+/**
  * Compose the final prompt for a single LLM call.
  */
 export function composePrompt(
@@ -45,9 +118,7 @@ export function composePrompt(
 
   let attachmentInstructions: string | null = null;
   if (params.attachments && params.attachments.length > 0) {
-    attachmentInstructions = params.language === 'ar'
-      ? 'المستخدم أرفق ملف/صورة. قم بتحليل المحتوى المرفق ونفذ طلب المستخدم.'
-      : 'The user has attached a file/image. Analyze the attached content and perform the requested task.';
+    attachmentInstructions = buildAttachmentInstructions(params.language, params.attachments);
   }
 
   const detectedLang = detectMessageLanguage(params.userMessage);

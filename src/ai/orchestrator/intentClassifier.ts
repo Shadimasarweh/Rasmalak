@@ -61,6 +61,20 @@ const PATTERN_RULES: PatternRule[] = [
     confidence: 0.85,
   },
 
+  // Receipt / image / document analysis
+  {
+    intent: 'analyze_spending',
+    patterns: [
+      /(فاتورة|إيصال|وصل|حساب)/i,
+      /(receipt|invoice|bill)\b/i,
+      /^(شو|ايش|ماذا|وش) (هاي|هال|هذي|هذه|هذا)/i,
+      /^(حلل|اقرأ|شوف|سجل) (هال|هذي|هذه|هذا)?(صورة|فاتورة|وصل|إيصال)/i,
+      /what.*(this|receipt|invoice|bill|image)/i,
+      /scan|ocr|extract.*text/i,
+    ],
+    confidence: 0.85,
+  },
+
   // Analyze spending
   {
     intent: 'analyze_spending',
@@ -215,7 +229,7 @@ const PATTERN_RULES: PatternRule[] = [
  * Classify user intent using rule-based pattern matching.
  * No LLM call. Returns immediately.
  */
-export function classifyIntent(message: string): IntentClassification {
+export function classifyIntent(message: string, hasAttachments?: boolean): IntentClassification {
   const trimmed = message.trim();
 
   if (!trimmed) {
@@ -251,6 +265,18 @@ export function classifyIntent(message: string): IntentClassification {
       intent: bestMatch.intent,
       confidence: confidenceLevel,
       confidenceScore: bestMatch.confidence,
+      entities: [],
+      needsClarification: false,
+    };
+  }
+
+  // If the user sent an image with no strong text intent, default to analyze_spending
+  // so the pro model (not flash) handles the vision task
+  if (hasAttachments) {
+    return {
+      intent: 'analyze_spending',
+      confidence: 'medium',
+      confidenceScore: 0.75,
       entities: [],
       needsClarification: false,
     };

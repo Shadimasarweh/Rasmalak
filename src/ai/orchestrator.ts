@@ -169,7 +169,8 @@ export class AIOrchestrator {
     const memoryFieldsWritten: string[] = [];
 
     // ── 1. Classify intent (rule-based, no LLM) ──
-    const intentResult = classifyIntent(input.message);
+    const hasAttachments = !!(input.attachments && input.attachments.length > 0);
+    const intentResult = classifyIntent(input.message, hasAttachments);
 
     // ── 2. Select agent from registry ──
     const agent = findAgentForIntent(intentResult.intent);
