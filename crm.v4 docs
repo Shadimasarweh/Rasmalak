@@ -1,0 +1,3741 @@
+# V4 BUILD INSTRUCTIONS FOR CLAUDE CODE
+
+Read everything below. This is the complete V4 specification. V1+V2+V3 are built — refer to source code for those. Do not start building until you've read all sections.
+
+---
+
+# Rasmalak CRM — V4 Claude Code Specification
+
+> **Version:** 4.0 — April 2026
+> **Prerequisite:** V1 + V2 + V3 built and stable
+> **Build tool:** Claude Code — sequential prompts
+> **Classification:** Confidential — Internal use only
+
+---
+
+## V4 Scope Summary
+
+13 items: 7 new builds (control layer), 5 upgrades to existing systems, 1 evolution (marketing intelligence engine). Organized into 3 sequential waves. ~150 files to create or modify. 4 database migrations (029-032). 1 new architectural layer (Control Layer). No new external services — uses existing Gemini + SendGrid.
+
+## V4 Identity
+
+V1 = CRM. V2 = Revenue engine. V3 = Intelligent. **V4 = Enterprise-grade and self-learning.**
+
+The control layer (approvals, SLAs, governance) unlocks enterprise procurement. The marketing intelligence engine means every interaction makes the system smarter.
+
+---
+
+## All Inherited Rules (V1/V2/V3 — still apply)
+
+1. Arabic-first, RTL-first
+2. i18n mandatory for all text
+3. Never call AI providers directly — orchestrator only
+4. Supabase is source of truth
+5. Design system enforced (cream, three card types, no purple)
+6. Comments explain intent only
+7. RLS on every new table
+8. Public routes excluded from auth middleware
+9. SendGrid for bulk email only
+10. Voice AI uses Gemini multimodal
+11. Engagement fingerprints compute async
+12. Decay score is part of deal score
+13. Influence mapping roles are org-customizable
+14. Post-sale monitoring is manual trigger
+15. Ramadan dates from hijri-converter
+16. Campaign template designer is block-based + HTML
+17. Chatbot widget is standalone vanilla JS (Shadow DOM)
+18. Executive role has read-only access + exclusive dashboard
+
+## V4-Specific Rules
+
+19. **Control Layer is architectural, not a feature.** It sits between the Application Layer and the AI Layer. Every feature that enforces rules, requires approvals, tracks SLAs, or handles exceptions routes through the Control Layer — not through individual feature code. Build it as a shared service, not per-feature logic.
+20. **Approvals are blocking by default.** When an approval is required, the action is BLOCKED until approved. No "soft" approvals that just log but don't enforce. Override is possible but requires documented reason + audit trail.
+21. **SLA timers are real-time.** Not computed on page load — they tick in the background. A cron job checks SLA breaches every 5 minutes and triggers escalation actions.
+22. **Workflow versioning is Git-like.** Draft → Active → Archived. Only one version active at a time. Rollback creates a new version from the old one (doesn't delete history).
+23. **Exception handling requires approval chain.** Overriding any rule or SLA is itself an action that may require approval (configurable per org). The exception is logged with: who, what rule was overridden, why (free text), approved by whom.
+24. **Handoff notes are mandatory and enforced.** The system blocks deal/account reassignment without handoff notes. The UI disables the "Reassign" action until notes are written. No backdoor.
+25. **Observability is admin-only.** The operations dashboard is visible only to Owner and Admin roles. Not Manager, not Executive.
+26. **Marketing intelligence profiles are append-only.** The contact behavioral profile logs every data point — never overwrites. Historical patterns are preserved. The AI reads the full history to detect trends.
+27. **Campaign approval is atomic.** When a user approves a batch campaign, the entire batch is committed. No partial approval (approve some messages, reject others). If adjustments needed, user modifies the plan and re-approves.
+28. **AI explainability is mandatory on all insights.** Every AI-generated insight, score, recommendation, or campaign suggestion must include: what inputs were used, what the confidence level is, and a plain-language explanation of reasoning. This is enforced at the orchestrator validation layer.
+29. **Forecasting labeled as "projection."** All AI-generated revenue predictions must be labeled "Projection" not "Forecast" unless historical accuracy has been proven (>80% accuracy over 3+ periods). This is a display rule, not a technical constraint.
+
+---
+
+## Wave Structure
+
+### Wave 1 — Control Layer Foundation (8-10 weeks)
+**Goal:** Build the architectural layer that makes Rasmalak enterprise-credible. Approvals, SLAs, and exception handling.
+
+**Migrations:** 029_control_layer.sql
+
+**Features (4):**
+1. Control layer architecture (shared service)
+2. Approval system (multi-level, role-based, sequential/parallel)
+3. SLA engine (stage timers, approval timers, inactivity timers, escalation)
+4. Exception handling (override with reason, approval chain, audit)
+
+**New files (~45):**
+```
+src/control/                                # NEW top-level directory for control layer
+src/control/approvals/
+  approvalEngine.ts                         # Core approval logic
+  approvalTypes.ts                          # Types: ApprovalRequest, ApprovalFlow, ApprovalStep
+  approvalService.ts                        # Supabase CRUD for approvals
+  approvalEvaluator.ts                      # Evaluates if an action requires approval
+src/control/sla/
+  slaEngine.ts                              # SLA timer management
+  slaTypes.ts                               # Types: SLADefinition, SLATimer, SLABreach
+  slaService.ts                             # Supabase CRUD for SLAs
+  slaEscalation.ts                          # Escalation logic when SLA breaches
+src/control/exceptions/
+  exceptionHandler.ts                       # Override processing
+  exceptionTypes.ts                         # Types: ExceptionRequest, ExceptionApproval
+  exceptionService.ts                       # Supabase CRUD for exceptions
+src/control/rules/
+  ruleEngine.ts                             # Generic rule evaluation
+  ruleTypes.ts                              # Types: Rule, RuleCondition, RuleAction
+src/control/index.ts                        # Public exports
+
+src/app/(crm)/crm/approvals/
+  page.tsx                                  # Approval queue (pending approvals for current user)
+  [approvalId]/page.tsx                     # Approval detail + approve/reject
+
+src/app/(crm)/crm/settings/approvals/
+  page.tsx                                  # Approval flow configuration (admin)
+
+src/app/(crm)/crm/settings/sla/
+  page.tsx                                  # SLA rule configuration (admin)
+
+src/app/api/cron/sla-check/
+  route.ts                                  # Cron job: check SLA breaches every 5 min
+
+src/components/crm/approvals/
+  ApprovalQueue.tsx                         # List of pending approvals
+  ApprovalCard.tsx                          # Individual approval with context
+  ApprovalFlowEditor.tsx                    # Visual approval flow builder
+  ApprovalBadge.tsx                         # Status badge on deals/docs
+
+src/components/crm/sla/
+  SLATimer.tsx                              # Visual countdown timer on deals
+  SLADashboard.tsx                          # SLA health overview
+  SLAConfigEditor.tsx                       # SLA rule editor
+
+src/components/crm/exceptions/
+  ExceptionDialog.tsx                       # Override with reason dialog
+  ExceptionLog.tsx                          # Exception history
+
+src/store/approvalStore.tsx                 # Approval state (Context Provider)
+src/store/slaStore.tsx                      # SLA state
+
+src/messages/en/approvals.ts
+src/messages/ar/approvals.ts
+src/messages/en/sla.ts
+src/messages/ar/sla.ts
+
+supabase/migrations/029_control_layer.sql
+```
+
+### Wave 2 — Pipeline & Document Governance (8-10 weeks)
+**Goal:** Transform pipeline from a tracking tool into an execution control system. Documents become workflow drivers.
+
+**Migrations:** 030_pipeline_governance.sql, 031_workflow_versioning.sql
+
+**Features (5):**
+1. Pipeline stage entry/exit rules
+2. Document-driven pipeline stages
+3. Workflow versioning (draft/active/archived, rollback)
+4. Handoff intelligence (mandatory notes, incomplete detection, ownership history)
+5. Governance depth (permission tracking, AI traceability)
+
+**New files (~40):**
+```
+src/control/pipeline/
+  stageRules.ts                             # Entry/exit rule evaluation
+  stageRuleTypes.ts                         # Types: StageRule, RuleCondition
+  documentRequirements.ts                   # Document requirement checking per stage
+  inactivityEnforcer.ts                     # Forced action after N days
+
+src/control/handoff/
+  handoffService.ts                         # Handoff note management
+  handoffValidator.ts                       # Validates completeness
+  ownershipTracker.ts                       # Full ownership history
+
+src/control/versioning/
+  workflowVersioning.ts                     # Draft/active/archive lifecycle
+  versionDiff.ts                            # Diff between workflow versions
+
+src/app/(crm)/crm/settings/pipeline-rules/
+  page.tsx                                  # Stage rule configuration (admin)
+  [stageId]/page.tsx                        # Per-stage rule editor
+
+src/components/crm/pipeline/
+  StageGate.tsx                             # Visual gate showing entry/exit requirements
+  DocumentRequirement.tsx                   # Required docs checklist per stage
+  InactivityWarning.tsx                     # Warning when inactivity threshold approaching
+  HandoffDialog.tsx                         # Mandatory handoff notes dialog
+  HandoffCompleteness.tsx                   # Incomplete handoff warning
+  OwnershipHistory.tsx                      # Full ownership timeline
+
+src/components/crm/workflows/
+  VersionSelector.tsx                       # Switch between workflow versions
+  VersionDiff.tsx                           # Visual diff between versions
+  DraftBadge.tsx                            # Draft/Active/Archived status
+
+src/messages/en/governance.ts
+src/messages/ar/governance.ts
+
+supabase/migrations/030_pipeline_governance.sql
+supabase/migrations/031_workflow_versioning.sql
+```
+
+### Wave 3 — Intelligence Evolution + Operations (10-14 weeks)
+**Goal:** Ship the marketing intelligence engine, upgrade communications, build observability, and make mobile role-aware.
+
+**Migrations:** 032_marketing_intelligence.sql
+
+**Features (4):**
+1. AI marketing intelligence engine (hyper-personalized, all channels, batch approval, closed loop)
+2. Communication threading + internal/external separation
+3. Observability dashboard (admin-only operational health)
+4. Mobile role-awareness (execution-focused per role)
+
+**New files (~65):**
+```
+src/ai/agents/marketingAgent.ts             # Marketing intelligence AI agent
+src/ai/deterministic/contactProfile.ts      # Behavioral profile computation
+src/ai/deterministic/campaignPlanner.ts     # Campaign strategy generation
+src/ai/deterministic/channelOptimizer.ts    # Per-contact channel selection
+src/ai/deterministic/messageCrafter.ts      # Per-contact message personalization
+src/ai/deterministic/campaignLearning.ts    # Feedback loop — learn from results
+
+src/app/(crm)/crm/marketing/
+  page.tsx                                  # Marketing intelligence hub
+  campaigns/page.tsx                        # Campaign list
+  campaigns/[campaignId]/page.tsx           # Campaign detail + results
+  campaigns/plan/page.tsx                   # Campaign plan review + approval
+  profiles/page.tsx                         # Contact behavioral profiles browser
+  profiles/[contactId]/page.tsx             # Individual profile deep dive
+  insights/page.tsx                         # AI-suggested campaign opportunities
+
+src/app/(crm)/crm/operations/
+  page.tsx                                  # Observability dashboard (admin only)
+
+src/components/crm/marketing/
+  CampaignPlanner.tsx                       # AI campaign creation interface
+  CampaignPlanReview.tsx                    # Batch review with drill-down
+  ContactProfileCard.tsx                    # Behavioral profile summary
+  ContactProfileDetail.tsx                  # Full profile with history
+  PersonalizedMessagePreview.tsx            # Individual message preview
+  ChannelRecommendation.tsx                 # Why this channel for this contact
+  CampaignResults.tsx                       # Post-campaign analytics + learning
+  OpportunityCard.tsx                       # AI-suggested campaign opportunity
+  CampaignApprovalFlow.tsx                  # Batch approve/reject UI
+
+src/components/crm/communications/
+  ThreadView.tsx                            # Threaded conversation view
+  InternalExternalToggle.tsx                # Toggle internal/external on messages
+  ConversationLinker.tsx                    # Link conversation to deal
+
+src/components/crm/operations/
+  SystemHealth.tsx                          # Overall system status
+  FailedAutomations.tsx                     # Failed workflow list
+  IntegrationErrors.tsx                     # Sync error list
+  WebhookFailures.tsx                       # Delivery failure list
+  APIErrors.tsx                             # API error log
+
+src/store/marketingStore.tsx                # Marketing intelligence state
+src/store/operationsStore.tsx               # Observability state
+
+src/integrations/sendgrid.ts                # Extend for personalized campaigns
+
+src/messages/en/marketing.ts
+src/messages/ar/marketing.ts
+src/messages/en/operations.ts
+src/messages/ar/operations.ts
+
+supabase/migrations/032_marketing_intelligence.sql
+```
+
+**Mobile role-awareness (no new files — modifications to existing mobile components):**
+- Modify mobile navigation to show role-appropriate views
+- Field rep: deal board, contact list, call logger, card scanner, voice AI
+- Manager: team overview, approval queue, pipeline health, SLA dashboard
+- Executive: executive dashboard only
+- Remove admin/settings from mobile entirely (desktop only)
+
+---
+
+## Plan Gating Map (V4 additions)
+
+| Feature | Entrepreneur | Organization | Enterprise |
+|---------|-------------|-------------|-----------|
+| Approval system | ✗ | ✓ (2 levels) | ✓ (unlimited levels) |
+| SLA engine | ✗ | ✓ (basic — stage timers) | ✓ (full — all timer types + escalation) |
+| Exception handling | ✗ | ✓ | ✓ |
+| Stage entry/exit rules | ✗ | ✓ (basic) | ✓ (full + document requirements) |
+| Document-driven stages | ✗ | ✗ | ✓ |
+| Workflow versioning | ✗ | ✓ | ✓ |
+| Handoff intelligence | ✗ | ✓ (notes required) | ✓ (notes + completeness check) |
+| Observability dashboard | ✗ | ✗ | ✓ (Owner + Admin only) |
+| Communication threading | ✓ | ✓ | ✓ |
+| Internal/external messages | ✗ | ✓ | ✓ |
+| Marketing intelligence | ✗ | ✓ (50 contacts/campaign) | ✓ (unlimited) |
+| Campaign batch approval | ✗ | ✓ | ✓ |
+| Mobile role-awareness | ✓ | ✓ | ✓ |
+| AI explainability | ✓ | ✓ | ✓ |
+
+---
+
+## Quality Gates (per wave)
+
+Before moving to next wave:
+- [ ] All new tables have RLS policies (org isolation)
+- [ ] All new features have Arabic + English i18n
+- [ ] All new UI tested in RTL and LTR
+- [ ] Design system enforced (cream, three card types, no purple)
+- [ ] All AI features route through orchestrator
+- [ ] AI explainability present on every insight/recommendation
+- [ ] Approval flows block actions until approved (not soft approvals)
+- [ ] SLA timers tick in real-time (cron job running)
+- [ ] Exception overrides require documented reason
+- [ ] Handoff reassignment blocked without notes
+- [ ] Plan gating enforced for tier-restricted features
+- [ ] Build passes (`npm run build`)
+- [ ] No TypeScript errors
+
+---
+
+## Environment Variables (V4)
+
+```
+# No new environment variables needed
+# V4 uses existing:
+# - Supabase (auth, database, storage)
+# - GOOGLE_AI_API_KEY (Gemini for marketing AI)
+# - SENDGRID_API_KEY (personalized campaign sending)
+```
+
+---
+
+## Migration Sequence
+
+| Migration | File | Tables created |
+|-----------|------|---------------|
+| 029 | 029_control_layer.sql | crm_approval_flows, crm_approval_steps, crm_approval_requests, crm_sla_definitions, crm_sla_timers, crm_exceptions |
+| 030 | 030_pipeline_governance.sql | crm_stage_rules, crm_stage_document_requirements, crm_handoff_notes, crm_ownership_history |
+| 031 | 031_workflow_versioning.sql | crm_workflow_versions (extends crm_workflows) |
+| 032 | 032_marketing_intelligence.sql | crm_contact_profiles, crm_ai_campaigns, crm_ai_campaign_contacts, crm_campaign_results, crm_campaign_learnings |
+
+---
+
+## Sidebar Navigation Updates
+
+| Item | Path | Icon | Gate | Wave |
+|------|------|------|------|------|
+| Approvals | /crm/approvals | CheckSquare | Org+ | W1 |
+| Marketing | /crm/marketing | Brain | Org+ | W3 |
+| Operations | /crm/operations | Activity | Ent (Owner+Admin) | W3 |
+
+Items on existing pages (no new nav):
+- SLA timers → on deal detail page + pipeline board
+- Stage gates → on deal detail page (when moving stages)
+- Handoff → on deal reassignment dialog
+- Exception handling → on any blocked action
+- Workflow versioning → on workflow editor page
+- Communication threading → on contact/deal timeline
+- Contact profiles → accessible from marketing hub or contact detail
+
+Settings sub-pages (under existing Settings):
+- Settings > Approval Flows
+- Settings > SLA Rules
+- Settings > Pipeline Rules
+
+---
+
+## Control Layer Architecture
+
+The Control Layer is a shared service layer — NOT feature-specific code scattered across components.
+
+```
+src/control/
+├── index.ts                    # Public API: checkApproval(), startSLA(), handleException()
+├── approvals/                  # Approval engine
+├── sla/                        # SLA engine
+├── exceptions/                 # Exception handling
+├── rules/                      # Generic rule evaluation
+├── pipeline/                   # Stage rules + document requirements
+├── handoff/                    # Handoff validation
+└── versioning/                 # Workflow version management
+```
+
+**Usage pattern — every feature checks with Control Layer before acting:**
+
+```typescript
+// Example: moving a deal to next stage
+async function moveDealToStage(dealId: string, newStageId: string) {
+  // 1. Check stage entry rules
+  const entryCheck = await control.checkStageEntry(dealId, newStageId);
+  if (!entryCheck.allowed) {
+    return { blocked: true, reason: entryCheck.missingRequirements };
+  }
+
+  // 2. Check if approval is required
+  const approvalCheck = await control.checkApproval('deal_stage_change', { dealId, newStageId });
+  if (approvalCheck.required) {
+    await control.requestApproval(approvalCheck.flowId, { dealId, newStageId });
+    return { pending_approval: true };
+  }
+
+  // 3. Execute the stage change
+  await updateDealStage(dealId, newStageId);
+
+  // 4. Start SLA timer for new stage (if configured)
+  await control.startSLATimer(dealId, newStageId);
+
+  // 5. Stop SLA timer for previous stage
+  await control.stopSLATimer(dealId, previousStageId);
+}
+```
+
+---
+
+*V4 spec complete. Use with V4 Technical Architecture and V4 Prompt Playbook for Claude Code execution.*
+
+---
+
+# Rasmalak CRM — V4 Technical Architecture
+
+> **Version:** 4.0 — April 2026
+> **Prerequisite:** V3 migrations 024-028 applied and stable
+> **Classification:** Confidential
+
+---
+
+## Migration 029: Control Layer
+
+```sql
+-- ============================================================
+-- APPROVAL SYSTEM
+-- ============================================================
+
+CREATE TABLE crm_approval_flows (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  name_ar         TEXT,
+  trigger_entity  TEXT NOT NULL,
+  -- 'deal', 'document', 'quote', 'discount', 'exception', 'reassignment'
+  trigger_conditions JSONB NOT NULL DEFAULT '{}',
+  -- { field: 'value', operator: 'gt', value: 50000 }
+  -- e.g. deal.value > 50000, discount_percent > 20
+  flow_type       TEXT NOT NULL DEFAULT 'sequential' CHECK (flow_type IN ('sequential', 'parallel')),
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_by      UUID NOT NULL REFERENCES auth.users(id),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_approval_steps (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  flow_id         UUID NOT NULL REFERENCES crm_approval_flows(id) ON DELETE CASCADE,
+  step_order      INTEGER NOT NULL,
+  approver_type   TEXT NOT NULL CHECK (approver_type IN ('user', 'role', 'manager')),
+  -- 'user' = specific user, 'role' = any user with this role, 'manager' = deal owner's manager
+  approver_id     UUID,
+  -- references auth.users(id) when approver_type='user', org_roles(id) when 'role', NULL when 'manager'
+  approver_role   TEXT,
+  -- role name when approver_type='role'
+  deadline_hours  INTEGER DEFAULT 48,
+  escalation_to   UUID REFERENCES auth.users(id),
+  -- if deadline passes, escalate to this user
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_approval_requests (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  flow_id         UUID NOT NULL REFERENCES crm_approval_flows(id) ON DELETE CASCADE,
+  current_step    INTEGER DEFAULT 1,
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID NOT NULL,
+  entity_data     JSONB DEFAULT '{}',
+  -- snapshot of the entity at request time (for context)
+  requested_by    UUID NOT NULL REFERENCES auth.users(id),
+  status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'escalated', 'cancelled')),
+  decisions       JSONB DEFAULT '[]',
+  -- [{ step, decided_by, decision: 'approved'|'rejected', reason, decided_at }]
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================
+-- SLA ENGINE
+-- ============================================================
+
+CREATE TABLE crm_sla_definitions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  name_ar         TEXT,
+  entity_type     TEXT NOT NULL CHECK (entity_type IN ('deal_stage', 'approval', 'ticket', 'inactivity')),
+  target_entity   TEXT,
+  -- for deal_stage: pipeline_stage_id
+  -- for approval: approval_flow_id
+  -- for ticket: priority level
+  -- for inactivity: entity type (deal, contact)
+  duration_hours  INTEGER NOT NULL,
+  warning_at_percent INTEGER DEFAULT 80,
+  -- alert when 80% of time elapsed
+  escalation_action TEXT DEFAULT 'notify' CHECK (escalation_action IN ('notify', 'reassign', 'escalate', 'block')),
+  escalation_to   UUID REFERENCES auth.users(id),
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_sla_timers (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  sla_id          UUID NOT NULL REFERENCES crm_sla_definitions(id) ON DELETE CASCADE,
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID NOT NULL,
+  started_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deadline_at     TIMESTAMPTZ NOT NULL,
+  warning_sent    BOOLEAN DEFAULT FALSE,
+  breached        BOOLEAN DEFAULT FALSE,
+  breached_at     TIMESTAMPTZ,
+  escalation_sent BOOLEAN DEFAULT FALSE,
+  completed_at    TIMESTAMPTZ,
+  status          TEXT DEFAULT 'active' CHECK (status IN ('active', 'warning', 'breached', 'completed', 'cancelled')),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================
+-- EXCEPTION HANDLING
+-- ============================================================
+
+CREATE TABLE crm_exceptions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  exception_type  TEXT NOT NULL,
+  -- 'rule_override', 'sla_override', 'stage_skip', 'document_waiver', 'approval_bypass'
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID NOT NULL,
+  rule_overridden TEXT,
+  -- description of what rule was bypassed
+  reason          TEXT NOT NULL,
+  -- free text explaining why
+  requested_by    UUID NOT NULL REFERENCES auth.users(id),
+  approved_by     UUID REFERENCES auth.users(id),
+  approval_required BOOLEAN DEFAULT TRUE,
+  status          TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'auto_approved')),
+  -- auto_approved: when org config allows certain exception types without approval
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  resolved_at     TIMESTAMPTZ
+);
+
+-- RLS for all control layer tables
+ALTER TABLE crm_approval_flows ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_approval_steps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_approval_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_sla_definitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_sla_timers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_exceptions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation" ON crm_approval_flows FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_approval_steps FOR ALL
+  USING (flow_id IN (SELECT id FROM crm_approval_flows WHERE org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE)));
+CREATE POLICY "org_isolation" ON crm_approval_requests FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_sla_definitions FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_sla_timers FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_exceptions FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+
+-- Index for SLA cron job performance
+CREATE INDEX idx_sla_timers_active ON crm_sla_timers (status, deadline_at) WHERE status = 'active';
+CREATE INDEX idx_sla_timers_warning ON crm_sla_timers (status, deadline_at, warning_sent) WHERE status = 'active' AND warning_sent = FALSE;
+```
+
+## Migration 030: Pipeline Governance
+
+```sql
+-- ============================================================
+-- STAGE RULES
+-- ============================================================
+
+CREATE TABLE crm_stage_rules (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  stage_id        UUID NOT NULL REFERENCES crm_pipeline_stages(id) ON DELETE CASCADE,
+  rule_type       TEXT NOT NULL CHECK (rule_type IN ('entry', 'exit')),
+  conditions      JSONB NOT NULL DEFAULT '[]',
+  -- [{ type: 'field_required', field: 'deal.expected_close', message, message_ar }]
+  -- [{ type: 'document_required', document_type: 'proposal', message, message_ar }]
+  -- [{ type: 'approval_required', flow_id: UUID, message, message_ar }]
+  -- [{ type: 'task_completed', task_type: 'follow_up', message, message_ar }]
+  -- [{ type: 'min_value', field: 'deal.value', value: 10000, message, message_ar }]
+  enforcement     TEXT DEFAULT 'block' CHECK (enforcement IN ('block', 'warn', 'log')),
+  -- block: prevents stage transition, warn: shows warning but allows, log: records only
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_stage_document_requirements (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  stage_id        UUID NOT NULL REFERENCES crm_pipeline_stages(id) ON DELETE CASCADE,
+  document_type   TEXT NOT NULL,
+  -- 'proposal', 'contract', 'nda', 'quote', 'custom'
+  custom_label    TEXT,
+  custom_label_ar TEXT,
+  is_required     BOOLEAN DEFAULT TRUE,
+  -- required = blocks stage entry without it, optional = tracked but not blocking
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(org_id, stage_id, document_type)
+);
+
+-- ============================================================
+-- HANDOFF INTELLIGENCE
+-- ============================================================
+
+CREATE TABLE crm_handoff_notes (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  entity_type     TEXT NOT NULL CHECK (entity_type IN ('deal', 'contact', 'company')),
+  entity_id       UUID NOT NULL,
+  from_user       UUID NOT NULL REFERENCES auth.users(id),
+  to_user         UUID NOT NULL REFERENCES auth.users(id),
+  notes           TEXT NOT NULL,
+  pending_tasks   JSONB DEFAULT '[]',
+  -- [{ task_id, title, due_date, status }]
+  unresolved_issues JSONB DEFAULT '[]',
+  -- [{ description, severity }]
+  ai_completeness_score INTEGER,
+  -- 0-100: how complete is this handoff (computed by AI)
+  ai_missing_items JSONB DEFAULT '[]',
+  -- [{ item, reason }] — what AI thinks is missing
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_ownership_history (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  entity_type     TEXT NOT NULL CHECK (entity_type IN ('deal', 'contact', 'company')),
+  entity_id       UUID NOT NULL,
+  owner_user_id   UUID NOT NULL REFERENCES auth.users(id),
+  started_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ended_at        TIMESTAMPTZ,
+  handoff_note_id UUID REFERENCES crm_handoff_notes(id),
+  reason          TEXT,
+  -- 'initial_assignment', 'reassignment', 'territory_change', 'rep_departure'
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- Add internal/external flag and threading to communications
+ALTER TABLE crm_communications
+  ADD COLUMN IF NOT EXISTS is_internal BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS thread_id UUID,
+  ADD COLUMN IF NOT EXISTS thread_position INTEGER;
+
+-- RLS
+ALTER TABLE crm_stage_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_stage_document_requirements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_handoff_notes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_ownership_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation" ON crm_stage_rules FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_stage_document_requirements FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_handoff_notes FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_ownership_history FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+```
+
+## Migration 031: Workflow Versioning
+
+```sql
+CREATE TABLE crm_workflow_versions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workflow_id     UUID NOT NULL REFERENCES crm_workflows(id) ON DELETE CASCADE,
+  version_number  INTEGER NOT NULL,
+  status          TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'archived')),
+  definition      JSONB NOT NULL,
+  -- complete snapshot of workflow: triggers, conditions, actions
+  change_summary  TEXT,
+  change_summary_ar TEXT,
+  created_by      UUID NOT NULL REFERENCES auth.users(id),
+  activated_at    TIMESTAMPTZ,
+  archived_at     TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(workflow_id, version_number)
+);
+
+-- Add version tracking to existing workflows table
+ALTER TABLE crm_workflows
+  ADD COLUMN IF NOT EXISTS current_version_id UUID REFERENCES crm_workflow_versions(id),
+  ADD COLUMN IF NOT EXISTS version_count INTEGER DEFAULT 1;
+
+-- Observability: extend existing workflow log with error categorization
+ALTER TABLE crm_workflow_log
+  ADD COLUMN IF NOT EXISTS error_category TEXT,
+  -- 'trigger_failed', 'condition_error', 'action_failed', 'timeout', 'integration_error'
+  ADD COLUMN IF NOT EXISTS error_details JSONB,
+  ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS resolved BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS resolved_by UUID REFERENCES auth.users(id),
+  ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMPTZ;
+
+-- Permission change tracking in audit log
+-- No new table needed — extend existing crm_audit_log usage
+-- The audit log already captures: user_id, action, entity_type, entity_id, old_value, new_value
+-- For permission changes: entity_type='org_member_permission', old_value=previous permissions, new_value=new permissions
+
+ALTER TABLE crm_workflow_versions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "versions_via_workflow" ON crm_workflow_versions FOR ALL
+  USING (workflow_id IN (SELECT id FROM crm_workflows WHERE org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE)));
+```
+
+## Migration 032: Marketing Intelligence Engine
+
+```sql
+-- ============================================================
+-- CONTACT BEHAVIORAL PROFILES
+-- ============================================================
+
+CREATE TABLE crm_contact_profiles (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  contact_id      UUID NOT NULL REFERENCES crm_contacts(id) ON DELETE CASCADE,
+
+  -- Communication behavior
+  total_interactions INTEGER DEFAULT 0,
+  preferred_channel TEXT,
+  preferred_time_window TEXT,
+  preferred_dialect TEXT,
+  avg_response_time_minutes INTEGER,
+  message_length_preference TEXT,
+
+  -- Engagement patterns
+  email_open_rate NUMERIC,
+  email_click_rate NUMERIC,
+  whatsapp_response_rate NUMERIC,
+  last_engaged_at TIMESTAMPTZ,
+  engagement_trend TEXT CHECK (engagement_trend IN ('increasing', 'stable', 'declining', 'dormant')),
+
+  -- Deal history
+  total_deals INTEGER DEFAULT 0,
+  won_deals INTEGER DEFAULT 0,
+  lost_deals INTEGER DEFAULT 0,
+  total_revenue NUMERIC DEFAULT 0,
+  avg_deal_size NUMERIC,
+  primary_interests TEXT[],
+  -- e.g. ['cost_savings', 'new_features', 'support_quality']
+  known_objections TEXT[],
+  -- e.g. ['price', 'implementation_time', 'feature_gap']
+
+  -- Sentiment
+  current_sentiment TEXT CHECK (current_sentiment IN ('positive', 'neutral', 'negative', 'unknown')),
+  sentiment_history JSONB DEFAULT '[]',
+  -- [{ date, sentiment, source }] — append only
+
+  -- AI-derived insights
+  personality_signals JSONB DEFAULT '{}',
+  -- { responds_to_data: true, prefers_relationship: true, decision_speed: 'fast', risk_tolerance: 'low' }
+  recommended_approach JSONB DEFAULT '{}',
+  -- { tone, message_type, key_talking_points, avoid_topics }
+
+  -- Campaign history
+  campaigns_received INTEGER DEFAULT 0,
+  campaigns_engaged INTEGER DEFAULT 0,
+  last_campaign_at TIMESTAMPTZ,
+  best_performing_content_type TEXT,
+  -- 'case_study', 'product_update', 'industry_insight', 'personal_check_in', 'promotion'
+
+  last_computed_at TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(org_id, contact_id)
+);
+
+-- ============================================================
+-- AI CAMPAIGNS
+-- ============================================================
+
+CREATE TABLE crm_ai_campaigns (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  name_ar         TEXT,
+  objective       TEXT NOT NULL,
+  -- 're_engagement', 'upsell', 'cross_sell', 'nurture', 'announcement', 'follow_up', 'custom'
+  objective_description TEXT,
+  -- free text: user's description of what they want to achieve
+  ai_strategy     JSONB DEFAULT '{}',
+  -- AI-generated strategy: { summary, summary_ar, segments: [{ name, count, approach }] }
+  status          TEXT DEFAULT 'planning' CHECK (status IN ('planning', 'ready_for_review', 'approved', 'executing', 'completed', 'cancelled')),
+  total_contacts  INTEGER DEFAULT 0,
+  contacts_by_channel JSONB DEFAULT '{}',
+  -- { email: 15, whatsapp: 8, phone_call: 3 }
+  scheduled_at    TIMESTAMPTZ,
+  executed_at     TIMESTAMPTZ,
+  completed_at    TIMESTAMPTZ,
+  approved_by     UUID REFERENCES auth.users(id),
+  approved_at     TIMESTAMPTZ,
+  created_by      UUID NOT NULL REFERENCES auth.users(id),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_ai_campaign_contacts (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  campaign_id     UUID NOT NULL REFERENCES crm_ai_campaigns(id) ON DELETE CASCADE,
+  contact_id      UUID NOT NULL REFERENCES crm_contacts(id) ON DELETE CASCADE,
+  channel         TEXT NOT NULL CHECK (channel IN ('email', 'whatsapp', 'phone_call')),
+  dialect         TEXT,
+  personalized_subject TEXT,
+  personalized_subject_ar TEXT,
+  personalized_body TEXT NOT NULL,
+  personalized_body_ar TEXT,
+  ai_reasoning    TEXT,
+  -- why this message, this channel, this timing for this contact
+  scheduled_time  TIMESTAMPTZ,
+  status          TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'delivered', 'opened', 'clicked', 'replied', 'failed', 'skipped')),
+  sent_at         TIMESTAMPTZ,
+  opened_at       TIMESTAMPTZ,
+  clicked_at      TIMESTAMPTZ,
+  replied_at      TIMESTAMPTZ,
+  reply_sentiment TEXT,
+  sendgrid_message_id TEXT,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(campaign_id, contact_id)
+);
+
+-- ============================================================
+-- CAMPAIGN LEARNING
+-- ============================================================
+
+CREATE TABLE crm_campaign_learnings (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  campaign_id     UUID NOT NULL REFERENCES crm_ai_campaigns(id) ON DELETE CASCADE,
+  learning_type   TEXT NOT NULL,
+  -- 'channel_effectiveness', 'timing_insight', 'content_pattern', 'segment_response', 'dialect_preference'
+  insight         TEXT NOT NULL,
+  insight_ar      TEXT,
+  data_points     JSONB DEFAULT '{}',
+  -- supporting data for the insight
+  confidence      NUMERIC,
+  applied_to_profiles BOOLEAN DEFAULT FALSE,
+  -- true after this learning has been fed back into contact profiles
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- RLS
+ALTER TABLE crm_contact_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_ai_campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_ai_campaign_contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_campaign_learnings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation" ON crm_contact_profiles FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_ai_campaigns FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "contacts_via_campaign" ON crm_ai_campaign_contacts FOR ALL
+  USING (campaign_id IN (SELECT id FROM crm_ai_campaigns WHERE org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE)));
+CREATE POLICY "org_isolation" ON crm_campaign_learnings FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+
+-- Performance indexes
+CREATE INDEX idx_contact_profiles_engagement ON crm_contact_profiles (org_id, engagement_trend, last_engaged_at);
+CREATE INDEX idx_contact_profiles_sentiment ON crm_contact_profiles (org_id, current_sentiment);
+CREATE INDEX idx_ai_campaign_contacts_status ON crm_ai_campaign_contacts (campaign_id, status);
+```
+
+---
+
+## Key Interfaces
+
+### Control Layer Public API
+
+```typescript
+// src/control/index.ts — single entry point for all control layer checks
+
+export interface ControlLayer {
+  // Approvals
+  checkApproval(action: string, context: Record<string, any>): Promise<ApprovalCheck>;
+  requestApproval(flowId: string, entityType: string, entityId: string, data: any): Promise<ApprovalRequest>;
+  approveRequest(requestId: string, reason?: string): Promise<void>;
+  rejectRequest(requestId: string, reason: string): Promise<void>;
+  getPendingApprovals(userId: string): Promise<ApprovalRequest[]>;
+
+  // SLAs
+  startSLATimer(entityType: string, entityId: string, slaId: string): Promise<SLATimer>;
+  stopSLATimer(entityType: string, entityId: string): Promise<void>;
+  checkSLABreaches(): Promise<SLABreach[]>;  // called by cron job
+
+  // Stage rules
+  checkStageEntry(dealId: string, stageId: string): Promise<StageCheck>;
+  checkStageExit(dealId: string, stageId: string): Promise<StageCheck>;
+  getStageRequirements(stageId: string): Promise<StageRequirements>;
+
+  // Exceptions
+  requestException(type: string, entityType: string, entityId: string, reason: string): Promise<ExceptionRequest>;
+  approveException(exceptionId: string): Promise<void>;
+
+  // Handoff
+  validateHandoff(entityType: string, entityId: string, notes: string): Promise<HandoffValidation>;
+  recordOwnershipChange(entityType: string, entityId: string, fromUser: string, toUser: string, handoffNoteId: string): Promise<void>;
+}
+
+interface ApprovalCheck {
+  required: boolean;
+  flowId?: string;
+  flowName?: string;
+  reason?: string;
+}
+
+interface StageCheck {
+  allowed: boolean;
+  missingRequirements: StageRequirement[];
+}
+
+interface StageRequirement {
+  type: 'field_required' | 'document_required' | 'approval_required' | 'task_completed' | 'min_value';
+  description: string;
+  description_ar: string;
+  met: boolean;
+}
+
+interface HandoffValidation {
+  complete: boolean;
+  score: number;  // 0-100
+  missingItems: { item: string; reason: string }[];
+}
+```
+
+### Marketing Intelligence Agent
+
+```typescript
+// src/ai/agents/marketingAgent.ts
+
+export interface MarketingAgent {
+  // Profile management
+  computeContactProfile(orgId: string, contactId: string): Promise<ContactProfile>;
+  batchComputeProfiles(orgId: string): Promise<void>;
+
+  // Campaign creation
+  suggestCampaignOpportunities(orgId: string): Promise<CampaignOpportunity[]>;
+  planCampaign(orgId: string, objective: string, description: string): Promise<CampaignPlan>;
+  generatePersonalizedMessages(campaignId: string): Promise<PersonalizedMessage[]>;
+
+  // Learning
+  analyzeCampaignResults(campaignId: string): Promise<CampaignLearning[]>;
+  applyLearningsToProfiles(orgId: string, learnings: CampaignLearning[]): Promise<void>;
+}
+
+interface CampaignOpportunity {
+  type: 're_engagement' | 'upsell' | 'cross_sell' | 'nurture' | 'follow_up';
+  title: string;
+  title_ar: string;
+  description: string;
+  description_ar: string;
+  contact_count: number;
+  estimated_impact: string;
+  confidence: number;
+}
+
+interface CampaignPlan {
+  strategy: string;
+  strategy_ar: string;
+  segments: CampaignSegment[];
+  total_contacts: number;
+  channels: Record<string, number>;
+  estimated_timeline: string;
+}
+
+interface CampaignSegment {
+  name: string;
+  name_ar: string;
+  contacts: string[];  // contact IDs
+  approach: string;
+  approach_ar: string;
+  channel: 'email' | 'whatsapp' | 'phone_call';
+  reasoning: string;
+}
+
+interface PersonalizedMessage {
+  contact_id: string;
+  channel: 'email' | 'whatsapp' | 'phone_call';
+  dialect: 'gulf' | 'levantine' | 'egyptian' | 'english';
+  subject?: string;
+  subject_ar?: string;
+  body: string;
+  body_ar?: string;
+  scheduled_time: string;
+  reasoning: string;
+  // for phone calls: talking points instead of body
+  talking_points?: string[];
+  talking_points_ar?: string[];
+}
+
+interface CampaignLearning {
+  type: 'channel_effectiveness' | 'timing_insight' | 'content_pattern' | 'segment_response' | 'dialect_preference';
+  insight: string;
+  insight_ar: string;
+  confidence: number;
+  data_points: Record<string, any>;
+}
+```
+
+### SLA Cron Job
+
+```typescript
+// src/app/api/cron/sla-check/route.ts
+// Runs every 5 minutes via Vercel cron
+
+export async function GET(request: Request) {
+  // 1. Find all active SLA timers where deadline is approaching or passed
+  // 2. For timers at warning threshold (80% elapsed) → send warning notification
+  // 3. For timers past deadline → mark as breached, execute escalation action:
+  //    - 'notify': send notification to escalation_to user
+  //    - 'reassign': reassign the entity to escalation_to user
+  //    - 'escalate': create approval request for manager
+  //    - 'block': flag the entity as SLA-blocked (prevents further actions until resolved)
+  // 4. Update timer statuses
+}
+```
+
+### Contact Profile Computation
+
+```typescript
+// src/ai/deterministic/contactProfile.ts
+
+export async function computeContactProfile(
+  orgId: string,
+  contactId: string
+): Promise<ContactProfile> {
+  // 1. Fetch ALL data for this contact:
+  //    - Communications (all types, all channels)
+  //    - Deals (won, lost, in progress)
+  //    - Tasks (completed, pending)
+  //    - Engagement profile (from V3)
+  //    - Sentiment data (from V3 NLP)
+  //    - Previous campaign results
+  //    - Health scores (if monitored)
+  //    - Ticket history
+
+  // 2. Compute behavioral signals:
+  //    - Channel preference (which channel gets fastest responses)
+  //    - Time preference (when do they respond)
+  //    - Dialect preference (what language are their messages in)
+  //    - Message style (formal/informal, length preference)
+  //    - Decision speed (how quickly do deals progress)
+  //    - Risk tolerance (do they need lots of reassurance)
+
+  // 3. Compute interests and objections:
+  //    - What topics in communications correlate with engagement
+  //    - What objections appeared in lost deal notes
+  //    - What features/benefits are mentioned positively
+
+  // 4. Generate AI recommended approach:
+  //    - Call Gemini with the full profile data
+  //    - Prompt: "Given this contact's history, what's the best approach for outreach?"
+  //    - Return: tone, message type, key talking points, topics to avoid
+
+  // 5. Upsert into crm_contact_profiles
+}
+```
+
+### Campaign Planning Flow
+
+```typescript
+// Full workflow for AI campaign creation
+
+// Step 1: User or AI initiates
+// User: "Create a re-engagement campaign for contacts who haven't heard from us in 60 days"
+// OR AI suggests: "23 high-value contacts haven't been contacted in 60+ days"
+
+// Step 2: AI plans the campaign
+const plan = await marketingAgent.planCampaign(orgId, 'custom', userDescription);
+// Returns segments, channels, approach per segment
+
+// Step 3: AI generates individual messages
+const messages = await marketingAgent.generatePersonalizedMessages(campaignId);
+// Each message is unique — different content, channel, timing, dialect per contact
+// Each includes AI reasoning: "This contact prefers WhatsApp, responds evenings, likes data-driven messages"
+
+// Step 4: User reviews (batch approval UI)
+// Summary view: "23 contacts, 15 email, 6 WhatsApp, 2 phone calls"
+// Drill-down: click any contact to see their specific message + AI reasoning
+// User can edit individual messages before approving
+
+// Step 5: User approves batch
+// Atomic approval — entire batch commits
+
+// Step 6: System executes
+// Emails via SendGrid (personalized per contact)
+// WhatsApp via Meta API (personalized templates or free-form in 24h window)
+// Phone calls → creates tasks for reps with talking points
+
+// Step 7: Track results
+// Opens, clicks, replies, sentiment of replies tracked
+// Feed back into contact profiles
+
+// Step 8: AI learns
+const learnings = await marketingAgent.analyzeCampaignResults(campaignId);
+// "Contacts in UAE respond 3x better to WhatsApp than email"
+// "Evening sends outperform morning by 40% for this segment"
+// Learnings applied to profiles → next campaign is smarter
+```
+
+---
+
+*V4 Technical Architecture complete. Use with V4 Claude Code Spec and V4 Prompt Playbook.*
+
+---
+
+# Rasmalak CRM — V4 Prompt Playbook
+
+> **Purpose:** Every prompt for Claude Code, in order.
+> **Prerequisite:** V3 complete and stable. Load V4 spec + architecture + this playbook.
+> **Classification:** Confidential
+
+---
+
+## Session Setup
+
+### Prompt 0: Context Loading
+
+```
+I'm building V4 of Rasmalak CRM. V1, V2, and V3 are fully built — you can see the source code.
+
+Read these V4 files:
+1. RASMALAK_CRM_V4_CLAUDE_CODE_SPEC.md — V4 rules, wave structure, file paths, gating
+2. RASMALAK_CRM_V4_TECHNICAL_ARCHITECTURE.md — Complete SQL for migrations 029-032, interfaces
+3. RASMALAK_CRM_V4_PROMPT_PLAYBOOK.md — Every prompt in order
+
+Also read for reference:
+4. rasmalak-design-brief.md — Design tokens
+
+If you need V1/V2/V3 schema details, look at the source code or previous spec files.
+
+After reading, confirm:
+1. How many V4 waves and what's in each?
+2. What are the 4 migration files and what do they create?
+3. What is the new architectural layer introduced in V4?
+4. What is the marketing intelligence engine and how does it differ from a traditional campaign builder?
+5. What does the Control Layer's checkStageEntry() do?
+
+Do NOT start building until you've confirmed all 5.
+```
+
+**Expected confirmation:**
+1. 3 waves: W1 (control layer foundation — approvals, SLAs, exceptions), W2 (pipeline & document governance — stage rules, doc requirements, workflow versioning, handoff, governance), W3 (intelligence evolution — marketing engine, communication threading, observability, mobile role-awareness)
+2. 029 (control layer: approval flows/steps/requests, SLA definitions/timers, exceptions), 030 (pipeline governance: stage rules, doc requirements, handoff notes, ownership history + comms threading), 031 (workflow versioning + observability extensions), 032 (marketing intelligence: contact profiles, AI campaigns, campaign contacts, campaign learnings)
+3. Control Layer — sits between Application and AI layers. Responsible for rule enforcement, approval logic, SLA tracking, exception handling. Shared service at src/control/
+4. AI reads full contact history (deals, chats, sentiment, preferences) and crafts individualized messages per contact — different content, channel, timing, dialect. Not template blasts. Batch approval. Results feed back into profiles. Each campaign makes the next smarter.
+5. Checks all entry rules for a pipeline stage: required fields filled, required documents attached, approvals granted, tasks completed. Returns allowed/blocked with list of unmet requirements.
+
+---
+
+## WAVE 1 — Control Layer Foundation
+
+### Prompt W1-01: Migration 029 (Control Layer)
+
+```
+Run migration 029. Create supabase/migrations/029_control_layer.sql with all control layer tables.
+
+Tables to create:
+- crm_approval_flows (org_id, name, name_ar, trigger_entity, trigger_conditions JSONB, flow_type CHECK sequential/parallel, is_active)
+- crm_approval_steps (flow_id, step_order, approver_type CHECK user/role/manager, approver_id, approver_role, deadline_hours, escalation_to)
+- crm_approval_requests (org_id, flow_id, current_step, entity_type, entity_id, entity_data JSONB snapshot, requested_by, status CHECK pending/approved/rejected/escalated/cancelled, decisions JSONB array)
+- crm_sla_definitions (org_id, name, name_ar, entity_type CHECK deal_stage/approval/ticket/inactivity, target_entity, duration_hours, warning_at_percent default 80, escalation_action CHECK notify/reassign/escalate/block, escalation_to, is_active)
+- crm_sla_timers (org_id, sla_id, entity_type, entity_id, started_at, deadline_at, warning_sent, breached, breached_at, escalation_sent, completed_at, status CHECK active/warning/breached/completed/cancelled)
+- crm_exceptions (org_id, exception_type, entity_type, entity_id, rule_overridden, reason NOT NULL, requested_by, approved_by, approval_required, status CHECK pending/approved/rejected/auto_approved, resolved_at)
+
+All with RLS org isolation. Add performance indexes on sla_timers for the cron job.
+
+Follow the exact SQL from the V4 Technical Architecture document.
+```
+
+### Prompt W1-02: Control Layer Service
+
+```
+Create the Control Layer as a shared service at src/control/. This is the most important architectural piece of V4 — everything else plugs into it.
+
+Directory structure:
+src/control/
+├── index.ts           # Public API (single entry point for all control checks)
+├── approvals/
+│   ├── approvalEngine.ts      # Core: checkApproval, requestApproval, approve, reject
+│   ├── approvalTypes.ts       # TypeScript interfaces
+│   └── approvalService.ts     # Supabase CRUD
+├── sla/
+│   ├── slaEngine.ts           # Core: startTimer, stopTimer, checkBreaches
+│   ├── slaTypes.ts            # TypeScript interfaces
+│   ├── slaService.ts          # Supabase CRUD
+│   └── slaEscalation.ts      # Escalation logic (notify, reassign, escalate, block)
+├── exceptions/
+│   ├── exceptionHandler.ts    # Core: requestException, approveException
+│   ├── exceptionTypes.ts      # TypeScript interfaces
+│   └── exceptionService.ts    # Supabase CRUD
+└── rules/
+    ├── ruleEngine.ts          # Generic rule evaluation (used by stage rules later)
+    └── ruleTypes.ts           # Rule, Condition, Action types
+
+The public API in index.ts must expose these functions:
+- checkApproval(action, context) → { required, flowId, reason }
+- requestApproval(flowId, entityType, entityId, data) → ApprovalRequest
+- approveRequest(requestId, reason?) → void
+- rejectRequest(requestId, reason) → void
+- getPendingApprovals(userId) → ApprovalRequest[]
+- startSLATimer(entityType, entityId, slaId) → SLATimer
+- stopSLATimer(entityType, entityId) → void
+- checkSLABreaches() → SLABreach[] (for cron)
+- requestException(type, entityType, entityId, reason) → ExceptionRequest
+- approveException(exceptionId) → void
+
+Every function that modifies data must also log to crm_audit_log.
+
+Export the control layer as a singleton: import { control } from '@/control'
+```
+
+### Prompt W1-03: Approval UI
+
+```
+Build the approval user interface:
+
+1. src/app/(crm)/crm/approvals/page.tsx — Approval queue
+   - List of pending approvals assigned to the current user
+   - Each card shows: entity type + name, what's being approved (deal stage change, discount, etc.), who requested it, when, deadline countdown
+   - Quick actions: Approve (with optional reason) or Reject (reason required)
+   - Filter: pending / approved / rejected / all
+   - Badge on sidebar nav showing pending count
+
+2. src/app/(crm)/crm/approvals/[approvalId]/page.tsx — Approval detail
+   - Full context: entity snapshot at request time, approval flow visualization (which steps, who approved at each step), current step highlighted
+   - Decision history: who approved/rejected at each step with timestamps and reasons
+   - Approve/Reject buttons with reason input
+
+3. src/app/(crm)/crm/settings/approvals/page.tsx — Approval flow configuration (admin only)
+   - List of approval flows with: name, trigger entity, conditions, active/inactive
+   - "Create flow" button → flow editor
+   - Flow editor: visual step builder
+     - Trigger: select entity type (deal, document, quote, discount) + conditions (e.g. deal.value > 50000)
+     - Steps: add steps in order. Each step: approver type (specific user / role / manager), deadline, escalation
+     - Flow type: sequential (step 1 then step 2) or parallel (all steps simultaneously)
+   - Test flow: "If a $75K deal moves to Negotiation, who needs to approve?"
+
+4. src/components/crm/approvals/ — ApprovalQueue.tsx, ApprovalCard.tsx, ApprovalFlowEditor.tsx, ApprovalStepBuilder.tsx, ApprovalBadge.tsx
+
+5. Integrate into existing deal flow:
+   - When a user moves a deal to a new stage, BEFORE the move executes, call control.checkApproval('deal_stage_change', { dealId, newStageId, dealValue })
+   - If approval required → block the move, show "This action requires approval from [approver]", create approval request
+   - Deal card shows "Pending Approval" badge until approved
+   - When approved → stage change executes automatically
+   - When rejected → deal stays in current stage, requester notified with rejection reason
+
+Add "Approvals" to CRM sidebar with pending count badge. Available to Organization+ tier.
+Add i18n keys to src/messages/en/approvals.ts and src/messages/ar/approvals.ts.
+```
+
+### Prompt W1-04: SLA Engine + UI
+
+```
+Build the SLA engine and user interface:
+
+1. src/app/api/cron/sla-check/route.ts — Cron job
+   - Runs every 5 minutes (configure in vercel.json: { "crons": [{ "path": "/api/cron/sla-check", "schedule": "*/5 * * * *" }] })
+   - Calls control.checkSLABreaches()
+   - For each breach: execute escalation action (notify/reassign/escalate/block)
+   - Log all actions to audit trail
+
+2. src/app/(crm)/crm/settings/sla/page.tsx — SLA configuration (admin only)
+   - List of SLA rules: name, entity type, duration, escalation action
+   - "Create SLA rule" → editor:
+     - Entity type: deal stage / approval / ticket / inactivity
+     - Target: which specific stage or approval flow (dropdown)
+     - Duration: hours or days
+     - Warning threshold: percentage (default 80%)
+     - Escalation: notify / reassign / escalate / block + who to escalate to
+   - Active/inactive toggle
+
+3. SLA timer display on deals:
+   - src/components/crm/sla/SLATimer.tsx — visual countdown
+     - Green: within time, plenty remaining
+     - Yellow: warning threshold reached (80%+ elapsed)
+     - Red: breached
+   - Shows on deal detail page header when a stage has an SLA
+   - Shows on pipeline board as small timer indicator per deal card
+
+4. src/components/crm/sla/SLADashboard.tsx — SLA health overview
+   - Add to manager dashboard: "SLA Health" card
+   - Shows: total active timers, on track count, warning count, breached count
+   - Click to see list of breached SLAs with drill-down
+
+5. SLA integration with pipeline:
+   - When a deal enters a stage that has an SLA definition → auto-start timer
+   - When deal exits the stage → stop timer (mark completed)
+   - Timer ticks in real-time (computed from started_at + duration, not polling)
+
+Add i18n keys for SLA strings.
+```
+
+### Prompt W1-05: Exception Handling
+
+```
+Build the exception handling system:
+
+1. src/components/crm/exceptions/ExceptionDialog.tsx
+   - Modal that appears when a user attempts an action blocked by a rule
+   - Shows: what rule is blocking, why
+   - "Request Override" button → reason input (mandatory free text)
+   - If org config requires approval for this exception type → creates approval request
+   - If org config allows auto-approval → logs exception and allows action
+
+2. src/components/crm/exceptions/ExceptionLog.tsx
+   - Table of all exceptions for an entity (deal, contact, etc.)
+   - Shows: type, rule overridden, reason, requested by, approved by, date
+   - Visible on entity detail pages under "Exceptions" tab/section
+
+3. Integration points:
+   - Stage rules blocked → exception dialog appears
+   - Document requirement missing → exception dialog with "waive document requirement" option
+   - SLA breached and action blocked → exception dialog
+   - Any control layer "block" can be overridden via exception (with audit trail)
+
+4. Exception configuration (admin):
+   - Add to Settings: "Exception Policies"
+   - Per exception type: requires approval (yes/no), who can approve, auto-approve for certain roles
+   - Default: all exceptions require approval
+
+5. Every exception creates an audit log entry with:
+   - Who requested it
+   - What rule was overridden
+   - The reason given
+   - Who approved it (if applicable)
+   - Timestamp
+```
+
+### Prompt W1-06: Wave 1 Quality Gate
+
+```
+Wave 1 quality gate. Verify:
+
+1. Migration 029 applied — all 6 control layer tables exist with RLS and indexes
+2. Control layer service at src/control/ is functional with all public API methods
+3. Approval flows: create flow, configure steps, trigger on deal stage change, approve/reject works
+4. Approval queue: pending approvals display correctly, badge count on sidebar
+5. Deal stage changes blocked when approval required, unblocked when approved
+6. SLA definitions: create, configure duration + escalation
+7. SLA timers: start on stage entry, display countdown on deal card, warning at threshold
+8. SLA cron job: runs every 5 minutes, detects breaches, triggers escalation
+9. Exception handling: dialog appears on blocked action, reason required, audit logged
+10. All new UI has Arabic + English i18n
+11. All new UI tested in RTL and LTR
+12. Design system enforced
+13. Build passes, no TypeScript errors
+
+Fix any issues before Wave 2.
+```
+
+---
+
+## WAVE 2 — Pipeline & Document Governance
+
+### Prompt W2-01: Migration 030 (Pipeline Governance)
+
+```
+Run migration 030. Create supabase/migrations/030_pipeline_governance.sql with:
+
+- crm_stage_rules (org_id, stage_id, rule_type CHECK entry/exit, conditions JSONB array, enforcement CHECK block/warn/log, is_active)
+- crm_stage_document_requirements (org_id, stage_id, document_type, custom_label AR/EN, is_required, UNIQUE org+stage+doctype)
+- crm_handoff_notes (org_id, entity_type CHECK deal/contact/company, entity_id, from_user, to_user, notes NOT NULL, pending_tasks JSONB, unresolved_issues JSONB, ai_completeness_score, ai_missing_items JSONB)
+- crm_ownership_history (org_id, entity_type, entity_id, owner_user_id, started_at, ended_at, handoff_note_id, reason)
+
+Also ALTER crm_communications to add:
+- is_internal BOOLEAN DEFAULT FALSE
+- thread_id UUID
+- thread_position INTEGER
+
+All with RLS. Follow exact SQL from V4 Technical Architecture.
+```
+
+### Prompt W2-02: Stage Entry/Exit Rules
+
+```
+Build the pipeline stage rule system:
+
+1. Extend src/control/ with pipeline rules:
+   src/control/pipeline/
+   ├── stageRules.ts             # checkStageEntry(), checkStageExit()
+   ├── stageRuleTypes.ts         # StageRule, RuleCondition types
+   └── documentRequirements.ts   # checkDocumentRequirements()
+
+2. Add to control/index.ts:
+   - checkStageEntry(dealId, stageId) → { allowed, missingRequirements[] }
+   - checkStageExit(dealId, stageId) → { allowed, missingRequirements[] }
+   - getStageRequirements(stageId) → StageRequirements
+
+3. Rule condition types:
+   - field_required: a deal field must be filled (e.g. expected_close date)
+   - document_required: specific document type must be attached to the deal
+   - approval_required: an approval flow must be completed
+   - task_completed: specific task type must be marked done
+   - min_value: deal value must exceed threshold
+   - custom: arbitrary JSONB condition evaluated by rule engine
+
+4. Enforcement levels:
+   - block: prevents stage transition entirely (shows requirements dialog)
+   - warn: shows warning but allows if user confirms
+   - log: records that requirements weren't met but doesn't block
+
+5. Stage rule configuration page:
+   src/app/(crm)/crm/settings/pipeline-rules/page.tsx
+   - Select pipeline → select stage
+   - Configure entry rules and exit rules separately
+   - Add conditions with drag-and-drop
+   - Set enforcement level per rule
+   - Document requirements: add required document types per stage
+
+6. Visual stage gate on pipeline board:
+   src/components/crm/pipeline/StageGate.tsx
+   - When dragging a deal to a new stage, a gate overlay shows requirements
+   - Green checkmarks for met requirements, red X for unmet
+   - If all met → deal moves. If blocked → shows what's missing with action links.
+   - Document requirement shows "Upload [document type]" button
+
+7. Document-driven progression:
+   - On deal detail page, show required documents for current stage
+   - Checklist format: ✓ Proposal uploaded, ✗ Contract missing (upload button)
+   - When all documents uploaded → stage exit requirements met
+```
+
+### Prompt W2-03: Workflow Versioning
+
+```
+Run migration 031. Create supabase/migrations/031_workflow_versioning.sql with:
+
+- crm_workflow_versions (workflow_id, version_number UNIQUE with workflow_id, status CHECK draft/active/archived, definition JSONB, change_summary AR/EN, created_by, activated_at, archived_at)
+- ALTER crm_workflows: add current_version_id, version_count
+- ALTER crm_workflow_log: add error_category, error_details JSONB, retry_count, resolved, resolved_by, resolved_at
+
+Build the versioning system:
+
+1. src/control/versioning/workflowVersioning.ts
+   - createDraftVersion(workflowId) → copies current active version as draft
+   - activateVersion(versionId) → archives current active, sets this as active
+   - rollbackToVersion(versionId) → creates new version from old version's definition
+   - getVersionHistory(workflowId) → list of all versions with metadata
+
+2. UI changes to existing workflow editor:
+   - Add version indicator: "v3 (active)" or "v4 (draft)"
+   - "Save as draft" button (doesn't activate — allows testing)
+   - "Activate" button on draft versions (makes it the live version)
+   - Version history panel: list of versions with date, author, change summary
+   - "View" any past version (read-only)
+   - "Rollback to this version" button on past versions
+   - Diff view: compare two versions side-by-side (show what changed)
+
+3. src/components/crm/workflows/VersionSelector.tsx, VersionDiff.tsx, DraftBadge.tsx
+```
+
+### Prompt W2-04: Handoff Intelligence
+
+```
+Build the handoff intelligence system:
+
+1. src/control/handoff/
+   ├── handoffService.ts         # CRUD for handoff notes
+   ├── handoffValidator.ts       # Validates completeness
+   └── ownershipTracker.ts       # Records ownership changes
+
+2. Mandatory handoff enforcement:
+   - When a user clicks "Reassign" on any deal, contact, or company → HandoffDialog opens
+   - The reassign action is DISABLED (greyed out button) until handoff notes are written
+   - HandoffDialog.tsx:
+     - "Handoff notes" textarea (mandatory, minimum 50 characters)
+     - "Pending tasks" section: auto-populated from open tasks, user can add more
+     - "Unresolved issues" section: user lists any open problems
+     - Submit → creates crm_handoff_notes record → reassignment proceeds
+     - AI completeness score: after submission, Mustasharak evaluates the notes and flags anything missing ("You didn't mention the pending proposal revision")
+
+3. Incomplete handoff detection:
+   - After handoff, if the new owner hasn't viewed the handoff notes within 48 hours → notification
+   - If there are unresolved issues in the handoff that haven't been addressed within 7 days → alert to manager
+
+4. Ownership history:
+   src/components/crm/pipeline/OwnershipHistory.tsx
+   - Timeline showing every owner change: who, when, reason, link to handoff notes
+   - Displayed on deal/contact detail pages under "History" or "Ownership" section
+
+5. Governance depth additions:
+   - Permission change tracking: when any org_member's role or permissions change, log to crm_audit_log with entity_type='org_member_permission', old_value=previous permissions, new_value=new permissions
+   - AI traceability: every AI insight now includes an "inputs" section showing what data was used. Add ai_inputs JSONB field to AI responses. Display as expandable "How was this calculated?" on any AI-generated card.
+```
+
+### Prompt W2-05: Communication Threading
+
+```
+Upgrade the communication system:
+
+1. Threading:
+   - Add thread_id and thread_position to communication entries
+   - When a new email arrives that's a reply to a previous email (detected by thread ID from email provider), set the same thread_id and increment thread_position
+   - WhatsApp conversations within a 24h window share a thread_id
+   - Thread view: src/components/crm/communications/ThreadView.tsx
+     - Groups related messages into collapsible threads
+     - Shows thread summary: participants, message count, date range
+     - Click to expand: see all messages in order
+
+2. Internal vs external separation:
+   - Add is_internal toggle on every communication entry
+   - Default: FALSE (external — visible to customer in deal room)
+   - Internal notes: only visible to CRM users, never shown in deal room
+   - UI: toggle switch on communication compose form "Internal note" vs "Customer-visible"
+   - Filter on timeline: "All" / "External only" / "Internal only"
+
+3. Mandatory conversation→deal linkage:
+   - When logging a communication, if there are active deals with the contact, prompt: "Link to deal?" with deal selector
+   - If only one active deal → auto-link
+   - Communications without a deal link show a subtle "Not linked to any deal" indicator
+
+4. Update the deal room (V3) to respect is_internal flag — only show external communications in the customer-facing view.
+```
+
+### Prompt W2-06: Wave 2 Quality Gate
+
+```
+Wave 2 quality gate. Verify:
+
+1. Migration 030 applied — stage rules, document requirements, handoff notes, ownership history tables exist
+2. Migration 031 applied — workflow versions table exists, workflow_log extended
+3. Stage entry/exit rules: configure per stage, block/warn/log enforcement works
+4. Document requirements: required docs per stage, checklist on deal detail, blocks stage exit when missing
+5. Stage gate visual on pipeline board when dragging deals
+6. Workflow versioning: create draft, activate, rollback, version history, diff view
+7. Handoff: reassignment blocked without notes, AI completeness scoring, ownership history timeline
+8. Communication threading: thread grouping works, thread view renders correctly
+9. Internal/external toggle: works on communications, internal hidden from deal room
+10. Conversation→deal linkage: prompt appears, auto-link when single deal
+11. Permission change tracking in audit log
+12. AI traceability: "How was this calculated?" expandable on all AI insights
+13. All i18n (AR + EN), RTL + LTR tested, design system enforced
+14. Build passes, no TypeScript errors
+
+Fix issues before Wave 3.
+```
+
+---
+
+## WAVE 3 — Intelligence Evolution + Operations
+
+### Prompt W3-01: Migration 032 (Marketing Intelligence)
+
+```
+Run migration 032. Create supabase/migrations/032_marketing_intelligence.sql with:
+
+- crm_contact_profiles (org_id, contact_id UNIQUE, communication behavior fields, engagement patterns, deal history, sentiment, AI-derived insights, campaign history, recommended_approach JSONB)
+- crm_ai_campaigns (org_id, name, name_ar, objective, objective_description, ai_strategy JSONB, status CHECK planning/ready_for_review/approved/executing/completed/cancelled, total_contacts, contacts_by_channel JSONB, scheduled/executed/completed timestamps, approved_by/at)
+- crm_ai_campaign_contacts (campaign_id, contact_id UNIQUE per campaign, channel, dialect, personalized_subject AR/EN, personalized_body AR/EN, ai_reasoning, scheduled_time, status CHECK, engagement timestamps, reply_sentiment, sendgrid_message_id)
+- crm_campaign_learnings (org_id, campaign_id, learning_type, insight AR/EN, data_points JSONB, confidence, applied_to_profiles boolean)
+
+All with RLS org isolation. Performance indexes on contact_profiles and campaign_contacts.
+
+Follow exact SQL from V4 Technical Architecture.
+```
+
+### Prompt W3-02: Contact Profile Engine
+
+```
+Build the contact behavioral profile system:
+
+1. src/ai/deterministic/contactProfile.ts
+   - computeContactProfile(orgId, contactId): gathers ALL data about a contact and computes their behavioral profile
+   - Data sources: communications (all types, all channels), deals (history, outcomes, values), tasks, engagement profile (V3), sentiment data (V3 NLP), campaign results, health scores, tickets
+   - Computes: preferred channel, preferred time, preferred dialect, response patterns, engagement trend, deal history stats, interests, objections, personality signals
+   - Calls Gemini for recommended_approach: "Given this contact's full history, what's the optimal outreach approach?"
+   - Upserts result into crm_contact_profiles
+
+2. src/ai/deterministic/contactProfile.ts — batchComputeProfiles(orgId)
+   - Recomputes all profiles for an org (run nightly or on demand)
+   - Processes contacts with most recent communication activity first
+
+3. Trigger: after every communication is logged, queue a profile recomputation for that contact (debounced — max once per hour per contact, same as V3 engagement fingerprints)
+
+4. Profile display:
+   src/app/(crm)/crm/marketing/profiles/page.tsx — Profile browser
+   - Grid of contact profile cards showing: name, engagement trend (arrow), preferred channel icon, sentiment badge, last contact date
+   - Search and filter: by engagement trend, sentiment, preferred channel, deal status
+   - Sort: by most engaged, most dormant, highest value, most at-risk
+
+   src/app/(crm)/crm/marketing/profiles/[contactId]/page.tsx — Profile deep dive
+   - Full behavioral breakdown: all computed fields visualized
+   - Communication history chart (frequency over time)
+   - Channel response time comparison
+   - Sentiment trend graph
+   - Deal history timeline
+   - AI recommended approach (with explainability: "Based on X, Y, Z data points")
+   - Campaign history: what campaigns they received, what they engaged with
+
+5. Also add a "Profile" summary card to the existing contact detail page — compact version showing preferred channel, engagement trend, sentiment, and recommended approach.
+```
+
+### Prompt W3-03: Marketing Intelligence Agent
+
+```
+Build the marketing intelligence AI agent:
+
+1. src/ai/agents/marketingAgent.ts — register with orchestrator
+   - Intent triggers: "create a campaign", "re-engage contacts", "who should I reach out to", "marketing suggestions"
+   - Also triggered proactively when AI detects opportunities (checked daily)
+
+2. Campaign opportunity suggestions:
+   - suggestCampaignOpportunities(orgId): analyzes all contact profiles, identifies:
+     - Dormant high-value contacts (no contact in 60+ days, lifetime revenue > threshold)
+     - Declining engagement contacts (trend = declining, previously active)
+     - Upsell candidates (expansion signals from health monitoring)
+     - New contact nurture (contacts added recently with no outreach yet)
+     - Post-deal follow-up (deals closed 30-90 days ago with no check-in)
+   - Returns opportunities with: type, title (AR/EN), description, contact count, estimated impact, confidence
+
+3. Display: src/app/(crm)/crm/marketing/insights/page.tsx
+   - Cards showing AI-suggested opportunities
+   - Each card: opportunity type badge, title, description, contact count, "Create Campaign" button
+   - AI also suggests these on the main CRM dashboard as "Marketing Opportunities" card
+
+4. Also add to Mustasharak chat: user can say "What marketing opportunities do we have?" and get a conversational summary.
+```
+
+### Prompt W3-04: Campaign Planning + Message Generation
+
+```
+Build the campaign creation workflow:
+
+1. src/app/(crm)/crm/marketing/campaigns/page.tsx — Campaign list
+   - Cards: name, objective, status badge, total contacts, channels breakdown, created date
+   - Filter by status, objective type
+
+2. Campaign creation flow (new page or modal wizard):
+
+   Step 1: Objective
+   - User describes what they want: free text input
+   - OR selects from AI-suggested opportunities
+   - "I want to re-engage contacts who haven't heard from us in 60 days and have high lifetime value"
+
+   Step 2: AI Strategy (auto-generated)
+   - Mustasharak analyzes contact profiles matching the objective
+   - Returns strategy: "Found 23 contacts matching. I recommend 3 segments:
+     - Segment A (8 contacts): Gulf companies, best reached via WhatsApp in evening
+     - Segment B (6 contacts): Levantine contacts, prefer email, respond to data-driven content  
+     - Segment C (5 contacts): High-value, warrant a personal phone call
+     - Segment D (4 contacts): Low probability of re-engagement — suggest removing"
+   - User can adjust: add/remove contacts, change segments, modify strategy
+
+   Step 3: Message Generation
+   - Click "Generate Messages" → Mustasharak crafts individual messages for EVERY contact
+   - Each message is unique: different content, references their specific history
+   - Each message specifies: channel, dialect, subject, body, timing, reasoning
+   - For phone calls: generates talking points instead of a message body
+   - Loading state: "Generating personalized messages for 23 contacts..."
+
+   Step 4: Review (batch approval)
+   - src/app/(crm)/crm/marketing/campaigns/plan/page.tsx
+   - Summary view: total contacts, channel breakdown, dialect breakdown, timing distribution
+   - Per-contact drill-down: click any contact → see their specific message + AI reasoning
+   - User can edit any individual message before approving
+   - "Approve & Schedule" button (date/time picker) or "Approve & Send Now"
+   - Approval is atomic — entire batch
+
+3. Campaign execution:
+   - Emails: sent via SendGrid with personalized content per contact
+   - WhatsApp: sent via Meta API (template for first contact, free-form if in 24h window)
+   - Phone calls: creates tasks for assigned reps with talking points, scheduled time, and contact profile summary
+   - Each send updates crm_ai_campaign_contacts status
+
+4. src/components/crm/marketing/ — CampaignPlanner.tsx, CampaignStrategy.tsx, PersonalizedMessagePreview.tsx, ChannelRecommendation.tsx, CampaignApprovalFlow.tsx, ContactSelector.tsx
+```
+
+### Prompt W3-05: Campaign Results + Learning Loop
+
+```
+Build the campaign results tracking and learning system:
+
+1. Results tracking:
+   - Email: SendGrid webhooks update crm_ai_campaign_contacts (delivered, opened, clicked)
+   - WhatsApp: Meta webhooks update status (delivered, read, replied)
+   - Phone calls: rep marks task as completed with outcome notes
+   - Replies: when a contact replies to a campaign message (detected by email thread or WhatsApp response), record reply_sentiment using NLP agent
+
+2. Campaign analytics page:
+   src/app/(crm)/crm/marketing/campaigns/[campaignId]/page.tsx
+   - Overall stats: sent, delivered %, opened %, clicked %, replied %, sentiment of replies
+   - By channel: email vs WhatsApp vs phone performance
+   - By segment: which AI segment performed best
+   - By dialect: which dialect got highest engagement
+   - Per-contact table: status, engagement timestamps, reply sentiment
+   - ROI estimation: if any campaign contacts have subsequently had deals close, attribute revenue
+
+3. Learning engine:
+   src/ai/deterministic/campaignLearning.ts
+   - analyzeCampaignResults(campaignId): runs after campaign is complete (all messages sent + 7-day tracking window)
+   - Generates insights: "WhatsApp outperformed email by 3x for UAE contacts", "Evening sends got 40% more responses", "Gulf Arabic had higher engagement than MSA", "Data-driven messages worked best for contacts with technical backgrounds"
+   - Stores learnings in crm_campaign_learnings
+
+4. Feedback loop:
+   - applyLearningsToProfiles(orgId, learnings): updates contact profiles based on what worked
+   - If a contact responded to WhatsApp but not email → strengthen WhatsApp preference in their profile
+   - If a contact engaged with evening sends → update their best_time_window
+   - If a specific content type worked → add to their personality_signals
+
+5. Display learnings:
+   - On campaign results page: "Key Learnings" section with insight cards
+   - On marketing hub: "Accumulated Intelligence" showing learnings across all campaigns
+   - Each learning shows: confidence score, data points used, whether it's been applied to profiles
+```
+
+### Prompt W3-06: Observability Dashboard
+
+```
+Build the admin operations dashboard:
+
+1. src/app/(crm)/crm/operations/page.tsx — Admin + Owner only (NOT Executive)
+   - Real-time system health view
+
+2. Sections:
+
+   System Status:
+   - Overall health indicator (green/yellow/red)
+   - API uptime (based on recent error rate)
+   - Integration status per connected service (green = syncing, red = errors)
+   - Last sync time per integration
+
+   Failed Automations:
+   - List from crm_workflow_log where error is not null
+   - Shows: workflow name, trigger event, error category, error details, timestamp
+   - "Retry" button per failed execution
+   - "Resolve" button (marks as resolved with reason)
+   - Filter: unresolved / resolved / all, by error category
+
+   Integration Errors:
+   - Email sync failures (OAuth expired, rate limited, API error)
+   - Calendar sync failures
+   - WhatsApp delivery failures
+   - Slack posting failures
+   - Zoom webhook failures
+   - Shows: integration, error type, affected entity, timestamp
+
+   Webhook Delivery Failures:
+   - From crm_webhook_subscriptions delivery log
+   - Shows: subscription, target URL, HTTP status, retry count, last attempt
+
+   API Errors:
+   - Recent 4xx and 5xx responses from /api/crm/v1/
+   - Shows: endpoint, method, status code, error message, requesting API key
+
+   SLA Breaches:
+   - Active breaches across all orgs (for platform admin) or within org
+   - Shows: entity, SLA rule, duration elapsed, escalation status
+
+3. Alerts:
+   - If any critical system has >5% error rate → show warning banner at top
+   - If any integration has been failing for >1 hour → show alert
+
+4. src/components/crm/operations/ — SystemHealth.tsx, FailedAutomations.tsx, IntegrationErrors.tsx, WebhookFailures.tsx, APIErrors.tsx, SLABreaches.tsx
+
+Add "Operations" to sidebar, gated to Enterprise tier, Owner + Admin roles only.
+```
+
+### Prompt W3-07: Mobile Role-Awareness
+
+```
+Update the mobile app to be role-aware and execution-focused:
+
+1. Role detection on mobile app load:
+   - Check current user's role from org_members
+   - Set mobile_role state: 'field_rep' | 'manager' | 'executive'
+   - field_rep = Staff role
+   - manager = Manager or Admin role
+   - executive = Executive role
+   - Owner gets manager view with all features
+
+2. Field rep mobile view:
+   - Home: today's tasks + AI daily briefing
+   - Deal board: visual pipeline (swipeable)
+   - Contact list: search + quick actions (call, WhatsApp, email)
+   - Call logger: one-tap call logging
+   - Card scanner: business card → contact creation
+   - Voice AI: mic button in header
+   - GPS visit tracking (if org-enabled)
+   - NO: settings, admin, approval configuration, workflow builder, operations
+
+3. Manager mobile view:
+   - Home: team overview + pipeline health + SLA dashboard
+   - Approval queue: pending approvals with approve/reject
+   - Team: per-rep performance metrics
+   - Pipeline: team pipeline board
+   - Deals: full deal detail with AI scores
+   - All field rep features except GPS tracking
+
+4. Executive mobile view:
+   - Executive dashboard only (same as web, responsive)
+   - Read-only access to pipeline and reports
+   - NO: deal editing, contact management, task management, approvals
+
+5. Implementation:
+   - Create src/components/mobile/RoleRouter.tsx that checks role and renders appropriate navigation
+   - Modify mobile bottom navigation to show role-appropriate tabs
+   - No new pages — just conditional rendering of existing components based on role
+```
+
+### Prompt W3-08: Wave 3 + V4 Final Quality Gate
+
+```
+Wave 3 quality gate AND V4 final verification:
+
+WAVE 3 CHECKS:
+1. Migration 032 applied — contact profiles, AI campaigns, campaign contacts, learnings tables exist
+2. Contact profiles compute correctly from all data sources
+3. Marketing AI suggests campaign opportunities proactively
+4. Campaign planning: user describes objective → AI generates strategy → AI crafts individual messages
+5. Each message is genuinely different (content, channel, timing, dialect per contact)
+6. Batch approval works: summary → drill-down → approve → execute
+7. Campaign execution: emails via SendGrid, WhatsApp via Meta API, phone calls as tasks
+8. Results tracking: opens, clicks, replies, sentiment tracked and updated
+9. Learning loop: campaign results generate insights, insights update contact profiles
+10. Observability dashboard: system health, failed automations, integration errors, webhook failures
+11. Mobile role-awareness: field rep, manager, executive see different views
+
+V4 COMPREHENSIVE CHECKS:
+12. All 4 migrations (029-032) applied cleanly
+13. Control layer: approvals block actions until approved, SLAs track and escalate, exceptions log with audit trail
+14. Stage entry/exit rules enforce requirements (block/warn/log)
+15. Document requirements per stage working
+16. Workflow versioning: draft/active/archive, rollback, diff view
+17. Handoff: reassignment blocked without notes, AI completeness scoring
+18. Communication threading groups messages correctly
+19. Internal/external toggle works, deal room only shows external
+20. AI explainability: every AI insight has "How was this calculated?" with inputs visible
+21. Forecasting labeled as "Projection" (not "Forecast")
+22. All features have Arabic + English i18n
+23. All UI tested in RTL and LTR
+24. Design system: cream background, three card types, no purple
+25. All plan gating correct per tier
+26. npm run build passes with zero errors
+27. No TypeScript errors
+
+V4 IS COMPLETE WHEN ALL 27 CHECKS PASS.
+```
+
+---
+
+## Troubleshooting
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| Approval not triggering on deal move | Approval check not integrated into stage change flow | Ensure control.checkApproval() is called BEFORE updateDealStage() |
+| SLA cron not running | Vercel cron config missing | Add to vercel.json: crons array with /api/cron/sla-check |
+| SLA timers showing wrong time | Timezone mismatch | Ensure deadline_at is stored in UTC, display converted to org timezone |
+| Exception dialog not appearing | Control layer returning 'allowed' instead of 'blocked' | Check enforcement level — must be 'block', not 'warn' or 'log' |
+| Handoff notes not blocking | Reassign button not checking control layer | Ensure control.validateHandoff() is called and returns complete=false |
+| Campaign messages all identical | Marketing agent not receiving contact profiles | Verify crm_contact_profiles are computed before campaign planning |
+| Profile computation slow | Too many contacts processed at once | Add batch processing with limit of 50 profiles per run |
+| Workflow rollback creates duplicate | Version number not incrementing | Rollback creates a NEW version (max + 1), doesn't restore old number |
+| Observability empty | Workflow log not capturing errors | Ensure try/catch in automation engine writes to workflow_log with error_category |
+| Mobile showing wrong role view | Role not detected on app load | Check org_members query includes role field and is_active=true filter |
+
+---
+
+## V4 Definition of Done
+
+V4 is production-ready when:
+- [ ] Control layer enforces all business rules (approvals, SLAs, exceptions)
+- [ ] Pipeline is a true execution control system (stage gates, document requirements, inactivity enforcement)
+- [ ] Workflow versioning supports safe iteration (draft → test → activate → rollback)
+- [ ] Handoff intelligence prevents knowledge loss on reassignment
+- [ ] Marketing intelligence engine creates genuinely personalized campaigns (not templates)
+- [ ] Campaign learning loop improves contact profiles after each campaign
+- [ ] Communication threading and internal/external separation working
+- [ ] Observability gives admins visibility into system health
+- [ ] Mobile adapts to user role
+- [ ] AI explainability present on every AI-generated insight
+- [ ] All 27 quality checks pass
+
+---
+
+*V4 Prompt Playbook complete. Execute prompts in order. Do not skip quality gates.*
+
+# Rasmalak CRM — V4 Claude Code Specification
+
+> **Version:** 4.0 — April 2026
+> **Prerequisite:** V1 + V2 + V3 built and stable
+> **Build tool:** Claude Code — sequential prompts
+> **Classification:** Confidential — Internal use only
+
+---
+
+## V4 Scope Summary
+
+13 items: 7 new builds (control layer), 5 upgrades to existing systems, 1 evolution (marketing intelligence engine). Organized into 3 sequential waves. ~150 files to create or modify. 4 database migrations (029-032). 1 new architectural layer (Control Layer). No new external services — uses existing Gemini + SendGrid.
+
+## V4 Identity
+
+V1 = CRM. V2 = Revenue engine. V3 = Intelligent. **V4 = Enterprise-grade and self-learning.**
+
+The control layer (approvals, SLAs, governance) unlocks enterprise procurement. The marketing intelligence engine means every interaction makes the system smarter.
+
+---
+
+## All Inherited Rules (V1/V2/V3 — still apply)
+
+1. Arabic-first, RTL-first
+2. i18n mandatory for all text
+3. Never call AI providers directly — orchestrator only
+4. Supabase is source of truth
+5. Design system enforced (cream, three card types, no purple)
+6. Comments explain intent only
+7. RLS on every new table
+8. Public routes excluded from auth middleware
+9. SendGrid for bulk email only
+10. Voice AI uses Gemini multimodal
+11. Engagement fingerprints compute async
+12. Decay score is part of deal score
+13. Influence mapping roles are org-customizable
+14. Post-sale monitoring is manual trigger
+15. Ramadan dates from hijri-converter
+16. Campaign template designer is block-based + HTML
+17. Chatbot widget is standalone vanilla JS (Shadow DOM)
+18. Executive role has read-only access + exclusive dashboard
+
+## V4-Specific Rules
+
+19. **Control Layer is architectural, not a feature.** It sits between the Application Layer and the AI Layer. Every feature that enforces rules, requires approvals, tracks SLAs, or handles exceptions routes through the Control Layer — not through individual feature code. Build it as a shared service, not per-feature logic.
+20. **Approvals are blocking by default.** When an approval is required, the action is BLOCKED until approved. No "soft" approvals that just log but don't enforce. Override is possible but requires documented reason + audit trail.
+21. **SLA timers are real-time.** Not computed on page load — they tick in the background. A cron job checks SLA breaches every 5 minutes and triggers escalation actions.
+22. **Workflow versioning is Git-like.** Draft → Active → Archived. Only one version active at a time. Rollback creates a new version from the old one (doesn't delete history).
+23. **Exception handling requires approval chain.** Overriding any rule or SLA is itself an action that may require approval (configurable per org). The exception is logged with: who, what rule was overridden, why (free text), approved by whom.
+24. **Handoff notes are mandatory and enforced.** The system blocks deal/account reassignment without handoff notes. The UI disables the "Reassign" action until notes are written. No backdoor.
+25. **Observability is admin-only.** The operations dashboard is visible only to Owner and Admin roles. Not Manager, not Executive.
+26. **Marketing intelligence profiles are append-only.** The contact behavioral profile logs every data point — never overwrites. Historical patterns are preserved. The AI reads the full history to detect trends.
+27. **Campaign approval is atomic.** When a user approves a batch campaign, the entire batch is committed. No partial approval (approve some messages, reject others). If adjustments needed, user modifies the plan and re-approves.
+28. **AI explainability is mandatory on all insights.** Every AI-generated insight, score, recommendation, or campaign suggestion must include: what inputs were used, what the confidence level is, and a plain-language explanation of reasoning. This is enforced at the orchestrator validation layer.
+29. **Forecasting labeled as "projection."** All AI-generated revenue predictions must be labeled "Projection" not "Forecast" unless historical accuracy has been proven (>80% accuracy over 3+ periods). This is a display rule, not a technical constraint.
+
+---
+
+## Wave Structure
+
+### Wave 1 — Control Layer Foundation (8-10 weeks)
+**Goal:** Build the architectural layer that makes Rasmalak enterprise-credible. Approvals, SLAs, and exception handling.
+
+**Migrations:** 029_control_layer.sql
+
+**Features (4):**
+1. Control layer architecture (shared service)
+2. Approval system (multi-level, role-based, sequential/parallel)
+3. SLA engine (stage timers, approval timers, inactivity timers, escalation)
+4. Exception handling (override with reason, approval chain, audit)
+
+**New files (~45):**
+```
+src/control/                                # NEW top-level directory for control layer
+src/control/approvals/
+  approvalEngine.ts                         # Core approval logic
+  approvalTypes.ts                          # Types: ApprovalRequest, ApprovalFlow, ApprovalStep
+  approvalService.ts                        # Supabase CRUD for approvals
+  approvalEvaluator.ts                      # Evaluates if an action requires approval
+src/control/sla/
+  slaEngine.ts                              # SLA timer management
+  slaTypes.ts                               # Types: SLADefinition, SLATimer, SLABreach
+  slaService.ts                             # Supabase CRUD for SLAs
+  slaEscalation.ts                          # Escalation logic when SLA breaches
+src/control/exceptions/
+  exceptionHandler.ts                       # Override processing
+  exceptionTypes.ts                         # Types: ExceptionRequest, ExceptionApproval
+  exceptionService.ts                       # Supabase CRUD for exceptions
+src/control/rules/
+  ruleEngine.ts                             # Generic rule evaluation
+  ruleTypes.ts                              # Types: Rule, RuleCondition, RuleAction
+src/control/index.ts                        # Public exports
+
+src/app/(crm)/crm/approvals/
+  page.tsx                                  # Approval queue (pending approvals for current user)
+  [approvalId]/page.tsx                     # Approval detail + approve/reject
+
+src/app/(crm)/crm/settings/approvals/
+  page.tsx                                  # Approval flow configuration (admin)
+
+src/app/(crm)/crm/settings/sla/
+  page.tsx                                  # SLA rule configuration (admin)
+
+src/app/api/cron/sla-check/
+  route.ts                                  # Cron job: check SLA breaches every 5 min
+
+src/components/crm/approvals/
+  ApprovalQueue.tsx                         # List of pending approvals
+  ApprovalCard.tsx                          # Individual approval with context
+  ApprovalFlowEditor.tsx                    # Visual approval flow builder
+  ApprovalBadge.tsx                         # Status badge on deals/docs
+
+src/components/crm/sla/
+  SLATimer.tsx                              # Visual countdown timer on deals
+  SLADashboard.tsx                          # SLA health overview
+  SLAConfigEditor.tsx                       # SLA rule editor
+
+src/components/crm/exceptions/
+  ExceptionDialog.tsx                       # Override with reason dialog
+  ExceptionLog.tsx                          # Exception history
+
+src/store/approvalStore.tsx                 # Approval state (Context Provider)
+src/store/slaStore.tsx                      # SLA state
+
+src/messages/en/approvals.ts
+src/messages/ar/approvals.ts
+src/messages/en/sla.ts
+src/messages/ar/sla.ts
+
+supabase/migrations/029_control_layer.sql
+```
+
+### Wave 2 — Pipeline & Document Governance (8-10 weeks)
+**Goal:** Transform pipeline from a tracking tool into an execution control system. Documents become workflow drivers.
+
+**Migrations:** 030_pipeline_governance.sql, 031_workflow_versioning.sql
+
+**Features (5):**
+1. Pipeline stage entry/exit rules
+2. Document-driven pipeline stages
+3. Workflow versioning (draft/active/archived, rollback)
+4. Handoff intelligence (mandatory notes, incomplete detection, ownership history)
+5. Governance depth (permission tracking, AI traceability)
+
+**New files (~40):**
+```
+src/control/pipeline/
+  stageRules.ts                             # Entry/exit rule evaluation
+  stageRuleTypes.ts                         # Types: StageRule, RuleCondition
+  documentRequirements.ts                   # Document requirement checking per stage
+  inactivityEnforcer.ts                     # Forced action after N days
+
+src/control/handoff/
+  handoffService.ts                         # Handoff note management
+  handoffValidator.ts                       # Validates completeness
+  ownershipTracker.ts                       # Full ownership history
+
+src/control/versioning/
+  workflowVersioning.ts                     # Draft/active/archive lifecycle
+  versionDiff.ts                            # Diff between workflow versions
+
+src/app/(crm)/crm/settings/pipeline-rules/
+  page.tsx                                  # Stage rule configuration (admin)
+  [stageId]/page.tsx                        # Per-stage rule editor
+
+src/components/crm/pipeline/
+  StageGate.tsx                             # Visual gate showing entry/exit requirements
+  DocumentRequirement.tsx                   # Required docs checklist per stage
+  InactivityWarning.tsx                     # Warning when inactivity threshold approaching
+  HandoffDialog.tsx                         # Mandatory handoff notes dialog
+  HandoffCompleteness.tsx                   # Incomplete handoff warning
+  OwnershipHistory.tsx                      # Full ownership timeline
+
+src/components/crm/workflows/
+  VersionSelector.tsx                       # Switch between workflow versions
+  VersionDiff.tsx                           # Visual diff between versions
+  DraftBadge.tsx                            # Draft/Active/Archived status
+
+src/messages/en/governance.ts
+src/messages/ar/governance.ts
+
+supabase/migrations/030_pipeline_governance.sql
+supabase/migrations/031_workflow_versioning.sql
+```
+
+### Wave 3 — Intelligence Evolution + Operations (10-14 weeks)
+**Goal:** Ship the marketing intelligence engine, upgrade communications, build observability, and make mobile role-aware.
+
+**Migrations:** 032_marketing_intelligence.sql
+
+**Features (4):**
+1. AI marketing intelligence engine (hyper-personalized, all channels, batch approval, closed loop)
+2. Communication threading + internal/external separation
+3. Observability dashboard (admin-only operational health)
+4. Mobile role-awareness (execution-focused per role)
+
+**New files (~65):**
+```
+src/ai/agents/marketingAgent.ts             # Marketing intelligence AI agent
+src/ai/deterministic/contactProfile.ts      # Behavioral profile computation
+src/ai/deterministic/campaignPlanner.ts     # Campaign strategy generation
+src/ai/deterministic/channelOptimizer.ts    # Per-contact channel selection
+src/ai/deterministic/messageCrafter.ts      # Per-contact message personalization
+src/ai/deterministic/campaignLearning.ts    # Feedback loop — learn from results
+
+src/app/(crm)/crm/marketing/
+  page.tsx                                  # Marketing intelligence hub
+  campaigns/page.tsx                        # Campaign list
+  campaigns/[campaignId]/page.tsx           # Campaign detail + results
+  campaigns/plan/page.tsx                   # Campaign plan review + approval
+  profiles/page.tsx                         # Contact behavioral profiles browser
+  profiles/[contactId]/page.tsx             # Individual profile deep dive
+  insights/page.tsx                         # AI-suggested campaign opportunities
+
+src/app/(crm)/crm/operations/
+  page.tsx                                  # Observability dashboard (admin only)
+
+src/components/crm/marketing/
+  CampaignPlanner.tsx                       # AI campaign creation interface
+  CampaignPlanReview.tsx                    # Batch review with drill-down
+  ContactProfileCard.tsx                    # Behavioral profile summary
+  ContactProfileDetail.tsx                  # Full profile with history
+  PersonalizedMessagePreview.tsx            # Individual message preview
+  ChannelRecommendation.tsx                 # Why this channel for this contact
+  CampaignResults.tsx                       # Post-campaign analytics + learning
+  OpportunityCard.tsx                       # AI-suggested campaign opportunity
+  CampaignApprovalFlow.tsx                  # Batch approve/reject UI
+
+src/components/crm/communications/
+  ThreadView.tsx                            # Threaded conversation view
+  InternalExternalToggle.tsx                # Toggle internal/external on messages
+  ConversationLinker.tsx                    # Link conversation to deal
+
+src/components/crm/operations/
+  SystemHealth.tsx                          # Overall system status
+  FailedAutomations.tsx                     # Failed workflow list
+  IntegrationErrors.tsx                     # Sync error list
+  WebhookFailures.tsx                       # Delivery failure list
+  APIErrors.tsx                             # API error log
+
+src/store/marketingStore.tsx                # Marketing intelligence state
+src/store/operationsStore.tsx               # Observability state
+
+src/integrations/sendgrid.ts                # Extend for personalized campaigns
+
+src/messages/en/marketing.ts
+src/messages/ar/marketing.ts
+src/messages/en/operations.ts
+src/messages/ar/operations.ts
+
+supabase/migrations/032_marketing_intelligence.sql
+```
+
+**Mobile role-awareness (no new files — modifications to existing mobile components):**
+- Modify mobile navigation to show role-appropriate views
+- Field rep: deal board, contact list, call logger, card scanner, voice AI
+- Manager: team overview, approval queue, pipeline health, SLA dashboard
+- Executive: executive dashboard only
+- Remove admin/settings from mobile entirely (desktop only)
+
+---
+
+## Plan Gating Map (V4 additions)
+
+| Feature | Entrepreneur | Organization | Enterprise |
+|---------|-------------|-------------|-----------|
+| Approval system | ✗ | ✓ (2 levels) | ✓ (unlimited levels) |
+| SLA engine | ✗ | ✓ (basic — stage timers) | ✓ (full — all timer types + escalation) |
+| Exception handling | ✗ | ✓ | ✓ |
+| Stage entry/exit rules | ✗ | ✓ (basic) | ✓ (full + document requirements) |
+| Document-driven stages | ✗ | ✗ | ✓ |
+| Workflow versioning | ✗ | ✓ | ✓ |
+| Handoff intelligence | ✗ | ✓ (notes required) | ✓ (notes + completeness check) |
+| Observability dashboard | ✗ | ✗ | ✓ (Owner + Admin only) |
+| Communication threading | ✓ | ✓ | ✓ |
+| Internal/external messages | ✗ | ✓ | ✓ |
+| Marketing intelligence | ✗ | ✓ (50 contacts/campaign) | ✓ (unlimited) |
+| Campaign batch approval | ✗ | ✓ | ✓ |
+| Mobile role-awareness | ✓ | ✓ | ✓ |
+| AI explainability | ✓ | ✓ | ✓ |
+
+---
+
+## Quality Gates (per wave)
+
+Before moving to next wave:
+- [ ] All new tables have RLS policies (org isolation)
+- [ ] All new features have Arabic + English i18n
+- [ ] All new UI tested in RTL and LTR
+- [ ] Design system enforced (cream, three card types, no purple)
+- [ ] All AI features route through orchestrator
+- [ ] AI explainability present on every insight/recommendation
+- [ ] Approval flows block actions until approved (not soft approvals)
+- [ ] SLA timers tick in real-time (cron job running)
+- [ ] Exception overrides require documented reason
+- [ ] Handoff reassignment blocked without notes
+- [ ] Plan gating enforced for tier-restricted features
+- [ ] Build passes (`npm run build`)
+- [ ] No TypeScript errors
+
+---
+
+## Environment Variables (V4)
+
+```
+# No new environment variables needed
+# V4 uses existing:
+# - Supabase (auth, database, storage)
+# - GOOGLE_AI_API_KEY (Gemini for marketing AI)
+# - SENDGRID_API_KEY (personalized campaign sending)
+```
+
+---
+
+## Migration Sequence
+
+| Migration | File | Tables created |
+|-----------|------|---------------|
+| 029 | 029_control_layer.sql | crm_approval_flows, crm_approval_steps, crm_approval_requests, crm_sla_definitions, crm_sla_timers, crm_exceptions |
+| 030 | 030_pipeline_governance.sql | crm_stage_rules, crm_stage_document_requirements, crm_handoff_notes, crm_ownership_history |
+| 031 | 031_workflow_versioning.sql | crm_workflow_versions (extends crm_workflows) |
+| 032 | 032_marketing_intelligence.sql | crm_contact_profiles, crm_ai_campaigns, crm_ai_campaign_contacts, crm_campaign_results, crm_campaign_learnings |
+
+---
+
+## Sidebar Navigation Updates
+
+| Item | Path | Icon | Gate | Wave |
+|------|------|------|------|------|
+| Approvals | /crm/approvals | CheckSquare | Org+ | W1 |
+| Marketing | /crm/marketing | Brain | Org+ | W3 |
+| Operations | /crm/operations | Activity | Ent (Owner+Admin) | W3 |
+
+Items on existing pages (no new nav):
+- SLA timers → on deal detail page + pipeline board
+- Stage gates → on deal detail page (when moving stages)
+- Handoff → on deal reassignment dialog
+- Exception handling → on any blocked action
+- Workflow versioning → on workflow editor page
+- Communication threading → on contact/deal timeline
+- Contact profiles → accessible from marketing hub or contact detail
+
+Settings sub-pages (under existing Settings):
+- Settings > Approval Flows
+- Settings > SLA Rules
+- Settings > Pipeline Rules
+
+---
+
+## Control Layer Architecture
+
+The Control Layer is a shared service layer — NOT feature-specific code scattered across components.
+
+```
+src/control/
+├── index.ts                    # Public API: checkApproval(), startSLA(), handleException()
+├── approvals/                  # Approval engine
+├── sla/                        # SLA engine
+├── exceptions/                 # Exception handling
+├── rules/                      # Generic rule evaluation
+├── pipeline/                   # Stage rules + document requirements
+├── handoff/                    # Handoff validation
+└── versioning/                 # Workflow version management
+```
+
+**Usage pattern — every feature checks with Control Layer before acting:**
+
+```typescript
+// Example: moving a deal to next stage
+async function moveDealToStage(dealId: string, newStageId: string) {
+  // 1. Check stage entry rules
+  const entryCheck = await control.checkStageEntry(dealId, newStageId);
+  if (!entryCheck.allowed) {
+    return { blocked: true, reason: entryCheck.missingRequirements };
+  }
+
+  // 2. Check if approval is required
+  const approvalCheck = await control.checkApproval('deal_stage_change', { dealId, newStageId });
+  if (approvalCheck.required) {
+    await control.requestApproval(approvalCheck.flowId, { dealId, newStageId });
+    return { pending_approval: true };
+  }
+
+  // 3. Execute the stage change
+  await updateDealStage(dealId, newStageId);
+
+  // 4. Start SLA timer for new stage (if configured)
+  await control.startSLATimer(dealId, newStageId);
+
+  // 5. Stop SLA timer for previous stage
+  await control.stopSLATimer(dealId, previousStageId);
+}
+```
+
+---
+
+*V4 spec complete. Use with V4 Technical Architecture and V4 Prompt Playbook for Claude Code execution.*
+
+# Rasmalak CRM — V4 Prompt Playbook
+
+> **Purpose:** Every prompt for Claude Code, in order.
+> **Prerequisite:** V3 complete and stable. Load V4 spec + architecture + this playbook.
+> **Classification:** Confidential
+
+---
+
+## Session Setup
+
+### Prompt 0: Context Loading
+
+```
+I'm building V4 of Rasmalak CRM. V1, V2, and V3 are fully built — you can see the source code.
+
+Read these V4 files:
+1. RASMALAK_CRM_V4_CLAUDE_CODE_SPEC.md — V4 rules, wave structure, file paths, gating
+2. RASMALAK_CRM_V4_TECHNICAL_ARCHITECTURE.md — Complete SQL for migrations 029-032, interfaces
+3. RASMALAK_CRM_V4_PROMPT_PLAYBOOK.md — Every prompt in order
+
+Also read for reference:
+4. rasmalak-design-brief.md — Design tokens
+
+If you need V1/V2/V3 schema details, look at the source code or previous spec files.
+
+After reading, confirm:
+1. How many V4 waves and what's in each?
+2. What are the 4 migration files and what do they create?
+3. What is the new architectural layer introduced in V4?
+4. What is the marketing intelligence engine and how does it differ from a traditional campaign builder?
+5. What does the Control Layer's checkStageEntry() do?
+
+Do NOT start building until you've confirmed all 5.
+```
+
+**Expected confirmation:**
+1. 3 waves: W1 (control layer foundation — approvals, SLAs, exceptions), W2 (pipeline & document governance — stage rules, doc requirements, workflow versioning, handoff, governance), W3 (intelligence evolution — marketing engine, communication threading, observability, mobile role-awareness)
+2. 029 (control layer: approval flows/steps/requests, SLA definitions/timers, exceptions), 030 (pipeline governance: stage rules, doc requirements, handoff notes, ownership history + comms threading), 031 (workflow versioning + observability extensions), 032 (marketing intelligence: contact profiles, AI campaigns, campaign contacts, campaign learnings)
+3. Control Layer — sits between Application and AI layers. Responsible for rule enforcement, approval logic, SLA tracking, exception handling. Shared service at src/control/
+4. AI reads full contact history (deals, chats, sentiment, preferences) and crafts individualized messages per contact — different content, channel, timing, dialect. Not template blasts. Batch approval. Results feed back into profiles. Each campaign makes the next smarter.
+5. Checks all entry rules for a pipeline stage: required fields filled, required documents attached, approvals granted, tasks completed. Returns allowed/blocked with list of unmet requirements.
+
+---
+
+## WAVE 1 — Control Layer Foundation
+
+### Prompt W1-01: Migration 029 (Control Layer)
+
+```
+Run migration 029. Create supabase/migrations/029_control_layer.sql with all control layer tables.
+
+Tables to create:
+- crm_approval_flows (org_id, name, name_ar, trigger_entity, trigger_conditions JSONB, flow_type CHECK sequential/parallel, is_active)
+- crm_approval_steps (flow_id, step_order, approver_type CHECK user/role/manager, approver_id, approver_role, deadline_hours, escalation_to)
+- crm_approval_requests (org_id, flow_id, current_step, entity_type, entity_id, entity_data JSONB snapshot, requested_by, status CHECK pending/approved/rejected/escalated/cancelled, decisions JSONB array)
+- crm_sla_definitions (org_id, name, name_ar, entity_type CHECK deal_stage/approval/ticket/inactivity, target_entity, duration_hours, warning_at_percent default 80, escalation_action CHECK notify/reassign/escalate/block, escalation_to, is_active)
+- crm_sla_timers (org_id, sla_id, entity_type, entity_id, started_at, deadline_at, warning_sent, breached, breached_at, escalation_sent, completed_at, status CHECK active/warning/breached/completed/cancelled)
+- crm_exceptions (org_id, exception_type, entity_type, entity_id, rule_overridden, reason NOT NULL, requested_by, approved_by, approval_required, status CHECK pending/approved/rejected/auto_approved, resolved_at)
+
+All with RLS org isolation. Add performance indexes on sla_timers for the cron job.
+
+Follow the exact SQL from the V4 Technical Architecture document.
+```
+
+### Prompt W1-02: Control Layer Service
+
+```
+Create the Control Layer as a shared service at src/control/. This is the most important architectural piece of V4 — everything else plugs into it.
+
+Directory structure:
+src/control/
+├── index.ts           # Public API (single entry point for all control checks)
+├── approvals/
+│   ├── approvalEngine.ts      # Core: checkApproval, requestApproval, approve, reject
+│   ├── approvalTypes.ts       # TypeScript interfaces
+│   └── approvalService.ts     # Supabase CRUD
+├── sla/
+│   ├── slaEngine.ts           # Core: startTimer, stopTimer, checkBreaches
+│   ├── slaTypes.ts            # TypeScript interfaces
+│   ├── slaService.ts          # Supabase CRUD
+│   └── slaEscalation.ts      # Escalation logic (notify, reassign, escalate, block)
+├── exceptions/
+│   ├── exceptionHandler.ts    # Core: requestException, approveException
+│   ├── exceptionTypes.ts      # TypeScript interfaces
+│   └── exceptionService.ts    # Supabase CRUD
+└── rules/
+    ├── ruleEngine.ts          # Generic rule evaluation (used by stage rules later)
+    └── ruleTypes.ts           # Rule, Condition, Action types
+
+The public API in index.ts must expose these functions:
+- checkApproval(action, context) → { required, flowId, reason }
+- requestApproval(flowId, entityType, entityId, data) → ApprovalRequest
+- approveRequest(requestId, reason?) → void
+- rejectRequest(requestId, reason) → void
+- getPendingApprovals(userId) → ApprovalRequest[]
+- startSLATimer(entityType, entityId, slaId) → SLATimer
+- stopSLATimer(entityType, entityId) → void
+- checkSLABreaches() → SLABreach[] (for cron)
+- requestException(type, entityType, entityId, reason) → ExceptionRequest
+- approveException(exceptionId) → void
+
+Every function that modifies data must also log to crm_audit_log.
+
+Export the control layer as a singleton: import { control } from '@/control'
+```
+
+### Prompt W1-03: Approval UI
+
+```
+Build the approval user interface:
+
+1. src/app/(crm)/crm/approvals/page.tsx — Approval queue
+   - List of pending approvals assigned to the current user
+   - Each card shows: entity type + name, what's being approved (deal stage change, discount, etc.), who requested it, when, deadline countdown
+   - Quick actions: Approve (with optional reason) or Reject (reason required)
+   - Filter: pending / approved / rejected / all
+   - Badge on sidebar nav showing pending count
+
+2. src/app/(crm)/crm/approvals/[approvalId]/page.tsx — Approval detail
+   - Full context: entity snapshot at request time, approval flow visualization (which steps, who approved at each step), current step highlighted
+   - Decision history: who approved/rejected at each step with timestamps and reasons
+   - Approve/Reject buttons with reason input
+
+3. src/app/(crm)/crm/settings/approvals/page.tsx — Approval flow configuration (admin only)
+   - List of approval flows with: name, trigger entity, conditions, active/inactive
+   - "Create flow" button → flow editor
+   - Flow editor: visual step builder
+     - Trigger: select entity type (deal, document, quote, discount) + conditions (e.g. deal.value > 50000)
+     - Steps: add steps in order. Each step: approver type (specific user / role / manager), deadline, escalation
+     - Flow type: sequential (step 1 then step 2) or parallel (all steps simultaneously)
+   - Test flow: "If a $75K deal moves to Negotiation, who needs to approve?"
+
+4. src/components/crm/approvals/ — ApprovalQueue.tsx, ApprovalCard.tsx, ApprovalFlowEditor.tsx, ApprovalStepBuilder.tsx, ApprovalBadge.tsx
+
+5. Integrate into existing deal flow:
+   - When a user moves a deal to a new stage, BEFORE the move executes, call control.checkApproval('deal_stage_change', { dealId, newStageId, dealValue })
+   - If approval required → block the move, show "This action requires approval from [approver]", create approval request
+   - Deal card shows "Pending Approval" badge until approved
+   - When approved → stage change executes automatically
+   - When rejected → deal stays in current stage, requester notified with rejection reason
+
+Add "Approvals" to CRM sidebar with pending count badge. Available to Organization+ tier.
+Add i18n keys to src/messages/en/approvals.ts and src/messages/ar/approvals.ts.
+```
+
+### Prompt W1-04: SLA Engine + UI
+
+```
+Build the SLA engine and user interface:
+
+1. src/app/api/cron/sla-check/route.ts — Cron job
+   - Runs every 5 minutes (configure in vercel.json: { "crons": [{ "path": "/api/cron/sla-check", "schedule": "*/5 * * * *" }] })
+   - Calls control.checkSLABreaches()
+   - For each breach: execute escalation action (notify/reassign/escalate/block)
+   - Log all actions to audit trail
+
+2. src/app/(crm)/crm/settings/sla/page.tsx — SLA configuration (admin only)
+   - List of SLA rules: name, entity type, duration, escalation action
+   - "Create SLA rule" → editor:
+     - Entity type: deal stage / approval / ticket / inactivity
+     - Target: which specific stage or approval flow (dropdown)
+     - Duration: hours or days
+     - Warning threshold: percentage (default 80%)
+     - Escalation: notify / reassign / escalate / block + who to escalate to
+   - Active/inactive toggle
+
+3. SLA timer display on deals:
+   - src/components/crm/sla/SLATimer.tsx — visual countdown
+     - Green: within time, plenty remaining
+     - Yellow: warning threshold reached (80%+ elapsed)
+     - Red: breached
+   - Shows on deal detail page header when a stage has an SLA
+   - Shows on pipeline board as small timer indicator per deal card
+
+4. src/components/crm/sla/SLADashboard.tsx — SLA health overview
+   - Add to manager dashboard: "SLA Health" card
+   - Shows: total active timers, on track count, warning count, breached count
+   - Click to see list of breached SLAs with drill-down
+
+5. SLA integration with pipeline:
+   - When a deal enters a stage that has an SLA definition → auto-start timer
+   - When deal exits the stage → stop timer (mark completed)
+   - Timer ticks in real-time (computed from started_at + duration, not polling)
+
+Add i18n keys for SLA strings.
+```
+
+### Prompt W1-05: Exception Handling
+
+```
+Build the exception handling system:
+
+1. src/components/crm/exceptions/ExceptionDialog.tsx
+   - Modal that appears when a user attempts an action blocked by a rule
+   - Shows: what rule is blocking, why
+   - "Request Override" button → reason input (mandatory free text)
+   - If org config requires approval for this exception type → creates approval request
+   - If org config allows auto-approval → logs exception and allows action
+
+2. src/components/crm/exceptions/ExceptionLog.tsx
+   - Table of all exceptions for an entity (deal, contact, etc.)
+   - Shows: type, rule overridden, reason, requested by, approved by, date
+   - Visible on entity detail pages under "Exceptions" tab/section
+
+3. Integration points:
+   - Stage rules blocked → exception dialog appears
+   - Document requirement missing → exception dialog with "waive document requirement" option
+   - SLA breached and action blocked → exception dialog
+   - Any control layer "block" can be overridden via exception (with audit trail)
+
+4. Exception configuration (admin):
+   - Add to Settings: "Exception Policies"
+   - Per exception type: requires approval (yes/no), who can approve, auto-approve for certain roles
+   - Default: all exceptions require approval
+
+5. Every exception creates an audit log entry with:
+   - Who requested it
+   - What rule was overridden
+   - The reason given
+   - Who approved it (if applicable)
+   - Timestamp
+```
+
+### Prompt W1-06: Wave 1 Quality Gate
+
+```
+Wave 1 quality gate. Verify:
+
+1. Migration 029 applied — all 6 control layer tables exist with RLS and indexes
+2. Control layer service at src/control/ is functional with all public API methods
+3. Approval flows: create flow, configure steps, trigger on deal stage change, approve/reject works
+4. Approval queue: pending approvals display correctly, badge count on sidebar
+5. Deal stage changes blocked when approval required, unblocked when approved
+6. SLA definitions: create, configure duration + escalation
+7. SLA timers: start on stage entry, display countdown on deal card, warning at threshold
+8. SLA cron job: runs every 5 minutes, detects breaches, triggers escalation
+9. Exception handling: dialog appears on blocked action, reason required, audit logged
+10. All new UI has Arabic + English i18n
+11. All new UI tested in RTL and LTR
+12. Design system enforced
+13. Build passes, no TypeScript errors
+
+Fix any issues before Wave 2.
+```
+
+---
+
+## WAVE 2 — Pipeline & Document Governance
+
+### Prompt W2-01: Migration 030 (Pipeline Governance)
+
+```
+Run migration 030. Create supabase/migrations/030_pipeline_governance.sql with:
+
+- crm_stage_rules (org_id, stage_id, rule_type CHECK entry/exit, conditions JSONB array, enforcement CHECK block/warn/log, is_active)
+- crm_stage_document_requirements (org_id, stage_id, document_type, custom_label AR/EN, is_required, UNIQUE org+stage+doctype)
+- crm_handoff_notes (org_id, entity_type CHECK deal/contact/company, entity_id, from_user, to_user, notes NOT NULL, pending_tasks JSONB, unresolved_issues JSONB, ai_completeness_score, ai_missing_items JSONB)
+- crm_ownership_history (org_id, entity_type, entity_id, owner_user_id, started_at, ended_at, handoff_note_id, reason)
+
+Also ALTER crm_communications to add:
+- is_internal BOOLEAN DEFAULT FALSE
+- thread_id UUID
+- thread_position INTEGER
+
+All with RLS. Follow exact SQL from V4 Technical Architecture.
+```
+
+### Prompt W2-02: Stage Entry/Exit Rules
+
+```
+Build the pipeline stage rule system:
+
+1. Extend src/control/ with pipeline rules:
+   src/control/pipeline/
+   ├── stageRules.ts             # checkStageEntry(), checkStageExit()
+   ├── stageRuleTypes.ts         # StageRule, RuleCondition types
+   └── documentRequirements.ts   # checkDocumentRequirements()
+
+2. Add to control/index.ts:
+   - checkStageEntry(dealId, stageId) → { allowed, missingRequirements[] }
+   - checkStageExit(dealId, stageId) → { allowed, missingRequirements[] }
+   - getStageRequirements(stageId) → StageRequirements
+
+3. Rule condition types:
+   - field_required: a deal field must be filled (e.g. expected_close date)
+   - document_required: specific document type must be attached to the deal
+   - approval_required: an approval flow must be completed
+   - task_completed: specific task type must be marked done
+   - min_value: deal value must exceed threshold
+   - custom: arbitrary JSONB condition evaluated by rule engine
+
+4. Enforcement levels:
+   - block: prevents stage transition entirely (shows requirements dialog)
+   - warn: shows warning but allows if user confirms
+   - log: records that requirements weren't met but doesn't block
+
+5. Stage rule configuration page:
+   src/app/(crm)/crm/settings/pipeline-rules/page.tsx
+   - Select pipeline → select stage
+   - Configure entry rules and exit rules separately
+   - Add conditions with drag-and-drop
+   - Set enforcement level per rule
+   - Document requirements: add required document types per stage
+
+6. Visual stage gate on pipeline board:
+   src/components/crm/pipeline/StageGate.tsx
+   - When dragging a deal to a new stage, a gate overlay shows requirements
+   - Green checkmarks for met requirements, red X for unmet
+   - If all met → deal moves. If blocked → shows what's missing with action links.
+   - Document requirement shows "Upload [document type]" button
+
+7. Document-driven progression:
+   - On deal detail page, show required documents for current stage
+   - Checklist format: ✓ Proposal uploaded, ✗ Contract missing (upload button)
+   - When all documents uploaded → stage exit requirements met
+```
+
+### Prompt W2-03: Workflow Versioning
+
+```
+Run migration 031. Create supabase/migrations/031_workflow_versioning.sql with:
+
+- crm_workflow_versions (workflow_id, version_number UNIQUE with workflow_id, status CHECK draft/active/archived, definition JSONB, change_summary AR/EN, created_by, activated_at, archived_at)
+- ALTER crm_workflows: add current_version_id, version_count
+- ALTER crm_workflow_log: add error_category, error_details JSONB, retry_count, resolved, resolved_by, resolved_at
+
+Build the versioning system:
+
+1. src/control/versioning/workflowVersioning.ts
+   - createDraftVersion(workflowId) → copies current active version as draft
+   - activateVersion(versionId) → archives current active, sets this as active
+   - rollbackToVersion(versionId) → creates new version from old version's definition
+   - getVersionHistory(workflowId) → list of all versions with metadata
+
+2. UI changes to existing workflow editor:
+   - Add version indicator: "v3 (active)" or "v4 (draft)"
+   - "Save as draft" button (doesn't activate — allows testing)
+   - "Activate" button on draft versions (makes it the live version)
+   - Version history panel: list of versions with date, author, change summary
+   - "View" any past version (read-only)
+   - "Rollback to this version" button on past versions
+   - Diff view: compare two versions side-by-side (show what changed)
+
+3. src/components/crm/workflows/VersionSelector.tsx, VersionDiff.tsx, DraftBadge.tsx
+```
+
+### Prompt W2-04: Handoff Intelligence
+
+```
+Build the handoff intelligence system:
+
+1. src/control/handoff/
+   ├── handoffService.ts         # CRUD for handoff notes
+   ├── handoffValidator.ts       # Validates completeness
+   └── ownershipTracker.ts       # Records ownership changes
+
+2. Mandatory handoff enforcement:
+   - When a user clicks "Reassign" on any deal, contact, or company → HandoffDialog opens
+   - The reassign action is DISABLED (greyed out button) until handoff notes are written
+   - HandoffDialog.tsx:
+     - "Handoff notes" textarea (mandatory, minimum 50 characters)
+     - "Pending tasks" section: auto-populated from open tasks, user can add more
+     - "Unresolved issues" section: user lists any open problems
+     - Submit → creates crm_handoff_notes record → reassignment proceeds
+     - AI completeness score: after submission, Mustasharak evaluates the notes and flags anything missing ("You didn't mention the pending proposal revision")
+
+3. Incomplete handoff detection:
+   - After handoff, if the new owner hasn't viewed the handoff notes within 48 hours → notification
+   - If there are unresolved issues in the handoff that haven't been addressed within 7 days → alert to manager
+
+4. Ownership history:
+   src/components/crm/pipeline/OwnershipHistory.tsx
+   - Timeline showing every owner change: who, when, reason, link to handoff notes
+   - Displayed on deal/contact detail pages under "History" or "Ownership" section
+
+5. Governance depth additions:
+   - Permission change tracking: when any org_member's role or permissions change, log to crm_audit_log with entity_type='org_member_permission', old_value=previous permissions, new_value=new permissions
+   - AI traceability: every AI insight now includes an "inputs" section showing what data was used. Add ai_inputs JSONB field to AI responses. Display as expandable "How was this calculated?" on any AI-generated card.
+```
+
+### Prompt W2-05: Communication Threading
+
+```
+Upgrade the communication system:
+
+1. Threading:
+   - Add thread_id and thread_position to communication entries
+   - When a new email arrives that's a reply to a previous email (detected by thread ID from email provider), set the same thread_id and increment thread_position
+   - WhatsApp conversations within a 24h window share a thread_id
+   - Thread view: src/components/crm/communications/ThreadView.tsx
+     - Groups related messages into collapsible threads
+     - Shows thread summary: participants, message count, date range
+     - Click to expand: see all messages in order
+
+2. Internal vs external separation:
+   - Add is_internal toggle on every communication entry
+   - Default: FALSE (external — visible to customer in deal room)
+   - Internal notes: only visible to CRM users, never shown in deal room
+   - UI: toggle switch on communication compose form "Internal note" vs "Customer-visible"
+   - Filter on timeline: "All" / "External only" / "Internal only"
+
+3. Mandatory conversation→deal linkage:
+   - When logging a communication, if there are active deals with the contact, prompt: "Link to deal?" with deal selector
+   - If only one active deal → auto-link
+   - Communications without a deal link show a subtle "Not linked to any deal" indicator
+
+4. Update the deal room (V3) to respect is_internal flag — only show external communications in the customer-facing view.
+```
+
+### Prompt W2-06: Wave 2 Quality Gate
+
+```
+Wave 2 quality gate. Verify:
+
+1. Migration 030 applied — stage rules, document requirements, handoff notes, ownership history tables exist
+2. Migration 031 applied — workflow versions table exists, workflow_log extended
+3. Stage entry/exit rules: configure per stage, block/warn/log enforcement works
+4. Document requirements: required docs per stage, checklist on deal detail, blocks stage exit when missing
+5. Stage gate visual on pipeline board when dragging deals
+6. Workflow versioning: create draft, activate, rollback, version history, diff view
+7. Handoff: reassignment blocked without notes, AI completeness scoring, ownership history timeline
+8. Communication threading: thread grouping works, thread view renders correctly
+9. Internal/external toggle: works on communications, internal hidden from deal room
+10. Conversation→deal linkage: prompt appears, auto-link when single deal
+11. Permission change tracking in audit log
+12. AI traceability: "How was this calculated?" expandable on all AI insights
+13. All i18n (AR + EN), RTL + LTR tested, design system enforced
+14. Build passes, no TypeScript errors
+
+Fix issues before Wave 3.
+```
+
+---
+
+## WAVE 3 — Intelligence Evolution + Operations
+
+### Prompt W3-01: Migration 032 (Marketing Intelligence)
+
+```
+Run migration 032. Create supabase/migrations/032_marketing_intelligence.sql with:
+
+- crm_contact_profiles (org_id, contact_id UNIQUE, communication behavior fields, engagement patterns, deal history, sentiment, AI-derived insights, campaign history, recommended_approach JSONB)
+- crm_ai_campaigns (org_id, name, name_ar, objective, objective_description, ai_strategy JSONB, status CHECK planning/ready_for_review/approved/executing/completed/cancelled, total_contacts, contacts_by_channel JSONB, scheduled/executed/completed timestamps, approved_by/at)
+- crm_ai_campaign_contacts (campaign_id, contact_id UNIQUE per campaign, channel, dialect, personalized_subject AR/EN, personalized_body AR/EN, ai_reasoning, scheduled_time, status CHECK, engagement timestamps, reply_sentiment, sendgrid_message_id)
+- crm_campaign_learnings (org_id, campaign_id, learning_type, insight AR/EN, data_points JSONB, confidence, applied_to_profiles boolean)
+
+All with RLS org isolation. Performance indexes on contact_profiles and campaign_contacts.
+
+Follow exact SQL from V4 Technical Architecture.
+```
+
+### Prompt W3-02: Contact Profile Engine
+
+```
+Build the contact behavioral profile system:
+
+1. src/ai/deterministic/contactProfile.ts
+   - computeContactProfile(orgId, contactId): gathers ALL data about a contact and computes their behavioral profile
+   - Data sources: communications (all types, all channels), deals (history, outcomes, values), tasks, engagement profile (V3), sentiment data (V3 NLP), campaign results, health scores, tickets
+   - Computes: preferred channel, preferred time, preferred dialect, response patterns, engagement trend, deal history stats, interests, objections, personality signals
+   - Calls Gemini for recommended_approach: "Given this contact's full history, what's the optimal outreach approach?"
+   - Upserts result into crm_contact_profiles
+
+2. src/ai/deterministic/contactProfile.ts — batchComputeProfiles(orgId)
+   - Recomputes all profiles for an org (run nightly or on demand)
+   - Processes contacts with most recent communication activity first
+
+3. Trigger: after every communication is logged, queue a profile recomputation for that contact (debounced — max once per hour per contact, same as V3 engagement fingerprints)
+
+4. Profile display:
+   src/app/(crm)/crm/marketing/profiles/page.tsx — Profile browser
+   - Grid of contact profile cards showing: name, engagement trend (arrow), preferred channel icon, sentiment badge, last contact date
+   - Search and filter: by engagement trend, sentiment, preferred channel, deal status
+   - Sort: by most engaged, most dormant, highest value, most at-risk
+
+   src/app/(crm)/crm/marketing/profiles/[contactId]/page.tsx — Profile deep dive
+   - Full behavioral breakdown: all computed fields visualized
+   - Communication history chart (frequency over time)
+   - Channel response time comparison
+   - Sentiment trend graph
+   - Deal history timeline
+   - AI recommended approach (with explainability: "Based on X, Y, Z data points")
+   - Campaign history: what campaigns they received, what they engaged with
+
+5. Also add a "Profile" summary card to the existing contact detail page — compact version showing preferred channel, engagement trend, sentiment, and recommended approach.
+```
+
+### Prompt W3-03: Marketing Intelligence Agent
+
+```
+Build the marketing intelligence AI agent:
+
+1. src/ai/agents/marketingAgent.ts — register with orchestrator
+   - Intent triggers: "create a campaign", "re-engage contacts", "who should I reach out to", "marketing suggestions"
+   - Also triggered proactively when AI detects opportunities (checked daily)
+
+2. Campaign opportunity suggestions:
+   - suggestCampaignOpportunities(orgId): analyzes all contact profiles, identifies:
+     - Dormant high-value contacts (no contact in 60+ days, lifetime revenue > threshold)
+     - Declining engagement contacts (trend = declining, previously active)
+     - Upsell candidates (expansion signals from health monitoring)
+     - New contact nurture (contacts added recently with no outreach yet)
+     - Post-deal follow-up (deals closed 30-90 days ago with no check-in)
+   - Returns opportunities with: type, title (AR/EN), description, contact count, estimated impact, confidence
+
+3. Display: src/app/(crm)/crm/marketing/insights/page.tsx
+   - Cards showing AI-suggested opportunities
+   - Each card: opportunity type badge, title, description, contact count, "Create Campaign" button
+   - AI also suggests these on the main CRM dashboard as "Marketing Opportunities" card
+
+4. Also add to Mustasharak chat: user can say "What marketing opportunities do we have?" and get a conversational summary.
+```
+
+### Prompt W3-04: Campaign Planning + Message Generation
+
+```
+Build the campaign creation workflow:
+
+1. src/app/(crm)/crm/marketing/campaigns/page.tsx — Campaign list
+   - Cards: name, objective, status badge, total contacts, channels breakdown, created date
+   - Filter by status, objective type
+
+2. Campaign creation flow (new page or modal wizard):
+
+   Step 1: Objective
+   - User describes what they want: free text input
+   - OR selects from AI-suggested opportunities
+   - "I want to re-engage contacts who haven't heard from us in 60 days and have high lifetime value"
+
+   Step 2: AI Strategy (auto-generated)
+   - Mustasharak analyzes contact profiles matching the objective
+   - Returns strategy: "Found 23 contacts matching. I recommend 3 segments:
+     - Segment A (8 contacts): Gulf companies, best reached via WhatsApp in evening
+     - Segment B (6 contacts): Levantine contacts, prefer email, respond to data-driven content  
+     - Segment C (5 contacts): High-value, warrant a personal phone call
+     - Segment D (4 contacts): Low probability of re-engagement — suggest removing"
+   - User can adjust: add/remove contacts, change segments, modify strategy
+
+   Step 3: Message Generation
+   - Click "Generate Messages" → Mustasharak crafts individual messages for EVERY contact
+   - Each message is unique: different content, references their specific history
+   - Each message specifies: channel, dialect, subject, body, timing, reasoning
+   - For phone calls: generates talking points instead of a message body
+   - Loading state: "Generating personalized messages for 23 contacts..."
+
+   Step 4: Review (batch approval)
+   - src/app/(crm)/crm/marketing/campaigns/plan/page.tsx
+   - Summary view: total contacts, channel breakdown, dialect breakdown, timing distribution
+   - Per-contact drill-down: click any contact → see their specific message + AI reasoning
+   - User can edit any individual message before approving
+   - "Approve & Schedule" button (date/time picker) or "Approve & Send Now"
+   - Approval is atomic — entire batch
+
+3. Campaign execution:
+   - Emails: sent via SendGrid with personalized content per contact
+   - WhatsApp: sent via Meta API (template for first contact, free-form if in 24h window)
+   - Phone calls: creates tasks for assigned reps with talking points, scheduled time, and contact profile summary
+   - Each send updates crm_ai_campaign_contacts status
+
+4. src/components/crm/marketing/ — CampaignPlanner.tsx, CampaignStrategy.tsx, PersonalizedMessagePreview.tsx, ChannelRecommendation.tsx, CampaignApprovalFlow.tsx, ContactSelector.tsx
+```
+
+### Prompt W3-05: Campaign Results + Learning Loop
+
+```
+Build the campaign results tracking and learning system:
+
+1. Results tracking:
+   - Email: SendGrid webhooks update crm_ai_campaign_contacts (delivered, opened, clicked)
+   - WhatsApp: Meta webhooks update status (delivered, read, replied)
+   - Phone calls: rep marks task as completed with outcome notes
+   - Replies: when a contact replies to a campaign message (detected by email thread or WhatsApp response), record reply_sentiment using NLP agent
+
+2. Campaign analytics page:
+   src/app/(crm)/crm/marketing/campaigns/[campaignId]/page.tsx
+   - Overall stats: sent, delivered %, opened %, clicked %, replied %, sentiment of replies
+   - By channel: email vs WhatsApp vs phone performance
+   - By segment: which AI segment performed best
+   - By dialect: which dialect got highest engagement
+   - Per-contact table: status, engagement timestamps, reply sentiment
+   - ROI estimation: if any campaign contacts have subsequently had deals close, attribute revenue
+
+3. Learning engine:
+   src/ai/deterministic/campaignLearning.ts
+   - analyzeCampaignResults(campaignId): runs after campaign is complete (all messages sent + 7-day tracking window)
+   - Generates insights: "WhatsApp outperformed email by 3x for UAE contacts", "Evening sends got 40% more responses", "Gulf Arabic had higher engagement than MSA", "Data-driven messages worked best for contacts with technical backgrounds"
+   - Stores learnings in crm_campaign_learnings
+
+4. Feedback loop:
+   - applyLearningsToProfiles(orgId, learnings): updates contact profiles based on what worked
+   - If a contact responded to WhatsApp but not email → strengthen WhatsApp preference in their profile
+   - If a contact engaged with evening sends → update their best_time_window
+   - If a specific content type worked → add to their personality_signals
+
+5. Display learnings:
+   - On campaign results page: "Key Learnings" section with insight cards
+   - On marketing hub: "Accumulated Intelligence" showing learnings across all campaigns
+   - Each learning shows: confidence score, data points used, whether it's been applied to profiles
+```
+
+### Prompt W3-06: Observability Dashboard
+
+```
+Build the admin operations dashboard:
+
+1. src/app/(crm)/crm/operations/page.tsx — Admin + Owner only (NOT Executive)
+   - Real-time system health view
+
+2. Sections:
+
+   System Status:
+   - Overall health indicator (green/yellow/red)
+   - API uptime (based on recent error rate)
+   - Integration status per connected service (green = syncing, red = errors)
+   - Last sync time per integration
+
+   Failed Automations:
+   - List from crm_workflow_log where error is not null
+   - Shows: workflow name, trigger event, error category, error details, timestamp
+   - "Retry" button per failed execution
+   - "Resolve" button (marks as resolved with reason)
+   - Filter: unresolved / resolved / all, by error category
+
+   Integration Errors:
+   - Email sync failures (OAuth expired, rate limited, API error)
+   - Calendar sync failures
+   - WhatsApp delivery failures
+   - Slack posting failures
+   - Zoom webhook failures
+   - Shows: integration, error type, affected entity, timestamp
+
+   Webhook Delivery Failures:
+   - From crm_webhook_subscriptions delivery log
+   - Shows: subscription, target URL, HTTP status, retry count, last attempt
+
+   API Errors:
+   - Recent 4xx and 5xx responses from /api/crm/v1/
+   - Shows: endpoint, method, status code, error message, requesting API key
+
+   SLA Breaches:
+   - Active breaches across all orgs (for platform admin) or within org
+   - Shows: entity, SLA rule, duration elapsed, escalation status
+
+3. Alerts:
+   - If any critical system has >5% error rate → show warning banner at top
+   - If any integration has been failing for >1 hour → show alert
+
+4. src/components/crm/operations/ — SystemHealth.tsx, FailedAutomations.tsx, IntegrationErrors.tsx, WebhookFailures.tsx, APIErrors.tsx, SLABreaches.tsx
+
+Add "Operations" to sidebar, gated to Enterprise tier, Owner + Admin roles only.
+```
+
+### Prompt W3-07: Mobile Role-Awareness
+
+```
+Update the mobile app to be role-aware and execution-focused:
+
+1. Role detection on mobile app load:
+   - Check current user's role from org_members
+   - Set mobile_role state: 'field_rep' | 'manager' | 'executive'
+   - field_rep = Staff role
+   - manager = Manager or Admin role
+   - executive = Executive role
+   - Owner gets manager view with all features
+
+2. Field rep mobile view:
+   - Home: today's tasks + AI daily briefing
+   - Deal board: visual pipeline (swipeable)
+   - Contact list: search + quick actions (call, WhatsApp, email)
+   - Call logger: one-tap call logging
+   - Card scanner: business card → contact creation
+   - Voice AI: mic button in header
+   - GPS visit tracking (if org-enabled)
+   - NO: settings, admin, approval configuration, workflow builder, operations
+
+3. Manager mobile view:
+   - Home: team overview + pipeline health + SLA dashboard
+   - Approval queue: pending approvals with approve/reject
+   - Team: per-rep performance metrics
+   - Pipeline: team pipeline board
+   - Deals: full deal detail with AI scores
+   - All field rep features except GPS tracking
+
+4. Executive mobile view:
+   - Executive dashboard only (same as web, responsive)
+   - Read-only access to pipeline and reports
+   - NO: deal editing, contact management, task management, approvals
+
+5. Implementation:
+   - Create src/components/mobile/RoleRouter.tsx that checks role and renders appropriate navigation
+   - Modify mobile bottom navigation to show role-appropriate tabs
+   - No new pages — just conditional rendering of existing components based on role
+```
+
+### Prompt W3-08: Wave 3 + V4 Final Quality Gate
+
+```
+Wave 3 quality gate AND V4 final verification:
+
+WAVE 3 CHECKS:
+1. Migration 032 applied — contact profiles, AI campaigns, campaign contacts, learnings tables exist
+2. Contact profiles compute correctly from all data sources
+3. Marketing AI suggests campaign opportunities proactively
+4. Campaign planning: user describes objective → AI generates strategy → AI crafts individual messages
+5. Each message is genuinely different (content, channel, timing, dialect per contact)
+6. Batch approval works: summary → drill-down → approve → execute
+7. Campaign execution: emails via SendGrid, WhatsApp via Meta API, phone calls as tasks
+8. Results tracking: opens, clicks, replies, sentiment tracked and updated
+9. Learning loop: campaign results generate insights, insights update contact profiles
+10. Observability dashboard: system health, failed automations, integration errors, webhook failures
+11. Mobile role-awareness: field rep, manager, executive see different views
+
+V4 COMPREHENSIVE CHECKS:
+12. All 4 migrations (029-032) applied cleanly
+13. Control layer: approvals block actions until approved, SLAs track and escalate, exceptions log with audit trail
+14. Stage entry/exit rules enforce requirements (block/warn/log)
+15. Document requirements per stage working
+16. Workflow versioning: draft/active/archive, rollback, diff view
+17. Handoff: reassignment blocked without notes, AI completeness scoring
+18. Communication threading groups messages correctly
+19. Internal/external toggle works, deal room only shows external
+20. AI explainability: every AI insight has "How was this calculated?" with inputs visible
+21. Forecasting labeled as "Projection" (not "Forecast")
+22. All features have Arabic + English i18n
+23. All UI tested in RTL and LTR
+24. Design system: cream background, three card types, no purple
+25. All plan gating correct per tier
+26. npm run build passes with zero errors
+27. No TypeScript errors
+
+V4 IS COMPLETE WHEN ALL 27 CHECKS PASS.
+```
+
+---
+
+## Troubleshooting
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| Approval not triggering on deal move | Approval check not integrated into stage change flow | Ensure control.checkApproval() is called BEFORE updateDealStage() |
+| SLA cron not running | Vercel cron config missing | Add to vercel.json: crons array with /api/cron/sla-check |
+| SLA timers showing wrong time | Timezone mismatch | Ensure deadline_at is stored in UTC, display converted to org timezone |
+| Exception dialog not appearing | Control layer returning 'allowed' instead of 'blocked' | Check enforcement level — must be 'block', not 'warn' or 'log' |
+| Handoff notes not blocking | Reassign button not checking control layer | Ensure control.validateHandoff() is called and returns complete=false |
+| Campaign messages all identical | Marketing agent not receiving contact profiles | Verify crm_contact_profiles are computed before campaign planning |
+| Profile computation slow | Too many contacts processed at once | Add batch processing with limit of 50 profiles per run |
+| Workflow rollback creates duplicate | Version number not incrementing | Rollback creates a NEW version (max + 1), doesn't restore old number |
+| Observability empty | Workflow log not capturing errors | Ensure try/catch in automation engine writes to workflow_log with error_category |
+| Mobile showing wrong role view | Role not detected on app load | Check org_members query includes role field and is_active=true filter |
+
+---
+
+## V4 Definition of Done
+
+V4 is production-ready when:
+- [ ] Control layer enforces all business rules (approvals, SLAs, exceptions)
+- [ ] Pipeline is a true execution control system (stage gates, document requirements, inactivity enforcement)
+- [ ] Workflow versioning supports safe iteration (draft → test → activate → rollback)
+- [ ] Handoff intelligence prevents knowledge loss on reassignment
+- [ ] Marketing intelligence engine creates genuinely personalized campaigns (not templates)
+- [ ] Campaign learning loop improves contact profiles after each campaign
+- [ ] Communication threading and internal/external separation working
+- [ ] Observability gives admins visibility into system health
+- [ ] Mobile adapts to user role
+- [ ] AI explainability present on every AI-generated insight
+- [ ] All 27 quality checks pass
+
+---
+
+*V4 Prompt Playbook complete. Execute prompts in order. Do not skip quality gates.*
+
+# Rasmalak CRM — V4 Technical Architecture
+
+> **Version:** 4.0 — April 2026
+> **Prerequisite:** V3 migrations 024-028 applied and stable
+> **Classification:** Confidential
+
+---
+
+## Migration 029: Control Layer
+
+```sql
+-- ============================================================
+-- APPROVAL SYSTEM
+-- ============================================================
+
+CREATE TABLE crm_approval_flows (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  name_ar         TEXT,
+  trigger_entity  TEXT NOT NULL,
+  -- 'deal', 'document', 'quote', 'discount', 'exception', 'reassignment'
+  trigger_conditions JSONB NOT NULL DEFAULT '{}',
+  -- { field: 'value', operator: 'gt', value: 50000 }
+  -- e.g. deal.value > 50000, discount_percent > 20
+  flow_type       TEXT NOT NULL DEFAULT 'sequential' CHECK (flow_type IN ('sequential', 'parallel')),
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_by      UUID NOT NULL REFERENCES auth.users(id),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_approval_steps (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  flow_id         UUID NOT NULL REFERENCES crm_approval_flows(id) ON DELETE CASCADE,
+  step_order      INTEGER NOT NULL,
+  approver_type   TEXT NOT NULL CHECK (approver_type IN ('user', 'role', 'manager')),
+  -- 'user' = specific user, 'role' = any user with this role, 'manager' = deal owner's manager
+  approver_id     UUID,
+  -- references auth.users(id) when approver_type='user', org_roles(id) when 'role', NULL when 'manager'
+  approver_role   TEXT,
+  -- role name when approver_type='role'
+  deadline_hours  INTEGER DEFAULT 48,
+  escalation_to   UUID REFERENCES auth.users(id),
+  -- if deadline passes, escalate to this user
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_approval_requests (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  flow_id         UUID NOT NULL REFERENCES crm_approval_flows(id) ON DELETE CASCADE,
+  current_step    INTEGER DEFAULT 1,
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID NOT NULL,
+  entity_data     JSONB DEFAULT '{}',
+  -- snapshot of the entity at request time (for context)
+  requested_by    UUID NOT NULL REFERENCES auth.users(id),
+  status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'escalated', 'cancelled')),
+  decisions       JSONB DEFAULT '[]',
+  -- [{ step, decided_by, decision: 'approved'|'rejected', reason, decided_at }]
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================
+-- SLA ENGINE
+-- ============================================================
+
+CREATE TABLE crm_sla_definitions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  name_ar         TEXT,
+  entity_type     TEXT NOT NULL CHECK (entity_type IN ('deal_stage', 'approval', 'ticket', 'inactivity')),
+  target_entity   TEXT,
+  -- for deal_stage: pipeline_stage_id
+  -- for approval: approval_flow_id
+  -- for ticket: priority level
+  -- for inactivity: entity type (deal, contact)
+  duration_hours  INTEGER NOT NULL,
+  warning_at_percent INTEGER DEFAULT 80,
+  -- alert when 80% of time elapsed
+  escalation_action TEXT DEFAULT 'notify' CHECK (escalation_action IN ('notify', 'reassign', 'escalate', 'block')),
+  escalation_to   UUID REFERENCES auth.users(id),
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_sla_timers (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  sla_id          UUID NOT NULL REFERENCES crm_sla_definitions(id) ON DELETE CASCADE,
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID NOT NULL,
+  started_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deadline_at     TIMESTAMPTZ NOT NULL,
+  warning_sent    BOOLEAN DEFAULT FALSE,
+  breached        BOOLEAN DEFAULT FALSE,
+  breached_at     TIMESTAMPTZ,
+  escalation_sent BOOLEAN DEFAULT FALSE,
+  completed_at    TIMESTAMPTZ,
+  status          TEXT DEFAULT 'active' CHECK (status IN ('active', 'warning', 'breached', 'completed', 'cancelled')),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================
+-- EXCEPTION HANDLING
+-- ============================================================
+
+CREATE TABLE crm_exceptions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  exception_type  TEXT NOT NULL,
+  -- 'rule_override', 'sla_override', 'stage_skip', 'document_waiver', 'approval_bypass'
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID NOT NULL,
+  rule_overridden TEXT,
+  -- description of what rule was bypassed
+  reason          TEXT NOT NULL,
+  -- free text explaining why
+  requested_by    UUID NOT NULL REFERENCES auth.users(id),
+  approved_by     UUID REFERENCES auth.users(id),
+  approval_required BOOLEAN DEFAULT TRUE,
+  status          TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'auto_approved')),
+  -- auto_approved: when org config allows certain exception types without approval
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  resolved_at     TIMESTAMPTZ
+);
+
+-- RLS for all control layer tables
+ALTER TABLE crm_approval_flows ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_approval_steps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_approval_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_sla_definitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_sla_timers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_exceptions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation" ON crm_approval_flows FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_approval_steps FOR ALL
+  USING (flow_id IN (SELECT id FROM crm_approval_flows WHERE org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE)));
+CREATE POLICY "org_isolation" ON crm_approval_requests FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_sla_definitions FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_sla_timers FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_exceptions FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+
+-- Index for SLA cron job performance
+CREATE INDEX idx_sla_timers_active ON crm_sla_timers (status, deadline_at) WHERE status = 'active';
+CREATE INDEX idx_sla_timers_warning ON crm_sla_timers (status, deadline_at, warning_sent) WHERE status = 'active' AND warning_sent = FALSE;
+```
+
+## Migration 030: Pipeline Governance
+
+```sql
+-- ============================================================
+-- STAGE RULES
+-- ============================================================
+
+CREATE TABLE crm_stage_rules (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  stage_id        UUID NOT NULL REFERENCES crm_pipeline_stages(id) ON DELETE CASCADE,
+  rule_type       TEXT NOT NULL CHECK (rule_type IN ('entry', 'exit')),
+  conditions      JSONB NOT NULL DEFAULT '[]',
+  -- [{ type: 'field_required', field: 'deal.expected_close', message, message_ar }]
+  -- [{ type: 'document_required', document_type: 'proposal', message, message_ar }]
+  -- [{ type: 'approval_required', flow_id: UUID, message, message_ar }]
+  -- [{ type: 'task_completed', task_type: 'follow_up', message, message_ar }]
+  -- [{ type: 'min_value', field: 'deal.value', value: 10000, message, message_ar }]
+  enforcement     TEXT DEFAULT 'block' CHECK (enforcement IN ('block', 'warn', 'log')),
+  -- block: prevents stage transition, warn: shows warning but allows, log: records only
+  is_active       BOOLEAN DEFAULT TRUE,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_stage_document_requirements (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  stage_id        UUID NOT NULL REFERENCES crm_pipeline_stages(id) ON DELETE CASCADE,
+  document_type   TEXT NOT NULL,
+  -- 'proposal', 'contract', 'nda', 'quote', 'custom'
+  custom_label    TEXT,
+  custom_label_ar TEXT,
+  is_required     BOOLEAN DEFAULT TRUE,
+  -- required = blocks stage entry without it, optional = tracked but not blocking
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(org_id, stage_id, document_type)
+);
+
+-- ============================================================
+-- HANDOFF INTELLIGENCE
+-- ============================================================
+
+CREATE TABLE crm_handoff_notes (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  entity_type     TEXT NOT NULL CHECK (entity_type IN ('deal', 'contact', 'company')),
+  entity_id       UUID NOT NULL,
+  from_user       UUID NOT NULL REFERENCES auth.users(id),
+  to_user         UUID NOT NULL REFERENCES auth.users(id),
+  notes           TEXT NOT NULL,
+  pending_tasks   JSONB DEFAULT '[]',
+  -- [{ task_id, title, due_date, status }]
+  unresolved_issues JSONB DEFAULT '[]',
+  -- [{ description, severity }]
+  ai_completeness_score INTEGER,
+  -- 0-100: how complete is this handoff (computed by AI)
+  ai_missing_items JSONB DEFAULT '[]',
+  -- [{ item, reason }] — what AI thinks is missing
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_ownership_history (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  entity_type     TEXT NOT NULL CHECK (entity_type IN ('deal', 'contact', 'company')),
+  entity_id       UUID NOT NULL,
+  owner_user_id   UUID NOT NULL REFERENCES auth.users(id),
+  started_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ended_at        TIMESTAMPTZ,
+  handoff_note_id UUID REFERENCES crm_handoff_notes(id),
+  reason          TEXT,
+  -- 'initial_assignment', 'reassignment', 'territory_change', 'rep_departure'
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- Add internal/external flag and threading to communications
+ALTER TABLE crm_communications
+  ADD COLUMN IF NOT EXISTS is_internal BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS thread_id UUID,
+  ADD COLUMN IF NOT EXISTS thread_position INTEGER;
+
+-- RLS
+ALTER TABLE crm_stage_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_stage_document_requirements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_handoff_notes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_ownership_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation" ON crm_stage_rules FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_stage_document_requirements FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_handoff_notes FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_ownership_history FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+```
+
+## Migration 031: Workflow Versioning
+
+```sql
+CREATE TABLE crm_workflow_versions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workflow_id     UUID NOT NULL REFERENCES crm_workflows(id) ON DELETE CASCADE,
+  version_number  INTEGER NOT NULL,
+  status          TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'archived')),
+  definition      JSONB NOT NULL,
+  -- complete snapshot of workflow: triggers, conditions, actions
+  change_summary  TEXT,
+  change_summary_ar TEXT,
+  created_by      UUID NOT NULL REFERENCES auth.users(id),
+  activated_at    TIMESTAMPTZ,
+  archived_at     TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(workflow_id, version_number)
+);
+
+-- Add version tracking to existing workflows table
+ALTER TABLE crm_workflows
+  ADD COLUMN IF NOT EXISTS current_version_id UUID REFERENCES crm_workflow_versions(id),
+  ADD COLUMN IF NOT EXISTS version_count INTEGER DEFAULT 1;
+
+-- Observability: extend existing workflow log with error categorization
+ALTER TABLE crm_workflow_log
+  ADD COLUMN IF NOT EXISTS error_category TEXT,
+  -- 'trigger_failed', 'condition_error', 'action_failed', 'timeout', 'integration_error'
+  ADD COLUMN IF NOT EXISTS error_details JSONB,
+  ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS resolved BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS resolved_by UUID REFERENCES auth.users(id),
+  ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMPTZ;
+
+-- Permission change tracking in audit log
+-- No new table needed — extend existing crm_audit_log usage
+-- The audit log already captures: user_id, action, entity_type, entity_id, old_value, new_value
+-- For permission changes: entity_type='org_member_permission', old_value=previous permissions, new_value=new permissions
+
+ALTER TABLE crm_workflow_versions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "versions_via_workflow" ON crm_workflow_versions FOR ALL
+  USING (workflow_id IN (SELECT id FROM crm_workflows WHERE org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE)));
+```
+
+## Migration 032: Marketing Intelligence Engine
+
+```sql
+-- ============================================================
+-- CONTACT BEHAVIORAL PROFILES
+-- ============================================================
+
+CREATE TABLE crm_contact_profiles (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  contact_id      UUID NOT NULL REFERENCES crm_contacts(id) ON DELETE CASCADE,
+
+  -- Communication behavior
+  total_interactions INTEGER DEFAULT 0,
+  preferred_channel TEXT,
+  preferred_time_window TEXT,
+  preferred_dialect TEXT,
+  avg_response_time_minutes INTEGER,
+  message_length_preference TEXT,
+
+  -- Engagement patterns
+  email_open_rate NUMERIC,
+  email_click_rate NUMERIC,
+  whatsapp_response_rate NUMERIC,
+  last_engaged_at TIMESTAMPTZ,
+  engagement_trend TEXT CHECK (engagement_trend IN ('increasing', 'stable', 'declining', 'dormant')),
+
+  -- Deal history
+  total_deals INTEGER DEFAULT 0,
+  won_deals INTEGER DEFAULT 0,
+  lost_deals INTEGER DEFAULT 0,
+  total_revenue NUMERIC DEFAULT 0,
+  avg_deal_size NUMERIC,
+  primary_interests TEXT[],
+  -- e.g. ['cost_savings', 'new_features', 'support_quality']
+  known_objections TEXT[],
+  -- e.g. ['price', 'implementation_time', 'feature_gap']
+
+  -- Sentiment
+  current_sentiment TEXT CHECK (current_sentiment IN ('positive', 'neutral', 'negative', 'unknown')),
+  sentiment_history JSONB DEFAULT '[]',
+  -- [{ date, sentiment, source }] — append only
+
+  -- AI-derived insights
+  personality_signals JSONB DEFAULT '{}',
+  -- { responds_to_data: true, prefers_relationship: true, decision_speed: 'fast', risk_tolerance: 'low' }
+  recommended_approach JSONB DEFAULT '{}',
+  -- { tone, message_type, key_talking_points, avoid_topics }
+
+  -- Campaign history
+  campaigns_received INTEGER DEFAULT 0,
+  campaigns_engaged INTEGER DEFAULT 0,
+  last_campaign_at TIMESTAMPTZ,
+  best_performing_content_type TEXT,
+  -- 'case_study', 'product_update', 'industry_insight', 'personal_check_in', 'promotion'
+
+  last_computed_at TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(org_id, contact_id)
+);
+
+-- ============================================================
+-- AI CAMPAIGNS
+-- ============================================================
+
+CREATE TABLE crm_ai_campaigns (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  name_ar         TEXT,
+  objective       TEXT NOT NULL,
+  -- 're_engagement', 'upsell', 'cross_sell', 'nurture', 'announcement', 'follow_up', 'custom'
+  objective_description TEXT,
+  -- free text: user's description of what they want to achieve
+  ai_strategy     JSONB DEFAULT '{}',
+  -- AI-generated strategy: { summary, summary_ar, segments: [{ name, count, approach }] }
+  status          TEXT DEFAULT 'planning' CHECK (status IN ('planning', 'ready_for_review', 'approved', 'executing', 'completed', 'cancelled')),
+  total_contacts  INTEGER DEFAULT 0,
+  contacts_by_channel JSONB DEFAULT '{}',
+  -- { email: 15, whatsapp: 8, phone_call: 3 }
+  scheduled_at    TIMESTAMPTZ,
+  executed_at     TIMESTAMPTZ,
+  completed_at    TIMESTAMPTZ,
+  approved_by     UUID REFERENCES auth.users(id),
+  approved_at     TIMESTAMPTZ,
+  created_by      UUID NOT NULL REFERENCES auth.users(id),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE crm_ai_campaign_contacts (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  campaign_id     UUID NOT NULL REFERENCES crm_ai_campaigns(id) ON DELETE CASCADE,
+  contact_id      UUID NOT NULL REFERENCES crm_contacts(id) ON DELETE CASCADE,
+  channel         TEXT NOT NULL CHECK (channel IN ('email', 'whatsapp', 'phone_call')),
+  dialect         TEXT,
+  personalized_subject TEXT,
+  personalized_subject_ar TEXT,
+  personalized_body TEXT NOT NULL,
+  personalized_body_ar TEXT,
+  ai_reasoning    TEXT,
+  -- why this message, this channel, this timing for this contact
+  scheduled_time  TIMESTAMPTZ,
+  status          TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'delivered', 'opened', 'clicked', 'replied', 'failed', 'skipped')),
+  sent_at         TIMESTAMPTZ,
+  opened_at       TIMESTAMPTZ,
+  clicked_at      TIMESTAMPTZ,
+  replied_at      TIMESTAMPTZ,
+  reply_sentiment TEXT,
+  sendgrid_message_id TEXT,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(campaign_id, contact_id)
+);
+
+-- ============================================================
+-- CAMPAIGN LEARNING
+-- ============================================================
+
+CREATE TABLE crm_campaign_learnings (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  campaign_id     UUID NOT NULL REFERENCES crm_ai_campaigns(id) ON DELETE CASCADE,
+  learning_type   TEXT NOT NULL,
+  -- 'channel_effectiveness', 'timing_insight', 'content_pattern', 'segment_response', 'dialect_preference'
+  insight         TEXT NOT NULL,
+  insight_ar      TEXT,
+  data_points     JSONB DEFAULT '{}',
+  -- supporting data for the insight
+  confidence      NUMERIC,
+  applied_to_profiles BOOLEAN DEFAULT FALSE,
+  -- true after this learning has been fed back into contact profiles
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- RLS
+ALTER TABLE crm_contact_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_ai_campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_ai_campaign_contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE crm_campaign_learnings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation" ON crm_contact_profiles FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "org_isolation" ON crm_ai_campaigns FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+CREATE POLICY "contacts_via_campaign" ON crm_ai_campaign_contacts FOR ALL
+  USING (campaign_id IN (SELECT id FROM crm_ai_campaigns WHERE org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE)));
+CREATE POLICY "org_isolation" ON crm_campaign_learnings FOR ALL
+  USING (org_id IN (SELECT org_id FROM org_members WHERE user_id = auth.uid() AND is_active = TRUE));
+
+-- Performance indexes
+CREATE INDEX idx_contact_profiles_engagement ON crm_contact_profiles (org_id, engagement_trend, last_engaged_at);
+CREATE INDEX idx_contact_profiles_sentiment ON crm_contact_profiles (org_id, current_sentiment);
+CREATE INDEX idx_ai_campaign_contacts_status ON crm_ai_campaign_contacts (campaign_id, status);
+```
+
+---
+
+## Key Interfaces
+
+### Control Layer Public API
+
+```typescript
+// src/control/index.ts — single entry point for all control layer checks
+
+export interface ControlLayer {
+  // Approvals
+  checkApproval(action: string, context: Record<string, any>): Promise<ApprovalCheck>;
+  requestApproval(flowId: string, entityType: string, entityId: string, data: any): Promise<ApprovalRequest>;
+  approveRequest(requestId: string, reason?: string): Promise<void>;
+  rejectRequest(requestId: string, reason: string): Promise<void>;
+  getPendingApprovals(userId: string): Promise<ApprovalRequest[]>;
+
+  // SLAs
+  startSLATimer(entityType: string, entityId: string, slaId: string): Promise<SLATimer>;
+  stopSLATimer(entityType: string, entityId: string): Promise<void>;
+  checkSLABreaches(): Promise<SLABreach[]>;  // called by cron job
+
+  // Stage rules
+  checkStageEntry(dealId: string, stageId: string): Promise<StageCheck>;
+  checkStageExit(dealId: string, stageId: string): Promise<StageCheck>;
+  getStageRequirements(stageId: string): Promise<StageRequirements>;
+
+  // Exceptions
+  requestException(type: string, entityType: string, entityId: string, reason: string): Promise<ExceptionRequest>;
+  approveException(exceptionId: string): Promise<void>;
+
+  // Handoff
+  validateHandoff(entityType: string, entityId: string, notes: string): Promise<HandoffValidation>;
+  recordOwnershipChange(entityType: string, entityId: string, fromUser: string, toUser: string, handoffNoteId: string): Promise<void>;
+}
+
+interface ApprovalCheck {
+  required: boolean;
+  flowId?: string;
+  flowName?: string;
+  reason?: string;
+}
+
+interface StageCheck {
+  allowed: boolean;
+  missingRequirements: StageRequirement[];
+}
+
+interface StageRequirement {
+  type: 'field_required' | 'document_required' | 'approval_required' | 'task_completed' | 'min_value';
+  description: string;
+  description_ar: string;
+  met: boolean;
+}
+
+interface HandoffValidation {
+  complete: boolean;
+  score: number;  // 0-100
+  missingItems: { item: string; reason: string }[];
+}
+```
+
+### Marketing Intelligence Agent
+
+```typescript
+// src/ai/agents/marketingAgent.ts
+
+export interface MarketingAgent {
+  // Profile management
+  computeContactProfile(orgId: string, contactId: string): Promise<ContactProfile>;
+  batchComputeProfiles(orgId: string): Promise<void>;
+
+  // Campaign creation
+  suggestCampaignOpportunities(orgId: string): Promise<CampaignOpportunity[]>;
+  planCampaign(orgId: string, objective: string, description: string): Promise<CampaignPlan>;
+  generatePersonalizedMessages(campaignId: string): Promise<PersonalizedMessage[]>;
+
+  // Learning
+  analyzeCampaignResults(campaignId: string): Promise<CampaignLearning[]>;
+  applyLearningsToProfiles(orgId: string, learnings: CampaignLearning[]): Promise<void>;
+}
+
+interface CampaignOpportunity {
+  type: 're_engagement' | 'upsell' | 'cross_sell' | 'nurture' | 'follow_up';
+  title: string;
+  title_ar: string;
+  description: string;
+  description_ar: string;
+  contact_count: number;
+  estimated_impact: string;
+  confidence: number;
+}
+
+interface CampaignPlan {
+  strategy: string;
+  strategy_ar: string;
+  segments: CampaignSegment[];
+  total_contacts: number;
+  channels: Record<string, number>;
+  estimated_timeline: string;
+}
+
+interface CampaignSegment {
+  name: string;
+  name_ar: string;
+  contacts: string[];  // contact IDs
+  approach: string;
+  approach_ar: string;
+  channel: 'email' | 'whatsapp' | 'phone_call';
+  reasoning: string;
+}
+
+interface PersonalizedMessage {
+  contact_id: string;
+  channel: 'email' | 'whatsapp' | 'phone_call';
+  dialect: 'gulf' | 'levantine' | 'egyptian' | 'english';
+  subject?: string;
+  subject_ar?: string;
+  body: string;
+  body_ar?: string;
+  scheduled_time: string;
+  reasoning: string;
+  // for phone calls: talking points instead of body
+  talking_points?: string[];
+  talking_points_ar?: string[];
+}
+
+interface CampaignLearning {
+  type: 'channel_effectiveness' | 'timing_insight' | 'content_pattern' | 'segment_response' | 'dialect_preference';
+  insight: string;
+  insight_ar: string;
+  confidence: number;
+  data_points: Record<string, any>;
+}
+```
+
+### SLA Cron Job
+
+```typescript
+// src/app/api/cron/sla-check/route.ts
+// Runs every 5 minutes via Vercel cron
+
+export async function GET(request: Request) {
+  // 1. Find all active SLA timers where deadline is approaching or passed
+  // 2. For timers at warning threshold (80% elapsed) → send warning notification
+  // 3. For timers past deadline → mark as breached, execute escalation action:
+  //    - 'notify': send notification to escalation_to user
+  //    - 'reassign': reassign the entity to escalation_to user
+  //    - 'escalate': create approval request for manager
+  //    - 'block': flag the entity as SLA-blocked (prevents further actions until resolved)
+  // 4. Update timer statuses
+}
+```
+
+### Contact Profile Computation
+
+```typescript
+// src/ai/deterministic/contactProfile.ts
+
+export async function computeContactProfile(
+  orgId: string,
+  contactId: string
+): Promise<ContactProfile> {
+  // 1. Fetch ALL data for this contact:
+  //    - Communications (all types, all channels)
+  //    - Deals (won, lost, in progress)
+  //    - Tasks (completed, pending)
+  //    - Engagement profile (from V3)
+  //    - Sentiment data (from V3 NLP)
+  //    - Previous campaign results
+  //    - Health scores (if monitored)
+  //    - Ticket history
+
+  // 2. Compute behavioral signals:
+  //    - Channel preference (which channel gets fastest responses)
+  //    - Time preference (when do they respond)
+  //    - Dialect preference (what language are their messages in)
+  //    - Message style (formal/informal, length preference)
+  //    - Decision speed (how quickly do deals progress)
+  //    - Risk tolerance (do they need lots of reassurance)
+
+  // 3. Compute interests and objections:
+  //    - What topics in communications correlate with engagement
+  //    - What objections appeared in lost deal notes
+  //    - What features/benefits are mentioned positively
+
+  // 4. Generate AI recommended approach:
+  //    - Call Gemini with the full profile data
+  //    - Prompt: "Given this contact's history, what's the best approach for outreach?"
+  //    - Return: tone, message type, key talking points, topics to avoid
+
+  // 5. Upsert into crm_contact_profiles
+}
+```
+
+### Campaign Planning Flow
+
+```typescript
+// Full workflow for AI campaign creation
+
+// Step 1: User or AI initiates
+// User: "Create a re-engagement campaign for contacts who haven't heard from us in 60 days"
+// OR AI suggests: "23 high-value contacts haven't been contacted in 60+ days"
+
+// Step 2: AI plans the campaign
+const plan = await marketingAgent.planCampaign(orgId, 'custom', userDescription);
+// Returns segments, channels, approach per segment
+
+// Step 3: AI generates individual messages
+const messages = await marketingAgent.generatePersonalizedMessages(campaignId);
+// Each message is unique — different content, channel, timing, dialect per contact
+// Each includes AI reasoning: "This contact prefers WhatsApp, responds evenings, likes data-driven messages"
+
+// Step 4: User reviews (batch approval UI)
+// Summary view: "23 contacts, 15 email, 6 WhatsApp, 2 phone calls"
+// Drill-down: click any contact to see their specific message + AI reasoning
+// User can edit individual messages before approving
+
+// Step 5: User approves batch
+// Atomic approval — entire batch commits
+
+// Step 6: System executes
+// Emails via SendGrid (personalized per contact)
+// WhatsApp via Meta API (personalized templates or free-form in 24h window)
+// Phone calls → creates tasks for reps with talking points
+
+// Step 7: Track results
+// Opens, clicks, replies, sentiment of replies tracked
+// Feed back into contact profiles
+
+// Step 8: AI learns
+const learnings = await marketingAgent.analyzeCampaignResults(campaignId);
+// "Contacts in UAE respond 3x better to WhatsApp than email"
+// "Evening sends outperform morning by 40% for this segment"
+// Learnings applied to profiles → next campaign is smarter
+```
+
+---
+
+*V4 Technical Architecture complete. Use with V4 Claude Code Spec and V4 Prompt Playbook.*
