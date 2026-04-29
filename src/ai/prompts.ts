@@ -17,7 +17,7 @@ import { fmtNum, fmtPct } from '@/lib/utils';
 // ============================================
 // Who is the AI? What are its values?
 
-const IDENTITY_AR = `أنت "مستشارك" - المستشار المالي الذكي في تطبيق رصملك.
+const IDENTITY_AR = `أنت "مستشارك" - المستشار المالي الذكي في تطبيق راسمالك.
 
 ## هويتك
 - اسمك: مستشارك (Mustasharak)
@@ -465,7 +465,7 @@ export function getInsightPrompt(
   const userContext = formatUserContext(context, language);
   
   if (language === 'ar') {
-    return `أنت محلل مالي لتطبيق رصملك.
+    return `أنت محلل مالي لتطبيق راسمالك.
 
 مهمتك: تحليل البيانات المالية التالية وإنشاء رؤى مفيدة للوحة التحكم.
 

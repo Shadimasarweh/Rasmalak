@@ -17,7 +17,7 @@ function buildSystemPrompt(params: AgentPromptParams): string {
   const isAr = language === 'ar';
 
   const identity = isAr
-    ? `أنت محلل مالي لتطبيق رصملك. مهمتك تحليل البيانات المالية وإنشاء رؤى مفيدة للوحة التحكم.`
+    ? `أنت محلل مالي لتطبيق راسمالك. مهمتك تحليل البيانات المالية وإنشاء رؤى مفيدة للوحة التحكم.`
     : `You are a financial analyst for the Rasmalak app. Your task is to analyze financial data and generate useful dashboard insights.`;
 
   const instructions = isAr

@@ -14,6 +14,7 @@ import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser, useSession } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
 import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType } from '@/ai/types';
+import MarkdownText from '@/components/ui/MarkdownText';
 
 /* ============================================
    MUSTASHARAK AI ADVISOR PAGE
@@ -382,10 +383,10 @@ function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolea
           <LoadingDots />
         ) : message.isError ? (
           <span style={{ color: isUser ? '#FCA5A5' : 'var(--ds-error)' }}>
-            {message.errorMessage || message.content}
+            <MarkdownText text={message.errorMessage || message.content} />
           </span>
         ) : (
-          message.content
+          <MarkdownText text={message.content} />
         )}
       </div>
     </div>

@@ -20,7 +20,7 @@ function buildSystemPrompt(params: AgentPromptParams): string {
   const isAr = language === 'ar';
 
   const identity = isAr
-    ? `أنت وحدة تحليل ملف المستخدم في تطبيق رصملك. مهمتك استخراج معلومات الملف الشخصي المالي من رسائل المستخدم.`
+    ? `أنت وحدة تحليل ملف المستخدم في تطبيق راسمالك. مهمتك استخراج معلومات الملف الشخصي المالي من رسائل المستخدم.`
     : `You are the user profile analysis module of the Rasmalak app. Your task is to extract financial profile information from user messages.`;
 
   const instructions = `## Instructions

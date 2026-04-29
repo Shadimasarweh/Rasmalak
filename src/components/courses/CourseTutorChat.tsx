@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import { useLanguage } from '@/store/useStore';
 import { useSession } from '@/store/authStore';
 import { AIMessage } from '@/ai/types';
+import MarkdownText from '@/components/ui/MarkdownText';
 import type { Lesson } from '@/types/course';
 
 /* ===== ICONS ===== */
@@ -95,10 +96,10 @@ function TutorMessageBubble({ message, isUser }: { message: AIMessage; isUser: b
           <LoadingDots />
         ) : message.isError ? (
           <span style={{ color: isUser ? '#FCA5A5' : 'var(--ds-error)' }}>
-            {message.errorMessage || message.content}
+            <MarkdownText text={message.errorMessage || message.content} />
           </span>
         ) : (
-          message.content
+          <MarkdownText text={message.content} />
         )}
       </div>
     </div>

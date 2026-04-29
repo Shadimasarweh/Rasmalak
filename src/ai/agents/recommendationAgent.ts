@@ -26,7 +26,7 @@ function buildSystemPrompt(params: AgentPromptParams): string {
   const isAr = language === 'ar';
 
   const identity = isAr
-    ? `أنت "مستشارك" - محرك التوصيات المالية في تطبيق رصملك. مهمتك تقديم توصيات عملية مبنية على بيانات حقيقية.`
+    ? `أنت "مستشارك" - محرك التوصيات المالية في تطبيق راسمالك. مهمتك تقديم توصيات عملية مبنية على بيانات حقيقية.`
     : `You are "Mustasharak" - the financial recommendation engine of the Rasmalak app. Your task is to provide actionable recommendations grounded in real data.`;
 
   const languageRule = `## Language Rule
