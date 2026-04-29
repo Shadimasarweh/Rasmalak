@@ -34,6 +34,7 @@ import { updateMemoryFromSignals } from './memory/updateRules';
 import { AI_CONFIG, AI_SAFETY } from './config';
 import { computeContextHash } from './contextHash';
 import { logFinancialAdvice } from './adviceLogger';
+import { stripReasoning } from './postprocess/stripReasoning';
 
 import {
   sendChatCompletion as openaiSendCompletion,
@@ -60,8 +61,45 @@ function getModelForAttachments(...args: Parameters<typeof openaiGetModel>) {
   return isGemini ? geminiGetModel(...args) : openaiGetModel(...args);
 }
 
-// In-memory conversation history
+// In-memory conversation history.
+// Shared by the AIOrchestrator class (non-streaming /api/chat) and the
+// streaming /api/chat/stream route via the helpers exported below. This is
+// per-instance and resets on cold start — durable persistence is PR-3.
 const conversationHistories = new Map<string, AIMessage[]>();
+
+const HISTORY_HARD_CAP = 100;
+
+/**
+ * Read the recent history for a conversation, capped to the configured
+ * safety window. Returns an empty array if the conversation is unknown.
+ */
+export function getConversationHistory(conversationId: string): AIMessage[] {
+  const history = conversationHistories.get(conversationId) || [];
+  return history.slice(-AI_SAFETY.maxHistoryMessages);
+}
+
+/**
+ * Append a turn to a conversation's in-memory history, with a hard cap to
+ * keep memory bounded across very long sessions.
+ */
+export function appendToConversationHistory(
+  conversationId: string,
+  role: 'user' | 'assistant',
+  content: string,
+): void {
+  const history = conversationHistories.get(conversationId) || [];
+  history.push({
+    id: `msg_${crypto.randomUUID()}`,
+    role,
+    content,
+    timestamp: new Date().toISOString(),
+  });
+  // Trim to the hard cap, keeping the most recent turns.
+  if (history.length > HISTORY_HARD_CAP) {
+    history.splice(0, history.length - HISTORY_HARD_CAP);
+  }
+  conversationHistories.set(conversationId, history);
+}
 
 /**
  * Escape user input to resist prompt injection attacks.
@@ -234,6 +272,8 @@ export class AIOrchestrator {
 
     let llmResult = await sendChatCompletionWithRetry(messages, {
       ...(model !== AI_CONFIG.model && { model }),
+      // Invoices/receipts can have many line items — give the model enough room
+      ...(hasAttachments && { max_tokens: 4096 }),
     });
 
     let retried = false;
@@ -268,6 +308,7 @@ export class AIOrchestrator {
 
         const retryResult = await sendChatCompletionWithRetry(retryMessages, {
           ...(model !== AI_CONFIG.model && { model }),
+          ...(hasAttachments && { max_tokens: 4096 }),
         });
 
         if (retryResult.success) {
@@ -283,8 +324,15 @@ export class AIOrchestrator {
     }
 
     // ── Build response ──
+    // Strip any leaked reasoning/step labels before they reach the user.
+    // Defense in depth: the Gemini provider already drops `thought` parts
+    // and the chat agent prompt forbids step labels, but we also strip here.
+    const finalContent = llmResult.success
+      ? stripReasoning(llmResult.content)
+      : llmResult.error;
+
     const aiResponse = this.buildResponse(
-      llmResult.success ? llmResult.content : llmResult.error,
+      finalContent,
       llmResult.success,
       intentResult.intent,
       intentResult.confidence,
@@ -436,19 +484,11 @@ export class AIOrchestrator {
   }
 
   private getHistory(conversationId: string): AIMessage[] {
-    const history = conversationHistories.get(conversationId) || [];
-    return history.slice(-AI_SAFETY.maxHistoryMessages);
+    return getConversationHistory(conversationId);
   }
 
   private addToHistory(conversationId: string, role: 'user' | 'assistant', content: string): void {
-    const history = conversationHistories.get(conversationId) || [];
-    history.push({
-      id: `msg_${crypto.randomUUID()}`,
-      role,
-      content,
-      timestamp: new Date().toISOString(),
-    });
-    conversationHistories.set(conversationId, history);
+    appendToConversationHistory(conversationId, role, content);
   }
 
   private buildResponse(

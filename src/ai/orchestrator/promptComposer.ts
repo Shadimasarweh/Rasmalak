@@ -121,7 +121,10 @@ export function composePrompt(
     attachmentInstructions = buildAttachmentInstructions(params.language, params.attachments);
   }
 
-  const detectedLang = detectMessageLanguage(params.userMessage);
+  // If no text was typed (image-only upload), fall back to the session language
+  const detectedLang = params.userMessage.trim()
+    ? detectMessageLanguage(params.userMessage)
+    : params.language;
   const langDirective =
     detectedLang === 'ar'
       ? 'The user wrote in Arabic. Your ENTIRE reply MUST be in Arabic (match their dialect — Jordanian, Egyptian, Gulf, or Fusha). Do NOT reply in English.'

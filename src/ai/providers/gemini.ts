@@ -5,7 +5,7 @@
  * Drop-in replacement for the OpenAI adapter — same exported interface.
  */
 
-import { AI_CONFIG, getProviderApiKey, API_CONFIG } from '../config';
+import { AI_CONFIG, AI_THINKING, getProviderApiKey, API_CONFIG } from '../config';
 import { MessageAttachment } from '../types';
 import type { StructuredOutputSchema, ChatCompletionOptions } from './openai';
 
@@ -19,11 +19,19 @@ export type { StructuredOutputSchema, ChatCompletionOptions };
 interface GeminiPart {
   text?: string;
   inlineData?: { mimeType: string; data: string };
+  // Gemini 2.5+/3.x thinking models can attach reasoning summaries as parts
+  // flagged with `thought: true`. We must never surface those to the user.
+  thought?: boolean;
 }
 
 interface GeminiContent {
   role: 'user' | 'model';
   parts: GeminiPart[];
+}
+
+interface GeminiThinkingConfig {
+  thinkingBudget?: number;
+  includeThoughts?: boolean;
 }
 
 interface GeminiRequest {
@@ -34,7 +42,21 @@ interface GeminiRequest {
     temperature: number;
     responseMimeType?: string;
     responseSchema?: Record<string, unknown>;
+    thinkingConfig?: GeminiThinkingConfig;
   };
+}
+
+/**
+ * Visible-text extraction: ignore parts flagged as internal reasoning.
+ * Older preview models sometimes also prefix thought parts with markers we
+ * cannot detect here — the orchestrator runs a second pass for those.
+ */
+function extractVisibleText(parts: GeminiPart[] | undefined): string {
+  if (!parts) return '';
+  return parts
+    .filter((p) => p.thought !== true)
+    .map((p) => p.text ?? '')
+    .join('');
 }
 
 interface GeminiCandidate {
@@ -158,6 +180,10 @@ function buildGeminiRequest(
   const generationConfig: GeminiRequest['generationConfig'] = {
     maxOutputTokens: options?.max_tokens ?? AI_CONFIG.maxTokens,
     temperature: options?.temperature ?? AI_CONFIG.temperature,
+    thinkingConfig: {
+      thinkingBudget: AI_THINKING.thinkingBudget,
+      includeThoughts: AI_THINKING.includeThoughts,
+    },
   };
 
   if (options?.responseSchema) {
@@ -212,7 +238,7 @@ export async function sendChatCompletion(
       return { success: false, error: 'Response blocked by safety filters.' };
     }
 
-    const text = candidate.content?.parts?.map((p) => p.text ?? '').join('').trim();
+    const text = extractVisibleText(candidate.content?.parts).trim();
     if (!text) return { success: false, error: 'Empty response from AI service.' };
 
     const usage: UsageInfo = {
@@ -316,10 +342,7 @@ export async function* sendStreamingChatCompletion(
           const chunk = JSON.parse(jsonStr) as GeminiResponse;
           if (chunk.error) return;
 
-          const text = chunk.candidates?.[0]?.content?.parts
-            ?.map((p) => p.text ?? '')
-            .join('') ?? '';
-
+          const text = extractVisibleText(chunk.candidates?.[0]?.content?.parts);
           if (text) yield text;
         } catch {
           // malformed chunk — skip

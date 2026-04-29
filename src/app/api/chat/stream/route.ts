@@ -16,7 +16,11 @@ import { findAgentForIntent } from '@/ai/agents/registry';
 import { composePrompt } from '@/ai/orchestrator/promptComposer';
 import { selectContext } from '@/ai/context/contextSelector';
 import { readMemoryFields } from '@/ai/memory/memoryService';
-import { computeDeterministicFromContext } from '@/ai/orchestrator';
+import {
+  computeDeterministicFromContext,
+  getConversationHistory,
+  appendToConversationHistory,
+} from '@/ai/orchestrator';
 import {
   sendStreamingChatCompletion,
   formatMessagesForProvider,
@@ -26,6 +30,7 @@ import { writeAuditLog } from '@/ai/validation/auditLogger';
 import { logFinancialAdvice } from '@/ai/adviceLogger';
 import { computeContextHash } from '@/ai/contextHash';
 import { buildEmptyContext } from '@/ai/context';
+import { stripReasoning } from '@/ai/postprocess/stripReasoning';
 import { AI_SAFETY, AI_CONFIG, API_CONFIG } from '@/ai/config';
 import type { UserFinancialContext } from '@/ai/types';
 
@@ -197,19 +202,27 @@ export async function POST(request: NextRequest) {
 
   const contextSelection = selectContext(intentResult, agent, userContext, memoryFields);
 
+  // Load prior turns so the agent knows this isn't message #1 of the
+  // conversation — without this every streamed message looked like a fresh
+  // session, which falsely triggered the chat agent's opening protocol.
+  const history = getConversationHistory(convId);
+  const historyForPrompt = history
+    .filter((m) => m.role === 'user' || m.role === 'assistant')
+    .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
   const composed = composePrompt(agent, {
     language: lang,
     contextSlices: contextSelection.financialSlices,
     memoryFields: contextSelection.memoryFields,
     deterministic,
     userMessage: sanitizedMessage,
-    conversationHistory: [],
+    conversationHistory: historyForPrompt,
     attachments: undefined,
   });
 
   const messages = formatMessagesForProvider(
     composed.systemPrompt,
-    [],
+    historyForPrompt,
     sanitizedMessage,
     undefined,
   );
@@ -229,6 +242,24 @@ export async function POST(request: NextRequest) {
       // Client disconnect → abort the Gemini stream
       request.signal.addEventListener('abort', () => abort.abort());
 
+      // Buffer the head of the stream so we can strip any leading reasoning
+      // block (e.g. "Thinking: ...") as a single unit. Once the buffer either
+      // exceeds the cap or contains a paragraph break, we flush and switch to
+      // passthrough mode for the remainder of the stream.
+      const LEAD_BUFFER_CAP = 600;
+      let leadBuffer = '';
+      let leadFlushed = false;
+
+      const flushLead = () => {
+        if (leadFlushed) return;
+        leadFlushed = true;
+        const cleaned = stripReasoning(leadBuffer);
+        if (cleaned) controller.enqueue(sseChunk(cleaned));
+        leadBuffer = '';
+      };
+
+      let streamCompleted = false;
+
       try {
         for await (const chunk of sendStreamingChatCompletion(
           messages,
@@ -237,10 +268,25 @@ export async function POST(request: NextRequest) {
         )) {
           const safe = sanitize(chunk);
           fullText += safe;
+
+          if (!leadFlushed) {
+            leadBuffer += safe;
+            // Flush once we've seen a paragraph break or hit the cap — by
+            // then the leading reasoning block (if any) is fully buffered.
+            if (leadBuffer.length >= LEAD_BUFFER_CAP || /\n\s*\n/.test(leadBuffer)) {
+              flushLead();
+            }
+            continue;
+          }
+
           controller.enqueue(sseChunk(safe));
         }
 
+        // Stream ended before the lead buffer was flushed (very short reply).
+        flushLead();
+
         controller.enqueue(sseDone);
+        streamCompleted = true;
       } catch {
         controller.enqueue(sseError(
           lang === 'ar'
@@ -249,6 +295,17 @@ export async function POST(request: NextRequest) {
         ));
       } finally {
         controller.close();
+
+        // Persist the turn to in-memory history so the *next* message has
+        // context. We only persist on a successful stream — a half-failed
+        // reply would otherwise pollute future turns with broken text.
+        if (streamCompleted && fullText.trim()) {
+          const cleanedReply = stripReasoning(fullText).trim();
+          if (cleanedReply) {
+            appendToConversationHistory(convId, 'user', sanitizedMessage);
+            appendToConversationHistory(convId, 'assistant', cleanedReply);
+          }
+        }
 
         // Fire-and-forget post-processing — does not block the client
         void (async () => {
@@ -264,7 +321,7 @@ export async function POST(request: NextRequest) {
               await logFinancialAdvice({
                 user_id: userId,
                 source: 'ai',
-                advice_text: fullText,
+                advice_text: stripReasoning(fullText),
                 target_metric: intentToMetric(intentResult.intent),
                 confidence: intentResult.confidence,
                 conversation_id: convId,

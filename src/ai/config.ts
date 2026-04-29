@@ -27,12 +27,28 @@ export const AI_CONFIG: AIProviderConfig = {
   // Fallback model used if the primary model fails or returns an error
   fallbackModel: 'gemini-3-pro-preview',
 
-  // Maximum tokens in response
-  maxTokens: 2048,
+  // Maximum tokens in response.
+  // Thinking models (Gemini 2.5+ / 3.x) bill internal reasoning against this budget,
+  // so 4096 leaves room for both reasoning and a complete visible answer.
+  maxTokens: 4096,
 
   // Temperature (creativity)
   // 0.0 = deterministic, 0.7 = balanced (recommended for finance), 1.0 = very creative
   temperature: 0.7,
+};
+
+// ============================================
+// THINKING / REASONING SETTINGS
+// ============================================
+// Caps reasoning tokens on Gemini thinking models so they don't eat the
+// visible output budget, and forbids the API from returning thought
+// summaries (which were leaking into chat replies).
+export const AI_THINKING = {
+  // Max tokens the model is allowed to spend on internal reasoning.
+  // 0 disables thinking entirely; 256 is enough for short financial reasoning chains.
+  thinkingBudget: 256,
+  // Never expose internal thought summaries to the client.
+  includeThoughts: false,
 };
 
 // ============================================

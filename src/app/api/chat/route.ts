@@ -135,7 +135,8 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
     if (attachments.length > 5) {
       return { valid: false, error: 'Maximum 5 attachments allowed' };
     }
-    const SAFE_FILENAME = /^[a-zA-Z0-9_\-][a-zA-Z0-9_\-. ]{0,254}$/;
+    // Unicode property escapes allow Arabic letters/numerals in filenames
+    const SAFE_FILENAME = /^[\p{L}\p{N}_\-][\p{L}\p{N}_\-. ]{0,254}$/u;
     for (const att of attachments) {
       if (!att.type || !att.content || !att.filename) {
         return { valid: false, error: 'Invalid attachment format' };
