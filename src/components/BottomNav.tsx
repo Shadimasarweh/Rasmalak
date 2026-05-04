@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useIntl } from 'react-intl';
 import {
   LayoutDashboard,
-  Receipt,
+  Wallet,
   Plus,
   MessageSquareText,
   Calculator,
@@ -22,8 +22,8 @@ export default function BottomNav() {
 
   const navItems = [
     { id: 'dashboard', path: '/', labelKey: 'nav.dashboard', defaultLabel: 'Dashboard', icon: LayoutDashboard },
-    { id: 'transactions', path: '/transactions', labelKey: 'nav.transactions', defaultLabel: 'Transactions', icon: Receipt },
-    { id: 'add', path: '/transactions/new', labelKey: 'nav.add', defaultLabel: 'Add', icon: Plus, isAction: true },
+    { id: 'money', path: '/money/plan', labelKey: 'money.section_title', defaultLabel: 'Money', icon: Wallet },
+    { id: 'add', path: '/money/track/new', labelKey: 'nav.add', defaultLabel: 'Add', icon: Plus, isAction: true },
     { id: 'chat', path: '/chat', labelKey: 'nav.chat', defaultLabel: 'Mustasharak', icon: MessageSquareText },
     { id: 'tools', path: '/tools', labelKey: 'nav.tools', defaultLabel: 'Tools', icon: Calculator },
   ];
@@ -35,7 +35,8 @@ export default function BottomNav() {
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', paddingBlock: 'var(--spacing-2)', paddingInline: 'var(--spacing-2)', maxWidth: '28rem', margin: '0 auto' }}>
         {navItems.map((item) => {
-          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+          const matchPrefix = item.id === 'money' ? '/money' : item.path;
+          const isActive = pathname === matchPrefix || (matchPrefix !== '/' && pathname.startsWith(matchPrefix));
           const Icon = item.icon;
           const label = intl.formatMessage({ id: item.labelKey, defaultMessage: item.defaultLabel });
 

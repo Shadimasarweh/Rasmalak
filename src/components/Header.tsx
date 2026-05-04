@@ -38,8 +38,12 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
   const PAGE_TITLES: Record<string, { ar: string; en: string }> = {
     '/': { ar: 'الرئيسية', en: 'Dashboard' },
-    '/transactions': { ar: 'المعاملات', en: 'Transactions' },
-    '/budgets': { ar: 'الميزانيات', en: 'Budgets' },
+    '/money': { ar: 'أموالي', en: 'Money' },
+    '/money/plan': { ar: 'الخطة الشهرية', en: 'Plan Your Month' },
+    '/money/track': { ar: 'تتبع مصروفاتك', en: 'Track Your Spending' },
+    '/money/compare': { ar: 'قارن', en: 'Compare' },
+    '/transactions': { ar: 'تتبع مصروفاتك', en: 'Track Your Spending' },
+    '/budgets': { ar: 'الخطة الشهرية', en: 'Plan Your Month' },
     '/budget': { ar: 'الميزانية', en: 'Budget' },
     '/learn': { ar: 'تعلّم', en: 'Learn' },
     '/chat': { ar: 'مستشارك', en: 'Mustasharak' },

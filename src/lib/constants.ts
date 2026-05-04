@@ -88,8 +88,8 @@ export const DISPLAY_DATE_FORMAT = 'dd MMMM yyyy';
 // Navigation Items
 export const NAV_ITEMS = [
   { id: 'home', path: '/', labelAr: 'الرئيسية', icon: 'home' },
-  { id: 'transactions', path: '/transactions', labelAr: 'المعاملات', icon: 'receipt' },
-  { id: 'add', path: '/transactions/new', labelAr: 'إضافة', icon: 'plus-circle', isAction: true },
+  { id: 'money', path: '/money/plan', labelAr: 'أموالي', icon: 'wallet' },
+  { id: 'add', path: '/money/track/new', labelAr: 'إضافة', icon: 'plus-circle', isAction: true },
   { id: 'calculators', path: '/calculators', labelAr: 'الحاسبات', icon: 'calculator' },
   { id: 'settings', path: '/settings', labelAr: 'الإعدادات', icon: 'settings' },
 ];

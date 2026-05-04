@@ -203,6 +203,18 @@
   --ds-dark-card-glow: inset 0 0 40px rgba(34,197,94,0.04);
   --ds-btn-secondary-border: #86EFAC;
   --ds-btn-secondary-hover: #F0F7F4;
+
+  /* Plan vs Track tokens — calm blue for future intent, primary green for past reality */
+  --ds-plan: #3B5C7A;
+  --ds-plan-hover: #2E4A63;
+  --ds-plan-bg: #EEF3F8;
+  --ds-plan-border: #C7D6E5;
+  --ds-actual: #2D6A4F;
+  --ds-actual-bg: #F0F7F4;
+  --ds-actual-border: #BBF7D0;
+  --ds-over: #DC2626;
+  --ds-over-bg: #FEF2F2;
+  --ds-over-border: #FECACA;
 }
 
 /* ============================================================
@@ -294,6 +306,18 @@
   --ds-dark-card-glow: inset 0 0 40px rgba(34,197,94,0.06);
   --ds-btn-secondary-border: rgba(74,222,128,0.4);
   --ds-btn-secondary-hover: rgba(45,106,79,0.15);
+
+  /* Plan vs Track tokens — dark mode */
+  --ds-plan: #7AA0C4;
+  --ds-plan-hover: #93B5D3;
+  --ds-plan-bg: rgba(122,160,196,0.10);
+  --ds-plan-border: rgba(122,160,196,0.25);
+  --ds-actual: #4ADE80;
+  --ds-actual-bg: rgba(45,106,79,0.15);
+  --ds-actual-border: rgba(45,106,79,0.30);
+  --ds-over: #F87171;
+  --ds-over-bg: rgba(220,38,38,0.10);
+  --ds-over-border: rgba(220,38,38,0.25);
 }
 
 /* ============================================================

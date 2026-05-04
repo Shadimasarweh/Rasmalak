@@ -84,7 +84,7 @@ export function detectSpendingAlerts(context: UserFinancialContext): SpendingAle
       messageAr: `صرفت ${fmtNum(overAmount, 'ar')} ${currency} أكثر من ميزانيتك الشهرية.`,
       actionLabel: 'Review Spending',
       actionLabelAr: 'راجع مصاريفك',
-      actionRoute: '/transactions',
+      actionRoute: '/money/track',
       metric: {
         value: context.budget.percentageUsed,
         unit: '%',
@@ -157,7 +157,7 @@ export function detectSpendingAlerts(context: UserFinancialContext): SpendingAle
         messageAr: `${fmtPct(unusual.deviation, 'ar', 0)} أعلى من المعتاد على ${unusual.category}.`,
         actionLabel: 'View Details',
         actionLabelAr: 'شوف التفاصيل',
-        actionRoute: '/transactions',
+        actionRoute: '/money/track',
         metric: {
           value: unusual.amount,
           unit: currency,

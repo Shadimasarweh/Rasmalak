@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  Receipt,
+  Wallet,
   GraduationCap,
   Calculator,
   MessageSquareText,
@@ -21,7 +21,7 @@ import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useS
 
 const navItems = [
   { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard', smeOnly: false },
-  { id: 'budgets', path: '/transactions', icon: Receipt, labelAr: 'الميزانيات', labelEn: 'Budgets', smeOnly: false },
+  { id: 'money', path: '/money/plan', icon: Wallet, labelAr: 'أموالي', labelEn: 'Money', smeOnly: false },
   { id: 'learn', path: '/learn', icon: GraduationCap, labelAr: 'تعلّم', labelEn: 'Learn', smeOnly: false },
   { id: 'chat', path: '/chat', icon: MessageSquareText, labelAr: 'مستشارك', labelEn: 'Mustasharak', smeOnly: false },
   { id: 'tools', path: '/tools', icon: Calculator, labelAr: 'الأدوات', labelEn: 'Tools', smeOnly: false },
@@ -83,6 +83,8 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
 
   const isActive = (path: string) => {
     if (path === '/') return pathname === '/';
+    // The Money tab covers all /money/* routes (plan, track, compare).
+    if (path.startsWith('/money')) return pathname.startsWith('/money');
     return pathname.startsWith(path);
   };
 

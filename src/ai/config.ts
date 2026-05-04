@@ -62,6 +62,10 @@ export const AI_FEATURES = {
   learningEnabled: true,
   dialectDetectionEnabled: true,
   requireConfirmation: true,
+  // When true, the deterministic auto-budget suggestion is wrapped with an
+  // LLM refinement call (see src/ai/autoBudget/refineWithAI.ts). Off by
+  // default so the Plan tab always works without a network round-trip.
+  aiAutoBudget: false,
 };
 
 // ============================================

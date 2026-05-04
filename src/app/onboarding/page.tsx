@@ -130,7 +130,7 @@ const INCOME_RANGES = [
   { id: 'prefer_not', labelKey: 'onboarding.income_prefer_not', defaultLabel: 'Prefer not to say' },
 ];
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -230,6 +230,11 @@ export default function OnboardingPage() {
       title: intl.formatMessage({ id: 'onboarding.step4_title', defaultMessage: "Almost done!" }),
       subtitle: intl.formatMessage({ id: 'onboarding.step4_subtitle', defaultMessage: "This helps us provide relevant budgeting suggestions." }),
       question: intl.formatMessage({ id: 'onboarding.step4_question', defaultMessage: "What is your monthly income range?" }),
+    },
+    5: {
+      title: intl.formatMessage({ id: 'money.onboarding_analogy_title' }),
+      subtitle: intl.formatMessage({ id: 'money.plan_intent_label' }),
+      question: '',
     },
   };
 
@@ -534,6 +539,99 @@ export default function OnboardingPage() {
                       </button>
                     );
                   })}
+                </div>
+              )}
+
+              {/* Step 5: Plan vs Track analogy — anchors the mental model */}
+              {currentStep === 5 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '20px',
+                    alignItems: 'stretch',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '12px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: 'var(--ds-plan-bg)',
+                        border: '0.5px solid var(--ds-plan-border)',
+                        borderRadius: '14px',
+                        padding: '18px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          background: 'var(--ds-plan)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                        }}
+                      >
+                        1
+                      </div>
+                      <p style={{ fontSize: '14px', fontWeight: 600, margin: 0, color: 'var(--ds-plan)' }}>
+                        {intl.formatMessage({ id: 'money.onboarding_analogy_plan' })}
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        background: 'var(--ds-actual-bg)',
+                        border: '0.5px solid var(--ds-actual-border)',
+                        borderRadius: '14px',
+                        padding: '18px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          background: 'var(--ds-actual)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                        }}
+                      >
+                        2
+                      </div>
+                      <p style={{ fontSize: '14px', fontWeight: 600, margin: 0, color: 'var(--ds-actual)' }}>
+                        {intl.formatMessage({ id: 'money.onboarding_analogy_track' })}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: 'var(--ds-text-body)',
+                      padding: '12px',
+                      borderTop: '0.5px solid var(--ds-border)',
+                    }}
+                  >
+                    {intl.formatMessage({ id: 'money.onboarding_analogy_compare' })}
+                  </div>
                 </div>
               )}
             </div>

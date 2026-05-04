@@ -13,6 +13,7 @@ import { styledNum } from '@/components/StyledNumber';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useNotificationStore } from '@/store/notificationStore';
 import { useEmergencyFund } from '@/store/emergencyFundStore';
+import RealityCheckCard, { shouldShowRealityCheck } from '@/components/money/RealityCheckCard';
 
 /* ═══════════════════════════════════════════════════
    Dashboard — Overview Page
@@ -271,7 +272,7 @@ export default function OverviewPage() {
           severity: 'critical',
           messageEn: `Your ${cat} spending is trending ${pctIncrease}% higher than last month with ${daysLeft} days left.`,
           messageAr: `إنفاقك على ${cat} يتجه للارتفاع بنسبة ${intl.formatNumber(pctIncrease)}% مقارنة بالشهر الماضي مع بقاء ${intl.formatNumber(daysLeft)} يوماً.`,
-          actionHref: '/transactions',
+          actionHref: '/money/track',
           actionLabelEn: 'View transactions',
           actionLabelAr: 'عرض المعاملات',
         });
@@ -305,7 +306,7 @@ export default function OverviewPage() {
         severity: 'warning',
         messageEn: `Your salary usually arrives by the 25th. It hasn't been recorded yet this month.`,
         messageAr: `عادةً ما يصل راتبك بحلول ال٢٥ من الشهر. لم يتم تسجيله بعد هذا الشهر.`,
-        actionHref: '/transactions/new/income',
+        actionHref: '/money/track/new/income',
         actionLabelEn: 'Add income',
         actionLabelAr: 'إضافة دخل',
       });
@@ -319,7 +320,7 @@ export default function OverviewPage() {
         severity: 'warning',
         messageEn: `You're spending more than you earn this month. Review your expenses to get back on track.`,
         messageAr: `إنفاقك أكثر من دخلك هذا الشهر. راجع مصروفاتك للعودة إلى المسار الصحيح.`,
-        actionHref: '/transactions',
+        actionHref: '/money/track',
         actionLabelEn: 'Review spending',
         actionLabelAr: 'مراجعة الإنفاق',
       });
@@ -374,6 +375,9 @@ export default function OverviewPage() {
       {/* ===== AI ALERT ===== */}
       <AIAlertBanner />
 
+      {/* ===== REALITY CHECK BANNER (first 5 days of month) ===== */}
+      {shouldShowRealityCheck() && <RealityCheckCard variant="banner" />}
+
       {/* ===== GREETING ===== */}
       <div className="ds-section-header">
         <div style={{ minWidth: 0 }}>
@@ -383,7 +387,7 @@ export default function OverviewPage() {
           </p>
         </div>
         <Link
-          href="/transactions/new"
+          href="/money/track/new"
           className="ds-btn ds-btn-primary"
           style={{ paddingBlock: 'var(--spacing-2)', paddingInline: 'var(--spacing-4)', transition: 'all 150ms ease' }}
           onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
@@ -411,7 +415,7 @@ export default function OverviewPage() {
           <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
             {intl.formatMessage({ id: 'dashboard.monthly_summary', defaultMessage: 'Monthly Summary' })}
           </p>
-          <Link href="/transactions" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none', flexShrink: 0 }}>
+          <Link href="/money/track" style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none', flexShrink: 0 }}>
             {intl.formatMessage({ id: 'dashboard.view_transactions', defaultMessage: 'View Transactions' })} →
           </Link>
         </div>
@@ -556,7 +560,7 @@ export default function OverviewPage() {
                 <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '0 0 6px 0' }}>
                   {intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}
                 </p>
-                <Link href="/budgets" style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none' }}>
+                <Link href="/money/plan" style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)', textDecoration: 'none' }}>
                   {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
                 </Link>
               </div>
@@ -901,7 +905,7 @@ export default function OverviewPage() {
                 </svg>
               </div>
               <p className="ds-supporting">{intl.formatMessage({ id: 'dashboard.no_spending_this_week', defaultMessage: 'No spending recorded this week' })}</p>
-              <Link href="/transactions/new" className="ds-link-action">
+              <Link href="/money/track/new" className="ds-link-action">
                 {intl.formatMessage({ id: 'dashboard.add_first_expense', defaultMessage: 'Add your first expense' })}
               </Link>
             </div>
@@ -914,7 +918,7 @@ export default function OverviewPage() {
             <h2 className="ds-title-section">
               {intl.formatMessage({ id: 'dashboard.budgets', defaultMessage: 'Budgets' })}
             </h2>
-            <Link href="/budgets" className="ds-link-action">
+            <Link href="/money/plan" className="ds-link-action">
               {intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}
             </Link>
           </div>
@@ -942,7 +946,7 @@ export default function OverviewPage() {
                 );
               })}
               {activeBudgets.length > 4 && (
-                <Link href="/budgets" className="ds-link-action" style={{ textAlign: 'center' }}>
+                <Link href="/money/plan" className="ds-link-action" style={{ textAlign: 'center' }}>
                   {intl.formatMessage({ id: 'dashboard.more_budgets', defaultMessage: '+{count} more' }, { count: intl.formatNumber(activeBudgets.length - 4) })}
                 </Link>
               )}
@@ -955,7 +959,7 @@ export default function OverviewPage() {
                 </svg>
               </div>
               <p className="ds-supporting">{intl.formatMessage({ id: 'dashboard.no_budgets_set', defaultMessage: 'No budgets set' })}</p>
-              <Link href="/budgets" className="ds-link-action">
+              <Link href="/money/plan" className="ds-link-action">
                 {intl.formatMessage({ id: 'dashboard.setup_first_budget', defaultMessage: 'Set up your first budget' })}
               </Link>
             </div>
@@ -1201,7 +1205,7 @@ export default function OverviewPage() {
           <h2 className="ds-title-section">
             {intl.formatMessage({ id: 'dashboard.recent_transactions', defaultMessage: 'Recent Transactions' })}
           </h2>
-          <Link href="/transactions" className="ds-link-action" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-1)' }}>
+          <Link href="/money/track" className="ds-link-action" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-1)' }}>
             <span>{intl.formatMessage({ id: 'dashboard.view_all', defaultMessage: 'View All' })}</span>
             <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -1262,7 +1266,7 @@ export default function OverviewPage() {
               {intl.formatMessage({ id: 'dashboard.add_transaction_hint', defaultMessage: 'Add your first transaction to start tracking your finances' })}
             </p>
             <Link
-              href="/transactions/new"
+              href="/money/track/new"
               className="ds-btn ds-btn-primary"
               style={{ marginTop: 'var(--spacing-2)', transition: 'all 150ms ease' }}
               onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
@@ -1335,7 +1339,7 @@ export default function OverviewPage() {
               </p>
             </div>
             <Link
-              href="/transactions/new"
+              href="/money/track/new"
               className="ds-btn ds-btn-primary"
               style={{ marginTop: 'auto', textAlign: 'center', transition: 'all 150ms ease' }}
               onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
@@ -1372,7 +1376,7 @@ export default function OverviewPage() {
               </p>
             </div>
             <Link
-              href="/budgets"
+              href="/money/plan"
               style={{
                 marginTop: 'auto',
                 textAlign: 'center',

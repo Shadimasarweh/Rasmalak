@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, useCallback, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 
@@ -269,4 +269,47 @@ export function useTransactions(): TransactionStore {
     throw new Error('useTransactions must be used within a TransactionProvider');
   }
   return context;
+}
+
+/* ============================================
+   MONTHLY SPENDING AGGREGATION HELPERS
+   Shared by Plan, Track, and Compare so they
+   never disagree on what "actual" means.
+   ============================================ */
+
+export interface MonthRange {
+  start: Date;
+  end: Date;
+}
+
+// MonthOffset: 0 = current month, -1 = previous month, etc.
+export function getMonthRange(monthOffset: number = 0, now: Date = new Date()): MonthRange {
+  const start = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 0, 23, 59, 59, 999);
+  return { start, end };
+}
+
+export function aggregateExpensesByCategory(
+  transactions: Transaction[],
+  range: MonthRange,
+): Record<string, number> {
+  const map: Record<string, number> = {};
+  transactions.forEach((tx) => {
+    if (tx.type !== 'expense') return;
+    const d = new Date(tx.date);
+    if (d >= range.start && d <= range.end) {
+      const cat = tx.category || 'other-expense';
+      map[cat] = (map[cat] || 0) + Math.abs(tx.amount);
+    }
+  });
+  return map;
+}
+
+// Hook that returns spend-by-category for a given month offset (default current month).
+export function useMonthlySpendByCategory(monthOffset: number = 0): Record<string, number> {
+  const { transactions } = useTransactions();
+  return useMemo(() => {
+    const range = getMonthRange(monthOffset);
+    return aggregateExpensesByCategory(transactions, range);
+  }, [transactions, monthOffset]);
 }
