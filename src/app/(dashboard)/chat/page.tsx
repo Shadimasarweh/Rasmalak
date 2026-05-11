@@ -394,6 +394,49 @@ function MessageBubble({ message, isUser }: { message: AIMessage; isUser: boolea
   );
 }
 
+/**
+ * When a follow-up turn fails after a successful bill upload, the user
+ * shouldn't lose the action chip just because the chat call timed out.
+ * This helper finds the most recent assistant message with a
+ * `create_transaction` chip and copies that chip onto the error
+ * message so the user can still tap to add the expense.
+ */
+function attachPendingBillChip(
+  messages: AIMessage[],
+  errorMsgId: string,
+  errorContent: string,
+  language: 'ar' | 'en',
+): AIMessage[] {
+  let pending: SuggestedAction[] | undefined;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.id === errorMsgId) continue;
+    if (m.role !== 'assistant') continue;
+    if (m.suggestedActions && m.suggestedActions.some(a => a.action === 'create_transaction')) {
+      pending = m.suggestedActions.filter(a => a.action === 'create_transaction');
+      break;
+    }
+  }
+
+  const enrichedContent = pending
+    ? errorContent + (language === 'ar'
+        ? '\n\nالزر أسفل لا يزال صالحاً — اضغطه لإضافة الفاتورة.'
+        : '\n\nThe button below still works — tap it to add the bill.')
+    : errorContent;
+
+  return messages.map(msg =>
+    msg.id === errorMsgId
+      ? {
+          ...msg,
+          isLoading: false,
+          content: enrichedContent,
+          isError: true,
+          suggestedActions: pending,
+        }
+      : msg,
+  );
+}
+
 /* ===== SUGGESTED ACTIONS ===== */
 function SuggestedActions({ 
   actions, 
@@ -763,24 +806,21 @@ export default function MustasharakPage() {
       }
 
       if (!hasContent) {
-        setMessages(prev => prev.map(msg =>
-          msg.id === streamingMsgId
-            ? { ...msg, content: language === 'ar' ? 'لم أتلقَّ ردًا. الرجاء المحاولة مرة أخرى.' : 'No response received. Please try again.', isError: true }
-            : msg
+        setMessages(prev => attachPendingBillChip(
+          prev,
+          streamingMsgId,
+          language === 'ar' ? 'لم أتلقَّ ردًا. الرجاء المحاولة مرة أخرى.' : 'No response received. Please try again.',
+          language,
         ));
       }
     } catch {
-      setMessages(prev => prev.map(msg =>
-        msg.id === streamingMsgId
-          ? {
-              ...msg,
-              isLoading: false,
-              content: language === 'ar'
-                ? 'خطأ في الاتصال. الرجاء التحقق من الإنترنت والمحاولة مرة أخرى.'
-                : 'Connection error. Please check your internet and try again.',
-              isError: true,
-            }
-          : msg
+      setMessages(prev => attachPendingBillChip(
+        prev,
+        streamingMsgId,
+        language === 'ar'
+          ? 'خطأ في الاتصال. الرجاء التحقق من الإنترنت والمحاولة مرة أخرى.'
+          : 'Connection error. Please check your internet and try again.',
+        language,
       ));
     } finally {
       setIsLoading(false);
@@ -889,10 +929,12 @@ export default function MustasharakPage() {
           {hasMessages ? (
             <>
               {messages.map((msg) => {
+                // Chips render on any assistant message that carries them —
+                // including error bubbles where we re-attach a still-valid
+                // bill action so a transient timeout doesn't strand the user.
                 const showChipsForMsg =
                   msg.role === 'assistant' &&
                   !msg.isLoading &&
-                  !msg.isError &&
                   msg.suggestedActions &&
                   msg.suggestedActions.length > 0;
                 return (

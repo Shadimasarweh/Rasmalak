@@ -86,6 +86,12 @@ export type ChatCompletionOptions = Partial<Pick<OpenAIRequest, 'max_tokens' | '
   model?: string;
   /** When provided, the request uses OpenAI Structured Outputs (json_schema). */
   responseSchema?: StructuredOutputSchema;
+  /**
+   * Override the per-call reasoning budget on Gemini thinking models.
+   * `0` disables thinking entirely (use for fast structured tasks like
+   * document extraction). Ignored by the OpenAI adapter.
+   */
+  thinkingBudget?: number;
 };
 
 /**

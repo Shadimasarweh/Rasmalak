@@ -76,6 +76,7 @@ const ALL_INTENTS = [
   'learning_recommendation',
   'document_extract',
   'document_transcribe',
+  'confirm_add_expense',
   'greeting',
   'gratitude',
   'unclear',

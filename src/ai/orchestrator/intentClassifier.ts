@@ -61,6 +61,26 @@ const PATTERN_RULES: PatternRule[] = [
     confidence: 0.85,
   },
 
+  // Confirm "add as expense" follow-up to a parsed bill. Matched FIRST so
+  // a yes/log/confirm message after an upload short-circuits straight to
+  // the deterministic add-transaction fast-path in the orchestrator.
+  {
+    intent: 'confirm_add_expense',
+    patterns: [
+      // English — confirmation verbs and short affirmatives
+      /^(yes|yeah|yep|sure|ok(ay)?|please)\b.*\b(add|log|record|save|track|enter)/i,
+      /^(add|log|record|save|track|enter) (it|this|that|the (bill|receipt|expense|invoice|charge))\b/i,
+      /^(go ahead|do it|please do|confirm|sounds good)\b/i,
+      /^add as (an? )?expense\b/i,
+      /\blog (it|this|that) as (an? )?expense\b/i,
+      // Arabic — common dialect/Fusha forms
+      /^(نعم|أيوة|ايوة|تمام|اوكي|اوك|أوك|طيب|ماشي|اكيد|أكيد).*(اضف|أضف|سجل|سجّل|احفظ)/i,
+      /^(اضف|أضف|سجل|سجّل|احفظ|دوّن) (ها|هاي|هذي|هذه|هذا|الفاتورة|الإيصال|الوصل|كمصروف|المصروف)/i,
+      /(اضفها|أضفها|سجلها|سجّلها|اضفه|أضفه|سجله|سجّله) كمصروف/i,
+    ],
+    confidence: 0.95,
+  },
+
   // Explicit transcription request (only relevant alongside an attachment)
   {
     intent: 'document_transcribe',

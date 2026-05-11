@@ -257,7 +257,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
     }
     
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 35_000);
+    // Bills go through two sequential LLM calls (extractor + chat reply);
+    // 60s gives that pipeline real headroom while staying under the 90s
+    // serverless function ceiling on Vercel. Plain text turns rarely take
+    // more than 20s so the longer ceiling is harmless for them.
+    const requestBudgetMs = (validation.data.attachments && validation.data.attachments.length > 0)
+      ? 60_000
+      : 35_000;
+    const timeout = setTimeout(() => controller.abort(), requestBudgetMs);
 
     let result;
     try {

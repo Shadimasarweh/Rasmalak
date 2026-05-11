@@ -213,7 +213,8 @@ function buildDocumentBlock(
     } else {
       lines.push('- لا تنسخ المستند ولا تكرر بنوده — لخّص الأهم فقط (المُورِّد، المبلغ، الفئة، أي تنبيه).');
       lines.push('- اربط بحالة المستخدم المالية إذا كان للأمر علاقة (تجاوز ميزانية، تكرار، فرق عن الشهر الماضي).');
-      lines.push('- اقترح إجراءً واحداً ملموساً (مثل: «أضفها كمصروف»). الواجهة سترسم الأزرار تلقائياً.');
+      lines.push('- اختم ردّك بسطر قصير يُوجّه المستخدم للزر أسفل الرسالة، مثل: «اضغط الزر تحت لأضيفها كمصروف.» — لا تخترع أزراراً، الواجهة ترسمها.');
+      lines.push('- لا تَعِد المستخدم بأنك «أضفتها» — الإضافة تتم فقط عندما يضغط الزر أو يقول «نعم».');
       lines.push('- لو طلب المستخدم لاحقاً «انسخ» أو «اقرأ»، عندها فقط اكتب النص.');
     }
   } else {
@@ -268,7 +269,8 @@ function buildDocumentBlock(
     } else {
       lines.push('- Do NOT transcribe or list every field. Lead with what matters (vendor, amount, anything unusual).');
       lines.push('- Tie it to the user\'s actual financial situation if relevant (over budget, duplicate, vs last month).');
-      lines.push('- Recommend ONE concrete action ("Add as expense"). The UI will render buttons automatically — do not invent button labels.');
+      lines.push('- End your reply with a single short line pointing at the action button, e.g. "Tap the button below to add it as an expense." Do NOT invent button labels — the UI renders them.');
+      lines.push('- Do NOT claim you "added" the expense — it is only added when the user taps the button or says "yes, add it".');
       lines.push('- If the user later says "transcribe" or "read it", only then produce the verbatim text.');
     }
   }

@@ -177,11 +177,18 @@ function buildGeminiRequest(
     }
   }
 
+  // Per-call override beats the global default — lets fast structured
+  // tasks (e.g. document extraction) opt out of reasoning entirely.
+  const effectiveThinkingBudget =
+    options?.thinkingBudget !== undefined
+      ? options.thinkingBudget
+      : AI_THINKING.thinkingBudget;
+
   const generationConfig: GeminiRequest['generationConfig'] = {
     maxOutputTokens: options?.max_tokens ?? AI_CONFIG.maxTokens,
     temperature: options?.temperature ?? AI_CONFIG.temperature,
     thinkingConfig: {
-      thinkingBudget: AI_THINKING.thinkingBudget,
+      thinkingBudget: effectiveThinkingBudget,
       includeThoughts: AI_THINKING.includeThoughts,
     },
   };

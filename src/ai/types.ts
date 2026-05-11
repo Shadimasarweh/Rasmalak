@@ -39,6 +39,7 @@ export type AIIntent =
   // Document handling (attachments)
   | 'document_extract'        // Default for any uploaded bill/receipt
   | 'document_transcribe'     // Explicit "read this aloud / transcribe it"
+  | 'confirm_add_expense'     // "yes, add it" follow-up after a parsed bill
 
   // General
   | 'greeting'                // "مرحبا" - Hello

@@ -23,6 +23,7 @@ import { readMemoryFields } from './memory/memoryService';
 import { lookupVendor } from './vendors/menaVendors';
 import { analyzeBill, type BillAnalysis } from './deterministic/billAnalysis';
 import { buildSuggestedActionsForBill } from './documentActions';
+import { rememberConversationDoc, recallConversationDoc } from './conversationDocs';
 import {
   computeFinancialSignals,
   computeFinancialHealth,
@@ -237,6 +238,19 @@ export class AIOrchestrator {
     const hasAttachments = !!(input.attachments && input.attachments.length > 0);
     const intentResult = classifyIntent(input.message, hasAttachments);
 
+    // ── 1a. Confirm-add-expense fast-path (no LLM call) ──────────────
+    // When the user says "yes, add it" / "اضفها" right after a bill upload,
+    // we already have the structured document in memory. Bypass the LLM
+    // entirely: rebuild the action chip and return a short, deterministic
+    // reply. This is what stops "Request timed out" from happening on a
+    // simple confirmation.
+    if (intentResult.intent === 'confirm_add_expense' && !hasAttachments) {
+      const fast = this.handleConfirmAddExpense(input, startTime);
+      if (fast) return fast;
+      // No doc in memory — fall through to the normal pipeline so the
+      // user gets a helpful "what do you want me to add?" reply.
+    }
+
     // ── 1b. Document extraction pipeline ─────────────────────────────
     // When the user uploaded a bill/receipt and didn't explicitly ask for
     // a transcript, run the extractor agent first. This produces
@@ -260,6 +274,9 @@ export class AIOrchestrator {
       if (extractedDoc) {
         const history = input.recentTransactions ?? [];
         billAnalysis = analyzeBill(extractedDoc, history, input.context);
+        // Stash the parsed bill against the conversation so a follow-up
+        // confirmation ("yes add it") can act without another LLM call.
+        rememberConversationDoc(input.conversationId, extractedDoc, billAnalysis);
       }
     }
 
@@ -588,9 +605,15 @@ export class AIOrchestrator {
       [target],
     ) as any;
 
+    // Force Flash + zero thinking budget here. Bill JSON extraction does
+    // not need a reasoning model, and the heavier Pro model is what was
+    // pushing total turn time near the request budget.
+    const fastModel = AI_CONFIG.flashModel ?? AI_CONFIG.model;
     const result = await sendChatCompletionWithRetry(messages, {
+      model: fastModel,
       max_tokens: 1500,
       temperature: 0.1,
+      thinkingBudget: 0,
       responseSchema: extractor.outputSchema
         ? { name: 'ExtractedDocument', schema: extractor.outputSchema }
         : undefined,
@@ -619,6 +642,81 @@ export class AIOrchestrator {
 
     setExtractionCache(cacheKey, parsed);
     return parsed;
+  }
+
+  /**
+   * Deterministic fast-path for confirm-add-expense follow-ups.
+   * Returns a complete `OrchestratorOutput` (no LLM call) when we have
+   * a recently-extracted bill in memory for this conversation. Returns
+   * null if there's nothing to confirm — caller falls through to the
+   * normal pipeline.
+   */
+  private handleConfirmAddExpense(
+    input: OrchestratorInput,
+    startTime: number,
+  ): OrchestratorOutput | null {
+    const memory = recallConversationDoc(input.conversationId);
+    if (!memory) return null;
+
+    const { extracted, analysis } = memory;
+    const actions = buildSuggestedActionsForBill(extracted, analysis, input.language);
+    if (actions.length === 0) return null;
+
+    const isAr = input.language === 'ar';
+    const amount = extracted.amount ?? 0;
+    const currency = extracted.currency ?? 'JOD';
+    const vendor = extracted.vendorCanonical || extracted.vendor || '';
+
+    const message = isAr
+      ? vendor
+        ? `تمام — اضغط الزر تحت لإضافة ${amount} ${currency} (${vendor}) كمصروف.`
+        : `تمام — اضغط الزر تحت لإضافة ${amount} ${currency} كمصروف.`
+      : vendor
+        ? `Got it — tap the button below to add ${amount} ${currency} (${vendor}) as an expense.`
+        : `Got it — tap the button below to add ${amount} ${currency} as an expense.`;
+
+    const aiResponse: AIResponse = {
+      message,
+      messageAr: isAr ? message : undefined,
+      intent: 'confirm_add_expense',
+      confidence: 'high',
+      entities: [],
+      suggestedActions: actions,
+      insights: [],
+      needsClarification: false,
+      processingTime: Date.now() - startTime,
+      model: 'deterministic',
+    };
+
+    // Persist this short turn to history so the chat agent has continuity
+    // if the user keeps talking.
+    this.addToHistory(input.conversationId, 'user', input.message);
+    this.addToHistory(input.conversationId, 'assistant', message);
+
+    const trace: ExplanationTrace = {
+      intent: 'confirm_add_expense',
+      intentConfidence: 'high',
+      agentId: 'chat',
+      memoryFieldsUsed: [],
+      memoryFieldsWritten: [],
+      deterministicValues: {
+        amount,
+        currency,
+        vendor: vendor || null,
+      },
+      contextSlicesUsed: [],
+      validationResults: [],
+      confidenceScore: 1,
+      processingTimeMs: Date.now() - startTime,
+      retried: false,
+      timestamp: new Date().toISOString(),
+    };
+
+    return {
+      response: aiResponse,
+      conversationId: input.conversationId,
+      trace,
+    };
   }
 
   private computeDeterministic(input: OrchestratorInput): DeterministicOutputs {
