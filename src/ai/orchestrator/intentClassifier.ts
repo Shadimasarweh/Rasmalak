@@ -61,18 +61,23 @@ const PATTERN_RULES: PatternRule[] = [
     confidence: 0.85,
   },
 
-  // Receipt / image / document analysis
+  // Explicit transcription request (only relevant alongside an attachment)
   {
-    intent: 'analyze_spending',
+    intent: 'document_transcribe',
     patterns: [
-      /(فاتورة|إيصال|وصل|حساب)/i,
-      /(receipt|invoice|bill)\b/i,
-      /^(شو|ايش|ماذا|وش) (هاي|هال|هذي|هذه|هذا)/i,
-      /^(حلل|اقرأ|شوف|سجل) (هال|هذي|هذه|هذا)?(صورة|فاتورة|وصل|إيصال)/i,
-      /what.*(this|receipt|invoice|bill|image)/i,
-      /scan|ocr|extract.*text/i,
+      // English
+      /\btranscribe\b/i,
+      /\bread (it|this|the (bill|receipt|invoice|document))\b.*\b(aloud|out loud)?/i,
+      /\bwhat does (it|this|the (bill|receipt|invoice|document)) say\b/i,
+      /\btranslate (this|it|the (bill|receipt|invoice|document))\b/i,
+      /\b(ocr|extract.*text|raw text|copy.*text)\b/i,
+      // Arabic
+      /(انسخ|ا?كتب) (هاي|هال|هذي|هذه|هذا)?(الفاتورة|الإيصال|الوصل|النص)/i,
+      /(اقرأ|اقرا) (لي|عليّ|علي) (هاي|هال|هذي|هذه|هذا)?(الفاتورة|الإيصال|الوصل|النص)?/i,
+      /(شو|ايش|وش) (مكتوب|كاتب|فيها)/i,
+      /ترجم (هاي|هذا|هذه|هذي|هال)?(الفاتورة|الإيصال|الوصل|النص)/i,
     ],
-    confidence: 0.85,
+    confidence: 0.9,
   },
 
   // Analyze spending
@@ -270,11 +275,12 @@ export function classifyIntent(message: string, hasAttachments?: boolean): Inten
     };
   }
 
-  // If the user sent an image with no strong text intent, default to analyze_spending
-  // so the pro model (not flash) handles the vision task
+  // Default for an attachment with no strong text intent: route through the
+  // document extraction pipeline (not raw vision chat) so we produce
+  // structured insights instead of a transcript.
   if (hasAttachments) {
     return {
-      intent: 'analyze_spending',
+      intent: 'document_extract',
       confidence: 'medium',
       confidenceScore: 0.75,
       entities: [],

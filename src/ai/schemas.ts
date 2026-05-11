@@ -74,6 +74,8 @@ const ALL_INTENTS = [
   'forecast_savings',
   'explain_concept',
   'learning_recommendation',
+  'document_extract',
+  'document_transcribe',
   'greeting',
   'gratitude',
   'unclear',

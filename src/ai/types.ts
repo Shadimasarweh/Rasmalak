@@ -36,6 +36,10 @@ export type AIIntent =
   | 'explain_concept'         // "شو يعني تدفق نقدي؟" - What is cash flow?
   | 'learning_recommendation' // "شو لازم أتعلم؟" - What should I learn?
   
+  // Document handling (attachments)
+  | 'document_extract'        // Default for any uploaded bill/receipt
+  | 'document_transcribe'     // Explicit "read this aloud / transcribe it"
+
   // General
   | 'greeting'                // "مرحبا" - Hello
   | 'gratitude'               // "شكرًا" - Thank you
@@ -121,6 +125,10 @@ export interface AIMessage {
   intent?: AIIntent;
   confidence?: ConfidenceLevel;
   entities?: AIEntity[];
+  // Per-message suggested actions — attached when the assistant response
+  // includes interactive chips (e.g. extracted-bill action buttons). Kept
+  // on the message itself so chips don't vanish on the next user turn.
+  suggestedActions?: SuggestedAction[];
   // UI hints
   isLoading?: boolean;
   isError?: boolean;
@@ -237,8 +245,74 @@ export interface SuggestedAction {
   id: string;
   label: string;
   labelAr: string;
-  action: 'send_message' | 'navigate' | 'set_goal' | 'set_budget';
-  payload: string;            // Message to send, or route to navigate
+  action:
+    | 'send_message'
+    | 'navigate'
+    | 'set_goal'
+    | 'set_budget'
+    | 'create_transaction'
+    | 'set_reminder'
+    | 'mark_recurring';
+  // Backwards-compatible payload for send_message / navigate (string).
+  // For new actions a structured payloadData is used instead.
+  payload: string;
+  // Structured payload for actions that need typed data (e.g. create_transaction).
+  // We keep `payload` (string) populated with a human-readable summary for
+  // existing consumers that only know about the string field.
+  payloadData?: CreateTransactionPayload | SetReminderPayload | MarkRecurringPayload;
+}
+
+export interface CreateTransactionPayload {
+  type: 'expense' | 'income';
+  amount: number;             // Positive number; sign is derived from type
+  currency: string;           // ISO 4217 (e.g. JOD, AED)
+  category: string;           // Lowercase canonical category id (food, bills, ...)
+  description?: string;       // e.g. "DEWA bill — March"
+  date: string;               // ISO 8601 (YYYY-MM-DD)
+}
+
+export interface SetReminderPayload {
+  title: string;
+  amount?: number;
+  currency?: string;
+  dueDate: string;            // ISO 8601
+  vendor?: string;
+}
+
+export interface MarkRecurringPayload {
+  vendor: string;
+  amount: number;
+  currency: string;
+  frequency: 'weekly' | 'monthly' | 'yearly';
+  category?: string;
+}
+
+// Document extraction output from the documentExtractorAgent.
+// One-shot vision-mode JSON; never re-sent to the chat agent verbatim.
+export interface ExtractedDocumentLineItem {
+  description: string;
+  amount: number | null;
+  quantity: number | null;
+}
+
+export interface ExtractedDocument {
+  documentType:
+    | 'receipt'
+    | 'invoice'
+    | 'utility_bill'
+    | 'bank_statement'
+    | 'unknown';
+  vendor: string | null;          // Raw vendor name as it appears
+  vendorCanonical: string | null; // Normalized via menaVendors lookup
+  amount: number | null;          // Total amount paid / due (positive)
+  currency: string | null;        // ISO 4217 inferred from the document
+  date: string | null;            // Issue / transaction date, ISO 8601
+  dueDate: string | null;         // For invoices/utilities, ISO 8601
+  category: string | null;        // Suggested category (food, bills, ...)
+  lineItems: ExtractedDocumentLineItem[];
+  isRecurring: boolean;           // Heuristic flag (e.g. utility, subscription)
+  confidence: 'high' | 'medium' | 'low';
+  rawTextSnippet: string;         // <= 280 chars; for explainability only
 }
 
 export interface InsightCard {

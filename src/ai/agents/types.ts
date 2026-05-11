@@ -6,9 +6,10 @@
  * The orchestrator picks one agent per request and composes a single call.
  */
 
-import type { AIIntent, UserFinancialContext } from '../types';
+import type { AIIntent, UserFinancialContext, ExtractedDocument } from '../types';
 import type { UserSemanticState } from '../memory/types';
 import type { DeterministicOutputs } from '../deterministic';
+import type { BillAnalysis } from '../deterministic/billAnalysis';
 import type { ContextSliceType } from '../context/sliceTypes';
 
 export type AgentId =
@@ -16,7 +17,8 @@ export type AgentId =
   | 'insight'
   | 'recommendation'
   | 'policy'
-  | 'chat';
+  | 'chat'
+  | 'document_extractor';
 
 export interface AgentPromptParams {
   language: 'ar' | 'en';
@@ -25,6 +27,16 @@ export interface AgentPromptParams {
   deterministic: DeterministicOutputs | null;
   userMessage: string;
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
+  /**
+   * Optional structured document data — populated by the orchestrator
+   * when the user uploaded a bill/receipt and the extractor agent ran
+   * successfully. The chat agent uses this in place of the raw image.
+   */
+  documentContext?: {
+    extracted: ExtractedDocument;
+    analysis: BillAnalysis;
+    transcribeRequested: boolean;
+  };
 }
 
 export interface FinancialContextSlice {

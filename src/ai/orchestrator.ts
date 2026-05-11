@@ -13,13 +13,16 @@
  */
 
 import type { OrchestratorInput, OrchestratorOutput, ExplanationTrace } from './orchestrator/types';
-import type { AIResponse, AIMessage, ConfidenceLevel, SuggestedAction } from './types';
+import type { AIResponse, AIMessage, ConfidenceLevel, SuggestedAction, ExtractedDocument, MessageAttachment } from './types';
 import type { FinancialContextSlice } from './agents/types';
 import { classifyIntent } from './orchestrator/intentClassifier';
-import { findAgentForIntent } from './agents/registry';
+import { findAgentForIntent, getAgent } from './agents/registry';
 import { composePrompt } from './orchestrator/promptComposer';
 import { selectContext } from './context/contextSelector';
 import { readMemoryFields } from './memory/memoryService';
+import { lookupVendor } from './vendors/menaVendors';
+import { analyzeBill, type BillAnalysis } from './deterministic/billAnalysis';
+import { buildSuggestedActionsForBill } from './documentActions';
 import {
   computeFinancialSignals,
   computeFinancialHealth,
@@ -68,6 +71,30 @@ function getModelForAttachments(...args: Parameters<typeof openaiGetModel>) {
 const conversationHistories = new Map<string, AIMessage[]>();
 
 const HISTORY_HARD_CAP = 100;
+
+// ── Document extraction cache ──────────────────────────────────────
+// Re-uploading the same file inside a single session must NOT trigger a
+// second extractor call (it's expensive and deterministic). Keyed by
+// SHA-256 of the base64 payload. Bounded to keep memory in check.
+const EXTRACTION_CACHE_MAX_ENTRIES = 200;
+const extractionCache = new Map<string, ExtractedDocument>();
+
+async function hashAttachmentContent(content: string): Promise<string> {
+  // Use the platform Web Crypto API — available in Node 20+ and edge runtimes.
+  const data = new TextEncoder().encode(content);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function setExtractionCache(key: string, value: ExtractedDocument): void {
+  if (extractionCache.size >= EXTRACTION_CACHE_MAX_ENTRIES) {
+    const first = extractionCache.keys().next().value;
+    if (first) extractionCache.delete(first);
+  }
+  extractionCache.set(key, value);
+}
 
 /**
  * Read the recent history for a conversation, capped to the configured
@@ -210,6 +237,32 @@ export class AIOrchestrator {
     const hasAttachments = !!(input.attachments && input.attachments.length > 0);
     const intentResult = classifyIntent(input.message, hasAttachments);
 
+    // ── 1b. Document extraction pipeline ─────────────────────────────
+    // When the user uploaded a bill/receipt and didn't explicitly ask for
+    // a transcript, run the extractor agent first. This produces
+    // structured JSON which the chat agent reads instead of the raw image.
+    let extractedDoc: ExtractedDocument | null = null;
+    let billAnalysis: BillAnalysis | null = null;
+    const useExtractionPipeline =
+      hasAttachments && intentResult.intent === 'document_extract';
+
+    if (useExtractionPipeline) {
+      try {
+        extractedDoc = await this.runDocumentExtractor(
+          input.attachments!,
+          input.language,
+        );
+      } catch {
+        // Extraction failure is non-fatal — fall through to plain chat
+        // with the original image. The user still gets a useful reply.
+      }
+
+      if (extractedDoc) {
+        const history = input.recentTransactions ?? [];
+        billAnalysis = analyzeBill(extractedDoc, history, input.context);
+      }
+    }
+
     // ── 2. Select agent from registry ──
     const agent = findAgentForIntent(intentResult.intent);
 
@@ -240,6 +293,13 @@ export class AIOrchestrator {
     // ── 6. Compose prompt from agent template ──
     const history = this.getHistory(input.conversationId);
     const sanitizedMessage = escapeUserInput(input.message);
+
+    // When extraction succeeded we DROP the raw image from the chat
+    // payload — the chat agent reads the structured document block
+    // instead. This is the core of the "extract once, then talk" pattern.
+    const dropAttachmentsFromChat = useExtractionPipeline && extractedDoc !== null;
+    const attachmentsForChat = dropAttachmentsFromChat ? undefined : input.attachments;
+
     const composed = composePrompt(agent, {
       language: input.language,
       contextSlices: contextSelection.financialSlices,
@@ -247,7 +307,10 @@ export class AIOrchestrator {
       deterministic,
       userMessage: sanitizedMessage,
       conversationHistory: history.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-      attachments: input.attachments,
+      attachments: attachmentsForChat,
+      documentContext: extractedDoc && billAnalysis
+        ? { extracted: extractedDoc, analysis: billAnalysis, transcribeRequested: false }
+        : undefined,
     });
 
     // ── 7. Single LLM call ──
@@ -262,10 +325,10 @@ export class AIOrchestrator {
       composed.systemPrompt,
       formattedHistory,
       input.message,
-      input.attachments,
+      attachmentsForChat,
     ) as any; // Provider adapters return compatible but loosely-typed messages
 
-    const attachmentModel = getModelForAttachments(input.attachments);
+    const attachmentModel = getModelForAttachments(attachmentsForChat);
     const intentModel = selectModelForIntent(intentResult.intent);
     // Attachment model takes priority (vision requirement); otherwise use intent-based tier
     const model = attachmentModel !== AI_CONFIG.model ? attachmentModel : (intentModel ?? AI_CONFIG.model);
@@ -273,7 +336,7 @@ export class AIOrchestrator {
     let llmResult = await sendChatCompletionWithRetry(messages, {
       ...(model !== AI_CONFIG.model && { model }),
       // Invoices/receipts can have many line items — give the model enough room
-      ...(hasAttachments && { max_tokens: 4096 }),
+      ...(attachmentsForChat && { max_tokens: 4096 }),
     });
 
     let retried = false;
@@ -303,12 +366,12 @@ export class AIOrchestrator {
           composed.systemPrompt + constraintBlock,
           formattedHistory,
           input.message,
-          input.attachments,
+          attachmentsForChat,
         ) as any;
 
         const retryResult = await sendChatCompletionWithRetry(retryMessages, {
           ...(model !== AI_CONFIG.model && { model }),
-          ...(hasAttachments && { max_tokens: 4096 }),
+          ...(attachmentsForChat && { max_tokens: 4096 }),
         });
 
         if (retryResult.success) {
@@ -339,6 +402,22 @@ export class AIOrchestrator {
       input.language,
       startTime,
     );
+
+    // ── Document-driven suggested actions ────────────────────────────
+    // When extraction ran, replace the generic suggestion chips with
+    // bill-specific ones (Add as expense / Set reminder / Mark recurring).
+    // The chat UI wires these directly to existing stores without an
+    // additional LLM call.
+    if (llmResult.success && extractedDoc && billAnalysis) {
+      const docActions = buildSuggestedActionsForBill(
+        extractedDoc,
+        billAnalysis,
+        input.language,
+      );
+      if (docActions.length > 0) {
+        aiResponse.suggestedActions = docActions;
+      }
+    }
 
     // ── 9. Update conversation history ──
     this.addToHistory(input.conversationId, 'user', input.message);
@@ -472,6 +551,75 @@ export class AIOrchestrator {
   // ──────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────
+
+  /**
+   * Single-shot vision JSON extraction for an uploaded bill / receipt.
+   * Caches by SHA-256 of the attachment bytes so repeat uploads of the
+   * same file in the same session reuse the result.
+   */
+  private async runDocumentExtractor(
+    attachments: MessageAttachment[],
+    language: 'ar' | 'en',
+  ): Promise<ExtractedDocument | null> {
+    const extractor = getAgent('document_extractor');
+    if (!extractor) return null;
+
+    // Use the first image attachment — V1 doesn't combine multiple pages.
+    const target = attachments.find((a) => a.type === 'image' || a.type === 'pdf');
+    if (!target) return null;
+
+    const cacheKey = await hashAttachmentContent(target.content);
+    const cached = extractionCache.get(cacheKey);
+    if (cached) return cached;
+
+    const systemPrompt = extractor.systemPromptBuilder({
+      language,
+      contextSlices: [],
+      memoryFields: {},
+      deterministic: null,
+      userMessage: '',
+      conversationHistory: [],
+    });
+
+    const messages = formatMessages(
+      systemPrompt,
+      [],
+      'Extract the document fields per schema.',
+      [target],
+    ) as any;
+
+    const result = await sendChatCompletionWithRetry(messages, {
+      max_tokens: 1500,
+      temperature: 0.1,
+      responseSchema: extractor.outputSchema
+        ? { name: 'ExtractedDocument', schema: extractor.outputSchema }
+        : undefined,
+    });
+
+    if (!result.success) return null;
+
+    let parsed: ExtractedDocument;
+    try {
+      parsed = JSON.parse(result.content) as ExtractedDocument;
+    } catch {
+      return null;
+    }
+
+    // Vendor normalization happens server-side, NOT in the LLM prompt —
+    // this keeps the canonical names deterministic and out of the model's
+    // creative reach.
+    const lookup = lookupVendor(parsed.vendor);
+    parsed.vendorCanonical = lookup.matched ? lookup.canonical : null;
+    if (!parsed.category && lookup.matched) {
+      parsed.category = lookup.category;
+    }
+    if (!parsed.isRecurring && lookup.isRecurring) {
+      parsed.isRecurring = true;
+    }
+
+    setExtractionCache(cacheKey, parsed);
+    return parsed;
+  }
 
   private computeDeterministic(input: OrchestratorInput): DeterministicOutputs {
     return computeDeterministicFromContext(input.context);

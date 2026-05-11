@@ -13,8 +13,9 @@ import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser, useSession } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
-import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType } from '@/ai/types';
+import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType, CreateTransactionPayload } from '@/ai/types';
 import MarkdownText from '@/components/ui/MarkdownText';
+import { Toast } from '@/components/ui/Toast';
 
 /* ============================================
    MUSTASHARAK AI ADVISOR PAGE
@@ -456,11 +457,14 @@ export default function MustasharakPage() {
   const session = useSession();
   
   // Get user data for context
-  const { transactions } = useTransactions();
+  const { transactions, addTransaction } = useTransactions();
   const currency = useCurrency();
   const { monthlyBudget, categoryBudgets } = useBudget();
   const { savingsGoals } = useGoals();
   const onboardingData = useOnboardingData();
+
+  // Lightweight toast for action feedback
+  const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   
   // Chat state
   const [messages, setMessages] = useState<AIMessage[]>([]);
@@ -528,9 +532,11 @@ export default function MustasharakPage() {
     const newAttachments: MessageAttachment[] = [];
     
     for (const file of Array.from(files)) {
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        alert(intl.formatMessage({ id: 'chat.file_too_large', defaultMessage: 'File too large. Maximum 10MB.' }));
+      // Validate file size (max 4MB) — matches the server cap. Larger
+      // images don't materially help bill extraction and they balloon
+      // both upload time and Gemini token cost.
+      if (file.size > 4 * 1024 * 1024) {
+        alert(intl.formatMessage({ id: 'chat.file_too_large', defaultMessage: 'File too large. Maximum 4MB.' }));
         continue;
       }
       
@@ -604,13 +610,34 @@ export default function MustasharakPage() {
       setIsLoading(true);
 
       try {
+        // Send a slim, recent slice of transactions alongside the bill so
+        // the orchestrator's deterministic layer can spot duplicates and
+        // compare to history. Last 90 days, expenses only, capped at 200.
+        const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+        const recentTxs = transactions
+          .filter((t) => t.type === 'expense' && new Date(t.date).getTime() >= cutoff)
+          .slice(0, 200)
+          .map((t) => ({
+            amount: t.amount,
+            category: t.category,
+            description: t.description,
+            date: t.date,
+          }));
+
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` }),
           },
-          body: JSON.stringify({ message: messageText.trim(), conversationId, language, context: buildContext(), attachments: messageAttachments }),
+          body: JSON.stringify({
+            message: messageText.trim(),
+            conversationId,
+            language,
+            context: buildContext(),
+            attachments: messageAttachments,
+            recentTransactions: recentTxs,
+          }),
         });
         const data = await response.json();
         if (data.success && data.response) {
@@ -622,6 +649,8 @@ export default function MustasharakPage() {
             timestamp: new Date().toISOString(),
             intent: data.response.intent,
             confidence: data.response.confidence,
+            // Persist per-message chips so they survive subsequent turns.
+            suggestedActions: data.response.suggestedActions ?? [],
           } as AIMessage]);
           setLastResponse(data.response);
         } else {
@@ -773,11 +802,44 @@ export default function MustasharakPage() {
   const handleSuggestedAction = (action: SuggestedAction) => {
     if (action.action === 'send_message') {
       sendMessage(action.payload);
-    } else if (action.action === 'navigate') {
+      return;
+    }
+    if (action.action === 'navigate') {
       const target = action.payload?.trim();
       if (target && target.startsWith('/') && !target.startsWith('//') && !target.includes('://')) {
         window.location.href = target;
       }
+      return;
+    }
+    if (action.action === 'create_transaction') {
+      const data = action.payloadData as CreateTransactionPayload | undefined;
+      if (!data) return;
+      addTransaction({
+        type: data.type,
+        amount: data.amount,
+        currency: data.currency,
+        category: data.category,
+        description: data.description,
+        date: data.date,
+        isRecurring: false,
+        recurringEndDate: null,
+      });
+      setToast({
+        visible: true,
+        message: language === 'ar'
+          ? `تمت إضافة ${data.amount} ${data.currency} كمصروف`
+          : `Added ${data.amount} ${data.currency} as expense`,
+      });
+      return;
+    }
+    if (action.action === 'set_reminder' || action.action === 'mark_recurring') {
+      // V1: surface a toast acknowledging the intent. Persistent reminders
+      // and recurring-bill tracking land in V2 once the schema is in place.
+      setToast({
+        visible: true,
+        message: language === 'ar' ? 'سأذكّرك قريباً' : 'Got it — reminder noted',
+      });
+      return;
     }
   };
   
@@ -826,22 +888,47 @@ export default function MustasharakPage() {
         >
           {hasMessages ? (
             <>
-              {messages.map((msg) => (
-                <MessageBubble 
-                  key={msg.id} 
-                  message={msg} 
-                  isUser={msg.role === 'user'} 
-                />
-              ))}
-              
-              {/* Suggested actions after last assistant message */}
-              {lastResponse && !isLoading && lastResponse.suggestedActions.length > 0 && (
-                <SuggestedActions 
-                  actions={lastResponse.suggestedActions} 
-                  onAction={handleSuggestedAction}
-                  language={language}
-                />
-              )}
+              {messages.map((msg) => {
+                const showChipsForMsg =
+                  msg.role === 'assistant' &&
+                  !msg.isLoading &&
+                  !msg.isError &&
+                  msg.suggestedActions &&
+                  msg.suggestedActions.length > 0;
+                return (
+                  <div key={msg.id}>
+                    <MessageBubble message={msg} isUser={msg.role === 'user'} />
+                    {showChipsForMsg && (
+                      <SuggestedActions
+                        actions={msg.suggestedActions!}
+                        onAction={handleSuggestedAction}
+                        language={language}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Fallback: legacy default chips after the last response when
+                  the assistant message itself has none attached. */}
+              {lastResponse &&
+                !isLoading &&
+                lastResponse.suggestedActions.length > 0 &&
+                (() => {
+                  const last = messages[messages.length - 1];
+                  const lastHasChips =
+                    last?.role === 'assistant' &&
+                    last?.suggestedActions &&
+                    last.suggestedActions.length > 0;
+                  if (lastHasChips) return null;
+                  return (
+                    <SuggestedActions
+                      actions={lastResponse.suggestedActions}
+                      onAction={handleSuggestedAction}
+                      language={language}
+                    />
+                  );
+                })()}
             </>
           ) : (
             <div style={{ padding: '8px' }}>
@@ -1200,6 +1287,12 @@ export default function MustasharakPage() {
           </ul>
         </div>
       </div>
+
+      <Toast
+        message={toast.message}
+        visible={toast.visible}
+        onHide={() => setToast({ visible: false, message: '' })}
+      />
     </div>
   );
 }

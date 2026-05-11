@@ -29,7 +29,7 @@ export default {
   // File attachments
   attach_file: 'Attach file or image',
   max_attachments: 'Maximum 5 files allowed',
-  file_too_large: 'File too large. Maximum 10MB.',
+  file_too_large: 'File too large. Maximum 4MB.',
   unsupported_file_type: 'Unsupported file type. Allowed: Images, PDF, Text files.',
   supported_formats: 'Supports: Images (JPG, PNG, GIF), PDF, Text files',
   attachments_label: 'Attachments',
@@ -47,4 +47,14 @@ export default {
   
   transactions_count: 'You have {count} transactions recorded.',
   no_transactions: 'Add transactions to see insights',
+
+  // Document action chips (rendered after a parsed bill / receipt)
+  action_add_expense: 'Add as expense',
+  action_set_reminder: 'Set reminder',
+  action_mark_recurring: 'Track as recurring',
+  action_compare_last_month: 'Compare to last month',
+
+  // Toast messages for chip actions
+  action_added_expense: 'Added {amount} {currency} as expense',
+  action_reminder_noted: 'Got it — reminder noted',
 };

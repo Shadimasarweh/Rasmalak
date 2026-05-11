@@ -98,12 +98,20 @@ function sanitizeLLMOutput(text: string): string {
 // REQUEST VALIDATION
 // ============================================
 
+interface RecentTransactionLite {
+  amount: number;
+  category: string | null;
+  description?: string;
+  date: string;
+}
+
 interface ChatRequestBody {
   message: string;
   conversationId?: string;
   language: 'ar' | 'en';
   context?: UserFinancialContext;
   attachments?: MessageAttachment[];
+  recentTransactions?: RecentTransactionLite[];
 }
 
 function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } | { valid: false; error: string } {
@@ -144,8 +152,11 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
       if (!SAFE_FILENAME.test(att.filename) || att.filename.includes('..')) {
         return { valid: false, error: 'Invalid attachment filename' };
       }
-      if (att.content.length > 10 * 1024 * 1024) {
-        return { valid: false, error: 'Attachment too large. Maximum 10MB' };
+      // 4MB cap (down from 10MB) — bills/receipts comfortably fit, and
+      // smaller payloads keep token costs and latency in check now that
+      // the orchestrator runs an extra extraction call per upload.
+      if (att.content.length > 4 * 1024 * 1024) {
+        return { valid: false, error: 'Attachment too large. Maximum 4MB' };
       }
     }
   }
@@ -155,6 +166,22 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
     return { valid: false, error: 'Language must be "ar" or "en"' };
   }
   
+  // Recent transactions are optional and only used by the document
+  // analysis layer. Hard cap at 200 entries to avoid abuse / oversized
+  // request bodies; orchestrator only needs ~90 days of expense history.
+  let recentTransactions: RecentTransactionLite[] | undefined;
+  if (Array.isArray(data.recentTransactions)) {
+    const raw = data.recentTransactions as RecentTransactionLite[];
+    recentTransactions = raw.slice(0, 200).filter((t) => {
+      return (
+        typeof t === 'object' && t !== null &&
+        Number.isFinite(t.amount) &&
+        typeof t.date === 'string' &&
+        t.date.length <= 32
+      );
+    });
+  }
+
   return {
     valid: true,
     data: {
@@ -163,6 +190,7 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequestBody } 
       language: language as 'ar' | 'en',
       context: data.context as UserFinancialContext | undefined,
       attachments,
+      recentTransactions,
     },
   };
 }
@@ -201,7 +229,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
       }, { status: 400 });
     }
     
-    const { message, conversationId, language, context, attachments } = validation.data;
+    const { message, conversationId, language, context, attachments, recentTransactions } = validation.data;
     const userId = authResult.userId;
     
     if (!checkRateLimit(userId)) {
@@ -240,6 +268,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ChatRespo
         language,
         userId,
         attachments,
+        recentTransactions,
       });
     } finally {
       clearTimeout(timeout);

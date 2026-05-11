@@ -12,6 +12,7 @@ import { profileAgent } from './profileAgent';
 import { insightAgent } from './insightAgent';
 import { recommendationAgent } from './recommendationAgent';
 import { policyAgent } from './policyAgent';
+import { documentExtractorAgent } from './documentExtractorAgent';
 
 const AGENT_REGISTRY = new Map<AgentId, AgentDefinition>([
   ['chat', chatAgent],
@@ -19,6 +20,7 @@ const AGENT_REGISTRY = new Map<AgentId, AgentDefinition>([
   ['insight', insightAgent],
   ['recommendation', recommendationAgent],
   ['policy', policyAgent],
+  ['document_extractor', documentExtractorAgent],
 ]);
 
 /**

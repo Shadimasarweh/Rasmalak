@@ -15,6 +15,7 @@ import type {
 import type { UserSemanticState } from '../memory/types';
 import type { DeterministicOutputs } from '../deterministic';
 import type { ValidationResult } from '../validation/pipeline';
+import type { HistoricalTransaction } from '../deterministic/billAnalysis';
 
 export interface OrchestratorInput {
   message: string;
@@ -24,6 +25,13 @@ export interface OrchestratorInput {
   userId?: string;
   attachments?: MessageAttachment[];
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  /**
+   * Recent expense transactions (last ~90 days) used by document analysis
+   * for duplicate detection, vendor comparison, and recurring detection.
+   * The orchestrator does not require this — when missing, the analysis
+   * layer simply returns "no history" results.
+   */
+  recentTransactions?: HistoricalTransaction[];
 }
 
 export interface OrchestratorOutput {

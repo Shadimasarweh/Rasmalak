@@ -9,7 +9,8 @@
 import type { AgentDefinition, AgentPromptParams, FinancialContextSlice } from '../agents/types';
 import type { UserSemanticState } from '../memory/types';
 import type { DeterministicOutputs } from '../deterministic';
-import type { MessageAttachment } from '../types';
+import type { MessageAttachment, ExtractedDocument } from '../types';
+import type { BillAnalysis } from '../deterministic/billAnalysis';
 
 export interface ComposedPrompt {
   systemPrompt: string;
@@ -103,6 +104,16 @@ export function composePrompt(
     userMessage: string;
     conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
     attachments?: MessageAttachment[];
+    /**
+     * Optional pre-extracted document context. When present, the agent
+     * gets the structured JSON instead of the raw image, and we suppress
+     * the verbose OCR/extraction instructions because the work is done.
+     */
+    documentContext?: {
+      extracted: ExtractedDocument;
+      analysis: BillAnalysis;
+      transcribeRequested: boolean;
+    };
   },
 ): ComposedPrompt {
   const agentParams: AgentPromptParams = {
@@ -112,13 +123,19 @@ export function composePrompt(
     deterministic: params.deterministic,
     userMessage: params.userMessage,
     conversationHistory: params.conversationHistory,
+    documentContext: params.documentContext,
   };
 
   const basePrompt = agent.systemPromptBuilder(agentParams);
 
+  // Verbose OCR scaffolding is only useful when the chat model is the one
+  // looking at the image. If the orchestrator already extracted to JSON,
+  // re-issuing those instructions would push the model back into
+  // transcription mode — exactly the regression we're trying to fix.
   let attachmentInstructions: string | null = null;
-  if (params.attachments && params.attachments.length > 0) {
-    attachmentInstructions = buildAttachmentInstructions(params.language, params.attachments);
+  const hasAttachments = !!(params.attachments && params.attachments.length > 0);
+  if (hasAttachments && !params.documentContext) {
+    attachmentInstructions = buildAttachmentInstructions(params.language, params.attachments!);
   }
 
   // If no text was typed (image-only upload), fall back to the session language

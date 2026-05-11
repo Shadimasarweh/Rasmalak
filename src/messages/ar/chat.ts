@@ -29,7 +29,7 @@ export default {
   // File attachments
   attach_file: 'أرفق ملف أو صورة',
   max_attachments: '5 ملفات كحد أقصى',
-  file_too_large: 'الملف كبير — الحد الأقصى 10 ميجابايت.',
+  file_too_large: 'الملف كبير — الحد الأقصى 4 ميجابايت.',
   unsupported_file_type: 'نوع ملف غير مدعوم. المسموح: صور، PDF، ملفات نصية.',
   supported_formats: 'صور (JPG, PNG, GIF)، PDF، ملفات نصية',
   attachments_label: 'المرفقات',
@@ -47,4 +47,14 @@ export default {
 
   transactions_count: 'عندك {count} معاملة مسجلة.',
   no_transactions: 'أضف معاملات عشان نقدر نحللها',
+
+  // Document action chips
+  action_add_expense: 'أضفها كمصروف',
+  action_set_reminder: 'ذكّرني',
+  action_mark_recurring: 'تتبّعها كمتكررة',
+  action_compare_last_month: 'قارن بالشهر الماضي',
+
+  // Toast messages
+  action_added_expense: 'تمت إضافة {amount} {currency} كمصروف',
+  action_reminder_noted: 'تم — سأذكّرك',
 };
