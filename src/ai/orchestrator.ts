@@ -266,9 +266,12 @@ export class AIOrchestrator {
           input.attachments!,
           input.language,
         );
-      } catch {
+      } catch (err) {
         // Extraction failure is non-fatal — fall through to plain chat
         // with the original image. The user still gets a useful reply.
+        if (AI_SAFETY.enableLogging) {
+          console.error('[Orchestrator] Document extractor threw:', err);
+        }
       }
 
       if (extractedDoc) {
@@ -277,6 +280,17 @@ export class AIOrchestrator {
         // Stash the parsed bill against the conversation so a follow-up
         // confirmation ("yes add it") can act without another LLM call.
         rememberConversationDoc(input.conversationId, extractedDoc, billAnalysis);
+        if (AI_SAFETY.enableLogging) {
+          console.log('[Orchestrator] Document extracted:', {
+            type: extractedDoc.documentType,
+            vendor: extractedDoc.vendorCanonical || extractedDoc.vendor,
+            amount: extractedDoc.amount,
+            currency: extractedDoc.currency,
+            confidence: extractedDoc.confidence,
+          });
+        }
+      } else if (AI_SAFETY.enableLogging) {
+        console.warn('[Orchestrator] Document extraction returned null — falling back to plain chat with image');
       }
     }
 
@@ -621,9 +635,22 @@ export class AIOrchestrator {
 
     if (!result.success) return null;
 
+    // Flash models sometimes wrap JSON in ```json ... ``` fences or add a
+    // leading/trailing prose line even when JSON mode is requested. Strip
+    // those before parsing instead of failing the extraction.
+    const cleaned = result.content
+      .replace(/^\s*```(?:json)?\s*/i, '')
+      .replace(/\s*```\s*$/i, '')
+      .trim();
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    const jsonText = firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace
+      ? cleaned.slice(firstBrace, lastBrace + 1)
+      : cleaned;
+
     let parsed: ExtractedDocument;
     try {
-      parsed = JSON.parse(result.content) as ExtractedDocument;
+      parsed = JSON.parse(jsonText) as ExtractedDocument;
     } catch {
       return null;
     }

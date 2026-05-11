@@ -64,19 +64,29 @@ const PATTERN_RULES: PatternRule[] = [
   // Confirm "add as expense" follow-up to a parsed bill. Matched FIRST so
   // a yes/log/confirm message after an upload short-circuits straight to
   // the deterministic add-transaction fast-path in the orchestrator.
+  // Patterns are deliberately permissive so the literal chip label
+  // ("Add 10.516 JOD as expense") and free-form "log as expense" both
+  // count as confirmations.
   {
     intent: 'confirm_add_expense',
     patterns: [
-      // English — confirmation verbs and short affirmatives
-      /^(yes|yeah|yep|sure|ok(ay)?|please)\b.*\b(add|log|record|save|track|enter)/i,
+      // English — verb + "as expense" with anything in between (catches
+      // both bare "log as expense" and the verbatim chip label).
+      /\b(add|log|record|save|track|enter|create)\b.{0,30}\bas (an? )?expense\b/i,
+      // English — verb + it/this/that/the bill
       /^(add|log|record|save|track|enter) (it|this|that|the (bill|receipt|expense|invoice|charge))\b/i,
-      /^(go ahead|do it|please do|confirm|sounds good)\b/i,
-      /^add as (an? )?expense\b/i,
-      /\blog (it|this|that) as (an? )?expense\b/i,
-      // Arabic — common dialect/Fusha forms
-      /^(نعم|أيوة|ايوة|تمام|اوكي|اوك|أوك|طيب|ماشي|اكيد|أكيد).*(اضف|أضف|سجل|سجّل|احفظ)/i,
+      // English — short affirmatives followed by a logging verb
+      /^(yes|yeah|yep|sure|ok(ay)?|please)\b.*\b(add|log|record|save|track|enter)/i,
+      // English — bare confirms
+      /^(go ahead|do it|please do|confirm|sounds good)\b\.?\s*$/i,
+      // Arabic — verb + كمصروف (common chip phrasing)
+      /(اضف|أضف|سجل|سجّل|احفظ|دوّن).{0,30}كمصروف/i,
+      // Arabic — verb + object (ها/الفاتورة/الإيصال/كمصروف)
       /^(اضف|أضف|سجل|سجّل|احفظ|دوّن) (ها|هاي|هذي|هذه|هذا|الفاتورة|الإيصال|الوصل|كمصروف|المصروف)/i,
-      /(اضفها|أضفها|سجلها|سجّلها|اضفه|أضفه|سجله|سجّله) كمصروف/i,
+      // Arabic — affirmative + logging verb
+      /^(نعم|أيوة|ايوة|تمام|اوكي|اوك|أوك|طيب|ماشي|اكيد|أكيد).*(اضف|أضف|سجل|سجّل|احفظ)/i,
+      // Arabic — clitic forms
+      /(اضفها|أضفها|سجلها|سجّلها|اضفه|أضفه|سجله|سجّله)\b/i,
     ],
     confidence: 0.95,
   },
@@ -258,6 +268,18 @@ export function classifyIntent(message: string, hasAttachments?: boolean): Inten
   const trimmed = message.trim();
 
   if (!trimmed) {
+    // Image-only upload (no caption): route to the document extraction
+    // pipeline. Without this, an empty caption short-circuits to
+    // "unclear" and we lose the entire structured-extract path.
+    if (hasAttachments) {
+      return {
+        intent: 'document_extract',
+        confidence: 'medium',
+        confidenceScore: 0.8,
+        entities: [],
+        needsClarification: false,
+      };
+    }
     return {
       intent: 'unclear',
       confidence: 'low',
