@@ -13,7 +13,7 @@ import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser, useSession } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
-import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType, CreateTransactionPayload } from '@/ai/types';
+import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType, CreateTransactionPayload, CreateReceiptPayload } from '@/ai/types';
 import MarkdownText from '@/components/ui/MarkdownText';
 import { Toast } from '@/components/ui/Toast';
 
@@ -500,7 +500,7 @@ export default function MustasharakPage() {
   const session = useSession();
   
   // Get user data for context
-  const { transactions, addTransaction } = useTransactions();
+  const { transactions, addTransaction, addReceipt } = useTransactions();
   const currency = useCurrency();
   const { monthlyBudget, categoryBudgets } = useBudget();
   const { savingsGoals } = useGoals();
@@ -839,7 +839,7 @@ export default function MustasharakPage() {
   };
   
   // Handle suggested action click
-  const handleSuggestedAction = (action: SuggestedAction) => {
+  const handleSuggestedAction = async (action: SuggestedAction) => {
     if (action.action === 'send_message') {
       sendMessage(action.payload);
       return;
@@ -852,23 +852,51 @@ export default function MustasharakPage() {
       return;
     }
     if (action.action === 'create_transaction') {
-      const data = action.payloadData as CreateTransactionPayload | undefined;
+      // payloadData is a discriminated union: 'receipt' triggers the
+      // bulk insert; everything else (or the legacy untagged shape) is
+      // treated as a single-row create.
+      const data = action.payloadData as
+        | CreateReceiptPayload
+        | CreateTransactionPayload
+        | undefined;
       if (!data) return;
+
+      if ((data as CreateReceiptPayload).kind === 'receipt') {
+        const receipt = data as CreateReceiptPayload;
+        const result = await addReceipt({
+          receiptTotal: receipt.receiptTotal,
+          currency: receipt.currency,
+          date: receipt.date,
+          topCategory: receipt.topCategory,
+          vendor: receipt.vendor,
+          items: receipt.items,
+        });
+        const count = result?.rowCount ?? receipt.items.length;
+        setToast({
+          visible: true,
+          message: language === 'ar'
+            ? `تمت إضافة ${count} بنداً كمصروفات`
+            : `Added ${count} line items as expenses`,
+        });
+        return;
+      }
+
+      const single = data as CreateTransactionPayload;
       addTransaction({
-        type: data.type,
-        amount: data.amount,
-        currency: data.currency,
-        category: data.category,
-        description: data.description,
-        date: data.date,
+        type: single.type,
+        amount: single.amount,
+        currency: single.currency,
+        category: single.category,
+        description: single.description,
+        date: single.date,
         isRecurring: false,
         recurringEndDate: null,
       });
       setToast({
         visible: true,
         message: language === 'ar'
-          ? `تمت إضافة ${data.amount} ${data.currency} كمصروف`
-          : `Added ${data.amount} ${data.currency} as expense`,
+          ? `تمت إضافة ${single.amount} ${single.currency} كمصروف`
+          : `Added ${single.amount} ${single.currency} as expense`,
       });
       return;
     }

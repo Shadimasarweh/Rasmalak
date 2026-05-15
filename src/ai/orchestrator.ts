@@ -16,14 +16,14 @@ import type { OrchestratorInput, OrchestratorOutput, ExplanationTrace } from './
 import type { AIResponse, AIMessage, ConfidenceLevel, SuggestedAction, ExtractedDocument, MessageAttachment } from './types';
 import type { FinancialContextSlice } from './agents/types';
 import { classifyIntent } from './orchestrator/intentClassifier';
-import { findAgentForIntent, getAgent } from './agents/registry';
+import { findAgentForIntent } from './agents/registry';
 import { composePrompt } from './orchestrator/promptComposer';
 import { selectContext } from './context/contextSelector';
 import { readMemoryFields } from './memory/memoryService';
-import { lookupVendor } from './vendors/menaVendors';
 import { analyzeBill, type BillAnalysis } from './deterministic/billAnalysis';
 import { buildSuggestedActionsForBill } from './documentActions';
 import { rememberConversationDoc, recallConversationDoc } from './conversationDocs';
+import { extractDocument } from './extractDocument';
 import {
   computeFinancialSignals,
   computeFinancialHealth,
@@ -73,29 +73,9 @@ const conversationHistories = new Map<string, AIMessage[]>();
 
 const HISTORY_HARD_CAP = 100;
 
-// ── Document extraction cache ──────────────────────────────────────
-// Re-uploading the same file inside a single session must NOT trigger a
-// second extractor call (it's expensive and deterministic). Keyed by
-// SHA-256 of the base64 payload. Bounded to keep memory in check.
-const EXTRACTION_CACHE_MAX_ENTRIES = 200;
-const extractionCache = new Map<string, ExtractedDocument>();
-
-async function hashAttachmentContent(content: string): Promise<string> {
-  // Use the platform Web Crypto API — available in Node 20+ and edge runtimes.
-  const data = new TextEncoder().encode(content);
-  const buf = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-function setExtractionCache(key: string, value: ExtractedDocument): void {
-  if (extractionCache.size >= EXTRACTION_CACHE_MAX_ENTRIES) {
-    const first = extractionCache.keys().next().value;
-    if (first) extractionCache.delete(first);
-  }
-  extractionCache.set(key, value);
-}
+// Note: the extractor's content-hash cache lives inside extractDocument.ts
+// so the dedicated /api/extract-document route shares it with the chat
+// pipeline.
 
 /**
  * Read the recent history for a conversation, capped to the configured
@@ -585,90 +565,17 @@ export class AIOrchestrator {
 
   /**
    * Single-shot vision JSON extraction for an uploaded bill / receipt.
-   * Caches by SHA-256 of the attachment bytes so repeat uploads of the
-   * same file in the same session reuse the result.
+   * Picks the first image / PDF attachment and delegates to the shared
+   * `extractDocument` helper so the dedicated scanner endpoint and the
+   * chat pipeline share the same model + cache.
    */
   private async runDocumentExtractor(
     attachments: MessageAttachment[],
     language: 'ar' | 'en',
   ): Promise<ExtractedDocument | null> {
-    const extractor = getAgent('document_extractor');
-    if (!extractor) return null;
-
-    // Use the first image attachment — V1 doesn't combine multiple pages.
     const target = attachments.find((a) => a.type === 'image' || a.type === 'pdf');
     if (!target) return null;
-
-    const cacheKey = await hashAttachmentContent(target.content);
-    const cached = extractionCache.get(cacheKey);
-    if (cached) return cached;
-
-    const systemPrompt = extractor.systemPromptBuilder({
-      language,
-      contextSlices: [],
-      memoryFields: {},
-      deterministic: null,
-      userMessage: '',
-      conversationHistory: [],
-    });
-
-    const messages = formatMessages(
-      systemPrompt,
-      [],
-      'Extract the document fields per schema.',
-      [target],
-    ) as any;
-
-    // Force Flash + zero thinking budget here. Bill JSON extraction does
-    // not need a reasoning model, and the heavier Pro model is what was
-    // pushing total turn time near the request budget.
-    const fastModel = AI_CONFIG.flashModel ?? AI_CONFIG.model;
-    const result = await sendChatCompletionWithRetry(messages, {
-      model: fastModel,
-      max_tokens: 1500,
-      temperature: 0.1,
-      thinkingBudget: 0,
-      responseSchema: extractor.outputSchema
-        ? { name: 'ExtractedDocument', schema: extractor.outputSchema }
-        : undefined,
-    });
-
-    if (!result.success) return null;
-
-    // Flash models sometimes wrap JSON in ```json ... ``` fences or add a
-    // leading/trailing prose line even when JSON mode is requested. Strip
-    // those before parsing instead of failing the extraction.
-    const cleaned = result.content
-      .replace(/^\s*```(?:json)?\s*/i, '')
-      .replace(/\s*```\s*$/i, '')
-      .trim();
-    const firstBrace = cleaned.indexOf('{');
-    const lastBrace = cleaned.lastIndexOf('}');
-    const jsonText = firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace
-      ? cleaned.slice(firstBrace, lastBrace + 1)
-      : cleaned;
-
-    let parsed: ExtractedDocument;
-    try {
-      parsed = JSON.parse(jsonText) as ExtractedDocument;
-    } catch {
-      return null;
-    }
-
-    // Vendor normalization happens server-side, NOT in the LLM prompt —
-    // this keeps the canonical names deterministic and out of the model's
-    // creative reach.
-    const lookup = lookupVendor(parsed.vendor);
-    parsed.vendorCanonical = lookup.matched ? lookup.canonical : null;
-    if (!parsed.category && lookup.matched) {
-      parsed.category = lookup.category;
-    }
-    if (!parsed.isRecurring && lookup.isRecurring) {
-      parsed.isRecurring = true;
-    }
-
-    setExtractionCache(cacheKey, parsed);
-    return parsed;
+    return extractDocument(target, language);
   }
 
   /**

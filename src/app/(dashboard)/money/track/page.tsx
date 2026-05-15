@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions, Transaction } from '@/store/transactionStore';
@@ -13,6 +13,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { calculateHealthScore } from '@/lib/healthScore';
 import { useBudget } from '@/store/budgetStore';
 import { useEmergencyFund } from '@/store/emergencyFundStore';
+import ReceiptScannerModal from '@/components/transactions/ReceiptScannerModal';
+import {
+  SUBCATEGORY_LABELS,
+  type Subcategory,
+} from '@/ai/taxonomy';
 
 /* ============================================
    TRANSACTIONS PAGE
@@ -380,18 +385,198 @@ function TransactionRow({
   );
 }
 
+/* ===== SUBCATEGORY DONUT CARD =====
+   Renders a donut + legend for a single parent category (food or
+   bills) split by subcategory. Used twice on /money/track to expose
+   item-level spending mix (e.g. groceries → produce/dairy/snacks). */
+const SUBCATEGORY_PALETTE = [
+  '#2D6A4F', // primary green
+  '#52B788',
+  '#74C69D',
+  '#95D5B2',
+  '#D97706', // gold for accents
+  '#F59E0B',
+  '#FBBF24',
+  '#0EA5E9',
+  '#6366F1',
+  '#8B5CF6',
+  '#EC4899',
+  '#EF4444',
+];
+
+function SubcategoryDonutCard({
+  parent,
+  entries,
+  language,
+  isRtl,
+  intl,
+  currencySymbol,
+}: {
+  parent: 'food' | 'bills';
+  entries: Array<{ sub: string; total: number }>;
+  language: 'ar' | 'en';
+  isRtl: boolean;
+  intl: ReturnType<typeof useIntl>;
+  currencySymbol: string;
+}) {
+  const total = entries.reduce((s, e) => s + e.total, 0);
+  const labelFor = (sub: string) => {
+    if (sub === '__untagged__') {
+      return intl.formatMessage({ id: 'transactions.scan_subcategory_unset' });
+    }
+    return SUBCATEGORY_LABELS[sub as Subcategory]?.[language] ?? sub;
+  };
+  const titleId = parent === 'food' ? 'transactions.food_breakdown' : 'transactions.bills_breakdown';
+  const subtitleId = 'transactions.this_month';
+  return (
+    <div
+      style={{
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
+        padding: '20px 24px',
+        boxShadow: 'var(--ds-shadow-card)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px' }}>
+        <p
+          style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            color: 'var(--ds-text-heading)',
+            margin: 0,
+            fontFeatureSettings: '"kern" 1',
+          }}
+        >
+          {intl.formatMessage({ id: titleId })}
+        </p>
+        <span style={{ fontSize: '11px', color: 'var(--ds-text-muted)' }}>
+          {intl.formatMessage({ id: subtitleId })}
+        </span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: '120px', height: '120px', flexShrink: 0 }}>
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--ds-border)" strokeWidth="10" />
+            {(() => {
+              let cumulativeAngle = -90;
+              return entries.map((e, i) => {
+                const pct = total > 0 ? e.total / total : 0;
+                const dashLength = 2 * Math.PI * 46;
+                const dashOffset = dashLength * (1 - pct);
+                const rotation = cumulativeAngle;
+                cumulativeAngle += pct * 360;
+                const color = SUBCATEGORY_PALETTE[i % SUBCATEGORY_PALETTE.length];
+                return (
+                  <circle
+                    key={e.sub}
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="10"
+                    strokeDasharray={dashLength}
+                    strokeDashoffset={dashOffset}
+                    strokeLinecap="round"
+                    transform={`rotate(${rotation} 60 60)`}
+                  />
+                );
+              });
+            })()}
+          </svg>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+              {styledNum(intl.formatNumber(Math.round(total)))}
+            </span>
+            <span style={{ fontSize: '10px', color: 'var(--ds-text-muted)' }}>
+              {currencySymbol}
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: '160px' }}>
+          {entries.slice(0, 8).map((e, i) => {
+            const color = SUBCATEGORY_PALETTE[i % SUBCATEGORY_PALETTE.length];
+            const pct = total > 0 ? Math.round((e.total / total) * 100) : 0;
+            return (
+              <div
+                key={e.sub}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '8px',
+                  direction: isRtl ? 'rtl' : 'ltr',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: color, flexShrink: 0 }} />
+                  <span
+                    style={{
+                      fontSize: '12px',
+                      color: 'var(--ds-text-heading)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {labelFor(e.sub)}
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'var(--ds-text-heading)',
+                    flexShrink: 0,
+                  }}
+                >
+                  {styledNum(intl.formatNumber(Math.round(e.total)))}
+                  <span style={{ color: 'var(--ds-text-muted)', marginInlineStart: '6px', fontWeight: 400 }}>
+                    {intl.formatNumber(pct)}%
+                  </span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ===== MAIN PAGE ===== */
 export default function TransactionsPage() {
   const intl = useIntl();
   const currency = useCurrency();
   const language = useLanguage();
   const isRtl = language === 'ar';
-  const { transactions: realTransactions, deleteTransaction, getTotalIncome, getTotalExpenses, getNetBalance } =
+  const { transactions: realTransactions, deleteTransaction, deleteReceipt, getTotalIncome, getTotalExpenses, getNetBalance } =
     useTransactions();
 
   const transactions = realTransactions;
 
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
+  // Pending receipt-level delete; renders the same confirmation UI as
+  // single-row delete but routes through `deleteReceipt`.
+  const [deleteReceiptTarget, setDeleteReceiptTarget] = useState<{
+    receiptId: string;
+    vendor: string;
+    total: number;
+    currency: string;
+    childCount: number;
+  } | null>(null);
+  const [expandedReceipts, setExpandedReceipts] = useState<Record<string, boolean>>({});
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   // ===== FILTER STATE =====
   const [searchQuery, setSearchQuery] = useState('');
@@ -429,6 +614,64 @@ export default function TransactionsPage() {
       return true;
     });
   }, [transactions, dateRangeBounds, typeFilter, categoryFilter, searchQuery]);
+
+  /* ===== GROUP FILTERED TRANSACTIONS BY RECEIPT_ID =====
+     Each row in the table is either a standalone tx (no receipt_id)
+     or a synthetic "parent" representing N receipt children that
+     collapse under one click. */
+  type DisplayRow =
+    | { kind: 'single'; tx: Transaction }
+    | {
+        kind: 'receipt';
+        receiptId: string;
+        vendor: string;
+        date: string;
+        total: number;
+        currency: string;
+        category: string | null;
+        children: Transaction[];
+      };
+
+  const displayRows = useMemo<DisplayRow[]>(() => {
+    const groups = new Map<string, Transaction[]>();
+    const rows: DisplayRow[] = [];
+    for (const tx of filteredTransactions) {
+      if (tx.receiptId) {
+        const list = groups.get(tx.receiptId) ?? [];
+        list.push(tx);
+        groups.set(tx.receiptId, list);
+      } else {
+        rows.push({ kind: 'single', tx });
+      }
+    }
+    for (const [receiptId, children] of groups) {
+      // Vendor lives in the description prefix written by addReceipt
+      // ("vendor — item"). Falling back to the first child's
+      // description keeps things sensible for legacy data.
+      const sample = children[0];
+      const vendor =
+        sample?.description?.split('—')[0]?.trim() ||
+        sample?.description ||
+        '—';
+      const total = children.reduce((s, t) => s + Math.abs(t.amount), 0);
+      rows.push({
+        kind: 'receipt',
+        receiptId,
+        vendor,
+        date: sample?.date ?? new Date().toISOString().slice(0, 10),
+        total,
+        currency: sample?.currency ?? 'JOD',
+        category: sample?.category ?? null,
+        children,
+      });
+    }
+    rows.sort((a, b) => {
+      const aDate = a.kind === 'single' ? a.tx.date : a.date;
+      const bDate = b.kind === 'single' ? b.tx.date : b.date;
+      return bDate.localeCompare(aDate);
+    });
+    return rows;
+  }, [filteredTransactions]);
 
   const filteredIncome = filteredTransactions
     .filter((tx: Transaction) => tx.type === 'income')
@@ -479,6 +722,44 @@ export default function TransactionsPage() {
   }, [transactions]);
 
   const totalSpent = Object.values(spendingByCategory).reduce((a, b) => a + b, 0);
+
+  /* ===== SUBCATEGORY BREAKDOWN (current month) =====
+     Groups food + bills spending by `subcategory` for the current
+     month. Powers the two donut widgets that answer "what kind of food
+     am I buying most?" and "where do my bills go?".
+  */
+  const subcategoryBreakdown = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const food = new Map<string, number>();
+    const bills = new Map<string, number>();
+    let foodUntagged = 0;
+    let billsUntagged = 0;
+    transactions.forEach((tx: Transaction) => {
+      if (tx.type !== 'expense') return;
+      const d = new Date(tx.date);
+      if (d < startOfMonth || d > endOfMonth) return;
+      const amt = Math.abs(tx.amount);
+      if (tx.category === 'food') {
+        if (tx.subcategory) food.set(tx.subcategory, (food.get(tx.subcategory) ?? 0) + amt);
+        else foodUntagged += amt;
+      } else if (tx.category === 'bills') {
+        if (tx.subcategory) bills.set(tx.subcategory, (bills.get(tx.subcategory) ?? 0) + amt);
+        else billsUntagged += amt;
+      }
+    });
+    const toEntries = (m: Map<string, number>, untagged: number) => {
+      const arr = Array.from(m.entries()).map(([sub, total]) => ({ sub, total }));
+      arr.sort((a, b) => b.total - a.total);
+      if (untagged > 0.001) arr.push({ sub: '__untagged__', total: untagged });
+      return arr;
+    };
+    return {
+      food: toEntries(food, foodUntagged),
+      bills: toEntries(bills, billsUntagged),
+    };
+  }, [transactions]);
 
   const { monthlyIncome, monthlyExpenses } = useMemo(() => {
     const now = new Date();
@@ -750,7 +1031,33 @@ export default function TransactionsPage() {
             {intl.formatMessage({ id: 'money.track_actual_label' })}
           </p>
         </div>
-        <div className="flex items-center" style={{ gap: 'var(--spacing-1)' }}>
+        <div className="flex items-center" style={{ gap: 'var(--spacing-1)', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setScannerOpen(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '9px 18px',
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'var(--ds-primary)',
+              background: 'transparent',
+              border: '1.5px solid var(--ds-btn-secondary-border)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            {intl.formatMessage({ id: 'transactions.scan_receipt_cta' })}
+          </button>
           <Link
             href="/money/track/new"
             className="ds-btn ds-btn-primary"
@@ -1229,6 +1536,39 @@ export default function TransactionsPage() {
             </div>
           </div>
 
+          {/* ===== SUBCATEGORY BREAKDOWN: Food + Bills donuts ===== */}
+          {(subcategoryBreakdown.food.length > 0 || subcategoryBreakdown.bills.length > 0) && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '16px',
+                marginBottom: '16px',
+              }}
+            >
+              {subcategoryBreakdown.food.length > 0 && (
+                <SubcategoryDonutCard
+                  parent="food"
+                  entries={subcategoryBreakdown.food}
+                  language={language}
+                  isRtl={isRtl}
+                  intl={intl}
+                  currencySymbol={currencySymbol}
+                />
+              )}
+              {subcategoryBreakdown.bills.length > 0 && (
+                <SubcategoryDonutCard
+                  parent="bills"
+                  entries={subcategoryBreakdown.bills}
+                  language={language}
+                  isRtl={isRtl}
+                  intl={intl}
+                  currencySymbol={currencySymbol}
+                />
+              )}
+            </div>
+          )}
+
           {/* ===== ANALYSIS ROW 2: Monthly Comparison + AI Insight ===== */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '16px' }}>
 
@@ -1699,14 +2039,186 @@ export default function TransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.map((transaction) => (
-                  <TransactionRow
-                    key={transaction.id}
-                    transaction={transaction}
-                    onDelete={() => handleDeleteClick(transaction)}
-                    intl={intl}
-                  />
-                ))}
+                {displayRows.map((row) => {
+                  if (row.kind === 'single') {
+                    return (
+                      <TransactionRow
+                        key={row.tx.id}
+                        transaction={row.tx}
+                        onDelete={() => handleDeleteClick(row.tx)}
+                        intl={intl}
+                      />
+                    );
+                  }
+                  const expanded = !!expandedReceipts[row.receiptId];
+                  const formattedDate = intl.formatDate(new Date(row.date), {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  });
+                  const categoryObj = ALL_CATEGORIES.find((c) => c.id === row.category);
+                  const categoryLabel = categoryObj
+                    ? isRtl
+                      ? categoryObj.nameAr
+                      : categoryObj.name
+                    : row.category || '—';
+                  return (
+                    <Fragment key={`receipt-${row.receiptId}`}>
+                      <tr
+                        className="ds-table-row"
+                        style={{ background: expanded ? 'var(--ds-bg-tinted)' : 'transparent' }}
+                      >
+                        <td className="ds-table-cell ds-body">{formattedDate}</td>
+                        <td className="ds-table-cell">
+                          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--ds-text-heading)' }}>
+                            {categoryLabel}
+                          </span>
+                        </td>
+                        <td className="ds-table-cell ds-body">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedReceipts((prev) => ({
+                                ...prev,
+                                [row.receiptId]: !prev[row.receiptId],
+                              }))
+                            }
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              background: 'transparent',
+                              border: 'none',
+                              padding: 0,
+                              cursor: 'pointer',
+                              color: 'var(--ds-text-heading)',
+                              fontWeight: 500,
+                              fontSize: '0.875rem',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              style={{
+                                transform: expanded ? 'rotate(90deg)' : 'rotate(0)',
+                                transition: 'transform 150ms ease',
+                              }}
+                            >
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                            <span>
+                              {row.vendor}
+                              <span style={{ color: 'var(--ds-text-muted)', marginInlineStart: '6px', fontWeight: 400 }}>
+                                ·{' '}
+                                {intl.formatMessage(
+                                  { id: 'transactions.receipt_child_count' },
+                                  { count: row.children.length },
+                                )}
+                              </span>
+                            </span>
+                          </button>
+                        </td>
+                        <td className="ds-table-cell">
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '2px 8px',
+                              fontSize: '10px',
+                              fontWeight: 500,
+                              letterSpacing: '0.04em',
+                              borderRadius: '4px',
+                              background: 'var(--ds-primary-light, #F0F7F4)',
+                              color: 'var(--ds-primary)',
+                              border: '0.5px solid var(--ds-primary)',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {intl.formatMessage({ id: 'transactions.receipt_badge' })}
+                          </span>
+                        </td>
+                        <td
+                          className="ds-table-cell"
+                          style={{
+                            textAlign: 'right',
+                            fontWeight: 500,
+                            color: 'var(--ds-error)',
+                          }}
+                        >
+                          -{styledNum(intl.formatNumber(row.total))}
+                        </td>
+                        <td className="ds-table-cell" style={{ textAlign: 'end' }}>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDeleteReceiptTarget({
+                                receiptId: row.receiptId,
+                                vendor: row.vendor,
+                                total: row.total,
+                                currency: row.currency,
+                                childCount: row.children.length,
+                              })
+                            }
+                            style={{
+                              padding: '6px',
+                              background: 'transparent',
+                              border: 'none',
+                              borderRadius: '8px',
+                              color: 'var(--ds-text-muted)',
+                              cursor: 'pointer',
+                            }}
+                            title={intl.formatMessage({ id: 'transactions.delete_receipt' })}
+                          >
+                            <TrashIcon />
+                          </button>
+                        </td>
+                      </tr>
+                      {expanded &&
+                        row.children.map((child) => (
+                          <tr
+                            key={child.id}
+                            className="ds-table-row"
+                            style={{ background: 'var(--ds-bg-tinted)' }}
+                          >
+                            <td className="ds-table-cell" />
+                            <td className="ds-table-cell ds-body" style={{ paddingInlineStart: '32px', fontSize: '12px', color: 'var(--ds-text-muted)' }}>
+                              {child.subcategory
+                                ? SUBCATEGORY_LABELS[child.subcategory as Subcategory]?.[language] ?? child.subcategory
+                                : '—'}
+                            </td>
+                            <td
+                              className="ds-table-cell ds-body"
+                              style={{ fontSize: '12px', color: 'var(--ds-text-body)' }}
+                            >
+                              {(() => {
+                                const desc = child.description || '—';
+                                const dash = desc.indexOf('—');
+                                return dash >= 0 ? desc.slice(dash + 1).trim() : desc;
+                              })()}
+                            </td>
+                            <td className="ds-table-cell" />
+                            <td
+                              className="ds-table-cell"
+                              style={{
+                                textAlign: 'right',
+                                fontSize: '12px',
+                                color: 'var(--ds-text-body)',
+                              }}
+                            >
+                              {styledNum(intl.formatNumber(Math.abs(child.amount)))}
+                            </td>
+                            <td className="ds-table-cell" />
+                          </tr>
+                        ))}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
             </div>
@@ -1817,6 +2329,98 @@ export default function TransactionsPage() {
           intl={intl}
         />
       )}
+
+      {/* ===== DELETE RECEIPT CONFIRMATION ===== */}
+      {deleteReceiptTarget && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={() => setDeleteReceiptTarget(null)}
+        >
+          <div
+            className="ds-card"
+            style={{ maxWidth: '400px', margin: '0 16px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              style={{
+                fontSize: '18px',
+                fontWeight: 600,
+                color: 'var(--ds-text-heading)',
+                marginBottom: '8px',
+              }}
+            >
+              {intl.formatMessage({ id: 'transactions.delete_receipt_title' })}
+            </h3>
+            <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', lineHeight: 1.6, marginBottom: '12px' }}>
+              {intl.formatMessage(
+                { id: 'transactions.delete_receipt_confirm' },
+                {
+                  vendor: deleteReceiptTarget.vendor,
+                  count: deleteReceiptTarget.childCount,
+                  amount: styledNum(
+                    intl.formatNumber(deleteReceiptTarget.total, {
+                      style: 'currency',
+                      currency: deleteReceiptTarget.currency,
+                    }),
+                  ),
+                },
+              )}
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setDeleteReceiptTarget(null)}
+                style={{
+                  padding: '9px 18px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: 'var(--ds-text-body)',
+                  background: 'transparent',
+                  border: '0.5px solid var(--ds-border)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                {intl.formatMessage({ id: 'transactions.cancel' })}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const target = deleteReceiptTarget;
+                  setDeleteReceiptTarget(null);
+                  await deleteReceipt(target.receiptId);
+                }}
+                style={{
+                  padding: '9px 18px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#FFFFFF',
+                  background: 'var(--ds-error)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                {intl.formatMessage({ id: 'transactions.delete' })}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== RECEIPT SCANNER MODAL ===== */}
+      <ReceiptScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+      />
     </div>
   );
 }

@@ -35,6 +35,34 @@ export interface Transaction {
   user_id?: string;
   isRecurring: boolean;
   recurringEndDate: string | null;     // ISO 8601 date or null for indefinite
+  // Receipt grouping: when present, this row is one line item from a
+  // multi-row receipt insert. The same receipt_id is shared by all
+  // sibling rows so the UI can fold them back into one entry.
+  receiptId?: string | null;
+  // Per-item subcategory id from src/ai/taxonomy.ts (V1: food + bills only).
+  subcategory?: string | null;
+}
+
+/* ===== RECEIPT INPUT ===== */
+// Bulk insert payload used by the chat "Add as expense" chip and the
+// receipt scanner modal. One receipt becomes N transaction rows that
+// share a generated receipt_id.
+export interface AddReceiptInput {
+  receiptTotal: number;                // Total on the document (positive)
+  currency: string;
+  date: string;                        // ISO 8601
+  topCategory: string;                 // Parent category (food, bills, ...)
+  vendor: string;
+  items: Array<{
+    description: string;
+    amount: number;                    // Per-item amount (positive)
+    subcategory: string | null;
+  }>;
+}
+
+export interface AddReceiptResult {
+  receiptId: string;
+  rowCount: number;                    // Total rows inserted (incl. remainder)
 }
 
 /* ===== STORE INTERFACE ===== */
@@ -44,7 +72,13 @@ interface TransactionStore {
   
   // Actions
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  // Bulk insert one receipt as N rows sharing a receipt_id. Returns
+  // the generated receipt_id so callers can link / undo / show toast.
+  addReceipt: (input: AddReceiptInput) => Promise<AddReceiptResult | null>;
   deleteTransaction: (id: string) => void;
+  // Delete every row for a given receipt_id (used by the parent-row
+  // delete on /money/track).
+  deleteReceipt: (receiptId: string) => Promise<void>;
   
   // Derived (computed on read, not cached independently per contract)
   getTotalIncome: () => number;
@@ -121,6 +155,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
           description: row.note || row.description,
           isRecurring: row.is_recurring ?? false,
           recurringEndDate: row.recurring_end_date ?? null,
+          receiptId: row.receipt_id ?? null,
+          subcategory: row.subcategory ?? null,
         }));
         setTransactions(mapped);
       }
@@ -172,6 +208,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         date: transaction.date,
         is_recurring: transaction.isRecurring ?? false,
         recurring_end_date: transaction.recurringEndDate || null,
+        receipt_id: transaction.receiptId ?? null,
+        subcategory: transaction.subcategory ?? null,
       })
       .select()
       .single();
@@ -194,9 +232,158 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         description: data.note,
         isRecurring: data.is_recurring ?? false,
         recurringEndDate: data.recurring_end_date ?? null,
+        receiptId: data.receipt_id ?? null,
+        subcategory: data.subcategory ?? null,
       };
       setTransactions(prev => [newTransaction, ...prev]);
     }
+  }, []);
+
+  /* ===== ADD RECEIPT (bulk) =====
+     Inserts one row per line item with a shared receipt_id, plus a
+     "Tax & adjustments" remainder row when the items don't sum to the
+     receipt total. Falls back to a single-row insert when items[] is
+     empty so we still capture the receipt total.
+  */
+  const addReceipt = useCallback(async (input: AddReceiptInput): Promise<AddReceiptResult | null> => {
+    const { user, initialized } = getAuthState();
+    if (!initialized) {
+      console.warn('[TransactionStore] Cannot add receipt: auth not initialized');
+      return null;
+    }
+    if (!user) {
+      console.error('[TransactionStore] Cannot add receipt: user not authenticated');
+      return null;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user?.id || user.id;
+
+    // Sanitize items: drop entries without a positive amount; we never
+    // want to insert a 0-amount row that would just clutter the list.
+    const cleanItems = (input.items ?? []).filter(
+      (it) => Number.isFinite(it.amount) && it.amount > 0,
+    );
+
+    // Empty-items fallback: behave like a single-row add. This keeps
+    // the chip useful even if the extractor produced no line items.
+    if (cleanItems.length === 0) {
+      if (!Number.isFinite(input.receiptTotal) || input.receiptTotal <= 0) {
+        console.warn('[TransactionStore] addReceipt: nothing to insert');
+        return null;
+      }
+      const receiptId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'expense',
+          amount: input.receiptTotal,
+          currency: input.currency,
+          category: input.topCategory,
+          note: input.vendor,
+          date: input.date,
+          is_recurring: false,
+          recurring_end_date: null,
+          receipt_id: receiptId,
+          subcategory: null,
+        })
+        .select()
+        .single();
+      if (error || !data) {
+        console.error('[TransactionStore] addReceipt fallback insert failed:', error?.message);
+        return null;
+      }
+      const row: Transaction = {
+        id: data.id,
+        amount: data.amount,
+        currency: data.currency,
+        date: data.date,
+        type: data.type,
+        category: data.category,
+        description: data.note,
+        isRecurring: data.is_recurring ?? false,
+        recurringEndDate: data.recurring_end_date ?? null,
+        receiptId: data.receipt_id ?? null,
+        subcategory: data.subcategory ?? null,
+      };
+      setTransactions((prev) => [row, ...prev]);
+      return { receiptId, rowCount: 1 };
+    }
+
+    const receiptId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+    // Build the per-item rows. Description is `vendor — item` so the
+    // grouped view still shows the vendor on each child without an
+    // extra join.
+    const rows = cleanItems.map((it) => ({
+      user_id: userId,
+      type: 'expense' as const,
+      amount: it.amount,
+      currency: input.currency,
+      category: input.topCategory,
+      note: `${input.vendor} — ${it.description}`,
+      date: input.date,
+      is_recurring: false,
+      recurring_end_date: null,
+      receipt_id: receiptId,
+      subcategory: it.subcategory ?? null,
+    }));
+
+    // Tolerance is intentionally loose (0.5 of the currency unit). VAT,
+    // rounding, and tip lines all conspire to create small deltas that
+    // we'd rather book honestly than hide.
+    const itemsSum = cleanItems.reduce((s, it) => s + it.amount, 0);
+    const delta = input.receiptTotal - itemsSum;
+    if (Number.isFinite(input.receiptTotal) && Math.abs(delta) > 0.5) {
+      rows.push({
+        user_id: userId,
+        type: 'expense' as const,
+        amount: Math.abs(delta),
+        currency: input.currency,
+        category: input.topCategory,
+        note: `${input.vendor} — Tax & adjustments`,
+        date: input.date,
+        is_recurring: false,
+        recurring_end_date: null,
+        receipt_id: receiptId,
+        subcategory: null,
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert(rows)
+      .select();
+
+    if (error) {
+      console.error('[TransactionStore] addReceipt insert failed:', error.message);
+      return null;
+    }
+
+    if (data) {
+      const inserted: Transaction[] = data.map((row) => ({
+        id: row.id,
+        amount: row.amount,
+        currency: row.currency,
+        date: row.date,
+        type: row.type,
+        category: row.category,
+        description: row.note,
+        isRecurring: row.is_recurring ?? false,
+        recurringEndDate: row.recurring_end_date ?? null,
+        receiptId: row.receipt_id ?? null,
+        subcategory: row.subcategory ?? null,
+      }));
+      setTransactions((prev) => [...inserted, ...prev]);
+      return { receiptId, rowCount: inserted.length };
+    }
+
+    return { receiptId, rowCount: rows.length };
   }, []);
 
   // Delete transaction from Supabase
@@ -228,6 +415,26 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setTransactions(prev => prev.filter(t => t.id !== id));
   }, []);
 
+  // Delete every row for a given receipt_id. Used when the user
+  // collapses a grouped row on /money/track and clicks "delete" — they
+  // expect the whole receipt (parent + children) to disappear.
+  const deleteReceipt = useCallback(async (receiptId: string) => {
+    const { user, initialized } = getAuthState();
+    if (!initialized || !user) {
+      console.warn('Cannot delete receipt: auth not ready');
+      return;
+    }
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('receipt_id', receiptId);
+    if (error) {
+      console.error('Error deleting receipt:', error);
+      return;
+    }
+    setTransactions((prev) => prev.filter((t) => t.receiptId !== receiptId));
+  }, []);
+
   // Derived values - computed on every read per Contract Section 7
   // No caching independent of transaction dataset
   const getTotalIncome = useCallback((): number => {
@@ -249,7 +456,9 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   const store: TransactionStore = {
     transactions,
     addTransaction,
+    addReceipt,
     deleteTransaction,
+    deleteReceipt,
     getTotalIncome,
     getTotalExpenses,
     getNetBalance,

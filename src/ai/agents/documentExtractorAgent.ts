@@ -13,6 +13,7 @@
  */
 
 import type { AgentDefinition, AgentPromptParams } from './types';
+import { ALL_SUBCATEGORIES } from '../taxonomy';
 
 /**
  * JSON Schema (provider-agnostic). Both Gemini and OpenAI accept this
@@ -44,8 +45,17 @@ export const ExtractedDocumentSchema: Record<string, unknown> = {
           description: { type: 'string' },
           amount: { anyOf: [{ type: 'number' }, { type: 'null' }] },
           quantity: { anyOf: [{ type: 'number' }, { type: 'null' }] },
+          // Per-item subcategory (V1: food + bills only). Constrained to
+          // the canonical taxonomy enum so the LLM can't invent labels;
+          // server-side `classifySubcategory` validates again before save.
+          subcategory: {
+            anyOf: [
+              { type: 'string', enum: ALL_SUBCATEGORIES },
+              { type: 'null' },
+            ],
+          },
         },
-        required: ['description', 'amount', 'quantity'],
+        required: ['description', 'amount', 'quantity', 'subcategory'],
         additionalProperties: false,
       },
     },
@@ -82,7 +92,8 @@ Rules:
 - isRecurring: true ONLY when the document itself is a recurring/utility bill (DEWA, STC, JEPCO, Netflix, etc.). false for one-off receipts.
 - confidence: "high" if every key field is clearly legible, "medium" if amount + vendor are clear but other fields are guessed, "low" if you had to interpolate.
 - rawTextSnippet: at most 280 characters of the most identifying text from the document (vendor + total + date). Used purely for explainability — do NOT dump the whole bill here.
-- lineItems: up to 10 most material items. Each item has description, amount, quantity. Skip if there are no line items (return []).
+- lineItems: up to 20 most material items. Each item has description, amount, quantity, subcategory. Skip if there are no line items (return []).
+- subcategory (per line item): when category is "food", classify the item into one of: groceries_produce (fruits & vegetables), groceries_dairy (milk, cheese, yogurt, eggs), groceries_meat (meat, poultry, seafood), groceries_pantry (rice, oil, pasta, spices, sauces, canned), groceries_snacks (chips, chocolate, candy, biscuits), groceries_beverages (juice, soda, bottled water — NOT coffee shop drinks), groceries_bakery (bread, croissants, manakish), groceries_frozen (ice cream, frozen meals), dining_out (restaurants), coffee_tea (Starbucks, cafés), fast_food (McDonald's, KFC, etc.), delivery (Talabat, Careem Food). When category is "bills", classify into one of: electricity, water, internet, mobile, tv_streaming, gas, subscription, insurance. Otherwise (shopping, transport, health, ...) ALWAYS use null. If unsure for food/bills, pick the closest match.
 
 Output ONLY the JSON object. No markdown, no comments, no leading text.`;
 }

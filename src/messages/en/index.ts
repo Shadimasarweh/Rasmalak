@@ -4,6 +4,7 @@ import nav from './nav';
 import dashboard from './dashboard';
 import transactions from './transactions';
 import categories from './categories';
+import subcategories from './subcategories';
 import settings from './settings';
 import auth from './auth';
 import learn from './learn';
@@ -28,6 +29,7 @@ const messages: Record<string, string> = {
   ...flatten(dashboard, 'dashboard'),
   ...flatten(transactions, 'transactions'),
   ...flatten(categories, 'categories'),
+  ...flatten(subcategories, 'subcategories'),
   ...flatten(settings, 'settings'),
   ...flatten(auth, 'auth'),
   ...flatten(learn, 'learn'),

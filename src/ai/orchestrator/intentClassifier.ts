@@ -73,16 +73,20 @@ const PATTERN_RULES: PatternRule[] = [
       // English — verb + "as expense" with anything in between (catches
       // both bare "log as expense" and the verbatim chip label).
       /\b(add|log|record|save|track|enter|create)\b.{0,30}\bas (an? )?expense\b/i,
-      // English — verb + it/this/that/the bill
-      /^(add|log|record|save|track|enter) (it|this|that|the (bill|receipt|expense|invoice|charge))\b/i,
+      // English — verb + it/this/that/the bill/the items
+      /^(add|log|record|save|track|enter) (it|this|that|the (bill|receipt|expense|invoice|charge|items?|line items?))\b/i,
+      // English — verb + "the items" / "all the items" / "items in the bill"
+      /\b(add|log|record|save|track|enter)\b.{0,40}\b(items?|line items?)\b/i,
       // English — short affirmatives followed by a logging verb
       /^(yes|yeah|yep|sure|ok(ay)?|please)\b.*\b(add|log|record|save|track|enter)/i,
       // English — bare confirms
       /^(go ahead|do it|please do|confirm|sounds good)\b\.?\s*$/i,
       // Arabic — verb + كمصروف (common chip phrasing)
-      /(اضف|أضف|سجل|سجّل|احفظ|دوّن).{0,30}كمصروف/i,
-      // Arabic — verb + object (ها/الفاتورة/الإيصال/كمصروف)
-      /^(اضف|أضف|سجل|سجّل|احفظ|دوّن) (ها|هاي|هذي|هذه|هذا|الفاتورة|الإيصال|الوصل|كمصروف|المصروف)/i,
+      /(اضف|أضف|سجل|سجّل|احفظ|دوّن|ادخل).{0,30}كمصروف/i,
+      // Arabic — verb + object (ها/الفاتورة/الإيصال/كمصروف/البنود/العناصر)
+      /^(اضف|أضف|سجل|سجّل|احفظ|دوّن|ادخل) (ها|هاي|هذي|هذه|هذا|الفاتورة|الإيصال|الوصل|كمصروف|المصروف|البنود|العناصر|الأصناف|الاصناف|المنتجات)/i,
+      // Arabic — verb + items (with anything in between — "اضف بنود الفاتورة كمصروف")
+      /(اضف|أضف|سجل|سجّل|احفظ|دوّن|ادخل).{0,40}(البنود|العناصر|الأصناف|الاصناف|المنتجات)/,
       // Arabic — affirmative + logging verb
       /^(نعم|أيوة|ايوة|تمام|اوكي|اوك|أوك|طيب|ماشي|اكيد|أكيد).*(اضف|أضف|سجل|سجّل|احفظ)/i,
       // Arabic — clitic forms
