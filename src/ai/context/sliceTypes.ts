@@ -16,4 +16,5 @@ export type ContextSliceType =
   | 'recentTransactions'
   | 'trends'
   | 'patterns'
-  | 'projections';
+  | 'projections'
+  | 'userProfile';

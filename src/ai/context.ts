@@ -7,7 +7,7 @@
  * This is the bridge between your Zustand stores and the AI.
  */
 
-import { UserFinancialContext, CategorySpending } from './types';
+import { UserFinancialContext, CategorySpending, TransactionLite } from './types';
 
 // ============================================
 // TYPES (matching your transaction store)
@@ -21,7 +21,19 @@ interface Transaction {
   type: 'income' | 'expense';
   category: string | null;
   description?: string;
+  // Per-item taxonomy (food + bills V1) and receipt grouping. Optional
+  // because legacy rows + non-receipt expenses don't set them.
+  subcategory?: string | null;
+  receiptId?: string | null;
 }
+
+// Window/cap for the AI's transaction visibility. 90 days catches
+// "what did I buy last week" and "did I pay rent this month" without
+// blowing the prompt budget. The 200 cap is a hard ceiling — even a
+// heavy spender rarely logs >200 transactions in 90 days, and the
+// slice renderer further trims to the most recent 60 lines.
+const RECENT_TX_WINDOW_DAYS = 90;
+const RECENT_TX_HARD_CAP = 200;
 
 interface SavingsGoal {
   id: string;
@@ -337,6 +349,26 @@ export function buildUserContext(state: AppState): UserFinancialContext {
     };
   });
   
+  // Build the lean recent-transactions list. Sign the amount based on
+  // type so the model doesn't have to interpret the `type` field, then
+  // sort newest-first and cap. Order is reversed at render time so the
+  // model reads them oldest → newest, which is more natural.
+  const cutoffMs = Date.now() - RECENT_TX_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const recentTransactions: TransactionLite[] = transactions
+    .filter((t) => new Date(t.date).getTime() >= cutoffMs)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, RECENT_TX_HARD_CAP)
+    .map((t) => ({
+      date: t.date,
+      amount: t.type === 'expense' ? -Math.abs(t.amount) : Math.abs(t.amount),
+      currency: t.currency,
+      category: t.category,
+      subcategory: t.subcategory ?? null,
+      description: t.description?.trim() || undefined,
+      type: t.type,
+      receiptId: t.receiptId ?? null,
+    }));
+
   // Build final context
   const context: UserFinancialContext = {
     // Basic metrics
@@ -344,7 +376,10 @@ export function buildUserContext(state: AppState): UserFinancialContext {
     totalExpenses,
     netBalance,
     savingsRate,
-    
+
+    // Recent rows for AI visibility
+    recentTransactions,
+
     // Current month
     currentMonth: {
       income: currentMonthIncome,
@@ -399,6 +434,7 @@ export function buildEmptyContext(
     totalExpenses: 0,
     netBalance: 0,
     savingsRate: 0,
+    recentTransactions: [],
     currentMonth: {
       income: 0,
       expenses: 0,

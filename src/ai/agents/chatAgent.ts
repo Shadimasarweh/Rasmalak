@@ -215,6 +215,7 @@ function buildDocumentBlock(
       lines.push('- اربط بحالة المستخدم المالية إذا كان للأمر علاقة (تجاوز ميزانية، تكرار، فرق عن الشهر الماضي).');
       lines.push('- اختم ردّك بسطر قصير يُوجّه المستخدم للزر أسفل الرسالة، مثل: «اضغط الزر تحت لأضيفها كمصروف.» — لا تخترع أزراراً، الواجهة ترسمها.');
       lines.push('- لا تَعِد المستخدم بأنك «أضفتها» — الإضافة تتم فقط عندما يضغط الزر أو يقول «نعم».');
+      lines.push('- إذا طلب المستخدم صراحةً تسجيل البنود/العناصر كمصروف («اضف البنود»، «سجل العناصر»، «ادخل ها كمصروف»)، فاعتبرها موافقة على الإضافة. وجّهه للزر أسفل الرسالة الذي يضيف الفاتورة كمصروف واحد مع تفاصيل البنود في الوصف. لا تقل «لا أستطيع» ولا تحوّله لصفحة الإيصالات.');
       lines.push('- لو طلب المستخدم لاحقاً «انسخ» أو «اقرأ»، عندها فقط اكتب النص.');
     }
   } else {
@@ -271,6 +272,7 @@ function buildDocumentBlock(
       lines.push('- Tie it to the user\'s actual financial situation if relevant (over budget, duplicate, vs last month).');
       lines.push('- End your reply with a single short line pointing at the action button, e.g. "Tap the button below to add it as an expense." Do NOT invent button labels — the UI renders them.');
       lines.push('- Do NOT claim you "added" the expense — it is only added when the user taps the button or says "yes, add it".');
+      lines.push('- If the user explicitly asks to add the items / log the items / save the line items as an expense, treat that as a YES. Point them at the same "Add as expense" button below your reply — it logs the receipt as one expense and stores the line items in the description. Do NOT say you cannot do this and do NOT redirect them to a separate scanner page.');
       lines.push('- If the user later says "transcribe" or "read it", only then produce the verbatim text.');
     }
   }
@@ -291,13 +293,15 @@ function buildSystemPrompt(params: AgentPromptParams): string {
 - ابدأ كل محادثة كأنك مساعد طبيعي. إذا قال المستخدم "مرحبا" — رد بترحيب قصير ودود واسأل كيف تقدر تساعد. لا تُلقِ تقييماً مالياً غير مطلوب.
 - جاوب فقط على ما سُئِلت. لا تضف نصائح جانبية إلا إذا كانت ضرورية.
 - إذا سأل المستخدم سؤالاً عاماً عن المفاهيم المالية، أجب كأنك مدرّس — بوضوح وبدون إقحام بياناته.
-- إذا سأل عن وضعه الشخصي ("كم صرفت؟"، "كيف ميزانيتي؟")، استخدم بياناته الفعلية الموجودة أدناه.
+- إذا سأل عن وضعه الشخصي ("كم صرفت؟"، "كيف ميزانيتي؟"، "هل دفعت الإيجار؟"، "شو آخر فاتورة دفعتها؟")، استخدم بياناته الفعلية أدناه — بما فيها قسم "ملف المستخدم" وقسم "معاملات حديثة".
+- إذا سُئلت عن معاملة محددة في الماضي، ابحث في قائمة "معاملات حديثة" (آخر ٩٠ يوماً تقريباً). إذا وجدتها، أجب بالتاريخ والمبلغ والعملة والفئة. إذا كانت أقدم من ذلك أو غير موجودة، قل ذلك بصراحة — ولا تختلق.
+- اعتبر "ملف المستخدم" صورتك الثابتة عن المستخدم (النوع، تحمّل المخاطر، مجالات الاهتمام، الوضع المالي العام). لا تسأل المستخدم عن أشياء موجودة فيه أصلاً.
 - طابِق لهجة المستخدم: لو حكى أردني، رد أردني. لو سعودي، رد سعودي. لو فصحى، فصحى.
 - اضبط طول الرد حسب السؤال — سؤال قصير → جواب قصير. سؤال معقد → جواب وافٍ.
 
 ما لا تفعله:
 - لا تكرر نفس النصيحة مراراً
-- لا تختلق أرقاماً عن المستخدم — إذا لم تتوفر بيانات قل ذلك
+- لا تختلق أرقاماً عن المستخدم — إذا لم تتوفر بيانات قل ذلك. لا تنفِ وجود معاملة قبل أن تتأكد من قائمة "معاملات حديثة".
 - لا تعطِ توصيات أسهم محددة، أو نصائح قانونية، أو نصائح للتهرب الضريبي
 - لا تكتب عناوين أو خطوات مرقمة كهيكل ثابت — اكتب بشكل طبيعي
 - لا تبدأ بـ "سؤال رائع!" أو "أنا هنا لمساعدتك"
@@ -313,13 +317,15 @@ How to behave:
 - Open every conversation naturally. If the user says "hi", greet them back briefly and ask how you can help. Do NOT volunteer an unsolicited financial assessment.
 - Answer only what was asked. Don't tack on side advice unless it's clearly relevant.
 - For general financial-concept questions, teach the concept clearly without injecting the user's personal data.
-- For questions about the user's own situation ("how much did I spend?", "am I on budget?"), use the actual data provided below.
+- For questions about the user's own situation ("how much did I spend?", "am I on budget?", "did I pay rent yet?", "what was my last grocery run?"), use the actual data provided below — including the User Profile and Recent Transactions blocks.
+- When asked about a specific past transaction, scan the Recent Transactions list (last ~90 days). If you find it, answer with the date, amount, currency, and category. If it's outside that window or not in the data, say so plainly — do not fabricate.
+- The User Profile block is your stable picture of the user (segment, risk profile, focus areas, savings posture). Treat it as the truth across turns; don't ask the user for things already listed there.
 - Match the user's language and dialect. If they write in Levantine Arabic, reply in Levantine. If English, English.
 - Match length to the question — short question → short answer. Complex question → full answer.
 
 What not to do:
 - Don't repeat the same advice across turns
-- Don't invent figures about the user — if data isn't available, say so plainly
+- Don't invent figures about the user — if data isn't available, say so plainly. Never claim a transaction doesn't exist without first checking Recent Transactions.
 - Don't give specific stock picks, legal advice, or tax-evasion advice
 - Don't write rigid numbered headings or templated step structures — write naturally
 - Don't open with "Great question!" or "I'm here to help!" — just answer
@@ -338,26 +344,11 @@ Document handling (bills, receipts, utility statements):
       contextSlices.map(s => s.content).join('\n\n');
   }
 
-  // ── Memory: stored profile fields ──
-  const memParts: string[] = [];
-  if (memoryFields.financialHealthBand) {
-    memParts.push(isAr
-      ? `نطاق الصحة المالية المسجل: ${memoryFields.financialHealthBand}`
-      : `Recorded health band: ${memoryFields.financialHealthBand}`);
-  }
-  if (memoryFields.riskProfile) {
-    memParts.push(isAr
-      ? `تحمّل المخاطر: ${memoryFields.riskProfile.tolerance}`
-      : `Risk tolerance: ${memoryFields.riskProfile.tolerance}`);
-  }
-  if (memoryFields.preferences?.focusAreas?.length) {
-    memParts.push(isAr
-      ? `مجالات الاهتمام: ${memoryFields.preferences.focusAreas.join('، ')}`
-      : `Focus areas: ${memoryFields.preferences.focusAreas.join(', ')}`);
-  }
-  const memoryBlock = memParts.length > 0
-    ? (isAr ? '## ملف المستخدم\n' : '## User Profile\n') + memParts.join('\n')
-    : '';
+  // Memory fields are now rendered via the `userProfile` context slice
+  // (see src/ai/userProfile/render.ts) so the chat agent doesn't need
+  // a parallel memory block. We still accept `memoryFields` in the
+  // params signature for compatibility with AgentPromptParams.
+  void memoryFields;
 
   // ── Deterministic signals — only included if the user is asking about
   // their own finances. The agent decides whether to surface this; it is NOT
@@ -378,7 +369,7 @@ Document handling (bills, receipts, utility statements):
       )
     : '';
 
-  return [identity, contextBlock, memoryBlock, deterministicBlock, documentBlock]
+  return [identity, contextBlock, deterministicBlock, documentBlock]
     .filter(Boolean)
     .join('\n\n---\n\n');
 }
@@ -388,12 +379,38 @@ export const chatAgent: AgentDefinition = {
   name: 'Chat Agent',
   description: 'Structured financial consultant with proactive assessment and data-grounded advice',
   supportedIntents: SUPPORTED_INTENTS,
-  requiredMemoryFields: ['financialHealthBand', 'riskProfile', 'preferences'],
-  requiredContextSlices: ['summary', 'currentMonth', 'categoryBreakdown', 'goals', 'budgets', 'trends', 'patterns'],
+  // Pull the full semantic state so the user-profile renderer has
+  // everything to work with. Selection cost is a single SELECT.
+  requiredMemoryFields: [
+    'financialHealthBand',
+    'riskProfile',
+    'incomeStabilityScore',
+    'preferences',
+    'behaviorSignals',
+    'engagementSignals',
+  ],
+  // userProfile leads so the model frames everything that follows
+  // through the user's identity. recentTransactions sits last —
+  // closest to the user's question — to maximize recall on
+  // "what did I buy on date X" style queries.
+  requiredContextSlices: [
+    'userProfile',
+    'summary',
+    'currentMonth',
+    'categoryBreakdown',
+    'goals',
+    'budgets',
+    'trends',
+    'patterns',
+    'recentTransactions',
+  ],
   needsDeterministicLayer: true,
   systemPromptBuilder: buildSystemPrompt,
   outputSchema: null,
-  maxContextTokens: 4000,
+  // Bumped from 4000 → 7000 to fit the new userProfile + recent
+  // transactions slices alongside the existing slices. Still well
+  // under the 32K context window of the chosen Gemini model.
+  maxContextTokens: 7000,
   canWriteMemory: false,
   writableMemoryFields: [],
 };

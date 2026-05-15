@@ -172,12 +172,34 @@ export interface TimeSeriesPoint {
   balance: number;
 }
 
+// Lean shape of a single transaction sent to the AI layer. We avoid
+// shipping the full store record (it carries `id`, `user_id`, recurring
+// metadata, etc. that the model doesn't need) so the prompt stays
+// small. Amounts are signed: positive = income, negative = expense.
+export interface TransactionLite {
+  date: string;                 // ISO 8601 (YYYY-MM-DD)
+  amount: number;               // Signed
+  currency: string;
+  category: string | null;      // Top-level category id (food, bills, ...)
+  subcategory?: string | null;  // V1: food + bills only
+  description?: string;         // Already trimmed at the source
+  type: 'income' | 'expense';
+  receiptId?: string | null;    // Set when this row is part of a receipt
+}
+
 export interface UserFinancialContext {
   // Basic metrics
   totalIncome: number;
   totalExpenses: number;
   netBalance: number;
   savingsRate: number;          // Percentage saved
+
+  // Recent individual transactions — last ~90 days, capped (200 rows,
+  // oldest-first). Lets the AI answer "did I pay for X last week?" or
+  // "what was my biggest expense last month?" without needing a tool
+  // call. Populated by `buildUserContext`; any agent that wants to
+  // reference rows must declare the `recentTransactions` slice.
+  recentTransactions: TransactionLite[];
   
   // Current period (this month)
   currentMonth: {
@@ -260,16 +282,42 @@ export interface SuggestedAction {
   // Structured payload for actions that need typed data (e.g. create_transaction).
   // We keep `payload` (string) populated with a human-readable summary for
   // existing consumers that only know about the string field.
-  payloadData?: CreateTransactionPayload | SetReminderPayload | MarkRecurringPayload;
+  payloadData?:
+    | CreateTransactionPayload
+    | CreateReceiptPayload
+    | SetReminderPayload
+    | MarkRecurringPayload;
 }
 
 export interface CreateTransactionPayload {
+  // `kind` is optional for backwards compatibility — older receipts in
+  // chat history won't have it. When present and equal to 'single' this
+  // is explicitly a one-row create_transaction (vs the bulk receipt
+  // variant below).
+  kind?: 'single';
   type: 'expense' | 'income';
   amount: number;             // Positive number; sign is derived from type
   currency: string;           // ISO 4217 (e.g. JOD, AED)
   category: string;           // Lowercase canonical category id (food, bills, ...)
   description?: string;       // e.g. "DEWA bill — March"
   date: string;               // ISO 8601 (YYYY-MM-DD)
+}
+
+// Bulk variant: one receipt becomes N transaction rows with a shared
+// receipt_id. Used by the chat "Add as expense" chip when line items
+// were extracted, and by the dedicated Receipt Scanner modal.
+export interface CreateReceiptPayload {
+  kind: 'receipt';
+  topCategory: string;        // food / bills / shopping / ... (parent)
+  vendor: string;             // For descriptions and the parent grouping
+  currency: string;           // ISO 4217
+  date: string;               // ISO 8601
+  receiptTotal: number;       // Total on the receipt (positive)
+  items: Array<{
+    description: string;
+    amount: number;           // Per-item amount (positive)
+    subcategory: string | null;
+  }>;
 }
 
 export interface SetReminderPayload {
@@ -294,6 +342,10 @@ export interface ExtractedDocumentLineItem {
   description: string;
   amount: number | null;
   quantity: number | null;
+  // Canonical subcategory id from src/ai/taxonomy.ts. Set by the
+  // extractor + server-side normalizer when the parent category is
+  // "food" or "bills"; null otherwise.
+  subcategory: string | null;
 }
 
 export interface ExtractedDocument {

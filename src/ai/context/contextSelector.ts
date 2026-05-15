@@ -18,6 +18,8 @@ import type { ContextSliceType } from './sliceTypes';
 import { estimateTokens, wouldExceedBudget } from './tokenBudget';
 import { AI_CONFIG } from '../config';
 import { fmtNum, fmtPct } from '@/lib/utils';
+import { buildUserProfile } from '../userProfile/builder';
+import { renderUserProfile } from '../userProfile/render';
 
 export interface ContextSelection {
   memoryFields: Partial<UserSemanticState>;
@@ -117,10 +119,52 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
 - Used: ${fmtPct(ctx.budget.percentageUsed, lang, 0)}${ctx.budget.isOverBudget ? '\n- ⚠️ Over budget!' : ''}`;
   },
 
-  recentTransactions: (_ctx, _lang) => {
-    // Transactions are not individually available in context;
-    // the summary and category breakdown provide sufficient detail.
-    return '';
+  recentTransactions: (ctx, lang) => {
+    // Render the most recent rows as a compact, fixed-width-ish list so
+    // the model can answer specific historical questions ("did I pay
+    // rent this month?", "how much was my last grocery run?"). We trim
+    // to the 60 newest rows and a hard ~1.6 KB cap on the rendered
+    // string — this is well under the slice's share of the agent's
+    // token budget while still covering ~2-3 weeks of activity for an
+    // average user. If the user has more, the aggregate slices already
+    // give the bot the full picture; this slice is for individual rows.
+    const list = ctx.recentTransactions ?? [];
+    if (list.length === 0) return '';
+
+    const MAX_LINES = 60;
+    const MAX_CHARS = 1600;
+    const tail = list.slice(-MAX_LINES);
+
+    const fmtAmount = (amt: number) => {
+      const sign = amt < 0 ? '-' : '+';
+      return `${sign}${Math.abs(amt).toFixed(2)}`;
+    };
+    const truncate = (s: string | undefined, n: number) =>
+      !s ? '' : s.length > n ? s.slice(0, n - 1) + '…' : s;
+
+    const rows = tail.map((t) => {
+      const cat = t.subcategory ? `${t.category ?? '?'}/${t.subcategory}` : (t.category ?? '?');
+      const desc = truncate(t.description, 40);
+      const tail2 = desc ? ` — ${desc}` : '';
+      return `${t.date} ${fmtAmount(t.amount)} ${t.currency} [${cat}]${tail2}`;
+    });
+
+    let body = rows.join('\n');
+    if (body.length > MAX_CHARS) {
+      // Drop oldest until under cap. Preserve newest rows because they're
+      // the ones most likely to be asked about.
+      const lines = body.split('\n');
+      while (lines.length > 1 && lines.join('\n').length > MAX_CHARS) {
+        lines.shift();
+      }
+      body = lines.join('\n');
+    }
+
+    const note = lang === 'ar'
+      ? `(آخر ${tail.length} معاملة من أصل ${list.length} خلال آخر ٩٠ يوماً، الأقدم → الأحدث)`
+      : `(last ${tail.length} of ${list.length} transactions in past 90 days, oldest → newest)`;
+    const header = lang === 'ar' ? '### معاملات حديثة' : '### Recent Transactions';
+    return `${header}\n${note}\n${body}`;
   },
 
   trends: (ctx, lang) => {
@@ -166,6 +210,11 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
     return `### Projections
 - Projected End of Month Balance: ${fmtNum(ctx.currentMonth.projectedEndBalance, lang)} ${currency}`;
   },
+
+  // userProfile is built outside this map because it needs access to
+  // semantic-state memory in addition to UserFinancialContext. The
+  // selector handles it as a special case.
+  userProfile: (_ctx, _lang) => '',
 };
 
 /**
@@ -185,10 +234,20 @@ export function selectContext(
 
   // Build slices in the order the agent declared them
   for (const sliceType of agent.requiredContextSlices) {
-    const builder = SLICE_BUILDERS[sliceType];
-    if (!builder) continue;
+    let content: string;
+    if (sliceType === 'userProfile') {
+      // Special-case: userProfile composes UserFinancialContext +
+      // semantic state, both of which we have here. Anywhere else this
+      // would require threading memory through every SLICE_BUILDERS
+      // entry — not worth it for one slice.
+      const profile = buildUserProfile(fullContext, memory);
+      content = renderUserProfile(profile, language);
+    } else {
+      const builder = SLICE_BUILDERS[sliceType];
+      if (!builder) continue;
+      content = builder(fullContext, language);
+    }
 
-    const content = builder(fullContext, language);
     if (!content) {
       selectionReason.push(`${sliceType}: skipped (empty)`);
       continue;
