@@ -3,10 +3,15 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
+import { useStore } from '@/store/useStore';
 
 interface BudgetStore {
   monthlyBudget: number;
   categoryBudgets: Record<string, number>;
+  // ISO 4217 currency the caps were typed in. Per migration 012 we
+  // "store native + display in base"; comparisons against transactions
+  // (which are in base currency) need this for display-time conversion.
+  currencyNative: string;
   setMonthlyBudget: (amount: number) => void;
   setCategoryBudget: (category: string, limit: number) => void;
   removeCategoryBudget: (category: string) => void;
@@ -18,12 +23,17 @@ const BudgetContext = createContext<BudgetStore | null>(null);
 export function BudgetProvider({ children }: { children: ReactNode }) {
   const [monthlyBudget, setMonthlyBudgetLocal] = useState(0);
   const [categoryBudgets, setCategoryBudgetsLocal] = useState<Record<string, number>>({});
+  const [currencyNative, setCurrencyNative] = useState<string>('');
 
   const monthlyRef = useRef(0);
   const categoriesRef = useRef<Record<string, number>>({});
+  // Empty string until fetch / first save resolves. The save path
+  // falls back to the user's current base currency when this is empty.
+  const currencyRef = useRef<string>('');
 
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
+  const baseCurrency = useStore((s) => s.baseCurrency);
 
   useEffect(() => {
     const fetchBudget = async () => {
@@ -55,15 +65,18 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
       if (data) {
         const m = Number(data.monthly_budget) || 0;
         const c = (data.category_budgets as Record<string, number>) ?? {};
+        const cur = (data.currency_native as string | undefined) ?? baseCurrency;
         setMonthlyBudgetLocal(m);
         setCategoryBudgetsLocal(c);
+        setCurrencyNative(cur);
         monthlyRef.current = m;
         categoriesRef.current = c;
+        currencyRef.current = cur;
       }
     };
 
     fetchBudget();
-  }, [user, initialized]);
+  }, [user, initialized, baseCurrency]);
 
   const upsertBudget = useCallback(
     async (monthly: number, categories: Record<string, number>): Promise<boolean> => {
@@ -81,11 +94,19 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
       const userId = sessionData.session.user.id;
 
+      // Lock the row's currency_native to whichever currency is the
+      // user's base RIGHT NOW. Subsequent base-currency changes leave
+      // this column alone; the display layer converts on read.
+      const currencyToWrite = currencyRef.current || baseCurrency;
+      currencyRef.current = currencyToWrite;
+      setCurrencyNative(currencyToWrite);
+
       const { error } = await supabase.from('budgets').upsert(
         {
           user_id: userId,
           monthly_budget: monthly,
           category_budgets: categories,
+          currency_native: currencyToWrite,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id' },
@@ -98,7 +119,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
       return true;
     },
-    [],
+    [baseCurrency],
   );
 
   const setMonthlyBudget = useCallback(
@@ -147,6 +168,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
   const store: BudgetStore = {
     monthlyBudget,
     categoryBudgets,
+    currencyNative,
     setMonthlyBudget,
     setCategoryBudget,
     removeCategoryBudget,

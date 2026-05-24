@@ -11,6 +11,7 @@ import { useEmergencyFund } from '@/store/emergencyFundStore';
 import { useGoals, getMonthlyFundingAmount } from '@/store/goalsStore';
 import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
+import { MoneyInput } from '@/components/MoneyInput';
 import {
   suggestNextMonthPlan,
   suggestionRationale,
@@ -95,11 +96,10 @@ function CategoryPlanRow({
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '160px' }}>
           <span style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>{currencySymbol}</span>
-          <input
-            type="number"
+          <MoneyInput
             value={value}
-            onChange={(e) => {
-              onChange(e.target.value);
+            onChange={(next) => {
+              onChange(next);
               if (showMidMonthHint && !hintVisible) {
                 setHintVisible(true);
                 onMidMonthHintShown();
@@ -219,11 +219,13 @@ export default function PlanPage() {
     ? currencyInfo?.symbolAr || currencyInfo?.symbol || currency
     : currencyInfo?.symbol || currency;
 
-  // Derive auto-budget suggestions from prior months.
+  // Derive auto-budget suggestions from prior months. Pass amountBase
+  // so the projection lives in base currency (architectural rule).
   const suggestion = useMemo(
     () => suggestNextMonthPlan(transactions.map((t) => ({
       type: t.type,
       amount: t.amount,
+      amountBase: t.amountBase,
       date: t.date,
       category: t.category,
     }))),
@@ -371,11 +373,10 @@ export default function PlanPage() {
           <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-plan)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
-          <input
-            type="number"
+          <MoneyInput
             value={tempMonthlyBudget}
-            onChange={(e) => {
-              setTempMonthlyBudget(e.target.value);
+            onChange={(next) => {
+              setTempMonthlyBudget(next);
               setIsDirty(true);
             }}
             placeholder="0"

@@ -15,8 +15,8 @@ import { UserFinancialContext, CategorySpending, TransactionLite } from './types
 
 interface Transaction {
   id: string;
-  amount: number;
-  currency: string;
+  amount: number;             // native (kept for legacy callers / row display)
+  currency: string;           // native ISO 4217
   date: string;
   type: 'income' | 'expense';
   category: string | null;
@@ -25,6 +25,12 @@ interface Transaction {
   // because legacy rows + non-receipt expenses don't set them.
   subcategory?: string | null;
   receiptId?: string | null;
+  // Multi-currency dual-layer fields (migration 012). All AI
+  // aggregations sum amountBase, never amount.
+  amountBase: number;
+  exchangeRateApplied: number;
+  baseCurrencyAtEntry: string;
+  rateSource: 'central_bank' | 'aggregator' | 'manual' | 'cached' | 'backfill';
 }
 
 // Window/cap for the AI's transaction visibility. 90 days catches
@@ -98,16 +104,18 @@ function isInLastMonth(dateStr: string): boolean {
 // COMPUTATION HELPERS
 // ============================================
 
+// AI context aggregations: always in base currency. The AI receives
+// pre-normalized totals so it never has to reason about FX itself.
 function computeTotalIncome(transactions: Transaction[]): number {
   return transactions
     .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    .reduce((sum, t) => sum + Math.abs(t.amountBase), 0);
 }
 
 function computeTotalExpenses(transactions: Transaction[]): number {
   return transactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    .reduce((sum, t) => sum + Math.abs(t.amountBase), 0);
 }
 
 function computeSpendingByCategory(transactions: Transaction[]): CategorySpending[] {
@@ -121,7 +129,7 @@ function computeSpendingByCategory(transactions: Transaction[]): CategorySpendin
     const category = tx.category || 'other';
     const existing = categoryMap.get(category) || { amount: 0, count: 0 };
     categoryMap.set(category, {
-      amount: existing.amount + Math.abs(tx.amount),
+      amount: existing.amount + Math.abs(tx.amountBase),
       count: existing.count + 1,
     });
   }
@@ -177,7 +185,7 @@ function detectRecurringExpenses(
   for (const tx of transactions.filter(t => t.type === 'expense')) {
     const desc = (tx.description || tx.category || 'unknown').toLowerCase();
     const existing = descriptionMap.get(desc) || { amounts: [], dates: [] };
-    existing.amounts.push(Math.abs(tx.amount));
+    existing.amounts.push(Math.abs(tx.amountBase));
     existing.dates.push(tx.date);
     descriptionMap.set(desc, existing);
   }
@@ -360,8 +368,11 @@ export function buildUserContext(state: AppState): UserFinancialContext {
     .slice(0, RECENT_TX_HARD_CAP)
     .map((t) => ({
       date: t.date,
-      amount: t.type === 'expense' ? -Math.abs(t.amount) : Math.abs(t.amount),
-      currency: t.currency,
+      // The recent-transactions feed sends BASE-currency amounts so
+      // the model can compare them directly against the totals it
+      // also receives. Native currency is irrelevant to the AI.
+      amount: t.type === 'expense' ? -Math.abs(t.amountBase) : Math.abs(t.amountBase),
+      currency: t.baseCurrencyAtEntry,
       category: t.category,
       subcategory: t.subcategory ?? null,
       description: t.description?.trim() || undefined,

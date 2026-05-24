@@ -3,17 +3,20 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useIntl } from 'react-intl';
-import { useLanguage, useCurrency } from '@/store/useStore';
+import { useLanguage, useBaseCurrency } from '@/store/useStore';
 import { useTransactions } from '@/store/transactionStore';
 import { useBudget } from '@/store/budgetStore';
 import { useAuthStore } from '@/store/authStore';
 import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES, CURRENCIES } from '@/lib/constants';
+import { MoneyInput } from '@/components/MoneyInput';
 
 export default function QuickAddFAB() {
   const pathname = usePathname();
   const intl = useIntl();
   const language = useLanguage();
-  const currency = useCurrency();
+  // QuickAdd intentionally locks to the user's base currency; the
+  // full entry forms handle foreign-currency input + rate override.
+  const baseCurrency = useBaseCurrency();
   const isRtl = language === 'ar';
   const { transactions, addTransaction } = useTransactions();
   const { categoryBudgets } = useBudget();
@@ -21,10 +24,10 @@ export default function QuickAddFAB() {
   const initialized = useAuthStore((state) => state.initialized);
   const isAuthReady = initialized && !!user;
 
-  const currencyInfo = CURRENCIES.find(c => c.code === currency);
+  const currencyInfo = CURRENCIES.find(c => c.code === baseCurrency);
   const currencySymbol = isRtl
-    ? (currencyInfo?.symbolAr || currencyInfo?.symbol || currency)
-    : (currencyInfo?.symbol || currency);
+    ? (currencyInfo?.symbolAr || currencyInfo?.symbol || baseCurrency)
+    : (currencyInfo?.symbol || baseCurrency);
 
   const [isMobile, setIsMobile] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -67,7 +70,8 @@ export default function QuickAddFAB() {
       if (tx.type !== 'expense') return;
       const d = new Date(tx.date);
       if (d >= startOfMonth && d <= endOfMonth && (tx.category || '') === category) {
-        currentSpend += Math.abs(tx.amount);
+        // Sum in base currency — see architectural rule.
+        currentSpend += Math.abs(tx.amountBase);
       }
     });
 
@@ -92,13 +96,17 @@ export default function QuickAddFAB() {
     if (!canSubmit) return;
     addTransaction({
       amount: parsedAmount,
-      currency,
+      currency: baseCurrency,
       date: new Date().toISOString().split('T')[0],
       type,
       category: category!,
       description: undefined,
       isRecurring,
       recurringEndDate: isRecurring && recurringEndDate ? recurringEndDate : null,
+      amountBase: parsedAmount,
+      exchangeRateApplied: 1,
+      baseCurrencyAtEntry: baseCurrency,
+      rateSource: 'cached',
     });
     setIsOpen(false);
   };
@@ -216,13 +224,9 @@ export default function QuickAddFAB() {
               }}>
                 {intl.formatMessage({ id: 'transactions.amount', defaultMessage: 'Amount' })}
               </p>
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
+              <MoneyInput
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={setAmount}
                 placeholder="0"
                 autoFocus
                 style={{

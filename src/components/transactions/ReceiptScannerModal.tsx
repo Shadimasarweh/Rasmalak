@@ -23,7 +23,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
 import { useSession } from '@/store/authStore';
-import { useLanguage } from '@/store/useStore';
+import { useLanguage, useBaseCurrency, useCountry } from '@/store/useStore';
 import {
   ALL_CATEGORIES,
   CURRENCIES,
@@ -136,6 +136,8 @@ export default function ReceiptScannerModal({ open, onClose }: ReceiptScannerMod
   const language = useLanguage();
   const session = useSession();
   const { addTransaction, addReceipt } = useTransactions();
+  const baseCurrency = useBaseCurrency();
+  const country = useCountry();
   const isRtl = language === 'ar';
 
   const [stage, setStage] = useState<Stage>('upload');
@@ -279,6 +281,32 @@ export default function ReceiptScannerModal({ open, onClose }: ReceiptScannerMod
     setError(null);
     setStage('saving');
 
+    // Resolve native -> base FX rate for the whole receipt so every
+    // line item locks the same rate. Foreign-currency receipts go
+    // through /api/fx/quote; same-currency receipts skip the fetch.
+    let exchangeRate = 1;
+    let rateSource: 'central_bank' | 'aggregator' | 'manual' | 'cached' | 'backfill' = 'cached';
+    if (review.currency !== baseCurrency) {
+      try {
+        const params = new URLSearchParams({
+          from: review.currency,
+          to: baseCurrency,
+          date: review.date,
+        });
+        if (country) params.set('country', country);
+        const res = await fetch(`/api/fx/quote?${params.toString()}`);
+        const json = await res.json();
+        if (res.ok && Number.isFinite(Number(json.rate)) && Number(json.rate) > 0) {
+          exchangeRate = Number(json.rate);
+          rateSource = (json.source ?? 'cached') as typeof rateSource;
+        }
+      } catch {
+        // Fall back to rate=1 + 'backfill' tag so the row is still
+        // inserted; the user can correct via the entry forms later.
+        rateSource = 'backfill';
+      }
+    }
+
     try {
       if (cleanItems.length > 0) {
         // Bulk path: N rows under one receipt_id.
@@ -289,6 +317,9 @@ export default function ReceiptScannerModal({ open, onClose }: ReceiptScannerMod
           topCategory: review.category,
           vendor: review.vendor || review.description,
           items: cleanItems,
+          exchangeRateApplied: exchangeRate,
+          baseCurrency,
+          rateSource,
         });
         if (!result) {
           setStage('review');
@@ -306,6 +337,10 @@ export default function ReceiptScannerModal({ open, onClose }: ReceiptScannerMod
           date: review.date,
           isRecurring: false,
           recurringEndDate: null,
+          amountBase: totalNum * exchangeRate,
+          exchangeRateApplied: exchangeRate,
+          baseCurrencyAtEntry: baseCurrency,
+          rateSource,
         });
       }
       handleClose();

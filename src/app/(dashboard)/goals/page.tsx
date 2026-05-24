@@ -9,6 +9,7 @@ import type { FundingType } from '@/store/goalsStore';
 import { useBudget } from '@/store/budgetStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
+import { MoneyInput } from '@/components/MoneyInput';
 
 /* ===== FIXED PALETTE (matching existing brand colors) ===== */
 const GOAL_COLORS = [
@@ -122,10 +123,9 @@ function AddFundsModal({
           <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
             {currencySymbol}
           </span>
-          <input
-            type="number"
+          <MoneyInput
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={setAmount}
             placeholder="0"
             autoFocus
             style={{
@@ -197,7 +197,7 @@ function GoalCard({
   isRTL,
   intl,
 }: {
-  goal: { id: string; name: string; nameAr: string; targetAmount: number; currentAmount: number; deadline?: string; color: string; fundingType: FundingType; fundingValue: number };
+  goal: { id: string; name: string; nameAr: string; targetAmount: number; currentAmount: number; deadline?: string; color: string; fundingType: FundingType; fundingValue: number; currencyNative: string };
   currencySymbol: string;
   onAddFunds: () => void;
   onDelete: () => void;
@@ -515,10 +515,9 @@ function CreateGoalForm({
           <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>
             {currencySymbol}
           </span>
-          <input
-            type="number"
+          <MoneyInput
             value={target}
-            onChange={(e) => setTarget(e.target.value)}
+            onChange={setTarget}
             placeholder="0"
             style={{ ...inputStyle, direction: 'ltr' }}
           />
@@ -575,10 +574,9 @@ function CreateGoalForm({
               <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>
                 {currencySymbol}
               </span>
-              <input
-                type="number"
+              <MoneyInput
                 value={fundingValue}
-                onChange={(e) => setFundingValue(e.target.value)}
+                onChange={setFundingValue}
                 placeholder="0"
                 style={{ ...inputStyle, direction: 'ltr' }}
               />
@@ -592,13 +590,16 @@ function CreateGoalForm({
               {intl.formatMessage({ id: 'dashboard.goals_funding_percent_label', defaultMessage: 'Monthly Percentage' })}
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <input
-                type="number"
+              <MoneyInput
                 value={fundingValue}
-                onChange={(e) => setFundingValue(e.target.value)}
+                onChange={(next) => {
+                  // Clamp percentage to [0, 100] on input.
+                  const num = parseFloat(next);
+                  if (!Number.isFinite(num)) return setFundingValue(next);
+                  if (num > 100) return setFundingValue('100');
+                  setFundingValue(next);
+                }}
                 placeholder="0"
-                min="0"
-                max="100"
                 style={{ ...inputStyle, direction: 'ltr' }}
               />
               <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ds-text-muted)', flexShrink: 0 }}>%</span>

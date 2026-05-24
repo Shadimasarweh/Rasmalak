@@ -45,7 +45,9 @@ function assertTrue(condition: boolean, label: string): void {
 const NOW = new Date(2026, 4, 15); // May 15, 2026 (month is 0-indexed)
 
 function tx(date: string, category: string, amount: number, type: 'income' | 'expense' = 'expense'): AutoBudgetTransaction {
-  return { date, category, amount, type };
+  // Tests treat the user as already in their base currency, so
+  // amountBase mirrors amount.
+  return { date, category, amount, amountBase: amount, type };
 }
 
 // ============================================================
@@ -153,7 +155,7 @@ test('multiple categories aggregate independently', () => {
 // Null category => other-expense bucket
 // ============================================================
 test('null category falls into other-expense', () => {
-  const t: AutoBudgetTransaction = { type: 'expense', amount: 50, date: '2026-04-10', category: null };
+  const t: AutoBudgetTransaction = { type: 'expense', amount: 50, amountBase: 50, date: '2026-04-10', category: null };
   const r = suggestNextMonthPlan([t], { now: NOW, lookbackMonths: 1 });
   assertTrue(!!r.byCategory['other-expense'], 'other-expense exists');
 });

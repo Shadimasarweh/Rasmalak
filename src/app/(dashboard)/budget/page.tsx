@@ -8,6 +8,7 @@ import { useBudget } from '@/store/budgetStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CURRENCIES, DEFAULT_EXPENSE_CATEGORIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
+import { MoneyInput } from '@/components/MoneyInput';
 
 export default function BudgetSettingsPage() {
   const router = useRouter();
@@ -114,10 +115,9 @@ export default function BudgetSettingsPage() {
             <span className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-lg font-medium text-[var(--color-text-muted)]`}>
               {currencySymbol}
             </span>
-            <input
-              type="number"
+            <MoneyInput
               value={tempMonthlyBudget}
-              onChange={(e) => setTempMonthlyBudget(e.target.value)}
+              onChange={setTempMonthlyBudget}
               placeholder="0"
               className={`input ${isRTL ? 'pr-14' : 'pl-14'} text-2xl font-bold h-16`}
             />
@@ -176,12 +176,11 @@ export default function BudgetSettingsPage() {
                   <span className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]`}>
                     {currencySymbol}
                   </span>
-                  <input
-                    type="number"
+                  <MoneyInput
                     value={tempCategoryBudgets[category.id] || ''}
-                    onChange={(e) => setTempCategoryBudgets({
+                    onChange={(next) => setTempCategoryBudgets({
                       ...tempCategoryBudgets,
-                      [category.id]: e.target.value,
+                      [category.id]: next,
                     })}
                     placeholder="0"
                     className={`input ${isRTL ? 'pr-10' : 'pl-10'} py-2 text-sm font-medium`}

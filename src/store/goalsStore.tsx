@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
+import { useStore } from '@/store/useStore';
 
 export type FundingType = 'none' | 'fixed' | 'percentage';
 
@@ -16,6 +17,9 @@ export interface SavingsGoal {
   color: string;
   fundingType: FundingType;
   fundingValue: number;
+  // ISO 4217 currency the user typed the target in. Display layer
+  // converts to base when comparing against transactions.
+  currencyNative: string;
 }
 
 export function getMonthlyFundingAmount(goal: SavingsGoal): number {
@@ -35,7 +39,9 @@ export function goalFundingCategoryId(goalId: string): string {
 
 interface GoalsStore {
   savingsGoals: SavingsGoal[];
-  addSavingsGoal: (goal: Omit<SavingsGoal, 'id'>) => void;
+  // currencyNative is optional on input — defaults to the user's
+  // current base currency at write time.
+  addSavingsGoal: (goal: Omit<SavingsGoal, 'id' | 'currencyNative'> & { currencyNative?: string }) => void;
   updateSavingsGoal: (id: string, updates: Partial<SavingsGoal>) => void;
   deleteSavingsGoal: (id: string) => void;
 }
@@ -47,6 +53,7 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
 
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
+  const baseCurrency = useStore((s) => s.baseCurrency);
 
   // Fetch goals from Supabase
   useEffect(() => {
@@ -84,21 +91,25 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
           color: row.color,
           fundingType: (row.funding_type as FundingType) || 'none',
           fundingValue: Number(row.funding_value) || 0,
+          currencyNative: (row.currency_native as string | undefined) ?? baseCurrency,
         }));
         setSavingsGoals(mapped);
       }
     };
 
     fetchGoals();
-  }, [user, initialized]);
+  }, [user, initialized, baseCurrency]);
 
-  const addSavingsGoal = useCallback(async (goal: Omit<SavingsGoal, 'id'>) => {
+  const addSavingsGoal = useCallback(async (
+    goal: Omit<SavingsGoal, 'id' | 'currencyNative'> & { currencyNative?: string },
+  ) => {
     const { user, initialized } = getAuthState();
     if (!initialized || !user) return;
 
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user?.id || user.id;
 
+    const currencyToWrite = goal.currencyNative || baseCurrency;
     const { data, error } = await supabase
       .from('savings_goals')
       .insert({
@@ -111,6 +122,7 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
         color: goal.color,
         funding_type: goal.fundingType || 'none',
         funding_value: goal.fundingValue || 0,
+        currency_native: currencyToWrite,
       })
       .select()
       .single();
@@ -131,10 +143,11 @@ export function GoalsProvider({ children }: { children: ReactNode }) {
         color: data.color,
         fundingType: (data.funding_type as FundingType) || 'none',
         fundingValue: Number(data.funding_value) || 0,
+        currencyNative: (data.currency_native as string | undefined) ?? currencyToWrite,
       };
       setSavingsGoals((prev) => [...prev, newGoal]);
     }
-  }, []);
+  }, [baseCurrency]);
 
   const updateSavingsGoal = useCallback(
     async (id: string, updates: Partial<SavingsGoal>) => {

@@ -14,10 +14,21 @@ export default {
   profile_updated: 'Profile updated successfully',
   profile_update_failed: 'Failed to update profile',
   
-  // Currency
+  // Currency (legacy keys kept for callers that haven't migrated yet)
   currency: 'Currency',
   currency_description: 'Used for display only. Transactions keep their original currency.',
   currency_no_conversion: 'No automatic conversion is applied to existing records.',
+
+  // Base Currency (multi-currency engine)
+  base_currency: 'Base Currency',
+  base_currency_description: 'All your dashboards, budgets, goals, and AI advice are shown in this currency.',
+  base_currency_recalc_notice: 'Changing this re-expresses every past transaction. Original entries are never modified.',
+  base_currency_confirm_title: 'Change base currency from {from} to {to}?',
+  base_currency_confirm_body: 'Your transaction history will be re-expressed in the new currency using historical exchange rates. The amounts you originally entered are never changed.',
+  base_currency_confirm_cta: 'Yes, recalculate',
+  base_currency_recalc_running: 'Recalculating historical entries... please keep this tab open.',
+  base_currency_recalc_done: 'Done. All entries are now in your new base currency.',
+  base_currency_recalc_error: 'Recalculation failed: {error}',
   
   // Language
   language: 'Language',

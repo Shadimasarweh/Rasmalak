@@ -6,6 +6,7 @@ import { useStore, useUser, useUserName, useUpdateUserProfile } from '@/store/us
 import { SUPPORTED_CURRENCY_CODES, getCurrencyDisplayName } from '@/lib/currencies';
 import { ACCENT_COLOR_OPTIONS } from '@/lib/constants';
 import { supabase } from '@/lib/supabaseClient';
+import { setBaseCurrency as persistBaseCurrency } from '@/lib/profile';
 
 /* ============================================
    SETTINGS PAGE
@@ -2034,6 +2035,12 @@ function PreferencesContent({
   onThemeChange,
   selectedAccentColor,
   onAccentColorChange,
+  recalcState,
+  recalcMessage,
+  onConfirmRecalc,
+  onCancelRecalc,
+  onDismissRecalcStatus,
+  originalBaseCurrency,
 }: {
   intl: ReturnType<typeof useIntl>;
   selectedLanguage: 'en' | 'ar';
@@ -2044,6 +2051,12 @@ function PreferencesContent({
   onThemeChange: (theme: 'light' | 'dark') => void;
   selectedAccentColor: string;
   onAccentColorChange: (color: string) => void;
+  recalcState: 'idle' | 'confirm' | 'running' | 'done' | 'error';
+  recalcMessage: string | null;
+  onConfirmRecalc: () => void;
+  onCancelRecalc: () => void;
+  onDismissRecalcStatus: () => void;
+  originalBaseCurrency: string;
 }) {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -2150,14 +2163,14 @@ function PreferencesContent({
               fontFeatureSettings: '"kern" 1',
             }}
           >
-            {intl.formatMessage({ id: 'settings.currency', defaultMessage: 'Currency' })}
+            {intl.formatMessage({ id: 'settings.base_currency', defaultMessage: 'Base Currency' })}
           </h3>
         </div>
         <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '4px' }}>
-          {intl.formatMessage({ id: 'settings.currency_description', defaultMessage: 'Used for display only. Transactions keep their original currency.' })}
+          {intl.formatMessage({ id: 'settings.base_currency_description', defaultMessage: 'All your dashboards, budgets, goals, and AI advice are shown in this currency.' })}
         </p>
         <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
-          {intl.formatMessage({ id: 'settings.currency_no_conversion', defaultMessage: 'No automatic conversion is applied to existing records.' })}
+          {intl.formatMessage({ id: 'settings.base_currency_recalc_notice', defaultMessage: 'Changing this re-expresses every past transaction. Original entries are never modified.' })}
         </p>
 
         {/* Currency Dropdown */}
@@ -2165,6 +2178,7 @@ function PreferencesContent({
           <select
             value={selectedCurrency}
             onChange={(e) => onCurrencyChange(e.target.value)}
+            disabled={recalcState === 'running'}
             style={{
               width: '100%',
               padding: '10px 14px',
@@ -2175,10 +2189,11 @@ function PreferencesContent({
               background: 'var(--ds-bg-input)',
               border: '0.5px solid var(--ds-border)',
               borderRadius: '8px',
-              cursor: 'pointer',
+              cursor: recalcState === 'running' ? 'wait' : 'pointer',
               appearance: 'none',
               WebkitAppearance: 'none',
               MozAppearance: 'none',
+              opacity: recalcState === 'running' ? 0.6 : 1,
             }}
           >
             {SUPPORTED_CURRENCY_CODES.map((code) => (
@@ -2203,6 +2218,118 @@ function PreferencesContent({
             </svg>
           </div>
         </div>
+
+        {/* Confirm dialog: shown after Save when the user picked a different base currency. */}
+        {recalcState === 'confirm' && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '14px 16px',
+              borderRadius: '12px',
+              border: '0.5px solid var(--ds-primary)',
+              background: 'var(--ds-bg-tinted)',
+            }}
+          >
+            <p style={{ fontSize: '13px', color: 'var(--ds-text-heading)', fontWeight: 600, margin: 0, marginBottom: '6px' }}>
+              {intl.formatMessage(
+                { id: 'settings.base_currency_confirm_title', defaultMessage: 'Change base currency from {from} to {to}?' },
+                { from: originalBaseCurrency, to: selectedCurrency },
+              )}
+            </p>
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0, marginBottom: '12px', lineHeight: 1.5 }}>
+              {intl.formatMessage({ id: 'settings.base_currency_confirm_body', defaultMessage: 'Your transaction history will be re-expressed in the new currency using historical exchange rates. The amounts you originally entered are never changed.' })}
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={onConfirmRecalc}
+                style={{
+                  flex: 1,
+                  padding: '8px 14px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#FFFFFF',
+                  background: 'var(--ds-primary)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                {intl.formatMessage({ id: 'settings.base_currency_confirm_cta', defaultMessage: 'Yes, recalculate' })}
+              </button>
+              <button
+                onClick={onCancelRecalc}
+                style={{
+                  flex: 1,
+                  padding: '8px 14px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: 'var(--ds-text-heading)',
+                  background: 'var(--ds-bg-card)',
+                  border: '0.5px solid var(--ds-border)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                {intl.formatMessage({ id: 'settings.cancel', defaultMessage: 'Cancel' })}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {recalcState === 'running' && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '12px 14px',
+              borderRadius: '8px',
+              background: 'var(--ds-bg-tinted)',
+              fontSize: '13px',
+              color: 'var(--ds-primary)',
+            }}
+          >
+            {intl.formatMessage({ id: 'settings.base_currency_recalc_running', defaultMessage: 'Recalculating historical entries... please keep this tab open.' })}
+          </div>
+        )}
+
+        {recalcState === 'done' && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '12px 14px',
+              borderRadius: '8px',
+              background: 'rgba(45, 106, 79, 0.1)',
+              fontSize: '13px',
+              color: 'var(--ds-primary)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <span>{intl.formatMessage({ id: 'settings.base_currency_recalc_done', defaultMessage: 'Done. All entries are now in your new base currency.' })}</span>
+            <button
+              onClick={onDismissRecalcStatus}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ds-primary)', fontSize: '13px' }}
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {recalcState === 'error' && (
+          <div
+            style={{
+              marginTop: '16px',
+              padding: '12px 14px',
+              borderRadius: '8px',
+              background: 'rgba(220, 38, 38, 0.08)',
+              fontSize: '13px',
+              color: 'var(--ds-error)',
+            }}
+          >
+            {intl.formatMessage({ id: 'settings.base_currency_recalc_error', defaultMessage: 'Recalculation failed: {error}' }, { error: recalcMessage ?? 'Unknown error' })}
+          </div>
+        )}
       </div>
 
       {/* Appearance Card */}
@@ -2463,9 +2590,10 @@ export default function SettingsPage() {
   const globalLanguage = useStore((state) => state.language);
   const setGlobalLanguage = useStore((state) => state.setLanguage);
 
-  // Get global currency from store
-  const globalCurrency = useStore((state) => state.currency);
-  const setGlobalCurrency = useStore((state) => state.setCurrency);
+  // Base currency is the source of truth for ALL analytics. Display
+  // currency mirrors it for legacy consumers.
+  const globalBaseCurrency = useStore((state) => state.baseCurrency);
+  const setGlobalBaseCurrency = useStore((state) => state.setBaseCurrency);
 
   // Get global theme from store
   const globalTheme = useStore((state) => state.theme);
@@ -2477,7 +2605,10 @@ export default function SettingsPage() {
 
   // Local state for pending changes (before save)
   const [pendingLanguage, setPendingLanguage] = useState<'en' | 'ar'>(globalLanguage);
-  const [pendingCurrency, setPendingCurrency] = useState<string>(globalCurrency);
+  const [pendingBaseCurrency, setPendingBaseCurrency] = useState<string>(globalBaseCurrency);
+  // Recalc lifecycle: idle | confirm | running | done | error
+  const [recalcState, setRecalcState] = useState<'idle' | 'confirm' | 'running' | 'done' | 'error'>('idle');
+  const [recalcMessage, setRecalcMessage] = useState<string | null>(null);
 
   // RTL support
   const language = globalLanguage;
@@ -2502,15 +2633,58 @@ export default function SettingsPage() {
   // Handle save - apply pending changes to global store
   const handleSaveChanges = () => {
     setGlobalLanguage(pendingLanguage);
-    setGlobalCurrency(pendingCurrency);
+    if (pendingBaseCurrency !== globalBaseCurrency) {
+      // Surface the confirm dialog rather than apply directly. The
+      // recalc job rewrites every transaction's amount_base, so we
+      // require an explicit confirmation step.
+      setRecalcState('confirm');
+    }
     // Theme is already saved immediately
   };
 
   // Handle cancel - reset pending to current global
   const handleCancel = () => {
     setPendingLanguage(globalLanguage);
-    setPendingCurrency(globalCurrency);
-    // Theme changes are instant, no need to revert
+    setPendingBaseCurrency(globalBaseCurrency);
+  };
+
+  // Confirm + run the base-currency change. Persists optimistically
+  // to Zustand, then POSTs to /api/fx/recalc which (a) updates every
+  // transaction's amount_base + base_currency_at_entry and (b)
+  // writes the new base_currency to profiles on success.
+  const runRecalc = async () => {
+    setRecalcState('running');
+    setRecalcMessage(null);
+    try {
+      const oldBase = globalBaseCurrency;
+      setGlobalBaseCurrency(pendingBaseCurrency);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
+      const res = await fetch('/api/fx/recalc', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newBaseCurrency: pendingBaseCurrency }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        // Roll back the optimistic local update so UI matches DB.
+        setGlobalBaseCurrency(oldBase);
+        setPendingBaseCurrency(oldBase);
+        throw new Error(json.error ?? `Recalc failed (HTTP ${res.status})`);
+      }
+      // Persist client cache; server already wrote to profiles.
+      await persistBaseCurrency(user?.id ?? '', pendingBaseCurrency);
+      setRecalcState('done');
+      setRecalcMessage(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Recalc failed';
+      setRecalcMessage(msg);
+      setRecalcState('error');
+    }
   };
 
   return (
@@ -2588,12 +2762,22 @@ export default function SettingsPage() {
               intl={intl}
               selectedLanguage={pendingLanguage}
               onLanguageChange={setPendingLanguage}
-              selectedCurrency={pendingCurrency}
-              onCurrencyChange={setPendingCurrency}
+              selectedCurrency={pendingBaseCurrency}
+              onCurrencyChange={setPendingBaseCurrency}
               selectedTheme={globalTheme}
               onThemeChange={handleThemeChange}
               selectedAccentColor={globalAccentColor}
               onAccentColorChange={handleAccentColorChange}
+              recalcState={recalcState}
+              recalcMessage={recalcMessage}
+              onConfirmRecalc={runRecalc}
+              onCancelRecalc={() => {
+                setPendingBaseCurrency(globalBaseCurrency);
+                setRecalcState('idle');
+                setRecalcMessage(null);
+              }}
+              onDismissRecalcStatus={() => setRecalcState('idle')}
+              originalBaseCurrency={globalBaseCurrency}
             />
           )}
         </div>

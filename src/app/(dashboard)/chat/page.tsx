@@ -661,7 +661,10 @@ export default function MustasharakPage() {
           .filter((t) => t.type === 'expense' && new Date(t.date).getTime() >= cutoff)
           .slice(0, 200)
           .map((t) => ({
-            amount: t.amount,
+            // Bill analysis is comparing against historical "spend" —
+            // pre-converted to base currency so cross-currency
+            // history doesn't poison the duplicate / variance checks.
+            amount: t.amountBase,
             category: t.category,
             description: t.description,
             date: t.date,

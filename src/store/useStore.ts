@@ -150,8 +150,14 @@ interface AppState {
   // Settings
   currency: string;
   setCurrency: (currency: string) => void;
-  baseCurrency: string; // The user's primary/home currency (for legacy transactions)
+  // Authoritative client cache mirroring profiles.base_currency.
+  // All analytics/budgets/AI must read this, never `currency`.
+  baseCurrency: string;
   setBaseCurrency: (currency: string) => void;
+  // Country selected at onboarding. Treated as immutable by the
+  // app — the country itself is never edited from Settings.
+  country: string | null;
+  setCountry: (country: string) => void;
 
   // Language
   language: Language;
@@ -411,8 +417,10 @@ export const useStore = create<AppState>()(
       // Settings
       currency: DEFAULT_CURRENCY,
       setCurrency: (currency) => set({ currency }),
-      baseCurrency: DEFAULT_CURRENCY, // User's primary currency for legacy transactions
-      setBaseCurrency: (currency) => set({ baseCurrency: currency }),
+      baseCurrency: DEFAULT_CURRENCY,
+      setBaseCurrency: (currency) => set({ baseCurrency: currency, currency }),
+      country: null,
+      setCountry: (country) => set({ country }),
 
       // Language
       language: 'ar',
@@ -466,6 +474,7 @@ export const useStore = create<AppState>()(
       partialize: (state) => ({
         currency: state.currency,
         baseCurrency: state.baseCurrency,
+        country: state.country,
         language: state.language,
         theme: state.theme,
         accentColor: state.accentColor,
@@ -479,6 +488,7 @@ export const useStore = create<AppState>()(
 export const useTransactions = () => useStore((state) => state.transactions);
 export const useCurrency = () => useStore((state) => state.currency);
 export const useBaseCurrency = () => useStore((state) => state.baseCurrency);
+export const useCountry = () => useStore((state) => state.country);
 export const useUserName = () => useStore((state) => state.userName);
 export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);

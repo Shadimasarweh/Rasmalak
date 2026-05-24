@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
-import { useCurrency, useLanguage } from '@/store/useStore';
+import { useBaseCurrency, useCountry, useLanguage } from '@/store/useStore';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabaseClient';
 import { styledNum } from '@/components/StyledNumber';
+import { CurrencyAndRateField, type CurrencyRateValue } from '@/components/transactions/CurrencyAndRateField';
+import { MoneyInput } from '@/components/MoneyInput';
 
 /* ============================================
    ADD EXPENSE PAGE
@@ -215,7 +217,8 @@ export default function AddExpensePage() {
   const intl = useIntl();
   const router = useRouter();
   const { addTransaction } = useTransactions();
-  const currency = useCurrency();
+  const baseCurrency = useBaseCurrency();
+  const country = useCountry();
   const language = useLanguage();
   const isRtl = language === 'ar';
 
@@ -244,6 +247,22 @@ export default function AddExpensePage() {
   const [description, setDescription] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringEndDate, setRecurringEndDate] = useState('');
+  const [currencyValue, setCurrencyValue] = useState<CurrencyRateValue>({
+    currency: baseCurrency,
+    baseCurrency,
+    exchangeRate: 1,
+    source: 'cached',
+  });
+
+  // Keep the currency selector in sync if the user's base currency
+  // changes mid-session (e.g. after recalc completes in another tab).
+  useEffect(() => {
+    setCurrencyValue((prev) =>
+      prev.currency === prev.baseCurrency
+        ? { ...prev, currency: baseCurrency, baseCurrency }
+        : { ...prev, baseCurrency },
+    );
+  }, [baseCurrency]);
 
   // Validation state
   const [errors, setErrors] = useState<{ amount?: string; category?: string; date?: string }>({});
@@ -276,15 +295,21 @@ export default function AddExpensePage() {
   const handleSubmit = () => {
     if (!validate()) return;
 
+    const nativeAmount = parseFloat(amount);
+    const rate = currencyValue.exchangeRate > 0 ? currencyValue.exchangeRate : 1;
     addTransaction({
-      amount: parseFloat(amount),
-      currency: currency,
+      amount: nativeAmount,
+      currency: currencyValue.currency,
       date: date,
       type: 'expense',
       category: category,
       description: description || undefined,
       isRecurring,
       recurringEndDate: isRecurring && recurringEndDate ? recurringEndDate : null,
+      amountBase: nativeAmount * rate,
+      exchangeRateApplied: rate,
+      baseCurrencyAtEntry: currencyValue.baseCurrency,
+      rateSource: currencyValue.source,
     });
 
     router.push('/money/track');
@@ -300,7 +325,7 @@ export default function AddExpensePage() {
   const hasDecimals = amount.includes('.');
   const formattedAmount = styledNum(intl.formatNumber(parsedAmount, {
     style: 'currency',
-    currency: currency,
+    currency: currencyValue.currency,
     minimumFractionDigits: hasDecimals ? 2 : 0,
     maximumFractionDigits: hasDecimals ? 2 : 0,
   }));
@@ -356,13 +381,9 @@ export default function AddExpensePage() {
                 gap: '8px',
               }}
             >
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
+              <MoneyInput
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={setAmount}
                 placeholder="0"
                 style={{
                   fontSize: '3rem',
@@ -468,6 +489,16 @@ export default function AddExpensePage() {
               </p>
             )}
           </div>
+
+          {/* ===== CURRENCY + EXCHANGE RATE ===== */}
+          <CurrencyAndRateField
+            baseCurrency={baseCurrency}
+            date={date}
+            language={language}
+            country={country}
+            value={currencyValue}
+            onChange={setCurrencyValue}
+          />
 
           {/* ===== DESCRIPTION ===== */}
           <div style={{ marginBottom: 'var(--spacing-3)' }}>

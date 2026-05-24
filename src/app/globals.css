@@ -1099,3 +1099,24 @@ select:focus-visible {
   outline: none;
   border-color: var(--ds-primary);
 }
+
+/* ============================================================
+   Number-input hardening
+   --------------------------------------------------------------
+   Hide the native spinner arrows on every <input type="number">
+   in the app. The arrows are easy to bump on macOS trackpads
+   and were the source of the "user typed 500, system saved
+   499.98" bug. New code should use <MoneyInput /> instead, which
+   uses type="text" + inputMode="decimal" so wheel/arrow/spinner
+   mutations are all impossible. This rule is the safety net for
+   any remaining type="number" usages (e.g. calculator pages).
+   ============================================================ */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

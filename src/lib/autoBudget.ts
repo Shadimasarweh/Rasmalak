@@ -17,6 +17,10 @@
 export interface AutoBudgetTransaction {
   type: 'income' | 'expense';
   amount: number;
+  // Base-currency value at the time of entry. Auto-budget projects
+  // forward in base currency only — see currency architecture rule
+  // in CLAUDE.md.
+  amountBase: number;
   date: string; // ISO date
   category: string | null;
 }
@@ -109,7 +113,7 @@ export function suggestNextMonthPlan(
 
   for (const tx of transactions) {
     if (tx.type !== 'expense') continue;
-    if (!tx.amount || !Number.isFinite(tx.amount)) continue;
+    if (!tx.amountBase || !Number.isFinite(tx.amountBase)) continue;
     const d = new Date(tx.date);
     if (isNaN(d.getTime())) continue;
     if (d < windowStart || d > windowEnd) continue;
@@ -117,7 +121,8 @@ export function suggestNextMonthPlan(
     const cat = tx.category || 'other-expense';
     const key = monthKey(d);
     const catMap = perCategoryPerMonth.get(cat) ?? new Map<string, number>();
-    catMap.set(key, (catMap.get(key) ?? 0) + Math.abs(tx.amount));
+    // Auto-budget projects in base currency — the user's "spending budget" is base.
+    catMap.set(key, (catMap.get(key) ?? 0) + Math.abs(tx.amountBase));
     perCategoryPerMonth.set(cat, catMap);
     monthsWithAnyExpense.add(key);
   }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
-import { useCurrency, useUser, useUserName, useLanguage } from '@/store/useStore';
+import { useBaseCurrency, useUser, useUserName, useLanguage } from '@/store/useStore';
 import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
 import { useTransactions } from '@/store/transactionStore';
@@ -24,7 +24,8 @@ import RealityCheckCard, { shouldShowRealityCheck } from '@/components/money/Rea
 export default function OverviewPage() {
   const intl = useIntl();
   const { transactions, getTotalIncome, getTotalExpenses, getNetBalance } = useTransactions();
-  const currency = useCurrency();
+  // Dashboard renders aggregations in base currency exclusively.
+  const currency = useBaseCurrency();
   const user = useUser();
   const userName = useUserName();
   const displayName = user?.name || userName || intl.formatMessage({ id: 'dashboard.guest_user', defaultMessage: 'User' });
@@ -51,13 +52,15 @@ export default function OverviewPage() {
     });
   }, [transactions]);
 
+  // Aggregations live in base currency by design (currency
+  // architecture rule). Use amountBase, never amount.
   const monthlyIncome = useMemo(() =>
-    currentMonthTransactions.filter(tx => tx.type === 'income').reduce((s, tx) => s + Math.abs(tx.amount), 0),
+    currentMonthTransactions.filter(tx => tx.type === 'income').reduce((s, tx) => s + Math.abs(tx.amountBase), 0),
     [currentMonthTransactions]
   );
 
   const monthlyExpenses = useMemo(() =>
-    currentMonthTransactions.filter(tx => tx.type === 'expense').reduce((s, tx) => s + Math.abs(tx.amount), 0),
+    currentMonthTransactions.filter(tx => tx.type === 'expense').reduce((s, tx) => s + Math.abs(tx.amountBase), 0),
     [currentMonthTransactions]
   );
 
@@ -84,7 +87,7 @@ export default function OverviewPage() {
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         const spent = transactions
           .filter(tx => tx.type === 'expense' && tx.category === cat.id && new Date(tx.date) >= startOfMonth && new Date(tx.date) <= endOfMonth)
-          .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+          .reduce((s, tx) => s + Math.abs(tx.amountBase), 0);
         return { ...cat, limit, spent, percentage: Math.min((spent / limit) * 100, 100) };
       });
   }, [categoryBudgets, transactions]);
@@ -110,7 +113,7 @@ export default function OverviewPage() {
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
     const expenses = transactions
       .filter(tx => tx.type === 'expense' && new Date(tx.date) >= threeMonthsAgo)
-      .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+      .reduce((s, tx) => s + Math.abs(tx.amountBase), 0);
     return expenses / 3;
   }, [transactions]);
 
@@ -141,7 +144,7 @@ export default function OverviewPage() {
       const txDate = new Date(tx.date);
       if (txDate >= startOfWeek && txDate <= now) {
         const dayName = days[txDate.getDay()];
-        spending[dayName] += Math.abs(tx.amount);
+        spending[dayName] += Math.abs(tx.amountBase);
       }
     });
     const maxSpending = Math.max(...Object.values(spending), 1);
@@ -179,8 +182,8 @@ export default function OverviewPage() {
     transactions.forEach(tx => {
       const d = new Date(tx.date);
       if (d >= prevStart && d <= prevEnd) {
-        if (tx.type === 'income') prevIncome += Math.abs(tx.amount);
-        else prevExpenses += Math.abs(tx.amount);
+        if (tx.type === 'income') prevIncome += Math.abs(tx.amountBase);
+        else prevExpenses += Math.abs(tx.amountBase);
       }
     });
     return { income: prevIncome, expenses: prevExpenses, cashFlow: prevIncome - prevExpenses };
@@ -195,8 +198,8 @@ export default function OverviewPage() {
     transactions.forEach(tx => {
       const d = new Date(tx.date);
       if (d >= startOfYear && d <= now) {
-        if (tx.type === 'income') income += Math.abs(tx.amount);
-        else expenses += Math.abs(tx.amount);
+        if (tx.type === 'income') income += Math.abs(tx.amountBase);
+        else expenses += Math.abs(tx.amountBase);
       }
     });
     return { income, expenses, net: income - expenses };
@@ -251,14 +254,14 @@ export default function OverviewPage() {
       const d = new Date(tx.date);
       if (tx.type === 'expense' && d >= startOfMonth && d <= endOfMonth) {
         const cat = tx.category || 'other';
-        currentSpending[cat] = (currentSpending[cat] || 0) + Math.abs(tx.amount);
+        currentSpending[cat] = (currentSpending[cat] || 0) + Math.abs(tx.amountBase);
       }
       if (tx.type === 'expense' && d >= prevStart && d <= prevEnd) {
         const cat = tx.category || 'other';
-        prevSpending[cat] = (prevSpending[cat] || 0) + Math.abs(tx.amount);
+        prevSpending[cat] = (prevSpending[cat] || 0) + Math.abs(tx.amountBase);
       }
       if (tx.type === 'income' && d >= startOfMonth && d <= endOfMonth) {
-        currentMonthIncome += Math.abs(tx.amount);
+        currentMonthIncome += Math.abs(tx.amountBase);
       }
     });
 

@@ -7,6 +7,7 @@ import { BudgetProvider } from '@/store/budgetStore';
 import { GoalsProvider } from '@/store/goalsStore';
 import { EmergencyFundProvider } from '@/store/emergencyFundStore';
 import QuickAddFAB from '@/components/QuickAddFAB';
+import CurrencyBootstrap from '@/components/CurrencyBootstrap';
 
 export default function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default function DashboardLayout({
       <BudgetProvider>
       <GoalsProvider>
       <EmergencyFundProvider>
+      <CurrencyBootstrap />
       {/* Flex container: sidebar + main content side by side */}
       <div className="flex min-h-screen w-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
         {/* Sidebar - hidden on mobile (shows as drawer), sticky on desktop */}

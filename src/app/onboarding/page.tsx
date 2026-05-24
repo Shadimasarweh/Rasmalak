@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useIsAuthenticated, useHasCompletedOnboarding, useCompleteOnboarding, useSkipOnboarding, OnboardingData, UserSegment } from '@/store/useStore';
 import { useStore } from '@/store/useStore';
 import { useIntl } from 'react-intl';
+import { COUNTRIES } from '@/lib/countries';
+import { initializeProfile } from '@/lib/profile';
+import { useAuthStore } from '@/store/authStore';
 
 // Step 1: Financial Goals (labelKey used for i18n)
 const GOALS = [
@@ -130,7 +133,10 @@ const INCOME_RANGES = [
   { id: 'prefer_not', labelKey: 'onboarding.income_prefer_not', defaultLabel: 'Prefer not to say' },
 ];
 
-const TOTAL_STEPS = 5;
+// Step order: country → goals → segment → topics → income → analogy.
+// Country is step 1 because the chosen country drives the default
+// base currency for every subsequent income/budget number.
+const TOTAL_STEPS = 6;
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -143,11 +149,16 @@ export default function OnboardingPage() {
   const isRtl = language === 'ar';
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [customGoal, setCustomGoal] = useState('');
   const [selectedSegment, setSelectedSegment] = useState<UserSegment | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedIncome, setSelectedIncome] = useState<string | null>(null);
+
+  const setCountry = useStore((s) => s.setCountry);
+  const setBaseCurrency = useStore((s) => s.setBaseCurrency);
+  const authUser = useAuthStore((s) => s.user);
 
   // Redirect if not authenticated or already onboarded
   // TEMP: bypassed for dev preview
@@ -159,11 +170,25 @@ export default function OnboardingPage() {
   //   }
   // }, [isAuthenticated, hasCompletedOnboarding, router]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Step 1 is country selection — derive base currency, persist
+    // to profiles + Zustand before letting the user move on.
+    if (currentStep === 1) {
+      if (selectedCountry) {
+        const country = COUNTRIES.find((c) => c.code === selectedCountry);
+        if (country) {
+          setCountry(country.code);
+          setBaseCurrency(country.currency);
+          if (authUser?.id) {
+            await initializeProfile(authUser.id, country.code);
+          }
+        }
+      }
+    }
+
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete onboarding
       const data: OnboardingData = {
         segment: selectedSegment || 'individual',
         topics: selectedTopics,
@@ -209,29 +234,36 @@ export default function OnboardingPage() {
   //   return null;
   // }
 
-  // Step content configuration
+  // Step content configuration. Step 1 is country selection; the
+  // remaining steps shift down by one from their pre-currency-engine
+  // ordering so existing translation keys keep their meanings.
   const stepConfig = {
     1: {
-      title: intl.formatMessage({ id: 'onboarding.step1_title', defaultMessage: "Let's personalize your experience" }),
-      subtitle: intl.formatMessage({ id: 'onboarding.step1_subtitle', defaultMessage: "To give you the best advice, we need to know what you're aiming for." }),
-      question: intl.formatMessage({ id: 'onboarding.step1_question', defaultMessage: "What are your financial goals?" }),
+      title: intl.formatMessage({ id: 'onboarding.country_title', defaultMessage: 'Where are you based?' }),
+      subtitle: intl.formatMessage({ id: 'onboarding.country_subtitle', defaultMessage: 'We use this to set your default currency and tailor advice to your country.' }),
+      question: intl.formatMessage({ id: 'onboarding.country_question', defaultMessage: 'Pick your country' }),
     },
     2: {
-      title: intl.formatMessage({ id: 'onboarding.step2_title', defaultMessage: "Tell us about yourself" }),
-      subtitle: intl.formatMessage({ id: 'onboarding.step2_subtitle', defaultMessage: "This helps us tailor recommendations to your situation." }),
-      question: intl.formatMessage({ id: 'onboarding.step2_question', defaultMessage: "Which best describes you?" }),
+      title: intl.formatMessage({ id: 'onboarding.step1_title', defaultMessage: "Let's personalize your experience" }),
+      subtitle: intl.formatMessage({ id: 'onboarding.step1_subtitle', defaultMessage: "To give you the best advice, we need to know what you're aiming for." }),
+      question: intl.formatMessage({ id: 'onboarding.step1_question', defaultMessage: 'What are your financial goals?' }),
     },
     3: {
-      title: intl.formatMessage({ id: 'onboarding.step3_title', defaultMessage: "What would you like to learn?" }),
-      subtitle: intl.formatMessage({ id: 'onboarding.step3_subtitle', defaultMessage: "Select topics you're interested in. You can change these later." }),
-      question: intl.formatMessage({ id: 'onboarding.step3_question', defaultMessage: "Choose your topics of interest" }),
+      title: intl.formatMessage({ id: 'onboarding.step2_title', defaultMessage: 'Tell us about yourself' }),
+      subtitle: intl.formatMessage({ id: 'onboarding.step2_subtitle', defaultMessage: 'This helps us tailor recommendations to your situation.' }),
+      question: intl.formatMessage({ id: 'onboarding.step2_question', defaultMessage: 'Which best describes you?' }),
     },
     4: {
-      title: intl.formatMessage({ id: 'onboarding.step4_title', defaultMessage: "Almost done!" }),
-      subtitle: intl.formatMessage({ id: 'onboarding.step4_subtitle', defaultMessage: "This helps us provide relevant budgeting suggestions." }),
-      question: intl.formatMessage({ id: 'onboarding.step4_question', defaultMessage: "What is your monthly income range?" }),
+      title: intl.formatMessage({ id: 'onboarding.step3_title', defaultMessage: 'What would you like to learn?' }),
+      subtitle: intl.formatMessage({ id: 'onboarding.step3_subtitle', defaultMessage: "Select topics you're interested in. You can change these later." }),
+      question: intl.formatMessage({ id: 'onboarding.step3_question', defaultMessage: 'Choose your topics of interest' }),
     },
     5: {
+      title: intl.formatMessage({ id: 'onboarding.step4_title', defaultMessage: 'Almost done!' }),
+      subtitle: intl.formatMessage({ id: 'onboarding.step4_subtitle', defaultMessage: 'This helps us provide relevant budgeting suggestions.' }),
+      question: intl.formatMessage({ id: 'onboarding.step4_question', defaultMessage: 'What is your monthly income range?' }),
+    },
+    6: {
       title: intl.formatMessage({ id: 'money.onboarding_analogy_title' }),
       subtitle: intl.formatMessage({ id: 'money.plan_intent_label' }),
       question: '',
@@ -332,8 +364,47 @@ export default function OnboardingPage() {
                 {current.question}
               </h2>
 
-              {/* Step 1: Goal Selection */}
+              {/* Step 1: Country Selection */}
               {currentStep === 1 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+                  {COUNTRIES.map((country) => {
+                    const isSelected = selectedCountry === country.code;
+                    const label = isRtl ? country.nameAr : country.name;
+                    return (
+                      <button
+                        key={country.code}
+                        onClick={() => setSelectedCountry(country.code)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '14px 16px',
+                          background: isSelected ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-card)',
+                          border: isSelected ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          transition: 'all 150ms ease',
+                          textAlign: isRtl ? 'right' : 'left',
+                        }}
+                      >
+                        <span style={{ fontSize: '20px', lineHeight: 1 }}>{country.flag}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-heading)' }}>{label}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--ds-text-muted)', marginTop: '2px' }}>{country.currency}</div>
+                        </div>
+                        {isSelected && (
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--ds-primary)', flexShrink: 0 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Step 2: Goal Selection */}
+              {currentStep === 2 && (
                 <>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '16px' }}>
                     {GOALS.map((goal) => {
@@ -413,8 +484,8 @@ export default function OnboardingPage() {
                 </>
               )}
 
-              {/* Step 2: Segment Selection */}
-              {currentStep === 2 && (
+              {/* Step 3: Segment Selection */}
+              {currentStep === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {SEGMENTS.map((segment) => {
                     const isSelected = selectedSegment === segment.id;
@@ -472,8 +543,8 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {/* Step 3: Topics Selection */}
-              {currentStep === 3 && (
+              {/* Step 4: Topics Selection */}
+              {currentStep === 4 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
                   {TOPICS.map((topic) => {
                     const isSelected = selectedTopics.includes(topic.id);
@@ -510,8 +581,8 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {/* Step 4: Income Range Selection */}
-              {currentStep === 4 && (
+              {/* Step 5: Income Range Selection */}
+              {currentStep === 5 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
                   {INCOME_RANGES.map((range) => {
                     const isSelected = selectedIncome === range.id;
@@ -542,8 +613,8 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {/* Step 5: Plan vs Track analogy — anchors the mental model */}
-              {currentStep === 5 && (
+              {/* Step 6: Plan vs Track analogy — anchors the mental model */}
+              {currentStep === 6 && (
                 <div
                   style={{
                     display: 'flex',

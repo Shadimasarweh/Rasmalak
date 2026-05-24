@@ -9,6 +9,7 @@ import { useEmergencyFund } from '@/store/emergencyFundStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { MoneyInput } from '@/components/MoneyInput';
 
 export default function EmergencyFundPage() {
   const intl = useIntl();
@@ -43,7 +44,7 @@ export default function EmergencyFundPage() {
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
     const expenses = transactions
       .filter(tx => tx.type === 'expense' && new Date(tx.date) >= threeMonthsAgo)
-      .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+      .reduce((s, tx) => s + Math.abs(tx.amountBase), 0);
     return expenses / 3;
   }, [transactions]);
 
@@ -162,10 +163,9 @@ export default function EmergencyFundPage() {
               {intl.formatMessage({ id: 'dashboard.ef_set_target', defaultMessage: 'Set Target' })}
             </label>
             <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
-              <input
-                type="number"
+              <MoneyInput
                 value={targetInput}
-                onChange={e => setTargetInput(e.target.value)}
+                onChange={setTargetInput}
                 placeholder={intl.formatMessage({ id: 'dashboard.ef_target_placeholder', defaultMessage: 'Enter target amount' })}
                 style={{
                   flex: 1, padding: 'var(--spacing-3)', borderRadius: 'var(--radius-lg)',
@@ -247,10 +247,9 @@ export default function EmergencyFundPage() {
           </p>
           {showTargetForm && (
             <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginTop: 'var(--spacing-3)' }}>
-              <input
-                type="number"
+              <MoneyInput
                 value={targetInput}
-                onChange={e => setTargetInput(e.target.value)}
+                onChange={setTargetInput}
                 style={{
                   flex: 1, padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border-default)', background: 'var(--color-bg-card)',
@@ -304,10 +303,9 @@ export default function EmergencyFundPage() {
           )}
           {showContributionForm && (
             <div style={{ display: 'flex', gap: 'var(--spacing-2)', marginTop: 'var(--spacing-3)' }}>
-              <input
-                type="number"
+              <MoneyInput
                 value={contributionInput}
-                onChange={e => setContributionInput(e.target.value)}
+                onChange={setContributionInput}
                 placeholder="0"
                 style={{
                   flex: 1, padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
@@ -395,10 +393,9 @@ export default function EmergencyFundPage() {
             <label className="ds-label" style={{ marginBottom: 'var(--spacing-1)', display: 'block' }}>
               {intl.formatMessage({ id: 'dashboard.ef_deposit_amount', defaultMessage: 'Deposit Amount' })}
             </label>
-            <input
-              type="number"
+            <MoneyInput
               value={depositAmount}
-              onChange={e => setDepositAmount(e.target.value)}
+              onChange={setDepositAmount}
               placeholder={intl.formatMessage({ id: 'dashboard.ef_deposit_placeholder', defaultMessage: 'Enter amount' })}
               style={{
                 width: '100%', padding: 'var(--spacing-3)', borderRadius: 'var(--radius-lg)',

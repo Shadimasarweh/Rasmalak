@@ -19,6 +19,17 @@ export default {
   currency_description: 'للعرض فقط — المعاملات تحتفظ بعملتها الأصلية.',
   currency_no_conversion: 'لا يتم تحويل السجلات الموجودة تلقائياً.',
 
+  // Base Currency
+  base_currency: 'العملة الأساسية',
+  base_currency_description: 'كل لوحات التحكم والميزانيات والأهداف والنصائح تظهر بهذه العملة.',
+  base_currency_recalc_notice: 'تغيير هذه العملة يعيد احتساب كل المعاملات السابقة. القيم الأصلية لا تتغير أبداً.',
+  base_currency_confirm_title: 'تغيير العملة الأساسية من {from} إلى {to}؟',
+  base_currency_confirm_body: 'سيتم إعادة احتساب تاريخ معاملاتك بالعملة الجديدة باستخدام أسعار الصرف التاريخية. القيم التي أدخلتها أصلاً لا تتغير.',
+  base_currency_confirm_cta: 'نعم، أعد الاحتساب',
+  base_currency_recalc_running: 'جارٍ إعادة احتساب السجلات السابقة... من فضلك أبقِ التبويب مفتوحاً.',
+  base_currency_recalc_done: 'تم. كل السجلات الآن بعملتك الأساسية الجديدة.',
+  base_currency_recalc_error: 'فشلت إعادة الاحتساب: {error}',
+
   // Language
   language: 'اللغة',
   language_description: 'اختر لغة الواجهة.',

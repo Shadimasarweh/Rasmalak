@@ -42,4 +42,7 @@ export default {
   back: 'رجوع',
   continue: 'التالي',
   get_started: 'ابدأ الآن',
+  country_title: 'وين تقيم؟',
+  country_subtitle: 'نستخدم هذا لتحديد عملتك الافتراضية وتخصيص النصائح لبلدك.',
+  country_question: 'اختر بلدك',
 };

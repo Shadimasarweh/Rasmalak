@@ -673,12 +673,13 @@ export default function TransactionsPage() {
     return rows;
   }, [filteredTransactions]);
 
+  // Aggregations always in base currency (architectural rule).
   const filteredIncome = filteredTransactions
     .filter((tx: Transaction) => tx.type === 'income')
-    .reduce((sum: number, tx: Transaction) => sum + Math.abs(tx.amount), 0);
+    .reduce((sum: number, tx: Transaction) => sum + Math.abs(tx.amountBase), 0);
   const filteredExpenses = filteredTransactions
     .filter((tx: Transaction) => tx.type === 'expense')
-    .reduce((sum: number, tx: Transaction) => sum + Math.abs(tx.amount), 0);
+    .reduce((sum: number, tx: Transaction) => sum + Math.abs(tx.amountBase), 0);
   const filteredBalance = filteredIncome - filteredExpenses;
   const hasAnyTransactions = transactions.length > 0;
   const hasFilteredResults = filteredTransactions.length > 0;
@@ -715,7 +716,7 @@ export default function TransactionsPage() {
       const d = new Date(tx.date);
       if (d >= startOfMonth && d <= endOfMonth) {
         const cat = tx.category || 'other-expense';
-        map[cat] = (map[cat] || 0) + Math.abs(tx.amount);
+        map[cat] = (map[cat] || 0) + Math.abs(tx.amountBase);
       }
     });
     return map;
@@ -740,7 +741,7 @@ export default function TransactionsPage() {
       if (tx.type !== 'expense') return;
       const d = new Date(tx.date);
       if (d < startOfMonth || d > endOfMonth) return;
-      const amt = Math.abs(tx.amount);
+      const amt = Math.abs(tx.amountBase);
       if (tx.category === 'food') {
         if (tx.subcategory) food.set(tx.subcategory, (food.get(tx.subcategory) ?? 0) + amt);
         else foodUntagged += amt;
@@ -770,8 +771,8 @@ export default function TransactionsPage() {
     transactions.forEach((tx: Transaction) => {
       const d = new Date(tx.date);
       if (d >= startOfMonth && d <= endOfMonth) {
-        if (tx.type === 'income') income += Math.abs(tx.amount);
-        else expenses += Math.abs(tx.amount);
+        if (tx.type === 'income') income += Math.abs(tx.amountBase);
+        else expenses += Math.abs(tx.amountBase);
       }
     });
     return { monthlyIncome: income, monthlyExpenses: expenses };
@@ -794,8 +795,8 @@ export default function TransactionsPage() {
       transactions.forEach((tx: Transaction) => {
         const d = new Date(tx.date);
         if (d >= start && d <= end) {
-          if (tx.type === 'income') inc += Math.abs(tx.amount);
-          else exp += Math.abs(tx.amount);
+          if (tx.type === 'income') inc += Math.abs(tx.amountBase);
+          else exp += Math.abs(tx.amountBase);
         }
       });
       const idx = start.getMonth();
@@ -814,7 +815,7 @@ export default function TransactionsPage() {
       const d = new Date(tx.date);
       if (d >= start && d <= end) {
         const cat = tx.category || 'other-expense';
-        map[cat] = (map[cat] || 0) + Math.abs(tx.amount);
+        map[cat] = (map[cat] || 0) + Math.abs(tx.amountBase);
       }
     });
     return map;
@@ -835,7 +836,7 @@ export default function TransactionsPage() {
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
     const expenses = transactions
       .filter(tx => tx.type === 'expense' && new Date(tx.date) >= threeMonthsAgo)
-      .reduce((s, tx) => s + Math.abs(tx.amount), 0);
+      .reduce((s, tx) => s + Math.abs(tx.amountBase), 0);
     return expenses / 3;
   }, [transactions]);
 
@@ -937,7 +938,7 @@ export default function TransactionsPage() {
         if (daysBetween < 20 || daysBetween > 40) { isMonthly = false; break; }
       }
       if (!isMonthly) return;
-      const amounts = sorted.map(tx => Math.abs(tx.amount));
+      const amounts = sorted.map(tx => Math.abs(tx.amountBase));
       const avgAmount = amounts.reduce((s, a) => s + a, 0) / amounts.length;
       const minAmount = Math.min(...amounts);
       const maxAmount = Math.max(...amounts);

@@ -42,4 +42,7 @@ export default {
   back: 'Back',
   continue: 'Continue',
   get_started: 'Get Started',
+  country_title: 'Where are you based?',
+  country_subtitle: 'We use this to set your default currency and tailor advice to your country.',
+  country_question: 'Pick your country',
 };

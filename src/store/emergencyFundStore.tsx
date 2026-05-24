@@ -3,12 +3,16 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
+import { useStore } from '@/store/useStore';
 
 export interface EmergencyFund {
   id: string;
   targetAmount: number;
   currentAmount: number;
   monthlyContribution: number;
+  // ISO 4217 currency the user typed the target in. Display layer
+  // converts to base when comparing against transactions.
+  currencyNative: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,6 +45,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
 
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
+  const baseCurrency = useStore((s) => s.baseCurrency);
 
   useEffect(() => {
     const fetchFund = async () => {
@@ -79,6 +84,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
           targetAmount: Number(fundData.target_amount),
           currentAmount: Number(fundData.current_amount),
           monthlyContribution: Number(fundData.monthly_contribution ?? 0),
+          currencyNative: (fundData.currency_native as string | undefined) ?? baseCurrency,
           createdAt: fundData.created_at,
           updatedAt: fundData.updated_at,
         });
@@ -109,7 +115,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
     };
 
     fetchFund();
-  }, [user, initialized]);
+  }, [user, initialized, baseCurrency]);
 
   const createFund = useCallback(async (targetAmount: number) => {
     const { user, initialized } = getAuthState();
@@ -120,7 +126,12 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
 
     const { data, error } = await supabase
       .from('emergency_funds')
-      .insert({ user_id: uid, target_amount: targetAmount, current_amount: 0 })
+      .insert({
+        user_id: uid,
+        target_amount: targetAmount,
+        current_amount: 0,
+        currency_native: baseCurrency,
+      })
       .select()
       .single();
 
@@ -135,11 +146,12 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
         targetAmount: Number(data.target_amount),
         currentAmount: Number(data.current_amount),
         monthlyContribution: Number(data.monthly_contribution ?? 0),
+        currencyNative: (data.currency_native as string | undefined) ?? baseCurrency,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
       });
     }
-  }, []);
+  }, [baseCurrency]);
 
   const updateTarget = useCallback(async (targetAmount: number) => {
     if (!fund) return;

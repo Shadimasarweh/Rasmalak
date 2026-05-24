@@ -22,24 +22,39 @@ const devLog = (...args: unknown[]) => { if (isDev) console.log(...args); };
    run before auth state is available.
    ============================================ */
 
-/* ===== TRANSACTION MODEL ===== */
-// Per Functional Contract Section 3
+/* ===== TRANSACTION MODEL =====
+ *
+ * Multi-currency dual-layer model (per migration 012):
+ *   - `amount` / `currency` are the NATIVE values the user entered.
+ *     They never change after insert.
+ *   - `amountBase` is the value expressed in the user's base currency
+ *     at the time of entry, locked via `exchangeRateApplied`. This is
+ *     the ONLY field analytics, budgets, AI, and aggregations may sum.
+ *   - `baseCurrencyAtEntry` records which base currency was active
+ *     when the row was written. The recalc job rewrites both
+ *     `amountBase` and `baseCurrencyAtEntry` when the user changes
+ *     their base currency in Settings.
+ *   - `rateSource` is provenance for audit — never displayed.
+ *
+ * Components rendering a row can show `amount`+`currency` for the
+ * native view and read `amountBase` for sums.
+ */
 export interface Transaction {
-  id: string;                          // Unique identifier
-  amount: number;                      // Signed numeric (positive for income, negative for expense)
-  currency: string;                    // ISO 4217 (e.g., 'JOD', 'USD')
-  date: string;                        // ISO 8601 (e.g., '2024-01-25')
-  type: 'income' | 'expense';          // Transaction type
-  category: string | null;             // Category (nullable per contract)
-  description?: string;                // Optional metadata
+  id: string;
+  amount: number;                      // Native amount (alias of amount_native)
+  currency: string;                    // Native currency (alias of currency_native)
+  amountBase: number;                  // Base-currency value, LOCKED at entry
+  exchangeRateApplied: number;         // native -> base rate at entry
+  baseCurrencyAtEntry: string;         // Base currency this row is normalized into
+  rateSource: 'central_bank' | 'aggregator' | 'manual' | 'cached' | 'backfill';
+  date: string;
+  type: 'income' | 'expense';
+  category: string | null;
+  description?: string;
   user_id?: string;
   isRecurring: boolean;
-  recurringEndDate: string | null;     // ISO 8601 date or null for indefinite
-  // Receipt grouping: when present, this row is one line item from a
-  // multi-row receipt insert. The same receipt_id is shared by all
-  // sibling rows so the UI can fold them back into one entry.
+  recurringEndDate: string | null;
   receiptId?: string | null;
-  // Per-item subcategory id from src/ai/taxonomy.ts (V1: food + bills only).
   subcategory?: string | null;
 }
 
@@ -47,17 +62,25 @@ export interface Transaction {
 // Bulk insert payload used by the chat "Add as expense" chip and the
 // receipt scanner modal. One receipt becomes N transaction rows that
 // share a generated receipt_id.
+//
+// All line items share the same currency, exchange rate, and base
+// currency. The caller is responsible for resolving the rate (via
+// /api/fx/quote) before invoking addReceipt; if omitted we treat
+// the receipt as already in the user's base currency.
 export interface AddReceiptInput {
-  receiptTotal: number;                // Total on the document (positive)
+  receiptTotal: number;
   currency: string;
-  date: string;                        // ISO 8601
-  topCategory: string;                 // Parent category (food, bills, ...)
+  date: string;
+  topCategory: string;
   vendor: string;
   items: Array<{
     description: string;
-    amount: number;                    // Per-item amount (positive)
+    amount: number;
     subcategory: string | null;
   }>;
+  exchangeRateApplied?: number;
+  baseCurrency?: string;
+  rateSource?: Transaction['rateSource'];
 }
 
 export interface AddReceiptResult {
@@ -65,13 +88,30 @@ export interface AddReceiptResult {
   rowCount: number;                    // Total rows inserted (incl. remainder)
 }
 
-/* ===== STORE INTERFACE ===== */
+/* ===== STORE INTERFACE =====
+ * `addTransaction` accepts a relaxed payload: callers must always
+ * supply the native amount + currency, and SHOULD supply the rate
+ * fields. When omitted (single-currency callers, legacy code paths)
+ * we default to: rate=1, amountBase=amount, baseCurrencyAtEntry=
+ * currency_native, rateSource='backfill'. The strict path goes
+ * through the entry form which calls /api/fx/quote first.
+ */
+export type AddTransactionInput = Omit<
+  Transaction,
+  'id' | 'amountBase' | 'exchangeRateApplied' | 'baseCurrencyAtEntry' | 'rateSource'
+> & {
+  amountBase?: number;
+  exchangeRateApplied?: number;
+  baseCurrencyAtEntry?: string;
+  rateSource?: Transaction['rateSource'];
+};
+
 interface TransactionStore {
   // Data
   transactions: Transaction[];
-  
+
   // Actions
-  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  addTransaction: (transaction: AddTransactionInput) => void;
   // Bulk insert one receipt as N rows sharing a receipt_id. Returns
   // the generated receipt_id so callers can link / undo / show toast.
   addReceipt: (input: AddReceiptInput) => Promise<AddReceiptResult | null>;
@@ -84,6 +124,37 @@ interface TransactionStore {
   getTotalIncome: () => number;
   getTotalExpenses: () => number;
   getNetBalance: () => number;
+}
+
+/* ===== ROW MAPPER =====
+ * Converts a Supabase row into the Transaction interface. Falls
+ * back to legacy `amount`/`currency` columns when `amount_native`
+ * is missing (which only happens if the migration hasn't run yet).
+ */
+function mapRowToTransaction(row: Record<string, unknown>): Transaction {
+  const amountNative = (row.amount_native ?? row.amount) as number;
+  const currencyNative = (row.currency_native ?? row.currency) as string;
+  const amountBase = (row.amount_base ?? row.amount) as number;
+  const exchangeRate = (row.exchange_rate_applied ?? 1) as number;
+  const baseAtEntry = (row.base_currency_at_entry ?? currencyNative) as string;
+  const rateSource = (row.rate_source ?? 'backfill') as Transaction['rateSource'];
+  return {
+    id: row.id as string,
+    amount: amountNative,
+    currency: currencyNative,
+    amountBase,
+    exchangeRateApplied: exchangeRate,
+    baseCurrencyAtEntry: baseAtEntry,
+    rateSource,
+    date: row.date as string,
+    type: row.type as 'income' | 'expense',
+    category: (row.category ?? null) as string | null,
+    description: ((row.note ?? row.description) ?? undefined) as string | undefined,
+    isRecurring: (row.is_recurring ?? false) as boolean,
+    recurringEndDate: (row.recurring_end_date ?? null) as string | null,
+    receiptId: (row.receipt_id ?? null) as string | null,
+    subcategory: (row.subcategory ?? null) as string | null,
+  };
 }
 
 /* ===== CONTEXT ===== */
@@ -144,20 +215,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
       devLog('[TransactionStore] Fetched transactions:', data?.length || 0);
       if (data) {
-        // Map Supabase rows to Transaction interface
-        const mapped: Transaction[] = data.map((row) => ({
-          id: row.id,
-          amount: row.amount,
-          currency: row.currency,
-          date: row.date,
-          type: row.type,
-          category: row.category,
-          description: row.note || row.description,
-          isRecurring: row.is_recurring ?? false,
-          recurringEndDate: row.recurring_end_date ?? null,
-          receiptId: row.receipt_id ?? null,
-          subcategory: row.subcategory ?? null,
-        }));
+        const mapped: Transaction[] = data.map((row) => mapRowToTransaction(row));
         setTransactions(mapped);
       }
     };
@@ -166,7 +224,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   }, [user, initialized]);
 
   // Add transaction with user_id from auth store
-  const addTransaction = useCallback(async (transaction: Omit<Transaction, 'id'>) => {
+  const addTransaction = useCallback(async (transaction: AddTransactionInput) => {
     devLog('[TransactionStore] addTransaction called:', transaction);
     
     // Read auth state - check both initialized and user
@@ -196,13 +254,32 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const exchangeRate = transaction.exchangeRateApplied != null
+      && Number.isFinite(transaction.exchangeRateApplied)
+      && transaction.exchangeRateApplied > 0
+        ? transaction.exchangeRateApplied
+        : 1;
+    const amountBase = transaction.amountBase != null && Number.isFinite(transaction.amountBase)
+      ? transaction.amountBase
+      : transaction.amount * exchangeRate;
+    const baseAtEntry = transaction.baseCurrencyAtEntry || transaction.currency;
+    const rateSource = transaction.rateSource ?? 'backfill';
+
     const { data, error } = await supabase
       .from('transactions')
       .insert({
         user_id: userId,
         type: transaction.type,
+        // Legacy columns kept in lockstep with native for any
+        // consumer still reading them.
         amount: transaction.amount,
         currency: transaction.currency,
+        amount_native: transaction.amount,
+        currency_native: transaction.currency,
+        exchange_rate_applied: exchangeRate,
+        amount_base: amountBase,
+        base_currency_at_entry: baseAtEntry,
+        rate_source: rateSource,
         category: transaction.category,
         note: transaction.description || null,
         date: transaction.date,
@@ -221,20 +298,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     devLog('[TransactionStore] Transaction inserted successfully:', data);
     if (data) {
-      // Add to local state after successful insert
-      const newTransaction: Transaction = {
-        id: data.id,
-        amount: data.amount,
-        currency: data.currency,
-        date: data.date,
-        type: data.type,
-        category: data.category,
-        description: data.note,
-        isRecurring: data.is_recurring ?? false,
-        recurringEndDate: data.recurring_end_date ?? null,
-        receiptId: data.receipt_id ?? null,
-        subcategory: data.subcategory ?? null,
-      };
+      const newTransaction = mapRowToTransaction(data);
       setTransactions(prev => [newTransaction, ...prev]);
     }
   }, []);
@@ -265,6 +329,26 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       (it) => Number.isFinite(it.amount) && it.amount > 0,
     );
 
+    // Resolve native -> base context for the receipt. When the caller
+    // didn't provide a rate, treat the receipt currency as the base.
+    const exchangeRate = input.exchangeRateApplied && input.exchangeRateApplied > 0
+      ? input.exchangeRateApplied
+      : 1;
+    const baseAtEntry = input.baseCurrency || input.currency;
+    const rateSource: Transaction['rateSource'] = input.rateSource
+      ?? (input.exchangeRateApplied != null ? 'cached' : 'backfill');
+
+    const buildBaseRow = (nativeAmount: number) => ({
+      amount: nativeAmount,
+      currency: input.currency,
+      amount_native: nativeAmount,
+      currency_native: input.currency,
+      exchange_rate_applied: exchangeRate,
+      amount_base: nativeAmount * exchangeRate,
+      base_currency_at_entry: baseAtEntry,
+      rate_source: rateSource,
+    });
+
     // Empty-items fallback: behave like a single-row add. This keeps
     // the chip useful even if the extractor produced no line items.
     if (cleanItems.length === 0) {
@@ -280,8 +364,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         .insert({
           user_id: userId,
           type: 'expense',
-          amount: input.receiptTotal,
-          currency: input.currency,
+          ...buildBaseRow(input.receiptTotal),
           category: input.topCategory,
           note: input.vendor,
           date: input.date,
@@ -296,20 +379,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         console.error('[TransactionStore] addReceipt fallback insert failed:', error?.message);
         return null;
       }
-      const row: Transaction = {
-        id: data.id,
-        amount: data.amount,
-        currency: data.currency,
-        date: data.date,
-        type: data.type,
-        category: data.category,
-        description: data.note,
-        isRecurring: data.is_recurring ?? false,
-        recurringEndDate: data.recurring_end_date ?? null,
-        receiptId: data.receipt_id ?? null,
-        subcategory: data.subcategory ?? null,
-      };
-      setTransactions((prev) => [row, ...prev]);
+      setTransactions((prev) => [mapRowToTransaction(data), ...prev]);
       return { receiptId, rowCount: 1 };
     }
 
@@ -323,8 +393,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const rows = cleanItems.map((it) => ({
       user_id: userId,
       type: 'expense' as const,
-      amount: it.amount,
-      currency: input.currency,
+      ...buildBaseRow(it.amount),
       category: input.topCategory,
       note: `${input.vendor} — ${it.description}`,
       date: input.date,
@@ -343,8 +412,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       rows.push({
         user_id: userId,
         type: 'expense' as const,
-        amount: Math.abs(delta),
-        currency: input.currency,
+        ...buildBaseRow(Math.abs(delta)),
         category: input.topCategory,
         note: `${input.vendor} — Tax & adjustments`,
         date: input.date,
@@ -366,19 +434,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }
 
     if (data) {
-      const inserted: Transaction[] = data.map((row) => ({
-        id: row.id,
-        amount: row.amount,
-        currency: row.currency,
-        date: row.date,
-        type: row.type,
-        category: row.category,
-        description: row.note,
-        isRecurring: row.is_recurring ?? false,
-        recurringEndDate: row.recurring_end_date ?? null,
-        receiptId: row.receipt_id ?? null,
-        subcategory: row.subcategory ?? null,
-      }));
+      const inserted: Transaction[] = data.map((row) => mapRowToTransaction(row));
       setTransactions((prev) => [...inserted, ...prev]);
       return { receiptId, rowCount: inserted.length };
     }
@@ -435,18 +491,20 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     setTransactions((prev) => prev.filter((t) => t.receiptId !== receiptId));
   }, []);
 
-  // Derived values - computed on every read per Contract Section 7
-  // No caching independent of transaction dataset
+  // Derived values - computed on every read per Contract Section 7.
+  // Sums use amountBase exclusively — that's the architectural rule
+  // from the Currency Architecture document. The native `amount`
+  // field is for row display only.
   const getTotalIncome = useCallback((): number => {
     return transactions
       .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      .reduce((sum, t) => sum + Math.abs(t.amountBase), 0);
   }, [transactions]);
 
   const getTotalExpenses = useCallback((): number => {
     return transactions
       .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      .reduce((sum, t) => sum + Math.abs(t.amountBase), 0);
   }, [transactions]);
 
   const getNetBalance = useCallback((): number => {
@@ -508,7 +566,8 @@ export function aggregateExpensesByCategory(
     const d = new Date(tx.date);
     if (d >= range.start && d <= range.end) {
       const cat = tx.category || 'other-expense';
-      map[cat] = (map[cat] || 0) + Math.abs(tx.amount);
+      // amountBase only — see architectural rule above.
+      map[cat] = (map[cat] || 0) + Math.abs(tx.amountBase);
     }
   });
   return map;

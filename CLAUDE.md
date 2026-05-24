@@ -132,15 +132,41 @@ Every calculator requires exactly three files:
 ### 7. Comments policy
 Comments must explain non-obvious **intent or reasoning** only. Do not narrate what the code does.
 
+### 8. Currency architecture (multi-currency engine)
+
+The `transactions` table stores BOTH the native amount the user typed AND the base-currency value at the moment of entry, locked via `exchange_rate_applied`. This is the dual-layer transaction model from `Rasmalak Currency Architecture.docx` (migration `012_currency_architecture.sql`).
+
+Hard rules:
+
+- **All analytical, predictive, reporting, and budgeting computations MUST sum `amountBase`, never `amount`.** The `amount` / `currency` fields are the user's native input and are preserved verbatim for row display only. Anywhere code does `transactions.reduce((s, t) => s + Math.abs(t.amount), 0)` it should sum `t.amountBase` instead.
+- The base currency is `profiles.base_currency`, mirrored to Zustand `baseCurrency`. It is set initially at onboarding (derived from the chosen country in `src/lib/countries.ts`) and is freely editable in Settings.
+- `country` is set ONCE at onboarding and is treated as immutable by this app's UI.
+- Transaction rates are LOCKED at entry. Daily FX drift never changes a historical row's `amount_base`. A change to `base_currency` triggers an async job (`/api/fx/recalc`) that rewrites `amount_base` and `base_currency_at_entry` for every row using the historical rate on each transaction's date.
+- All FX lookups go through `src/lib/fx/` (`getRate`, `refreshAllRates`). Never call FX providers directly from components or other library code.
+- Entry forms auto-populate `exchange_rate_applied` from `/api/fx/quote`. Manual user overrides flip `rate_source` to `'manual'`. Other valid sources: `'central_bank'`, `'aggregator'`, `'cached'`, `'backfill'`.
+- Budgets, savings goals, and emergency funds keep their cap/target in `currency_native`. Display layers convert to base via `useDisplayInBase` from `src/lib/fx/`.
+
 ---
 
 ## Data Models
 
 ```typescript
-// Core types — src/types/index.ts
+// Core types — src/types/index.ts (legacy display type)
 Transaction: { id, type: 'income'|'expense', amount, currency, category, description, date, createdAt, updatedAt }
+
+// Live runtime model — src/store/transactionStore.tsx (dual-layer)
+Transaction: {
+  id, type, date, category, description, isRecurring, recurringEndDate,
+  amount,               // native (what the user typed)
+  currency,             // native ISO 4217
+  amountBase,           // base-currency value, LOCKED at entry
+  exchangeRateApplied,  // native -> base rate at entry
+  baseCurrencyAtEntry,  // base currency at the moment of insert
+  rateSource,           // 'central_bank' | 'aggregator' | 'manual' | 'cached' | 'backfill'
+}
+Profile:     { id, country, baseCurrency }   // src/lib/profile.ts (migration 012)
 Category:    { id, name, nameAr, icon, color, type }
-Budget:      { id, categoryId, amount, spent, period: 'weekly'|'monthly'|'yearly', startDate, endDate }
+Budget:      { id, categoryId, amount, spent, period: 'weekly'|'monthly'|'yearly', startDate, endDate, currencyNative }
 User:        { id, email, name, currency, language, createdAt }
 AuthUser:    { id, email, name, phone? }
 
@@ -152,7 +178,11 @@ Block:       'p' | 'ul' | 'key_insight' | 'example' | 'comparison' | 'action_pro
 ```
 
 ### Supabase Tables
+- `profiles` — per-user `country` + `base_currency` (migration 012)
 - `transactions`, `budgets`, `savings_goals` — user financial data, all RLS-protected
+- `transactions` carries the dual-layer columns: `amount_native`, `currency_native`, `exchange_rate_applied`, `amount_base`, `base_currency_at_entry`, `rate_source`
+- `fx_rates` — global rate cache, `(date, from_currency, to_currency)` primary key
+- `fx_recalculation_jobs` — async recompute jobs triggered on base-currency change
 - `course_progress` — per-user section completion
 - `financial_advice` — logged AI advice (`target_metric` check constraint: `spending/savings`)
 - `ai_audit_log` — full audit trail of AI interactions
