@@ -127,6 +127,27 @@ interface TransactionStore {
   getNetBalance: () => number;
 }
 
+/**
+ * Detect "column does not exist" errors from Supabase / PostgREST.
+ * Triggered when migration 012 hasn't been applied yet — the new
+ * multi-currency columns (`amount_native`, `amount_base`, ...) are
+ * referenced by the insert payload but missing from the actual
+ * table. We use this to fall back to a legacy-shape insert so the
+ * row still saves on un-migrated databases.
+ *
+ * Postgres returns SQLSTATE `42703` ("undefined_column"); PostgREST
+ * surfaces schema-cache misses as code `PGRST204`. We also match
+ * the message text as a belt-and-suspenders safety net for
+ * different Supabase versions.
+ */
+function isMissingColumnError(error: { message?: string; code?: string }): boolean {
+  if (!error) return false;
+  const code = error.code ?? '';
+  if (code === '42703' || code === 'PGRST204') return true;
+  const msg = (error.message ?? '').toLowerCase();
+  return /column .* (does not exist|not found in schema cache|of relation .* does not exist)/.test(msg);
+}
+
 /* ===== ROW MAPPER =====
  * Converts a Supabase row into the Transaction interface. Falls
  * back to legacy `amount`/`currency` columns when `amount_native`
@@ -258,13 +279,21 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
   // Add transaction with user_id from auth store.
   //
-  // Sync hardening: the row goes into LOCAL STATE FIRST (optimistic
-  // insert) so the UI renders the new entry immediately, even when
-  // navigation happens before the Supabase round-trip resolves. The
-  // server response then either swaps the temp row for the real one
-  // (preserving the server-assigned id) or surfaces a toast and
-  // rolls back the optimistic row. Realtime cleans up the rare
-  // double-render race because we de-dupe by id when applying.
+  // Strategy:
+  //   1. Validate inputs locally — bad input never hits the network.
+  //   2. Try the FULL payload (legacy + multi-currency columns).
+  //   3. If Supabase rejects with a "column does not exist" error
+  //      (migration 012 not applied to this DB), retry with just
+  //      the legacy columns so the row still saves. The user only
+  //      loses multi-currency precision until they run the migration.
+  //   4. On any other error, surface the actual message in a toast
+  //      so the user knows what's wrong instead of seeing a generic
+  //      "please try again". Realtime + focus-refetch handle UI sync.
+  //
+  // Note: we deliberately do NOT do an optimistic local insert. The
+  // earlier optimistic flow created confusing edge cases when the
+  // server rejected after we'd already shown the row. Keeping it
+  // simple: insert, then update local state with the returned row.
   const addTransaction = useCallback(async (transaction: AddTransactionInput) => {
     devLog('[TransactionStore] addTransaction called:', transaction);
 
@@ -299,74 +328,73 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const baseAtEntry = transaction.baseCurrencyAtEntry || transaction.currency;
     const rateSource = transaction.rateSource ?? 'backfill';
 
-    // Optimistic local row: rendered instantly so the user sees
-    // their entry before the server responds. We tag it with a
-    // `pending_` id so the swap-on-success and rollback-on-error
-    // can find it.
-    const tempId = `pending_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`}`;
-    const optimistic: Transaction = {
-      id: tempId,
+    // Legacy-shape payload. Always succeeds against any historical
+    // schema this app has shipped.
+    const legacyPayload: Record<string, unknown> = {
+      user_id: userId,
+      type: transaction.type,
       amount: transaction.amount,
       currency: transaction.currency,
-      amountBase,
-      exchangeRateApplied: exchangeRate,
-      baseCurrencyAtEntry: baseAtEntry,
-      rateSource,
-      date: transaction.date,
-      type: transaction.type,
       category: transaction.category,
-      description: transaction.description,
-      isRecurring: transaction.isRecurring ?? false,
-      recurringEndDate: transaction.recurringEndDate ?? null,
-      receiptId: transaction.receiptId ?? null,
+      note: transaction.description || null,
+      date: transaction.date,
+      is_recurring: transaction.isRecurring ?? false,
+      recurring_end_date: transaction.recurringEndDate || null,
+      receipt_id: transaction.receiptId ?? null,
       subcategory: transaction.subcategory ?? null,
     };
-    setTransactions(prev => [optimistic, ...prev]);
+    // Full payload adds the migration-012 multi-currency columns.
+    const fullPayload: Record<string, unknown> = {
+      ...legacyPayload,
+      amount_native: transaction.amount,
+      currency_native: transaction.currency,
+      exchange_rate_applied: exchangeRate,
+      amount_base: amountBase,
+      base_currency_at_entry: baseAtEntry,
+      rate_source: rateSource,
+    };
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('transactions')
-      .insert({
-        user_id: userId,
-        type: transaction.type,
-        // Legacy columns kept in lockstep with native for any
-        // consumer still reading them.
-        amount: transaction.amount,
-        currency: transaction.currency,
-        amount_native: transaction.amount,
-        currency_native: transaction.currency,
-        exchange_rate_applied: exchangeRate,
-        amount_base: amountBase,
-        base_currency_at_entry: baseAtEntry,
-        rate_source: rateSource,
-        category: transaction.category,
-        note: transaction.description || null,
-        date: transaction.date,
-        is_recurring: transaction.isRecurring ?? false,
-        recurring_end_date: transaction.recurringEndDate || null,
-        receipt_id: transaction.receiptId ?? null,
-        subcategory: transaction.subcategory ?? null,
-      })
+      .insert(fullPayload)
       .select()
       .single();
 
+    // Schema fallback: if the new columns don't exist, retry with
+    // legacy columns only. Supabase returns either PGRST204 (column
+    // not found in schema cache) or 42703 (undefined column).
+    if (error && isMissingColumnError(error)) {
+      console.warn('[TransactionStore] Schema mismatch — retrying without multi-currency columns. Run migration 012 to fix.');
+      const result = await supabase
+        .from('transactions')
+        .insert(legacyPayload)
+        .select()
+        .single();
+      data = result.data;
+      error = result.error;
+    }
+
     if (error) {
-      console.error('[TransactionStore] Error inserting transaction:', error.message, error.code, error.details);
-      // Roll back the optimistic row so the UI matches reality.
-      setTransactions(prev => prev.filter((t) => t.id !== tempId));
-      showError("Couldn't save your entry. Please try again.");
+      console.error('[TransactionStore] Insert failed:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
+      // Surface the actual database error so debugging is possible
+      // without DevTools. We trim long messages to keep the toast
+      // readable.
+      const reason = (error.message || error.code || 'unknown error').slice(0, 160);
+      showError(`Couldn't save: ${reason}`);
       return;
     }
 
-    devLog('[TransactionStore] Transaction inserted successfully:', data);
     if (data) {
+      devLog('[TransactionStore] Transaction inserted successfully:', data);
       const newTransaction = mapRowToTransaction(data);
-      // Swap the optimistic temp row for the server row, and dedupe
-      // against the realtime channel's INSERT event in case both
-      // arrive in close succession.
       setTransactions(prev => {
-        const withoutTemp = prev.filter((t) => t.id !== tempId);
-        if (withoutTemp.some((t) => t.id === newTransaction.id)) return withoutTemp;
-        return [newTransaction, ...withoutTemp];
+        if (prev.some((t) => t.id === newTransaction.id)) return prev;
+        return [newTransaction, ...prev];
       });
     }
   }, []);
@@ -406,9 +434,15 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const rateSource: Transaction['rateSource'] = input.rateSource
       ?? (input.exchangeRateApplied != null ? 'cached' : 'backfill');
 
-    const buildBaseRow = (nativeAmount: number) => ({
+    // Two payload shapes — same trick as addTransaction. We try the
+    // full multi-currency shape first, fall back to legacy on
+    // missing-column errors so old DBs still save the row.
+    const buildLegacyRow = (nativeAmount: number) => ({
       amount: nativeAmount,
       currency: input.currency,
+    });
+    const buildBaseRow = (nativeAmount: number) => ({
+      ...buildLegacyRow(nativeAmount),
       amount_native: nativeAmount,
       currency_native: input.currency,
       exchange_rate_applied: exchangeRate,
@@ -427,25 +461,35 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       const receiptId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      const { data, error } = await supabase
+      const commonFields = {
+        user_id: userId,
+        type: 'expense' as const,
+        category: input.topCategory,
+        note: input.vendor,
+        date: input.date,
+        is_recurring: false,
+        recurring_end_date: null,
+        receipt_id: receiptId,
+        subcategory: null,
+      };
+      let { data, error } = await supabase
         .from('transactions')
-        .insert({
-          user_id: userId,
-          type: 'expense',
-          ...buildBaseRow(input.receiptTotal),
-          category: input.topCategory,
-          note: input.vendor,
-          date: input.date,
-          is_recurring: false,
-          recurring_end_date: null,
-          receipt_id: receiptId,
-          subcategory: null,
-        })
+        .insert({ ...commonFields, ...buildBaseRow(input.receiptTotal) })
         .select()
         .single();
+      if (error && isMissingColumnError(error)) {
+        const result = await supabase
+          .from('transactions')
+          .insert({ ...commonFields, ...buildLegacyRow(input.receiptTotal) })
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+      }
       if (error || !data) {
-        console.error('[TransactionStore] addReceipt fallback insert failed:', error?.message);
-        showError("Couldn't save the receipt. Please try again.");
+        console.error('[TransactionStore] addReceipt fallback insert failed:', error?.message, error?.code);
+        const reason = (error?.message || error?.code || 'unknown error').slice(0, 160);
+        showError(`Couldn't save the receipt: ${reason}`);
         return null;
       }
       setTransactions((prev) => [mapRowToTransaction(data), ...prev]);
@@ -456,13 +500,11 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
-    // Build the per-item rows. Description is `vendor — item` so the
-    // grouped view still shows the vendor on each child without an
-    // extra join.
-    const rows = cleanItems.map((it) => ({
+    // Build per-item rows for both shapes. We choose which to send
+    // based on the schema-fallback retry below.
+    const baseRowCommon = (it: { amount: number; description: string; subcategory: string | null }) => ({
       user_id: userId,
       type: 'expense' as const,
-      ...buildBaseRow(it.amount),
       category: input.topCategory,
       note: `${input.vendor} — ${it.description}`,
       date: input.date,
@@ -470,6 +512,14 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       recurring_end_date: null,
       receipt_id: receiptId,
       subcategory: it.subcategory ?? null,
+    });
+    const fullRows: Record<string, unknown>[] = cleanItems.map((it) => ({
+      ...baseRowCommon(it),
+      ...buildBaseRow(it.amount),
+    }));
+    const legacyRows: Record<string, unknown>[] = cleanItems.map((it) => ({
+      ...baseRowCommon(it),
+      ...buildLegacyRow(it.amount),
     }));
 
     // Tolerance is intentionally loose (0.5 of the currency unit). VAT,
@@ -478,10 +528,9 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const itemsSum = cleanItems.reduce((s, it) => s + it.amount, 0);
     const delta = input.receiptTotal - itemsSum;
     if (Number.isFinite(input.receiptTotal) && Math.abs(delta) > 0.5) {
-      rows.push({
+      const adj = {
         user_id: userId,
         type: 'expense' as const,
-        ...buildBaseRow(Math.abs(delta)),
         category: input.topCategory,
         note: `${input.vendor} — Tax & adjustments`,
         date: input.date,
@@ -489,17 +538,29 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         recurring_end_date: null,
         receipt_id: receiptId,
         subcategory: null,
-      });
+      };
+      fullRows.push({ ...adj, ...buildBaseRow(Math.abs(delta)) });
+      legacyRows.push({ ...adj, ...buildLegacyRow(Math.abs(delta)) });
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('transactions')
-      .insert(rows)
+      .insert(fullRows)
       .select();
 
+    if (error && isMissingColumnError(error)) {
+      const result = await supabase
+        .from('transactions')
+        .insert(legacyRows)
+        .select();
+      data = result.data;
+      error = result.error;
+    }
+
     if (error) {
-      console.error('[TransactionStore] addReceipt insert failed:', error.message);
-      showError("Couldn't save the receipt. Please try again.");
+      console.error('[TransactionStore] addReceipt insert failed:', error.message, error.code);
+      const reason = (error.message || error.code || 'unknown error').slice(0, 160);
+      showError(`Couldn't save the receipt: ${reason}`);
       return null;
     }
 
@@ -509,7 +570,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       return { receiptId, rowCount: inserted.length };
     }
 
-    return { receiptId, rowCount: rows.length };
+    return { receiptId, rowCount: fullRows.length };
   }, []);
 
   // Delete transaction from Supabase

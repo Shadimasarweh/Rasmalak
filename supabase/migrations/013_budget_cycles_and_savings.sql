@@ -72,17 +72,36 @@ create policy "Users can delete own cycles"
 -- current month's `budget_cycles` so the Plan page is non-empty
 -- on first deploy. Uses `to_char(now(), 'YYYY-MM')` so the
 -- migration is timezone-stable in the Supabase server's tz.
-insert into public.budget_cycles (
-  user_id, month_year, monthly_budget, category_budgets, currency_native
-)
-select
-  b.user_id,
-  to_char(now(), 'YYYY-MM'),
-  b.monthly_budget,
-  b.category_budgets,
-  coalesce(b.currency_native, 'SAR')
-from public.budgets b
-on conflict (user_id, month_year) do nothing;
+--
+-- Wrapped in a guarded DO block so the migration still completes
+-- when the legacy `budgets` table is missing the expected
+-- `monthly_budget` column (some installations were provisioned
+-- without migration 001). When the column is absent we just skip
+-- the backfill — the client-side lazy-create in budgetCyclesStore
+-- already handles the "no prior cycle" case.
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'budgets'
+      and column_name = 'monthly_budget'
+  ) then
+    insert into public.budget_cycles (
+      user_id, month_year, monthly_budget, category_budgets, currency_native
+    )
+    select
+      b.user_id,
+      to_char(now(), 'YYYY-MM'),
+      b.monthly_budget,
+      b.category_budgets,
+      coalesce(b.currency_native, 'SAR')
+    from public.budgets b
+    on conflict (user_id, month_year) do nothing;
+  end if;
+end
+$$;
 
 -- =============================================================
 -- emergency_funds: replenishment cadence
