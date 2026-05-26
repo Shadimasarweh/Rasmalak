@@ -10,6 +10,12 @@ import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MoneyInput } from '@/components/MoneyInput';
+import {
+  computeEmergencyFundBaseline,
+  computePerCycleAllocation,
+  convertCadence,
+} from '@/lib/emergencyFund/baseline';
+import type { EFFrequency } from '@/store/emergencyFundStore';
 
 export default function EmergencyFundPage() {
   const intl = useIntl();
@@ -20,7 +26,7 @@ export default function EmergencyFundPage() {
   const currencySymbol = isRTL ? currencyInfo?.symbolAr || currencyInfo?.symbol || currency : currencyInfo?.symbol || currency;
 
   const { transactions } = useTransactions();
-  const { fund, deposits, loading, createFund, updateTarget, setMonthlyContribution, addDeposit, deleteDeposit } = useEmergencyFund();
+  const { fund, deposits, loading, createFund, updateTarget, setMonthlyContribution, setFrequency, addDeposit, deleteDeposit } = useEmergencyFund();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -30,6 +36,8 @@ export default function EmergencyFundPage() {
   const [showTargetForm, setShowTargetForm] = useState(false);
   const [contributionInput, setContributionInput] = useState('');
   const [showContributionForm, setShowContributionForm] = useState(false);
+  const [showCadenceForm, setShowCadenceForm] = useState(false);
+  const [cadenceAnchor, setCadenceAnchor] = useState('');
 
   // Deposit form state
   const [depositAmount, setDepositAmount] = useState('');
@@ -39,18 +47,52 @@ export default function EmergencyFundPage() {
   // Delete confirmation
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const avgMonthlyExpenses = useMemo(() => {
-    const now = new Date();
-    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-    const expenses = transactions
-      .filter(tx => tx.type === 'expense' && new Date(tx.date) >= threeMonthsAgo)
-      .reduce((s, tx) => s + Math.abs(tx.amountBase), 0);
-    return expenses / 3;
-  }, [transactions]);
+  // Baseline: average essential monthly spend across the last 3
+  // complete months. Essential = food + bills + housing + transport
+  // + health (non-discretionary). When history is thin, the helper
+  // returns hasEnoughHistory: false and the UI falls back to a
+  // benchmark prompt.
+  const baseline = useMemo(
+    () => computeEmergencyFundBaseline(
+      transactions.map((t) => ({
+        type: t.type,
+        amountBase: t.amountBase,
+        date: t.date,
+        category: t.category,
+      })),
+      { lookbackMonths: 3, targetMonths: 6 },
+    ),
+    [transactions],
+  );
+  const avgMonthlyExpenses = baseline.monthlyEssentials;
 
   const monthsCovered = fund && avgMonthlyExpenses > 0
     ? Math.round((fund.currentAmount / avgMonthlyExpenses) * 10) / 10
     : 0;
+
+  // Suggested per-cycle allocation when the user hasn't set one yet.
+  // Default funding horizon = 12 cycles (1 year of monthly, 26 weeks
+  // of bi-weekly). Surfaces as a placeholder hint in the contribution
+  // form so the user has a starting number.
+  const suggestedAllocation = useMemo(() => {
+    if (!fund) return 0;
+    const cycles = fund.frequency === 'biweekly' ? 26 : 12;
+    return computePerCycleAllocation({
+      targetAmount: fund.targetAmount,
+      currentAmount: fund.currentAmount,
+      cyclesRemaining: cycles,
+    });
+  }, [fund]);
+
+  // Display amount for the "Monthly Contribution" card. For
+  // bi-weekly users, show the monthly equivalent so they can compare
+  // against income.
+  const monthlyEquivalent = useMemo(() => {
+    if (!fund) return 0;
+    return fund.frequency === 'biweekly'
+      ? convertCadence({ amount: fund.monthlyContribution, from: 'biweekly', to: 'monthly' })
+      : fund.monthlyContribution;
+  }, [fund]);
 
   const progressPct = fund && fund.targetAmount > 0
     ? Math.min((fund.currentAmount / fund.targetAmount) * 100, 100)
@@ -80,6 +122,16 @@ export default function EmergencyFundPage() {
     await setMonthlyContribution(val);
     setContributionInput('');
     setShowContributionForm(false);
+  };
+
+  const handleSetFrequency = async (next: EFFrequency) => {
+    if (next === 'biweekly') {
+      const anchor = cadenceAnchor || new Date().toISOString().slice(0, 10);
+      await setFrequency('biweekly', anchor);
+    } else {
+      await setFrequency('monthly');
+    }
+    setShowCadenceForm(false);
   };
 
   const handleDeposit = async () => {
@@ -284,7 +336,9 @@ export default function EmergencyFundPage() {
         <div className="ds-card" style={{ padding: 'var(--spacing-5)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
             <p className="ds-label" style={{ textTransform: 'uppercase' }}>
-              {intl.formatMessage({ id: 'dashboard.ef_monthly_contribution', defaultMessage: 'Monthly Contribution' })}
+              {fund.frequency === 'biweekly'
+                ? intl.formatMessage({ id: 'dashboard.ef_biweekly_contribution', defaultMessage: 'Bi-weekly Contribution' })
+                : intl.formatMessage({ id: 'dashboard.ef_monthly_contribution', defaultMessage: 'Monthly Contribution' })}
             </p>
             <button
               onClick={() => { setShowContributionForm(!showContributionForm); setContributionInput(String(fund.monthlyContribution || '')); }}
@@ -296,7 +350,15 @@ export default function EmergencyFundPage() {
           <p className="ds-metric" style={{ color: fund.monthlyContribution > 0 ? 'var(--color-primary)' : 'var(--color-text-muted)', fontSize: 'clamp(1.25rem, 3vw, 1.75rem)' }}>
             {fund.monthlyContribution > 0 ? fmtCur(fund.monthlyContribution) : intl.formatMessage({ id: 'dashboard.ef_not_set', defaultMessage: 'Not set' })}
           </p>
-          {fund.monthlyContribution > 0 && (
+          {fund.monthlyContribution > 0 && fund.frequency === 'biweekly' && (
+            <p className="ds-supporting" style={{ marginTop: 'var(--spacing-1)' }}>
+              {intl.formatMessage(
+                { id: 'dashboard.ef_monthly_equivalent', defaultMessage: '≈ {amount} / month' },
+                { amount: fmtCur(Math.round(monthlyEquivalent)) },
+              )}
+            </p>
+          )}
+          {fund.monthlyContribution > 0 && fund.frequency === 'monthly' && (
             <p className="ds-supporting" style={{ marginTop: 'var(--spacing-1)' }}>
               {intl.formatMessage({ id: 'dashboard.ef_contribution_budget_note', defaultMessage: 'Reserved in your monthly budget' })}
             </p>
@@ -306,7 +368,7 @@ export default function EmergencyFundPage() {
               <MoneyInput
                 value={contributionInput}
                 onChange={setContributionInput}
-                placeholder="0"
+                placeholder={suggestedAllocation > 0 ? String(Math.round(suggestedAllocation)) : '0'}
                 style={{
                   flex: 1, padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border-default)', background: 'var(--color-bg-card)',
@@ -326,13 +388,98 @@ export default function EmergencyFundPage() {
           )}
         </div>
 
+        {/* Replenishment cadence card */}
+        <div className="ds-card" style={{ padding: 'var(--spacing-5)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-2)' }}>
+            <p className="ds-label" style={{ textTransform: 'uppercase' }}>
+              {intl.formatMessage({ id: 'dashboard.ef_cadence_label', defaultMessage: 'Replenishment cadence' })}
+            </p>
+            <button
+              onClick={() => {
+                setShowCadenceForm(!showCadenceForm);
+                setCadenceAnchor(fund.frequencyAnchorDate ?? new Date().toISOString().slice(0, 10));
+              }}
+              style={{ fontSize: '0.75rem', color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+            >
+              {intl.formatMessage({ id: 'dashboard.ef_update_contribution', defaultMessage: 'Update' })}
+            </button>
+          </div>
+          <p className="ds-metric" style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)' }}>
+            {fund.frequency === 'biweekly'
+              ? intl.formatMessage({ id: 'dashboard.ef_cadence_biweekly', defaultMessage: 'Bi-weekly' })
+              : intl.formatMessage({ id: 'dashboard.ef_cadence_monthly', defaultMessage: 'Monthly' })}
+          </p>
+          {fund.frequency === 'biweekly' && fund.frequencyAnchorDate && (
+            <p className="ds-supporting" style={{ marginTop: 'var(--spacing-1)' }}>
+              {intl.formatMessage(
+                { id: 'dashboard.ef_cadence_anchor', defaultMessage: 'Anchored to {date}' },
+                { date: intl.formatDate(new Date(fund.frequencyAnchorDate), { day: 'numeric', month: 'short', year: 'numeric' }) },
+              )}
+            </p>
+          )}
+          {showCadenceForm && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)', marginTop: 'var(--spacing-3)' }}>
+              <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
+                <button
+                  onClick={() => handleSetFrequency('monthly')}
+                  style={{
+                    flex: 1, padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
+                    border: `2px solid ${fund.frequency === 'monthly' ? 'var(--color-primary)' : 'var(--color-border-default)'}`,
+                    background: fund.frequency === 'monthly' ? 'var(--color-primary-light)' : 'transparent',
+                    color: fund.frequency === 'monthly' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer',
+                  }}
+                >
+                  {intl.formatMessage({ id: 'dashboard.ef_cadence_monthly', defaultMessage: 'Monthly' })}
+                </button>
+                <button
+                  onClick={() => handleSetFrequency('biweekly')}
+                  style={{
+                    flex: 1, padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
+                    border: `2px solid ${fund.frequency === 'biweekly' ? 'var(--color-primary)' : 'var(--color-border-default)'}`,
+                    background: fund.frequency === 'biweekly' ? 'var(--color-primary-light)' : 'transparent',
+                    color: fund.frequency === 'biweekly' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer',
+                  }}
+                >
+                  {intl.formatMessage({ id: 'dashboard.ef_cadence_biweekly', defaultMessage: 'Bi-weekly' })}
+                </button>
+              </div>
+              {fund.frequency === 'biweekly' && (
+                <div>
+                  <label className="ds-label" style={{ marginBottom: 'var(--spacing-1)', display: 'block' }}>
+                    {intl.formatMessage({ id: 'dashboard.ef_cadence_anchor_label', defaultMessage: 'Anchor date (first cycle)' })}
+                  </label>
+                  <input
+                    type="date"
+                    value={cadenceAnchor}
+                    onChange={(e) => setCadenceAnchor(e.target.value)}
+                    onBlur={() => cadenceAnchor && setFrequency('biweekly', cadenceAnchor)}
+                    style={{
+                      width: '100%', padding: 'var(--spacing-2)', borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--color-border-default)', background: 'var(--color-bg-card)',
+                      color: 'var(--color-text-primary)', fontSize: '0.875rem',
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {avgMonthlyExpenses > 0 && (
           <div className="ds-card" style={{ padding: 'var(--spacing-5)' }}>
             <p className="ds-label" style={{ marginBottom: 'var(--spacing-2)', textTransform: 'uppercase' }}>
-              {intl.formatMessage({ id: 'dashboard.ef_monthly_avg', defaultMessage: 'Avg. monthly expenses' })}
+              {intl.formatMessage({ id: 'dashboard.ef_essentials_avg', defaultMessage: 'Avg. monthly essentials' })}
             </p>
             <p className="ds-metric" style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)' }}>
               {fmtCur(Math.round(avgMonthlyExpenses))}
+            </p>
+            <p className="ds-supporting" style={{ marginTop: 'var(--spacing-1)' }}>
+              {intl.formatMessage(
+                { id: 'dashboard.ef_baseline_basis', defaultMessage: 'Food, bills, housing, transport, health · {months} mo of history' },
+                { months: baseline.monthsAnalyzed },
+              )}
             </p>
           </div>
         )}

@@ -31,6 +31,10 @@ const moneyMessages = {
   plan_recurring_heading: 'Recurring charges (locked in)',
   plan_recurring_desc: 'These show up every month. We pre-add them to your plan.',
   plan_ai_rationale: 'Why this number',
+  plan_savings_over_title: 'Your goals exceed this month\u2019s budget room',
+  plan_savings_over_body: 'Your active goals + emergency fund add up to {savings} but your typical monthly income is {income}. Extend a target date or pause a goal to free up room.',
+  plan_savings_over_goal_cta: 'Adjust {label}',
+  plan_savings_over_ef_cta: 'Adjust Emergency Fund',
 
   // Mid-month microcopy guard (Plan tab)
   plan_midmonth_warning_title: 'This is for planning next month.',

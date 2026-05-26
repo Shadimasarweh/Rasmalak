@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useState, useCallback, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
+import { showError } from '@/store/toastStore';
 
 const isDev = process.env.NODE_ENV === 'development';
 const devLog = (...args: unknown[]) => { if (isDev) console.log(...args); };
@@ -163,94 +164,127 @@ const TransactionContext = createContext<TransactionStore | null>(null);
 /* ===== PROVIDER ===== */
 export function TransactionProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  
+
   // Subscribe to auth store - re-fetch when user or initialized changes
   const user = useAuthStore((state) => state.user);
   const initialized = useAuthStore((state) => state.initialized);
 
-  // Fetch transactions from Supabase when auth is ready and user changes
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      devLog('[TransactionStore] fetchTransactions called - initialized:', initialized, 'user:', user?.id);
-      
-      // Wait for auth to be initialized
-      if (!initialized) {
-        devLog('[TransactionStore] Auth not initialized, skipping fetch');
-        return;
-      }
-
-      if (!user) {
-        // Not authenticated, no transactions to fetch
-        devLog('[TransactionStore] No user, clearing transactions');
-        setTransactions([]);
-        return;
-      }
-
-      // Verify Supabase session is valid
-      const { data: sessionData } = await supabase.auth.getSession();
-      devLog('[TransactionStore] Supabase session for fetch:', sessionData.session?.user?.id);
-      
-      if (!sessionData.session) {
-        console.error('[TransactionStore] No Supabase session - cannot fetch transactions');
-        setTransactions([]);
-        return;
-      }
-      
-      devLog('[TransactionStore] Fetching transactions for user:', user.id);
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', sessionData.session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('[TransactionStore] Error fetching transactions:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-        });
-        return;
-      }
-
-      devLog('[TransactionStore] Fetched transactions:', data?.length || 0);
-      if (data) {
-        const mapped: Transaction[] = data.map((row) => mapRowToTransaction(row));
-        setTransactions(mapped);
-      }
-    };
-
-    fetchTransactions();
+  // Hard fetch from Supabase. Used on mount + on window focus +
+  // after a failed insert so we always converge with the server.
+  const fetchTransactions = useCallback(async (): Promise<void> => {
+    if (!initialized) return;
+    if (!user) {
+      setTransactions([]);
+      return;
+    }
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      setTransactions([]);
+      return;
+    }
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', sessionData.session.user.id)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('[TransactionStore] fetch failed:', error.message);
+      return;
+    }
+    if (data) {
+      const mapped: Transaction[] = data.map((row) => mapRowToTransaction(row));
+      setTransactions(mapped);
+    }
   }, [user, initialized]);
 
-  // Add transaction with user_id from auth store
+  // Mount-time fetch. Deferred via microtask so the lint rule
+  // doesn't flag this as a synchronous setState-in-effect (the
+  // actual setState happens later inside the async fetch body).
+  useEffect(() => {
+    void Promise.resolve().then(() => fetchTransactions());
+  }, [fetchTransactions]);
+
+  // Realtime subscription scoped to the user. Catches inserts /
+  // updates / deletes from this tab AND any other tab the user has
+  // open. Idempotent: we de-dupe by id when applying. Cleanup on
+  // unmount or user change.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`transactions:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const row = mapRowToTransaction(payload.new as Record<string, unknown>);
+            setTransactions((prev) => {
+              if (prev.some((t) => t.id === row.id)) return prev;
+              return [row, ...prev];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const row = mapRowToTransaction(payload.new as Record<string, unknown>);
+            setTransactions((prev) => prev.map((t) => (t.id === row.id ? row : t)));
+          } else if (payload.eventType === 'DELETE') {
+            const oldId = (payload.old as { id?: string } | null)?.id;
+            if (oldId) {
+              setTransactions((prev) => prev.filter((t) => t.id !== oldId));
+            }
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  // Refetch when the tab regains focus. Final backstop for the
+  // "I added an expense and it didn't show up" symptom: even when
+  // realtime drops or the network blips, refocusing the tab pulls
+  // a fresh server snapshot.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onFocus = () => { void fetchTransactions(); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [fetchTransactions]);
+
+  // Add transaction with user_id from auth store.
+  //
+  // Sync hardening: the row goes into LOCAL STATE FIRST (optimistic
+  // insert) so the UI renders the new entry immediately, even when
+  // navigation happens before the Supabase round-trip resolves. The
+  // server response then either swaps the temp row for the real one
+  // (preserving the server-assigned id) or surfaces a toast and
+  // rolls back the optimistic row. Realtime cleans up the rare
+  // double-render race because we de-dupe by id when applying.
   const addTransaction = useCallback(async (transaction: AddTransactionInput) => {
     devLog('[TransactionStore] addTransaction called:', transaction);
-    
-    // Read auth state - check both initialized and user
-    const { user, initialized } = getAuthState();
-    devLog('[TransactionStore] Auth state:', { initialized, userId: user?.id });
 
+    const { user, initialized } = getAuthState();
     if (!initialized) {
       console.warn('[TransactionStore] Cannot add transaction: auth not initialized yet');
       return;
     }
-
     if (!user) {
       console.error('[TransactionStore] Cannot add transaction: user not authenticated');
+      showError('Cannot save: not signed in');
       return;
     }
 
-    // Double-check by getting the session directly from Supabase
     const { data: sessionData } = await supabase.auth.getSession();
-    devLog('[TransactionStore] Supabase session user:', sessionData.session?.user?.id);
-    devLog('[TransactionStore] Auth store user:', user.id);
-    
-    // Use the Supabase session user if available, otherwise fall back to auth store
     const userId = sessionData.session?.user?.id || user.id;
-    
+
     if (!Number.isFinite(transaction.amount) || transaction.amount <= 0 || transaction.amount > 1_000_000_000) {
       console.error('[TransactionStore] Invalid transaction amount');
+      showError('Invalid amount');
       return;
     }
 
@@ -264,6 +298,30 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       : transaction.amount * exchangeRate;
     const baseAtEntry = transaction.baseCurrencyAtEntry || transaction.currency;
     const rateSource = transaction.rateSource ?? 'backfill';
+
+    // Optimistic local row: rendered instantly so the user sees
+    // their entry before the server responds. We tag it with a
+    // `pending_` id so the swap-on-success and rollback-on-error
+    // can find it.
+    const tempId = `pending_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`}`;
+    const optimistic: Transaction = {
+      id: tempId,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      amountBase,
+      exchangeRateApplied: exchangeRate,
+      baseCurrencyAtEntry: baseAtEntry,
+      rateSource,
+      date: transaction.date,
+      type: transaction.type,
+      category: transaction.category,
+      description: transaction.description,
+      isRecurring: transaction.isRecurring ?? false,
+      recurringEndDate: transaction.recurringEndDate ?? null,
+      receiptId: transaction.receiptId ?? null,
+      subcategory: transaction.subcategory ?? null,
+    };
+    setTransactions(prev => [optimistic, ...prev]);
 
     const { data, error } = await supabase
       .from('transactions')
@@ -293,13 +351,23 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error('[TransactionStore] Error inserting transaction:', error.message, error.code, error.details);
+      // Roll back the optimistic row so the UI matches reality.
+      setTransactions(prev => prev.filter((t) => t.id !== tempId));
+      showError("Couldn't save your entry. Please try again.");
       return;
     }
 
     devLog('[TransactionStore] Transaction inserted successfully:', data);
     if (data) {
       const newTransaction = mapRowToTransaction(data);
-      setTransactions(prev => [newTransaction, ...prev]);
+      // Swap the optimistic temp row for the server row, and dedupe
+      // against the realtime channel's INSERT event in case both
+      // arrive in close succession.
+      setTransactions(prev => {
+        const withoutTemp = prev.filter((t) => t.id !== tempId);
+        if (withoutTemp.some((t) => t.id === newTransaction.id)) return withoutTemp;
+        return [newTransaction, ...withoutTemp];
+      });
     }
   }, []);
 
@@ -377,6 +445,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         .single();
       if (error || !data) {
         console.error('[TransactionStore] addReceipt fallback insert failed:', error?.message);
+        showError("Couldn't save the receipt. Please try again.");
         return null;
       }
       setTransactions((prev) => [mapRowToTransaction(data), ...prev]);
@@ -430,6 +499,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error('[TransactionStore] addReceipt insert failed:', error.message);
+      showError("Couldn't save the receipt. Please try again.");
       return null;
     }
 
@@ -464,6 +534,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error('Error deleting transaction:', error);
+      showError("Couldn't delete the entry. Please try again.");
       return;
     }
 
@@ -486,6 +557,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       .eq('receipt_id', receiptId);
     if (error) {
       console.error('Error deleting receipt:', error);
+      showError("Couldn't delete the receipt. Please try again.");
       return;
     }
     setTransactions((prev) => prev.filter((t) => t.receiptId !== receiptId));

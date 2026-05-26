@@ -27,6 +27,10 @@ const moneyMessages = {
   plan_recurring_heading: 'الرسوم المتكررة',
   plan_recurring_desc: 'تتكرر كل شهر. أضفناها مسبقاً إلى خطتك.',
   plan_ai_rationale: 'لماذا هذا الرقم',
+  plan_savings_over_title: 'أهدافك تتجاوز ميزانية هذا الشهر',
+  plan_savings_over_body: 'أهدافك النشطة + صندوق الطوارئ تجمع {savings} لكن دخلك الشهري المعتاد {income}. مدّد تاريخ هدف أو أوقفه مؤقتاً لإفساح المجال.',
+  plan_savings_over_goal_cta: 'تعديل {label}',
+  plan_savings_over_ef_cta: 'تعديل صندوق الطوارئ',
 
   plan_midmonth_warning_title: 'هذه للخطة فقط — لشهر قادم.',
   plan_midmonth_warning_body: 'لتسجيل ما صرفته بالفعل، اذهب إلى تتبع مصروفاتك.',

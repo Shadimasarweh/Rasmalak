@@ -760,15 +760,21 @@ function ReviewBody({
     });
   };
 
-  // When the user changes the top-level category we re-classify each
-  // existing item (LLM proposals scoped to the old parent are no longer
-  // valid). Cheap to recompute since item count is bounded at 20.
+  // When the user changes the top-level category, re-run the
+  // subcategory classifier per item BUT pass the user's existing
+  // choice as the `proposed` argument. classifySubcategory keeps it
+  // when it's still valid for the new parent (or the new parent has
+  // no subcategories at all) and only re-derives by description
+  // keywords when it isn't. Previously we passed null here, which
+  // wiped every manual subcategory selection on every category
+  // change — even when toggling between siblings of the same
+  // parent. Cheap to recompute since item count is bounded at 20.
   const onCategoryChange = (next: string) => {
     setReview((r) => {
       if (!r) return r;
       const reclassified = r.items.map((it) => ({
         ...it,
-        subcategory: classifySubcategory(it.description, next, null),
+        subcategory: classifySubcategory(it.description, next, it.subcategory ?? null),
       }));
       return { ...r, category: next, items: reclassified };
     });

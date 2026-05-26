@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { AuthGuard, Sidebar, Header } from '@/components';
 import { TransactionProvider } from '@/store/transactionStore';
 import { BudgetProvider } from '@/store/budgetStore';
+import { BudgetCyclesProvider } from '@/store/budgetCyclesStore';
 import { GoalsProvider } from '@/store/goalsStore';
 import { EmergencyFundProvider } from '@/store/emergencyFundStore';
 import QuickAddFAB from '@/components/QuickAddFAB';
 import CurrencyBootstrap from '@/components/CurrencyBootstrap';
+import ToastHost from '@/components/ui/ToastHost';
 
 export default function DashboardLayout({
   children,
@@ -20,6 +22,7 @@ export default function DashboardLayout({
     <AuthGuard>
       <TransactionProvider>
       <BudgetProvider>
+      <BudgetCyclesProvider>
       <GoalsProvider>
       <EmergencyFundProvider>
       <CurrencyBootstrap />
@@ -40,8 +43,10 @@ export default function DashboardLayout({
         </div>
       </div>
       <QuickAddFAB />
+      <ToastHost />
       </EmergencyFundProvider>
       </GoalsProvider>
+      </BudgetCyclesProvider>
       </BudgetProvider>
       </TransactionProvider>
     </AuthGuard>

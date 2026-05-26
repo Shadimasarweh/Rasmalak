@@ -3,6 +3,10 @@
     {
       "path": "/api/fx/refresh",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/budget/auto-renew",
+      "schedule": "1 0 1 * *"
     }
   ]
 }

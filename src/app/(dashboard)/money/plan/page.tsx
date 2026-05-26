@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { Calendar, Save, Check, Sparkles, Info } from 'lucide-react';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { useTransactions } from '@/store/transactionStore';
-import { useBudget } from '@/store/budgetStore';
+import { useBudgetCycles } from '@/store/budgetCyclesStore';
 import { useEmergencyFund } from '@/store/emergencyFundStore';
 import { useGoals, getMonthlyFundingAmount } from '@/store/goalsStore';
+import { convertCadence } from '@/lib/emergencyFund/baseline';
+import { estimateMonthlyIncome, evaluateSavingsFitness } from '@/lib/budget/savingsFitness';
 import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { MoneyInput } from '@/components/MoneyInput';
@@ -209,7 +211,25 @@ export default function PlanPage() {
   const isRTL = language === 'ar';
   const locale: 'en' | 'ar' = isRTL ? 'ar' : 'en';
 
-  const { monthlyBudget, categoryBudgets, saveAll } = useBudget();
+  // Plan reads from the month-stamped budget_cycles table introduced
+  // in migration 013. The legacy `useBudget()` (single row, no
+  // history) is kept for callers that haven't migrated yet but the
+  // Plan page is the source of truth for cycle data.
+  const { currentCycle, saveCurrentCycle } = useBudgetCycles();
+  const monthlyBudget = currentCycle?.monthlyBudget ?? 0;
+  // Memoize so dependent useEffects don't re-run on every render
+  // (currentCycle is recomputed on every store update; the inner
+  // category map only changes on actual data change).
+  const categoryBudgets = useMemo(
+    () => currentCycle?.categoryBudgets ?? {},
+    [currentCycle],
+  );
+  const saveAll = useCallback(
+    (monthly: number, categories: Record<string, number>) => {
+      void saveCurrentCycle(monthly, categories);
+    },
+    [saveCurrentCycle],
+  );
   const { transactions } = useTransactions();
   const { savingsGoals } = useGoals();
   const { fund: emergencyFund } = useEmergencyFund();
@@ -327,6 +347,52 @@ export default function PlanPage() {
     (s) => !tempBudgets[s.categoryId] || parseFloat(tempBudgets[s.categoryId] || '0') === 0,
   );
 
+  // Build the savings line list (goals + EF) for the fitness check.
+  // We use the live monthly funding amount, not what's stored in the
+  // budget cycle, because the doc requires the alert to reflect the
+  // CURRENT goals state (paused goals already drop to 0).
+  const savingsLines = useMemo(() => {
+    const lines: { id: string; source: 'goal' | 'emergency-fund'; label: string; monthlyAmount: number; goalId?: string }[] = [];
+    fundedGoals.forEach((g) => {
+      lines.push({
+        id: `goal-${g.id}`,
+        source: 'goal',
+        label: g.name,
+        monthlyAmount: getMonthlyFundingAmount(g),
+        goalId: g.id,
+      });
+    });
+    if (emergencyFund && emergencyFund.monthlyContribution > 0) {
+      const monthlyEquiv = emergencyFund.frequency === 'biweekly'
+        ? convertCadence({ amount: emergencyFund.monthlyContribution, from: 'biweekly', to: 'monthly' })
+        : emergencyFund.monthlyContribution;
+      lines.push({
+        id: 'emergency-fund',
+        source: 'emergency-fund',
+        label: intl.formatMessage({ id: 'dashboard.budgets_ef_contribution', defaultMessage: 'Emergency Fund' }),
+        monthlyAmount: monthlyEquiv,
+      });
+    }
+    return lines;
+  }, [fundedGoals, emergencyFund, intl]);
+
+  // Expected income: median of last 3 months' income, rounded.
+  // Falls back to the user's planned monthly budget when there's
+  // no income history (new accounts).
+  const expectedIncome = useMemo(() => {
+    const fromHistory = estimateMonthlyIncome(
+      transactions.map((t) => ({ type: t.type, amountBase: t.amountBase, date: t.date })),
+    );
+    return fromHistory > 0 ? fromHistory : monthlyBudgetValue;
+  }, [transactions, monthlyBudgetValue]);
+
+  const fitness = useMemo(
+    () => evaluateSavingsFitness(savingsLines, expectedIncome),
+    [savingsLines, expectedIncome],
+  );
+
+  const [fitnessDismissed, setFitnessDismissed] = useState(false);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)', direction: isRTL ? 'rtl' : 'ltr' }}>
       {/* HEADER */}
@@ -358,6 +424,94 @@ export default function PlanPage() {
           {intl.formatMessage({ id: 'money.plan_intent_label' })}
         </p>
       </div>
+
+      {/* OVER-INCOME ALERT — fires when goal+EF savings > expected income */}
+      {fitness.isOverBudget && !fitnessDismissed && (
+        <div
+          role="alert"
+          style={{
+            background: 'rgba(220, 38, 38, 0.06)',
+            border: '0.5px solid rgba(220, 38, 38, 0.3)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ds-error)', margin: 0, marginBottom: '4px' }}>
+                {intl.formatMessage({ id: 'money.plan_savings_over_title', defaultMessage: 'Your goals exceed this month\u2019s budget room' })}
+              </p>
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.5 }}>
+                {intl.formatMessage(
+                  {
+                    id: 'money.plan_savings_over_body',
+                    defaultMessage: 'Your active goals + emergency fund add up to {savings} but your typical monthly income is {income}. Extend a target date or pause a goal to free up room.',
+                  },
+                  {
+                    savings: `${currencySymbol} ${styledNum(intl.formatNumber(Math.round(fitness.totalSavings)))}`,
+                    income: `${currencySymbol} ${styledNum(intl.formatNumber(Math.round(fitness.expectedIncome)))}`,
+                  },
+                )}
+              </p>
+            </div>
+            <button
+              onClick={() => setFitnessDismissed(true)}
+              aria-label="Dismiss"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--ds-text-muted)',
+                cursor: 'pointer',
+                fontSize: '18px',
+                lineHeight: 1,
+                padding: 0,
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {fitness.largestLine?.source === 'goal' && fitness.largestLine.goalId && (
+              <Link
+                href="/goals"
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: '#FFFFFF',
+                  background: 'var(--ds-primary)',
+                  borderRadius: '8px',
+                  padding: '8px 14px',
+                  textDecoration: 'none',
+                }}
+              >
+                {intl.formatMessage(
+                  { id: 'money.plan_savings_over_goal_cta', defaultMessage: 'Adjust {label}' },
+                  { label: fitness.largestLine.label },
+                )}
+              </Link>
+            )}
+            {fitness.largestLine?.source === 'emergency-fund' && (
+              <Link
+                href="/emergency-fund"
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: '#FFFFFF',
+                  background: 'var(--ds-primary)',
+                  borderRadius: '8px',
+                  padding: '8px 14px',
+                  textDecoration: 'none',
+                }}
+              >
+                {intl.formatMessage({ id: 'money.plan_savings_over_ef_cta', defaultMessage: 'Adjust Emergency Fund' })}
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* MONTHLY TARGET */}
       <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -504,44 +658,58 @@ export default function PlanPage() {
         </div>
       )}
 
-      {/* EMERGENCY FUND CONTRIBUTION (planning, kept) */}
-      {emergencyFund && emergencyFund.monthlyContribution > 0 && (
-        <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div>
-            <h2 className="ds-title-section" style={{ marginBottom: '2px' }}>
-              {intl.formatMessage({ id: 'dashboard.budgets_ef_contribution', defaultMessage: 'Emergency Fund' })}
-            </h2>
-            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0 }}>
-              {intl.formatMessage({ id: 'dashboard.budgets_ef_contribution_desc', defaultMessage: 'Reserved monthly from your budget' })}
-            </p>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 12px',
-              borderRadius: '8px',
-              background: 'var(--ds-bg-input)',
-              border: '0.5px solid var(--ds-border)',
-            }}
-          >
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--ds-actual)' }} />
-            <p style={{ flex: 1, fontSize: '13px', color: 'var(--ds-text-heading)', margin: 0 }}>
-              {intl.formatMessage({ id: 'dashboard.budgets_ef_monthly', defaultMessage: 'Monthly Contribution' })}
-            </p>
-            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-plan)' }}>
-              {currencySymbol} {styledNum(intl.formatNumber(emergencyFund.monthlyContribution))}
-            </span>
-            <Link
-              href="/emergency-fund"
-              style={{ fontSize: '11px', color: 'var(--ds-actual)', textDecoration: 'none', flexShrink: 0 }}
+      {/* EMERGENCY FUND CONTRIBUTION (locked savings line) */}
+      {emergencyFund && emergencyFund.monthlyContribution > 0 && (() => {
+        // For biweekly cadence, monthlyContribution stores the
+        // BI-WEEKLY amount; convert to a monthly equivalent so the
+        // Plan page sums consistently with the other savings lines.
+        const monthlyEquiv = emergencyFund.frequency === 'biweekly'
+          ? convertCadence({ amount: emergencyFund.monthlyContribution, from: 'biweekly', to: 'monthly' })
+          : emergencyFund.monthlyContribution;
+        return (
+          <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
+              <h2 className="ds-title-section" style={{ marginBottom: '2px' }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_ef_contribution', defaultMessage: 'Emergency Fund' })}
+              </h2>
+              <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_ef_contribution_desc', defaultMessage: 'Reserved monthly from your budget' })}
+              </p>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 12px',
+                borderRadius: '8px',
+                background: 'var(--ds-bg-input)',
+                border: '0.5px solid var(--ds-border)',
+              }}
+              title={intl.formatMessage({ id: 'dashboard.budgets_locked_hint', defaultMessage: 'Locked: edit from the source page' })}
             >
-              {intl.formatMessage({ id: 'dashboard.budgets_ef_edit_hint', defaultMessage: 'Edit from Emergency Fund page' })}
-            </Link>
+              <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--ds-actual)' }} />
+              <p style={{ flex: 1, fontSize: '13px', color: 'var(--ds-text-heading)', margin: 0 }}>
+                {intl.formatMessage({ id: 'dashboard.budgets_ef_monthly', defaultMessage: 'Monthly Contribution' })}
+                {emergencyFund.frequency === 'biweekly' && (
+                  <span style={{ marginInlineStart: '6px', color: 'var(--ds-text-muted)', fontWeight: 400, fontSize: '11px' }}>
+                    {intl.formatMessage({ id: 'dashboard.budgets_ef_biweekly_note', defaultMessage: '(bi-weekly)' })}
+                  </span>
+                )}
+              </p>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-plan)' }}>
+                {currencySymbol} {styledNum(intl.formatNumber(Math.round(monthlyEquiv)))}
+              </span>
+              <Link
+                href="/emergency-fund"
+                style={{ fontSize: '11px', color: 'var(--ds-actual)', textDecoration: 'none', flexShrink: 0 }}
+              >
+                {intl.formatMessage({ id: 'dashboard.budgets_ef_edit_hint', defaultMessage: 'Edit from Emergency Fund page' })}
+              </Link>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* COMPACT COMPARE PREVIEW — current month */}
       <div className="ds-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

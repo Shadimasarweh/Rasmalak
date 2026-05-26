@@ -5,11 +5,22 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 import { useStore } from '@/store/useStore';
 
+export type EFFrequency = 'monthly' | 'biweekly';
+
 export interface EmergencyFund {
   id: string;
   targetAmount: number;
   currentAmount: number;
   monthlyContribution: number;
+  // Replenishment cadence per "Emergency funds and Savings Goals.docx".
+  // 'monthly' uses monthlyContribution as-is; 'biweekly' uses
+  // monthlyContribution as the BI-WEEKLY amount (we store the chosen
+  // cadence value and convert at display time so a single column
+  // serves both cadences — see convertCadence in lib/emergencyFund/baseline).
+  frequency: EFFrequency;
+  // Anchor date for bi-weekly cycles so they line up with the
+  // user's pay schedule. Null when frequency is 'monthly'.
+  frequencyAnchorDate: string | null;
   // ISO 4217 currency the user typed the target in. Display layer
   // converts to base when comparing against transactions.
   currencyNative: string;
@@ -32,6 +43,7 @@ interface EmergencyFundStore {
   createFund: (targetAmount: number) => Promise<void>;
   updateTarget: (targetAmount: number) => Promise<void>;
   setMonthlyContribution: (amount: number) => Promise<void>;
+  setFrequency: (frequency: EFFrequency, anchorDate?: string | null) => Promise<void>;
   addDeposit: (amount: number, note?: string) => Promise<void>;
   deleteDeposit: (depositId: string) => Promise<void>;
 }
@@ -84,6 +96,8 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
           targetAmount: Number(fundData.target_amount),
           currentAmount: Number(fundData.current_amount),
           monthlyContribution: Number(fundData.monthly_contribution ?? 0),
+          frequency: ((fundData.frequency as EFFrequency | undefined) ?? 'monthly'),
+          frequencyAnchorDate: (fundData.frequency_anchor_date as string | null | undefined) ?? null,
           currencyNative: (fundData.currency_native as string | undefined) ?? baseCurrency,
           createdAt: fundData.created_at,
           updatedAt: fundData.updated_at,
@@ -146,6 +160,8 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
         targetAmount: Number(data.target_amount),
         currentAmount: Number(data.current_amount),
         monthlyContribution: Number(data.monthly_contribution ?? 0),
+        frequency: ((data.frequency as EFFrequency | undefined) ?? 'monthly'),
+        frequencyAnchorDate: (data.frequency_anchor_date as string | null | undefined) ?? null,
         currencyNative: (data.currency_native as string | undefined) ?? baseCurrency,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
@@ -183,6 +199,33 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
     }
 
     setFund(prev => prev ? { ...prev, monthlyContribution: amount, updatedAt: new Date().toISOString() } : null);
+  }, [fund]);
+
+  const setFrequency = useCallback(async (frequency: EFFrequency, anchorDate?: string | null) => {
+    if (!fund) return;
+    // Bi-weekly always needs an anchor date so cycle math is
+    // deterministic. Default to today when the caller didn't supply one.
+    const finalAnchor = frequency === 'biweekly'
+      ? (anchorDate ?? new Date().toISOString().slice(0, 10))
+      : null;
+    const { error } = await supabase
+      .from('emergency_funds')
+      .update({
+        frequency,
+        frequency_anchor_date: finalAnchor,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', fund.id);
+    if (error) {
+      console.error('[EmergencyFundStore] Error updating frequency:', error.message);
+      return;
+    }
+    setFund(prev => prev ? {
+      ...prev,
+      frequency,
+      frequencyAnchorDate: finalAnchor,
+      updatedAt: new Date().toISOString(),
+    } : null);
   }, [fund]);
 
   const addDeposit = useCallback(async (amount: number, note?: string) => {
@@ -267,6 +310,7 @@ export function EmergencyFundProvider({ children }: { children: ReactNode }) {
     createFund,
     updateTarget,
     setMonthlyContribution,
+    setFrequency,
     addDeposit,
     deleteDeposit,
   };

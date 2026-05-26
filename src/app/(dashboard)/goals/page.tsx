@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
 import { useGoals, getMonthlyFundingAmount, goalFundingCategoryId } from '@/store/goalsStore';
-import type { FundingType } from '@/store/goalsStore';
+import type { FundingType, GoalStatus, SavingsGoal } from '@/store/goalsStore';
 import { useBudget } from '@/store/budgetStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
@@ -194,13 +194,15 @@ function GoalCard({
   currencySymbol,
   onAddFunds,
   onDelete,
+  onSetStatus,
   isRTL,
   intl,
 }: {
-  goal: { id: string; name: string; nameAr: string; targetAmount: number; currentAmount: number; deadline?: string; color: string; fundingType: FundingType; fundingValue: number; currencyNative: string };
+  goal: SavingsGoal;
   currencySymbol: string;
   onAddFunds: () => void;
   onDelete: () => void;
+  onSetStatus: (next: GoalStatus) => void;
   isRTL: boolean;
   intl: ReturnType<typeof useIntl>;
 }) {
@@ -208,6 +210,8 @@ function GoalCard({
   const remaining = Math.max(goal.targetAmount - goal.currentAmount, 0);
   const isComplete = percentage >= 100;
   const monthlyFunding = getMonthlyFundingAmount(goal);
+  const isPaused = goal.status === 'paused';
+  const isAchieved = goal.status === 'achieved' || isComplete;
 
   return (
     <div
@@ -372,42 +376,89 @@ function GoalCard({
         </div>
       )}
 
-      {/* Add Funds button */}
-      {!isComplete && (
-        <button
-          onClick={onAddFunds}
-          style={{
-            padding: '8px 16px',
-            fontSize: '13px',
-            fontWeight: 500,
-            border: `1px solid ${goal.color}40`,
-            borderRadius: '8px',
-            background: goal.color + '0F',
-            color: goal.color,
-            cursor: 'pointer',
-            width: '100%',
-          }}
-          className="hover:opacity-80 transition-opacity"
-        >
-          {intl.formatMessage({ id: 'dashboard.goals_add_funds', defaultMessage: 'Add Funds' })}
-        </button>
-      )}
-      {isComplete && (
+      {/* Status pill (paused / achieved). Only renders when the
+          goal is in a non-default state, so the standard active
+          card is unchanged. */}
+      {(isPaused || isAchieved) && (
         <div
           style={{
             textAlign: 'center',
-            padding: '8px',
-            fontSize: '13px',
+            padding: '6px 8px',
+            fontSize: '12px',
             fontWeight: 500,
-            color: 'var(--ds-success-text)',
-            backgroundColor: 'var(--ds-success-bg)',
+            color: isPaused ? 'var(--ds-text-muted)' : 'var(--ds-success-text)',
+            backgroundColor: isPaused ? 'var(--ds-bg-tinted)' : 'var(--ds-success-bg)',
             borderRadius: '8px',
-            border: '0.5px solid var(--ds-success-border)',
+            border: `0.5px solid ${isPaused ? 'var(--ds-border)' : 'var(--ds-success-border)'}`,
           }}
         >
-          {intl.formatMessage({ id: 'dashboard.goals_goal_achieved', defaultMessage: 'Goal achieved!' })}
+          {isPaused
+            ? intl.formatMessage({ id: 'dashboard.goals_status_paused', defaultMessage: 'Paused — not in this month\u2019s budget' })
+            : intl.formatMessage({ id: 'dashboard.goals_goal_achieved', defaultMessage: 'Goal achieved!' })}
         </div>
       )}
+
+      {/* Action row: Add Funds (when active) + lifecycle buttons */}
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        {!isAchieved && !isPaused && (
+          <button
+            onClick={onAddFunds}
+            style={{
+              flex: '1 1 120px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 500,
+              border: `1px solid ${goal.color}40`,
+              borderRadius: '8px',
+              background: goal.color + '0F',
+              color: goal.color,
+              cursor: 'pointer',
+            }}
+            className="hover:opacity-80 transition-opacity"
+          >
+            {intl.formatMessage({ id: 'dashboard.goals_add_funds', defaultMessage: 'Add Funds' })}
+          </button>
+        )}
+        {!isAchieved && (
+          <button
+            onClick={() => onSetStatus(isPaused ? 'active' : 'paused')}
+            style={{
+              flex: '0 0 auto',
+              padding: '8px 12px',
+              fontSize: '12px',
+              fontWeight: 500,
+              border: '1px solid var(--ds-border)',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: 'var(--ds-text-muted)',
+              cursor: 'pointer',
+            }}
+          >
+            {isPaused
+              ? intl.formatMessage({ id: 'dashboard.goals_resume', defaultMessage: 'Resume' })
+              : intl.formatMessage({ id: 'dashboard.goals_pause', defaultMessage: 'Pause' })}
+          </button>
+        )}
+        {!isAchieved && (
+          <button
+            onClick={() => onSetStatus('achieved')}
+            style={{
+              flex: '0 0 auto',
+              padding: '8px 12px',
+              fontSize: '12px',
+              fontWeight: 500,
+              border: '1px solid var(--ds-border)',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: 'var(--ds-text-muted)',
+              cursor: 'pointer',
+            }}
+            title={intl.formatMessage({ id: 'dashboard.goals_mark_complete_hint', defaultMessage: 'Mark this goal as complete' })}
+          >
+            {intl.formatMessage({ id: 'dashboard.goals_mark_complete', defaultMessage: 'Mark complete' })}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -902,6 +953,7 @@ export default function GoalsPage() {
                   deleteSavingsGoal(goal.id);
                 }
               }}
+              onSetStatus={(next) => updateSavingsGoal(goal.id, { status: next })}
             />
           ))}
         </div>
@@ -965,9 +1017,20 @@ export default function GoalsPage() {
         onClose={() => setAddFundsGoalId(null)}
         onConfirm={(amount) => {
           if (addFundsGoalId && addFundsGoal) {
-            updateSavingsGoal(addFundsGoalId, {
-              currentAmount: addFundsGoal.currentAmount + amount,
-            });
+            const nextCurrent = addFundsGoal.currentAmount + amount;
+            // Auto-flip the status to 'achieved' as soon as the
+            // running total crosses the target so the goal stops
+            // being injected into next month's budget without
+            // requiring the user to click "Mark complete".
+            const updates: Partial<SavingsGoal> = { currentAmount: nextCurrent };
+            if (
+              addFundsGoal.status !== 'achieved' &&
+              nextCurrent >= addFundsGoal.targetAmount &&
+              addFundsGoal.targetAmount > 0
+            ) {
+              updates.status = 'achieved';
+            }
+            updateSavingsGoal(addFundsGoalId, updates);
           }
           setAddFundsGoalId(null);
         }}
