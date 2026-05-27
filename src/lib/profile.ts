@@ -93,3 +93,53 @@ export async function setBaseCurrency(
   }
   return true;
 }
+
+/**
+ * Persist the four onboarding-capture fields added in migration 014
+ * (`primary_focuses`, `persona`, `monthly_income`, `expense_preset`)
+ * along with country / base_currency in a single upsert. Called on
+ * the final step of the onboarding wizard.
+ *
+ * `monthlyIncome` may be null when the user skipped or entered an
+ * invalid number; the column is nullable so we just write through.
+ */
+export interface OnboardingPayload {
+  country: string;
+  primaryFocuses: string[];
+  persona: 'salaried' | 'variable' | 'student';
+  monthlyIncome: number | null;
+  expensePreset: 'lean' | 'average' | 'heavy';
+}
+
+export async function saveOnboarding(
+  userId: string,
+  payload: OnboardingPayload,
+): Promise<UserProfile | null> {
+  const baseCurrency = getCurrencyForCountry(payload.country);
+  const { data, error } = await supabase
+    .from('profiles')
+    .upsert(
+      {
+        id: userId,
+        country: payload.country,
+        base_currency: baseCurrency,
+        primary_focuses: payload.primaryFocuses,
+        persona: payload.persona,
+        monthly_income: payload.monthlyIncome,
+        expense_preset: payload.expensePreset,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id' },
+    )
+    .select()
+    .single();
+  if (error || !data) {
+    console.error('[profile] saveOnboarding failed:', error?.message);
+    return null;
+  }
+  return {
+    id: data.id,
+    country: data.country,
+    baseCurrency: data.base_currency,
+  };
+}
