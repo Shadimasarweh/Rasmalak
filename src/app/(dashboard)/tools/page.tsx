@@ -10,13 +10,13 @@ import type { FilterConfig } from '@/components/filters';
 
 const EMPTY_FILTERS: Record<string, string[]> = {};
 
+// Egypt and Iraq are intentionally hidden in this release — calculators
+// for those countries aren't ready yet. Add them back here when they are.
 const COUNTRY_CODES: Record<string, string> = {
   all: '',
   jordan: 'JO',
   uae: 'AE',
   ksa: 'SA',
-  egypt: 'EG',
-  iraq: 'IQ',
 };
 
 /* ============================================
@@ -25,7 +25,7 @@ const COUNTRY_CODES: Record<string, string> = {
    ============================================ */
 
 /* ===== TYPES ===== */
-type Country = 'all' | 'jordan' | 'uae' | 'ksa' | 'egypt' | 'iraq';
+type Country = 'all' | 'jordan' | 'uae' | 'ksa';
 type Category = 'credit' | 'budgeting' | 'auto' | 'tax' | 'social';
 
 interface Tool {
@@ -137,14 +137,15 @@ const ZakatIcon = () => (
   </svg>
 );
 
-/* ===== COUNTRY FILTER DATA ===== */
+/* ===== COUNTRY FILTER DATA =====
+   Egypt and Iraq filters are hidden until their calculators are ready.
+   Their entries (and the country-specific tools below) will be re-added
+   in a follow-up release. */
 const COUNTRIES: { id: Country; labelKey: string; labelDefault: string; flag: string }[] = [
   { id: 'all', labelKey: 'tools.filter.all', labelDefault: 'All Countries', flag: '🌍' },
   { id: 'jordan', labelKey: 'tools.filter.jordan', labelDefault: 'Jordan', flag: '🇯🇴' },
   { id: 'uae', labelKey: 'tools.filter.uae', labelDefault: 'UAE', flag: '🇦🇪' },
   { id: 'ksa', labelKey: 'tools.filter.ksa', labelDefault: 'Saudi Arabia', flag: '🇸🇦' },
-  { id: 'egypt', labelKey: 'tools.filter.egypt', labelDefault: 'Egypt', flag: '🇪🇬' },
-  { id: 'iraq', labelKey: 'tools.filter.iraq', labelDefault: 'Iraq', flag: '🇮🇶' },
 ];
 
 /* ===== TOOLS DATA ===== */
@@ -328,56 +329,9 @@ const TOOLS_DATA: Tool[] = [
     category: 'social',
     countries: ['ksa'],
   },
-  // Egypt-Specific Tools
-  {
-    id: 'egypt-income-tax',
-    titleKey: 'tools.egypt_income_tax',
-    titleDefault: 'Personal Income Tax Calculator',
-    descKey: 'tools.egypt_income_tax_desc',
-    descDefault: 'Calculate your personal income tax based on Egyptian tax brackets and current regulations.',
-    icon: <ReceiptIcon />,
-    iconBg: 'rgba(245, 158, 11, 0.1)',
-    iconColor: '#F59E0B',
-    category: 'tax',
-    countries: ['egypt'],
-  },
-  {
-    id: 'egypt-social-security',
-    titleKey: 'tools.egypt_social_security',
-    titleDefault: 'Social Security Calculator',
-    descKey: 'tools.egypt_social_security_desc',
-    descDefault: 'Estimate your social insurance contributions and benefits under Egyptian social security law.',
-    icon: <ShieldIcon />,
-    iconBg: 'rgba(45, 106, 79, 0.1)',
-    iconColor: '#2D6A4F',
-    category: 'social',
-    countries: ['egypt'],
-  },
-  // Iraq-Specific Tools
-  {
-    id: 'iraq-income-tax',
-    titleKey: 'tools.iraq_income_tax',
-    titleDefault: 'Personal Income Tax Calculator',
-    descKey: 'tools.iraq_income_tax_desc',
-    descDefault: 'Calculate your personal income tax liability based on Iraqi tax regulations and brackets.',
-    icon: <ReceiptIcon />,
-    iconBg: 'rgba(245, 158, 11, 0.1)',
-    iconColor: '#F59E0B',
-    category: 'tax',
-    countries: ['iraq'],
-  },
-  {
-    id: 'iraq-social-security',
-    titleKey: 'tools.iraq_social_security',
-    titleDefault: 'Social Security Calculator',
-    descKey: 'tools.iraq_social_security_desc',
-    descDefault: 'Estimate your social security contributions and pension benefits under Iraqi labor law.',
-    icon: <ShieldIcon />,
-    iconBg: 'rgba(45, 106, 79, 0.1)',
-    iconColor: '#2D6A4F',
-    category: 'social',
-    countries: ['iraq'],
-  },
+  // Egypt and Iraq tools (income tax + social security) are hidden
+  // for this release. Their full definitions live in git history and
+  // will be re-added when the calculators are finalised.
 ];
 
 /* ===== FEATURED TOOL CARD (Reusable) ===== */
