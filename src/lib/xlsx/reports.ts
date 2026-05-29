@@ -8,6 +8,8 @@ import type { CreditCardResult } from '@/calculators/creditCardCalculator';
 import type { CompoundSavingsResult } from '@/calculators/compoundSavingsCalculator';
 import type { HomeAffordabilityResult } from '@/calculators/homeAffordabilityCalculator';
 import type { MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
+import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/personalZakatCalculator';
+import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
 
 import {
   XlsxWorkbook,
@@ -265,6 +267,89 @@ export function mortgagePayoffXlsx(
       currencyCell(row.cumulativeInterest, locale, currencySymbol),
     ]);
   }
+
+  return wb.build();
+}
+
+// ── Personal Zakat ────────────────────────────────────────────────────────────
+
+export function personalZakatXlsx(
+  input: PersonalZakatInput,
+  result: PersonalZakatResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const wb = new XlsxWorkbook();
+
+  // Summary sheet — nisab + total + zakat due.
+  const summary = wb.addSheet(ar ? 'ملخص الزكاة' : 'Zakat Summary', { rtl: ar });
+  summary.setColWidths([{ col: 1, width: 36 }, { col: 2, width: 22 }]);
+  summary.addRow([bold(ar ? 'محرك حساب الزكاة (للحساب فقط، ليس فتوى)' : 'Calculation Engine (for calculation only, not a fatwa)')]);
+  summary.addRow([cell(ar ? 'سعر الذهب (للجرام عيار 24)' : 'Gold Price (per 24K gram)'), currencyCell(input.goldPricePerGram, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'سعر الفضة (للجرام)' : 'Silver Price (per gram)'), currencyCell(input.silverPricePerGram, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'نصاب الذهب (85 جرام)' : 'Gold Nisab (85g)'), currencyCell(result.nisabGold, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'نصاب الفضة (595 جرام)' : 'Silver Nisab (595g)'), currencyCell(result.nisabSilver, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'النصاب المعتمد' : 'Effective Nisab'), currencyCell(result.effectiveNisab, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'إجمالي الثروة الصافية' : 'Total Net Wealth'), currencyCell(result.totalWealth, locale, currencySymbol)]);
+  summary.addRow([
+    cell(ar ? 'حالة النصاب' : 'Nisab Status'),
+    cell(result.meetsNisab ? (ar ? 'بلغت النصاب' : 'Meets Nisab') : (ar ? 'لم تبلغ النصاب' : 'Below Nisab')),
+  ]);
+  summary.addRow([cell(ar ? 'الزكاة المستحقة (2.5%)' : 'Zakat Due (2.5%)'), currencyCell(result.zakatDue, locale, currencySymbol)]);
+
+  // Asset breakdown sheet — one row per asset.
+  const assets = wb.addSheet(ar ? 'تفصيل الأصول' : 'Assets', { rtl: ar });
+  assets.setColWidths([
+    { col: 1, width: 18 }, { col: 2, width: 32 }, { col: 3, width: 14 },
+    { col: 4, width: 18 }, { col: 5, width: 22 },
+  ]);
+  const hdrs = ar
+    ? ['الفئة', 'الوصف', 'الوزن (جم)', 'سعر الوحدة', 'القيمة الصافية']
+    : ['Category', 'Description', 'Weight (g)', 'Value/Unit', 'Net Value'];
+  assets.addRow(hdrs.map((h) => header(h)));
+  for (const row of result.rows) {
+    assets.addRow([
+      cell(row.category),
+      cell(row.description || '-'),
+      row.category === 'cash' ? cell('-') : numCell(row.weight, 2, locale),
+      currencyCell(row.valuePerUnit, locale, currencySymbol),
+      currencyCell(row.netValue, locale, currencySymbol),
+    ]);
+  }
+
+  return wb.build();
+}
+
+// ── UAE Gratuity ──────────────────────────────────────────────────────────────
+
+export function uaeGratuityXlsx(
+  input: UaeGratuityInput,
+  result: UaeGratuityResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const wb = new XlsxWorkbook();
+
+  const sheet = wb.addSheet(ar ? 'مكافأة نهاية الخدمة' : 'Gratuity', { rtl: ar });
+  sheet.setColWidths([{ col: 1, width: 32 }, { col: 2, width: 22 }]);
+
+  sheet.addRow([bold(ar ? 'حاسبة مكافأة نهاية الخدمة (الإمارات)' : 'UAE Gratuity Calculator')]);
+  sheet.addRow([
+    cell(ar ? 'نوع العقد' : 'Contract Type'),
+    cell(input.contractType === 'limited' ? (ar ? 'محدود' : 'Limited') : (ar ? 'غير محدود' : 'Unlimited')),
+  ]);
+  sheet.addRow([cell(ar ? 'تاريخ المباشرة' : 'Joining Date'), dateCell(new Date(input.joiningDate), locale)]);
+  sheet.addRow([cell(ar ? 'تاريخ الانتهاء' : 'End Date'), dateCell(new Date(input.endDate), locale)]);
+  sheet.addRow([cell(ar ? 'الراتب الأساسي' : 'Basic Salary'), currencyCell(input.basicSalary, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'بدل السكن' : 'Housing Allowance'), currencyCell(input.housing, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'بدل المواصلات' : 'Transportation'), currencyCell(input.transportation, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'إجمالي الراتب' : 'Total Salary'), currencyCell(result.totalSalary, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'أشهر الخدمة' : 'Months of Service'), intCell(result.monthsOfService, locale)]);
+  sheet.addRow([cell(ar ? 'سنوات الخدمة' : 'Years of Service'), numCell(result.yearsOfService, 2, locale)]);
+  sheet.addRow([cell(ar ? 'الأيام المعادلة' : 'Equivalent Days of Basic'), numCell(result.equivalentDaysOfBasic, 1, locale)]);
+  sheet.addRow([cell(ar ? 'مكافأة نهاية الخدمة' : 'Gratuity Amount'), currencyCell(result.gratuity, locale, currencySymbol)]);
 
   return wb.build();
 }

@@ -8,6 +8,8 @@ import type { CreditCardInput, CreditCardResult } from '@/calculators/creditCard
 import type { CompoundSavingsInput, CompoundSavingsResult } from '@/calculators/compoundSavingsCalculator';
 import type { HomeAffordabilityInput, HomeAffordabilityResult } from '@/calculators/homeAffordabilityCalculator';
 import type { MortgagePayoffInput, MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
+import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/personalZakatCalculator';
+import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
 
 import { ReportDocument, buildScheduleColumns, AVAIL_H } from './builder';
 import { MARGIN_X, MARGIN_TOP, CONTENT_W, PAGE_H, MARGIN_BOTTOM } from './layout';
@@ -298,6 +300,119 @@ export function mortgagePayoffPdf(
 
   renderSchedulePages(doc, p1, cols, schedRows, 1);
 
+  return doc.build();
+}
+
+// ── Personal Zakat ────────────────────────────────────────────────────────────
+
+export function personalZakatPdf(
+  input: PersonalZakatInput,
+  result: PersonalZakatResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const doc = new ReportDocument({ locale, currencySymbol });
+
+  const p1 = doc.newPage(true);
+  doc.drawPageHeader(
+    p1,
+    ar ? 'حاسبة الزكاة الشخصية' : 'Personal Zakat Calculator',
+    ar ? 'محرك حساب الزكاة (للحساب فقط، ليس فتوى)' : 'Calculation Engine (For calculation only, not a fatwa)',
+  );
+
+  doc.drawSummaryColumns(
+    p1,
+    ar ? 'النصاب والمعطيات' : 'Nisab & Inputs',
+    [
+      [ar ? 'سعر الذهب (للجرام عيار 24)' : 'Gold Price (per 24K gram)', doc.fmtCurrency(input.goldPricePerGram)],
+      [ar ? 'سعر الفضة (للجرام)' : 'Silver Price (per gram)', doc.fmtCurrency(input.silverPricePerGram)],
+      [ar ? 'نصاب الذهب (85 جرام)' : 'Gold Nisab (85g)', doc.fmtCurrency(result.nisabGold)],
+      [ar ? 'نصاب الفضة (595 جرام)' : 'Silver Nisab (595g)', doc.fmtCurrency(result.nisabSilver)],
+      [ar ? 'النصاب المعتمد' : 'Effective Nisab', doc.fmtCurrency(result.effectiveNisab)],
+    ],
+    ar ? 'النتيجة' : 'Result',
+    [
+      [ar ? 'إجمالي الثروة الصافية' : 'Total Net Wealth', doc.fmtCurrency(result.totalWealth)],
+      [
+        ar ? 'حالة النصاب' : 'Nisab Status',
+        result.meetsNisab
+          ? (ar ? 'بلغت النصاب' : 'Meets Nisab')
+          : (ar ? 'لم تبلغ النصاب' : 'Below Nisab'),
+      ],
+      [ar ? 'نسبة الزكاة' : 'Zakat Rate', '2.5%'],
+      [ar ? 'الزكاة المستحقة' : 'Zakat Due', doc.fmtCurrency(result.zakatDue)],
+    ],
+  );
+
+  doc.drawSectionHeading(p1, ar ? 'تفصيل الأصول' : 'Asset Breakdown');
+
+  const hdrs = ar
+    ? ['القيمة الصافية', 'سعر الوحدة', 'الوزن (جم)', 'الوصف', 'الفئة']
+    : ['Category', 'Description', 'Weight (g)', 'Value/Unit', 'Net Value'];
+  const colW = CONTENT_W / 5;
+  const cols = buildScheduleColumns(ar ? [...hdrs].reverse() : hdrs, Array(5).fill(colW));
+
+  const rows: TableRow[] = result.rows.map((r, i) => ({
+    cells: [
+      r.category,
+      r.description || '-',
+      r.category === 'cash' ? '-' : doc.fmtNum(r.weight, 2),
+      doc.fmtCurrency(r.valuePerUnit),
+      doc.fmtCurrency(r.netValue),
+    ],
+    altFill: i % 2 === 1,
+  }));
+
+  drawTable(p1, MARGIN_X, p1.y, cols, [{ cells: cols.map((c) => c.label), isHeader: true }, ...rows], { fontSize: 8, rowHeight: 14 });
+  doc.finalizePage(p1, 1, 1);
+  return doc.build();
+}
+
+// ── UAE Gratuity ──────────────────────────────────────────────────────────────
+
+export function uaeGratuityPdf(
+  input: UaeGratuityInput,
+  result: UaeGratuityResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const doc = new ReportDocument({ locale, currencySymbol });
+
+  const p1 = doc.newPage(true);
+  doc.drawPageHeader(
+    p1,
+    ar ? 'حاسبة مكافأة نهاية الخدمة (الإمارات)' : 'UAE Gratuity Calculator',
+    ar ? 'تقرير نهاية الخدمة وفق قانون العمل الإماراتي' : 'End-of-service report per UAE Labour Law',
+  );
+
+  const contractLabel = input.contractType === 'limited'
+    ? (ar ? 'عقد محدود المدة' : 'Limited contract')
+    : (ar ? 'عقد غير محدود المدة' : 'Unlimited contract');
+
+  doc.drawSummaryColumns(
+    p1,
+    ar ? 'بيانات الموظف' : 'Employee Inputs',
+    [
+      [ar ? 'نوع العقد' : 'Contract Type', contractLabel],
+      [ar ? 'تاريخ المباشرة' : 'Joining Date', doc.fmtDate(new Date(input.joiningDate))],
+      [ar ? 'تاريخ الانتهاء' : 'End Date', doc.fmtDate(new Date(input.endDate))],
+      [ar ? 'الراتب الأساسي' : 'Basic Salary', doc.fmtCurrency(input.basicSalary)],
+      [ar ? 'بدل السكن' : 'Housing Allowance', doc.fmtCurrency(input.housing)],
+      [ar ? 'بدل المواصلات' : 'Transportation', doc.fmtCurrency(input.transportation)],
+      [ar ? 'إجمالي الراتب' : 'Total Salary', doc.fmtCurrency(result.totalSalary)],
+    ],
+    ar ? 'النتيجة' : 'Result',
+    [
+      [ar ? 'أشهر الخدمة' : 'Months of Service', doc.fmtInt(result.monthsOfService)],
+      [ar ? 'سنوات الخدمة' : 'Years of Service', doc.fmtNum(result.yearsOfService, 2)],
+      [ar ? 'الأيام المعادلة' : 'Equivalent Days of Basic', doc.fmtNum(result.equivalentDaysOfBasic, 1)],
+      [ar ? 'مكافأة نهاية الخدمة' : 'Gratuity Amount', doc.fmtCurrency(result.gratuity)],
+    ],
+  );
+
+  doc.finalizePage(p1, 1, 1);
   return doc.build();
 }
 

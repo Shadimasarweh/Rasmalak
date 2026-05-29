@@ -18,13 +18,15 @@ import { calculateCreditCard } from '@/calculators/creditCardCalculator';
 import { calculateCompoundSavings } from '@/calculators/compoundSavingsCalculator';
 import { calculateHomeAffordability } from '@/calculators/homeAffordabilityCalculator';
 import { calculateMortgagePayoff } from '@/calculators/mortgagePayoffCalculator';
+import { calculatePersonalZakat } from '@/calculators/personalZakatCalculator';
+import { calculateUaeGratuity } from '@/calculators/uaeGratuityCalculator';
 
-import { simpleLoanPdf, creditCardPdf, compoundSavingsPdf, homeAffordabilityPdf, mortgagePayoffPdf } from '@/lib/pdf/reports';
-import { simpleLoanXlsx, creditCardXlsx, compoundSavingsXlsx, homeAffordabilityXlsx, mortgagePayoffXlsx } from '@/lib/xlsx/reports';
+import { simpleLoanPdf, creditCardPdf, compoundSavingsPdf, homeAffordabilityPdf, mortgagePayoffPdf, personalZakatPdf, uaeGratuityPdf } from '@/lib/pdf/reports';
+import { simpleLoanXlsx, creditCardXlsx, compoundSavingsXlsx, homeAffordabilityXlsx, mortgagePayoffXlsx, personalZakatXlsx, uaeGratuityXlsx } from '@/lib/xlsx/reports';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type Calculator = 'simple-loan' | 'credit-card' | 'compound-savings' | 'home-affordability' | 'mortgage-payoff';
+type Calculator = 'simple-loan' | 'credit-card' | 'compound-savings' | 'home-affordability' | 'mortgage-payoff' | 'personal-zakat' | 'uae-gratuity';
 type Format = 'pdf' | 'xlsx';
 
 interface ReportRequest {
@@ -57,6 +59,14 @@ const FILENAMES: Record<Calculator, Record<'ar' | 'en', Record<Format, string>>>
   'mortgage-payoff': {
     ar: { pdf: 'تقرير_سداد_الرهن.pdf', xlsx: 'تقرير_سداد_الرهن.xlsx' },
     en: { pdf: 'Mortgage_Payoff_Report.pdf', xlsx: 'Mortgage_Payoff_Report.xlsx' },
+  },
+  'personal-zakat': {
+    ar: { pdf: 'تقرير_الزكاة_الشخصية.pdf', xlsx: 'تقرير_الزكاة_الشخصية.xlsx' },
+    en: { pdf: 'Personal_Zakat_Report.pdf', xlsx: 'Personal_Zakat_Report.xlsx' },
+  },
+  'uae-gratuity': {
+    ar: { pdf: 'تقرير_مكافأة_نهاية_الخدمة.pdf', xlsx: 'تقرير_مكافأة_نهاية_الخدمة.xlsx' },
+    en: { pdf: 'UAE_Gratuity_Report.pdf', xlsx: 'UAE_Gratuity_Report.xlsx' },
   },
 };
 
@@ -162,6 +172,24 @@ async function generateReport(
       return format === 'pdf'
         ? mortgagePayoffPdf(input, result, locale, currency)
         : mortgagePayoffXlsx(result, locale, currency);
+    }
+
+    case 'personal-zakat': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const input = rawInput as any;
+      const result = calculatePersonalZakat(input);
+      return format === 'pdf'
+        ? personalZakatPdf(input, result, locale, currency)
+        : personalZakatXlsx(input, result, locale, currency);
+    }
+
+    case 'uae-gratuity': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const input = rawInput as any;
+      const result = calculateUaeGratuity(input);
+      return format === 'pdf'
+        ? uaeGratuityPdf(input, result, locale, currency)
+        : uaeGratuityXlsx(input, result, locale, currency);
     }
 
     default:

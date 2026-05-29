@@ -303,19 +303,21 @@ const TOOLS_DATA: Tool[] = [
     iconColor: '#2D6A4F',
     category: 'social',
     countries: ['uae'],
+    href: '/calculators/uae-gratuity',
   },
   // KSA-Specific Tools
   {
     id: 'ksa-zakat',
     titleKey: 'tools.ksa_zakat',
-    titleDefault: 'KSA Personal Zakat Calculator',
+    titleDefault: 'Personal Zakat Calculator',
     descKey: 'tools.ksa_zakat_desc',
-    descDefault: 'Calculate your annual Zakat obligation based on your assets and Saudi Arabian Zakat regulations.',
+    descDefault: 'Calculate your annual Zakat on cash, gold, and silver based on the standard Nisab thresholds.',
     icon: <ZakatIcon />,
     iconBg: 'rgba(45, 106, 79, 0.1)',
     iconColor: '#2D6A4F',
     category: 'tax',
     countries: ['ksa'],
+    href: '/calculators/personal-zakat',
   },
   {
     id: 'ksa-end-of-service',
@@ -773,16 +775,9 @@ export default function FinancialToolsPage() {
           <FilterPanel config={TOOLS_FILTER_CONFIG} />
         </div>
 
-        {/* ----- Featured Tool (Hero Card) ----- */}
-        <div style={{ marginBottom: 'var(--spacing-3)' }}>
-          <FeaturedToolCard
-            badge={intl.formatMessage({ id: 'tools.featured_tool', defaultMessage: 'Featured Tool' })}
-            title={intl.formatMessage({ id: 'tools.net_worth_tracker', defaultMessage: 'Net Worth Tracker' })}
-            description={intl.formatMessage({ id: 'tools.net_worth_tracker_desc', defaultMessage: 'Visualize your financial growth over time. Track your assets versus liabilities in one centralized dashboard to make informed decisions about your future wealth.' })}
-            buttonText={intl.formatMessage({ id: 'tools.track_progress', defaultMessage: 'Track Progress' })}
-            isRtl={isRtl}
-          />
-        </div>
+        {/* Featured Tool hero (Net Worth Tracker) is hidden until the
+            tracker is built; the hero card was a placeholder pointing
+            to a non-existent page. */}
 
         {/* ----- Credit & Debt Section ----- */}
         {creditTools.length > 0 && (
