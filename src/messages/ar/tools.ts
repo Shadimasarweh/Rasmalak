@@ -293,13 +293,27 @@ export default {
   zakat_silver_price: 'سعر الفضة (للجرام)',
   zakat_silver_price_placeholder: 'مثلاً: 3',
   zakat_assets_heading: 'أصولك الخاضعة للزكاة',
+  // مهجور: لم يعد المستخدم يضيف أو يحذف صفوفاً، لكن أبقينا المفاتيح
+  // كي لا تتأثر شاشات أخرى قد تستخدمها.
   zakat_add_row: 'أضف أصل',
   zakat_remove_row: 'حذف',
   zakat_description_placeholder: 'ملاحظات (اختياري)',
   zakat_weight_placeholder: 'جم',
   zakat_value_per_unit_placeholder: 'لكل جرام',
   zakat_cash_value_placeholder: 'إجمالي النقد',
+  // تلميحات تحت كل صف ثابت
+  zakat_row_hint_cash: 'النقد في يدك أو الحسابات الجارية والادخار',
+  zakat_row_hint_gold_24k: 'الوزن بالجرام من الذهب عيار 24',
+  zakat_row_hint_gold_21k: 'الوزن بالجرام من الذهب عيار 21',
+  zakat_row_hint_gold_14k: 'الوزن بالجرام من الذهب عيار 14',
+  zakat_row_hint_gold_other: 'مجوهرات وعملات وذهب مختلط العيارات',
+  zakat_row_hint_silver_pure: 'الوزن بالجرام من الفضة النقية',
+  zakat_row_hint_silver_utensils: 'الوزن بالجرام من الأواني الفضية',
   zakat_disclaimer: 'لأغراض الحساب فقط \u2014 هذا ليس فتوى. استشر عالماً مختصاً للإرشاد الديني.',
+  // تنبيه يظهر فوق المدخلات وفي تقارير PDF / Excel.
+  // النص مطابق لما في خلية A1 من قالب الإكسل الأصلي.
+  zakat_caution_title: 'احتساب الزكاة',
+  zakat_caution_body: 'حساب تقديري فقط ولا يعتبر بديلاً عن الفتاوى الشرعية.',
   zakat_calculate: 'احسب الزكاة',
   zakat_reset: 'إعادة تعيين',
   zakat_summary: 'ملخص الزكاة',

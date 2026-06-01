@@ -293,13 +293,27 @@ export default {
   zakat_silver_price: 'Silver Price (per gram)',
   zakat_silver_price_placeholder: 'e.g. 3',
   zakat_assets_heading: 'Your Zakat-able Assets',
+  // Deprecated: the wizard no longer adds/removes rows. Kept so any
+  // unrelated surface that may reference these strings doesn't break.
   zakat_add_row: 'Add asset',
   zakat_remove_row: 'Remove',
   zakat_description_placeholder: 'Notes (optional)',
   zakat_weight_placeholder: 'g',
   zakat_value_per_unit_placeholder: 'per gram',
   zakat_cash_value_placeholder: 'Total cash',
+  // Per-row hint copy under each fixed category label.
+  zakat_row_hint_cash: 'Cash on hand, checking, savings',
+  zakat_row_hint_gold_24k: 'Weight in grams of 24K gold',
+  zakat_row_hint_gold_21k: 'Weight in grams of 21K gold',
+  zakat_row_hint_gold_14k: 'Weight in grams of 14K gold',
+  zakat_row_hint_gold_other: 'Jewelry, coins, mixed-purity gold',
+  zakat_row_hint_silver_pure: 'Weight in grams of pure silver',
+  zakat_row_hint_silver_utensils: 'Weight in grams of silver utensils',
   zakat_disclaimer: 'For calculation purposes only \u2014 this is not a fatwa. Consult a qualified scholar for religious guidance.',
+  // Caution banner shown above the inputs and mirrored in PDF / XLSX
+  // exports. Wording mirrors the A1 caption in the source Excel.
+  zakat_caution_title: 'Calculation Engine',
+  zakat_caution_body: 'For calculation purposes only and is not a substitute for an Islamic ruling (fatwa).',
   zakat_calculate: 'Calculate Zakat',
   zakat_reset: 'Reset',
   zakat_summary: 'Zakat Summary',

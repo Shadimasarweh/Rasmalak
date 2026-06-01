@@ -49,54 +49,48 @@ const CheckCircleIcon = () => (
   </svg>
 );
 
-const TrashIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-    <path d="M10 11v6" />
-    <path d="M14 11v6" />
-  </svg>
-);
+/* ===== ROW EDITOR STATE =====
+ * Fixed seven-row layout, one per Excel-template category. The user
+ * fills only the rows that apply; empty rows contribute zero to the
+ * total. There is no add/remove — categories are stable.
+ */
 
-const PlusIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
-/* ===== ROW EDITOR STATE ===== */
-interface AssetRowState {
-  id: string;
-  category: ZakatAssetCategory;
+interface RowValues {
   description: string;
   weight: string;
   valuePerUnit: string;
 }
 
-const CATEGORY_OPTIONS: { value: ZakatAssetCategory; labelKey: string; defaultLabel: string }[] = [
-  { value: 'cash',            labelKey: 'tools.zakat_cat_cash',            defaultLabel: 'Cash' },
-  { value: 'gold_24k',        labelKey: 'tools.zakat_cat_gold_24k',        defaultLabel: 'Pure 24K Gold' },
-  { value: 'gold_21k',        labelKey: 'tools.zakat_cat_gold_21k',        defaultLabel: 'Pure 21K Gold' },
-  { value: 'gold_14k',        labelKey: 'tools.zakat_cat_gold_14k',        defaultLabel: 'Pure 14K Gold' },
-  { value: 'gold_other',      labelKey: 'tools.zakat_cat_gold_other',      defaultLabel: 'Other Gold (jewelry / coins)' },
-  { value: 'silver_pure',     labelKey: 'tools.zakat_cat_silver_pure',     defaultLabel: 'Pure Silver' },
-  { value: 'silver_utensils', labelKey: 'tools.zakat_cat_silver_utensils', defaultLabel: 'Silver Utensils' },
-];
-
-function newRowId(): string {
-  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
-    ? crypto.randomUUID()
-    : `row_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+interface CategoryDef {
+  id: ZakatAssetCategory;
+  labelKey: string;
+  defaultLabel: string;
+  hintKey: string;
+  defaultHint: string;
 }
 
-function emptyRow(category: ZakatAssetCategory = 'cash'): AssetRowState {
+// Order matches the Excel template (cash, gold purities high to low,
+// other gold, silver, silver utensils).
+const CATEGORY_ROWS: CategoryDef[] = [
+  { id: 'cash',            labelKey: 'tools.zakat_cat_cash',            defaultLabel: 'Cash',                          hintKey: 'tools.zakat_row_hint_cash',            defaultHint: 'Cash on hand, checking, savings' },
+  { id: 'gold_24k',        labelKey: 'tools.zakat_cat_gold_24k',        defaultLabel: 'Pure 24K Gold',                 hintKey: 'tools.zakat_row_hint_gold_24k',        defaultHint: 'Weight in grams of 24K gold' },
+  { id: 'gold_21k',        labelKey: 'tools.zakat_cat_gold_21k',        defaultLabel: 'Pure 21K Gold',                 hintKey: 'tools.zakat_row_hint_gold_21k',        defaultHint: 'Weight in grams of 21K gold' },
+  { id: 'gold_14k',        labelKey: 'tools.zakat_cat_gold_14k',        defaultLabel: 'Pure 14K Gold',                 hintKey: 'tools.zakat_row_hint_gold_14k',        defaultHint: 'Weight in grams of 14K gold' },
+  { id: 'gold_other',      labelKey: 'tools.zakat_cat_gold_other',      defaultLabel: 'Other Gold (jewelry / coins)',  hintKey: 'tools.zakat_row_hint_gold_other',      defaultHint: 'Jewelry, coins, mixed-purity gold' },
+  { id: 'silver_pure',     labelKey: 'tools.zakat_cat_silver_pure',     defaultLabel: 'Pure Silver',                   hintKey: 'tools.zakat_row_hint_silver_pure',     defaultHint: 'Weight in grams of pure silver' },
+  { id: 'silver_utensils', labelKey: 'tools.zakat_cat_silver_utensils', defaultLabel: 'Silver Utensils',               hintKey: 'tools.zakat_row_hint_silver_utensils', defaultHint: 'Weight in grams of silver utensils' },
+];
+
+function emptyRowValues(): Record<ZakatAssetCategory, RowValues> {
+  // Object literal is more readable than reduce here.
   return {
-    id: newRowId(),
-    category,
-    description: '',
-    weight: '',
-    valuePerUnit: '',
+    cash:            { description: '', weight: '', valuePerUnit: '' },
+    gold_24k:        { description: '', weight: '', valuePerUnit: '' },
+    gold_21k:        { description: '', weight: '', valuePerUnit: '' },
+    gold_14k:        { description: '', weight: '', valuePerUnit: '' },
+    gold_other:      { description: '', weight: '', valuePerUnit: '' },
+    silver_pure:     { description: '', weight: '', valuePerUnit: '' },
+    silver_utensils: { description: '', weight: '', valuePerUnit: '' },
   };
 }
 
@@ -119,7 +113,7 @@ export default function PersonalZakatCalculatorPage() {
 
   const [goldPrice, setGoldPrice] = useState('');
   const [silverPrice, setSilverPrice] = useState('');
-  const [rows, setRows] = useState<AssetRowState[]>([emptyRow('cash')]);
+  const [rowValues, setRowValues] = useState<Record<ZakatAssetCategory, RowValues>>(() => emptyRowValues());
 
   const [result, setResult] = useState<PersonalZakatResult | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -131,15 +125,20 @@ export default function PersonalZakatCalculatorPage() {
   const t = (key: string, defaultMessage: string) =>
     intl.formatMessage({ id: `tools.${key}`, defaultMessage });
 
+  const updateRow = (id: ZakatAssetCategory, patch: Partial<RowValues>) => {
+    setRowValues((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+  };
+
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
     if (!goldPrice || parseFloat(goldPrice) <= 0)
       newErrors.goldPrice = t('zakat_validation_gold_price', 'Gold price must be greater than 0');
     if (!silverPrice || parseFloat(silverPrice) <= 0)
       newErrors.silverPrice = t('zakat_validation_silver_price', 'Silver price must be greater than 0');
-    const hasAnyValue = rows.some((r) => parseFloat(r.valuePerUnit) > 0);
+    // Pass when ANY row has a positive value. Empty rows are fine.
+    const hasAnyValue = CATEGORY_ROWS.some((cat) => parseFloat(rowValues[cat.id].valuePerUnit) > 0);
     if (!hasAnyValue)
-      newErrors.rows = t('zakat_validation_rows', 'Add at least one asset with a positive value');
+      newErrors.rows = t('zakat_validation_rows', 'Fill in at least one asset with a positive value');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -147,24 +146,24 @@ export default function PersonalZakatCalculatorPage() {
   const buildInput = useCallback((): PersonalZakatInput => ({
     goldPricePerGram: parseFloat(goldPrice) || 0,
     silverPricePerGram: parseFloat(silverPrice) || 0,
-    rows: rows.map((r) => ({
-      category: r.category,
-      description: r.description,
-      weight: parseFloat(r.weight) || 0,
-      valuePerUnit: parseFloat(r.valuePerUnit) || 0,
+    rows: CATEGORY_ROWS.map((cat) => ({
+      category: cat.id,
+      description: rowValues[cat.id].description,
+      weight: parseFloat(rowValues[cat.id].weight) || 0,
+      valuePerUnit: parseFloat(rowValues[cat.id].valuePerUnit) || 0,
     })),
-  }), [goldPrice, silverPrice, rows]);
+  }), [goldPrice, silverPrice, rowValues]);
 
   const handleCalculate = useCallback(() => {
     if (!validate()) return;
     setResult(calculatePersonalZakat(buildInput()));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goldPrice, silverPrice, rows]);
+  }, [goldPrice, silverPrice, rowValues]);
 
   const handleReset = () => {
     setGoldPrice('');
     setSilverPrice('');
-    setRows([emptyRow('cash')]);
+    setRowValues(emptyRowValues());
     setResult(null);
     setErrors({});
   };
@@ -203,16 +202,6 @@ export default function PersonalZakatCalculatorPage() {
     textAlign: isRTL ? 'right' : 'left',
   });
 
-  const updateRow = (id: string, patch: Partial<AssetRowState>) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  };
-  const removeRow = (id: string) => {
-    setRows((prev) => (prev.length === 1 ? prev : prev.filter((r) => r.id !== id)));
-  };
-  const addRow = () => {
-    setRows((prev) => [...prev, emptyRow('cash')]);
-  };
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', padding: '12px', direction: isRTL ? 'rtl' : 'ltr' }}>
       <Link href="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, color: 'var(--ds-text-muted)', textDecoration: 'none', marginBottom: '12px' }}>
@@ -249,6 +238,47 @@ export default function PersonalZakatCalculatorPage() {
               </h2>
             </div>
 
+            {/* Caution banner — mirrors the A1 / B1 caption in the
+                Excel template. Lives right above the inputs so it's
+                impossible to miss before the user clicks Calculate. */}
+            <div
+              role="note"
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                padding: '10px 12px',
+                background: 'rgba(217, 119, 6, 0.08)',
+                border: '0.5px solid rgba(217, 119, 6, 0.35)',
+                borderRadius: '10px',
+              }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#D97706"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ flexShrink: 0, marginTop: '1px' }}
+                aria-hidden="true"
+              >
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, lineHeight: 1.3 }}>
+                  {t('zakat_caution_title', 'Calculation Engine')}
+                </p>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-body)', margin: '2px 0 0 0', lineHeight: 1.5 }}>
+                  {t('zakat_caution_body', 'For calculation purposes only and is not a substitute for an Islamic ruling (fatwa).')}
+                </p>
+              </div>
+            </div>
+
             {/* Prices */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -281,77 +311,95 @@ export default function PersonalZakatCalculatorPage() {
               </div>
             </div>
 
-            {/* Asset rows */}
+            {/* Asset rows — fixed seven categories. The user fills only
+                the rows that apply; empty rows contribute zero. No
+                add/remove. Layout: category label | notes | weight |
+                value/unit. Cash row hides the weight input since it's
+                not applicable. */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
-                  {t('zakat_assets_heading', 'Your Zakat-able Assets')}
-                </h3>
-                <button
-                  type="button"
-                  onClick={addRow}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: 'var(--ds-bg-tinted)', color: 'var(--ds-primary)', fontSize: '12px', fontWeight: 500, border: '0.5px solid var(--ds-border)', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  <PlusIcon /> {t('zakat_add_row', 'Add asset')}
-                </button>
-              </div>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+                {t('zakat_assets_heading', 'Your Zakat-able Assets')}
+              </h3>
 
-              {rows.map((row) => (
-                <div key={row.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.8fr 0.8fr auto', gap: '6px', alignItems: 'center', padding: '8px', background: 'var(--ds-bg-tinted)', border: '0.5px solid var(--ds-border)', borderRadius: '10px' }}>
-                  <select
-                    value={row.category}
-                    onChange={(e) => updateRow(row.id, { category: e.target.value as ZakatAssetCategory })}
-                    style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px' }}
+              {CATEGORY_ROWS.map((cat) => {
+                const row = rowValues[cat.id];
+                const isCash = cat.id === 'cash';
+                return (
+                  <div
+                    key={cat.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.4fr 1fr 0.8fr 1fr',
+                      gap: '6px',
+                      alignItems: 'center',
+                      padding: '10px',
+                      background: 'var(--ds-bg-tinted)',
+                      border: '0.5px solid var(--ds-border)',
+                      borderRadius: '10px',
+                    }}
                   >
-                    {CATEGORY_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {intl.formatMessage({ id: opt.labelKey, defaultMessage: opt.defaultLabel })}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="text"
-                    value={row.description}
-                    onChange={(e) => updateRow(row.id, { description: e.target.value })}
-                    placeholder={t('zakat_description_placeholder', 'Notes (optional)')}
-                    style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px' }}
-                  />
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={row.weight}
-                    onChange={(e) => updateRow(row.id, { weight: e.target.value })}
-                    placeholder={row.category === 'cash' ? '-' : t('zakat_weight_placeholder', 'g')}
-                    disabled={row.category === 'cash'}
-                    style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px', opacity: row.category === 'cash' ? 0.5 : 1 }}
-                  />
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={row.valuePerUnit}
-                    onChange={(e) => updateRow(row.id, { valuePerUnit: e.target.value })}
-                    placeholder={row.category === 'cash'
-                      ? t('zakat_cash_value_placeholder', 'Total cash')
-                      : t('zakat_value_per_unit_placeholder', 'per gram')}
-                    style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeRow(row.id)}
-                    disabled={rows.length === 1}
-                    style={{ padding: '8px', background: 'transparent', color: rows.length === 1 ? 'var(--ds-text-muted)' : 'var(--ds-error)', border: 'none', borderRadius: '6px', cursor: rows.length === 1 ? 'not-allowed' : 'pointer', opacity: rows.length === 1 ? 0.4 : 1 }}
-                    title={t('zakat_remove_row', 'Remove')}
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
-              ))}
+                    {/* Category label + hint, replaces the dropdown. */}
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, lineHeight: 1.2 }}>
+                        {intl.formatMessage({ id: cat.labelKey, defaultMessage: cat.defaultLabel })}
+                      </p>
+                      <p style={{ fontSize: '11px', color: 'var(--ds-text-muted)', margin: '2px 0 0 0', lineHeight: 1.3 }}>
+                        {intl.formatMessage({ id: cat.hintKey, defaultMessage: cat.defaultHint })}
+                      </p>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={row.description}
+                      onChange={(e) => updateRow(cat.id, { description: e.target.value })}
+                      placeholder={t('zakat_description_placeholder', 'Notes (optional)')}
+                      style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px' }}
+                    />
+
+                    {/* Weight column. For cash, render an aligned dash so
+                        the grid columns stay even across all rows. */}
+                    {isCash ? (
+                      <span
+                        style={{
+                          fontSize: '13px',
+                          color: 'var(--ds-text-muted)',
+                          textAlign: 'center',
+                        }}
+                        aria-hidden="true"
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={row.weight}
+                        onChange={(e) => updateRow(cat.id, { weight: e.target.value })}
+                        placeholder={t('zakat_weight_placeholder', 'g')}
+                        style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px' }}
+                      />
+                    )}
+
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={row.valuePerUnit}
+                      onChange={(e) => updateRow(cat.id, { valuePerUnit: e.target.value })}
+                      placeholder={isCash
+                        ? t('zakat_cash_value_placeholder', 'Total cash')
+                        : t('zakat_value_per_unit_placeholder', 'per gram')}
+                      style={{ ...inputFieldStyle(false), padding: '8px 10px', fontSize: '12px' }}
+                    />
+                  </div>
+                );
+              })}
               {errors.rows && <p style={{ fontSize: '12px', color: 'var(--ds-error)', marginTop: '4px' }}>{errors.rows}</p>}
             </div>
 
-            <p style={{ fontSize: '11px', color: 'var(--ds-text-muted)', lineHeight: 1.5, marginTop: '4px' }}>
-              {t('zakat_disclaimer', 'For calculation purposes only — this is not a fatwa. Consult a qualified scholar for religious guidance.')}
-            </p>
+            {/* The Calculation Engine caution banner above the inputs
+                covers this disclaimer; the previous paragraph here is
+                intentionally removed to avoid duplicating the message
+                right next to the Calculate button. */}
 
             {/* Buttons */}
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>

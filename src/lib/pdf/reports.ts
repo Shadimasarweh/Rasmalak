@@ -12,13 +12,60 @@ import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/pers
 import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
 
 import { ReportDocument, buildScheduleColumns, AVAIL_H } from './builder';
-import { MARGIN_X, MARGIN_TOP, CONTENT_W, PAGE_H, MARGIN_BOTTOM } from './layout';
+import { MARGIN_X, MARGIN_TOP, CONTENT_W, PAGE_H, MARGIN_BOTTOM, COLORS } from './layout';
+import type { PageContext } from './layout';
 import { drawTable } from './layout';
 import type { TableRow } from './layout';
 
 const HEADER_H = 44;   // navy bar + accent + spacing
 const SECTION_H = 28;  // section heading + spacing
 const SUMMARY_H = 110; // two-column summary block
+
+/**
+ * Draws a tinted caution callout (title in bold + one line of body).
+ * Used by the Personal Zakat report to mirror the in-app banner and
+ * the A1 caption from the source Excel template.
+ */
+function drawCautionCallout(
+  ctx: PageContext,
+  title: string,
+  body: string,
+  ar: boolean,
+): void {
+  const padX = 8;
+  const padY = 6;
+  const titleSize = 9;
+  const bodySize = 8.5;
+  const lineGap = 4;
+  const boxH = padY * 2 + titleSize + lineGap + bodySize;
+  const x = MARGIN_X;
+  const y = ctx.y;
+
+  // Light amber/gold tint (alpha-free RGB approximation).
+  const fill: [number, number, number] = [0.992, 0.957, 0.871];
+  ctx.drawRect(x, y, CONTENT_W, boxH, fill);
+
+  const align = ar ? ('right' as const) : ('left' as const);
+  const textX = ar ? x + CONTENT_W - padX : x + padX;
+  const maxW = CONTENT_W - padX * 2;
+  ctx.drawText(title, textX, y + padY, {
+    size: titleSize,
+    bold: true,
+    color: COLORS.navy,
+    align,
+    maxWidth: maxW,
+  });
+  ctx.drawText(body, textX, y + padY + titleSize + lineGap, {
+    size: bodySize,
+    color: COLORS.black,
+    align,
+    maxWidth: maxW,
+  });
+
+  // Advance the cursor past the callout (drawText / drawRect don't
+  // auto-advance, so we bump by the full box height + spacer).
+  ctx.advanceY(boxH + 8);
+}
 
 // ── Simple Loan ───────────────────────────────────────────────────────────────
 
@@ -318,7 +365,21 @@ export function personalZakatPdf(
   doc.drawPageHeader(
     p1,
     ar ? 'حاسبة الزكاة الشخصية' : 'Personal Zakat Calculator',
-    ar ? 'محرك حساب الزكاة (للحساب فقط، ليس فتوى)' : 'Calculation Engine (For calculation only, not a fatwa)',
+    ar
+      ? 'احتساب الزكاة \u2014 حساب تقديري فقط ولا يعتبر بديلاً عن الفتاوى الشرعية'
+      : 'Calculation Engine \u2014 For calculation purposes only and is not a fatwa',
+  );
+
+  // Caution callout — drawn between the header and the summary
+  // columns. Mirrors the banner the user sees in the web UI and
+  // matches the A1 caption in the source Excel template.
+  drawCautionCallout(
+    p1,
+    ar ? 'احتساب الزكاة' : 'Calculation Engine',
+    ar
+      ? 'حساب تقديري فقط ولا يعتبر بديلاً عن الفتاوى الشرعية.'
+      : 'For calculation purposes only and is not a substitute for an Islamic ruling (fatwa).',
+    ar,
   );
 
   doc.drawSummaryColumns(

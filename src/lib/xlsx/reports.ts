@@ -285,7 +285,15 @@ export function personalZakatXlsx(
   // Summary sheet — nisab + total + zakat due.
   const summary = wb.addSheet(ar ? 'ملخص الزكاة' : 'Zakat Summary', { rtl: ar });
   summary.setColWidths([{ col: 1, width: 36 }, { col: 2, width: 22 }]);
-  summary.addRow([bold(ar ? 'محرك حساب الزكاة (للحساب فقط، ليس فتوى)' : 'Calculation Engine (for calculation only, not a fatwa)')]);
+  // Caution row mirrors the A1 caption in the source Excel template
+  // and the in-app banner. Bold so the warning is the first thing
+  // anyone reading the file sees.
+  summary.addRow([bold(
+    ar
+      ? 'احتساب الزكاة \u2014 حساب تقديري فقط ولا يعتبر بديلاً عن الفتاوى الشرعية'
+      : 'Calculation Engine \u2014 For calculation purposes only and is not a fatwa',
+  )]);
+  summary.addRow([]); // blank spacer
   summary.addRow([cell(ar ? 'سعر الذهب (للجرام عيار 24)' : 'Gold Price (per 24K gram)'), currencyCell(input.goldPricePerGram, locale, currencySymbol)]);
   summary.addRow([cell(ar ? 'سعر الفضة (للجرام)' : 'Silver Price (per gram)'), currencyCell(input.silverPricePerGram, locale, currencySymbol)]);
   summary.addRow([cell(ar ? 'نصاب الذهب (85 جرام)' : 'Gold Nisab (85g)'), currencyCell(result.nisabGold, locale, currencySymbol)]);
@@ -304,6 +312,14 @@ export function personalZakatXlsx(
     { col: 1, width: 18 }, { col: 2, width: 32 }, { col: 3, width: 14 },
     { col: 4, width: 18 }, { col: 5, width: 22 },
   ]);
+  // Same caution row at the top of the assets sheet so the file is
+  // labelled consistently regardless of which tab the user opens.
+  assets.addRow([bold(
+    ar
+      ? 'احتساب الزكاة \u2014 حساب تقديري فقط ولا يعتبر بديلاً عن الفتاوى الشرعية'
+      : 'Calculation Engine \u2014 For calculation purposes only and is not a fatwa',
+  )]);
+  assets.addRow([]);
   const hdrs = ar
     ? ['الفئة', 'الوصف', 'الوزن (جم)', 'سعر الوحدة', 'القيمة الصافية']
     : ['Category', 'Description', 'Weight (g)', 'Value/Unit', 'Net Value'];
