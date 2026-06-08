@@ -10,6 +10,7 @@ import { saveOnboarding } from '@/lib/profile';
 import { useAuthStore } from '@/store/authStore';
 import { seedEmergencyFund, seedCurrentBudgetCycle } from '@/lib/onboardingSeed';
 import { showError } from '@/store/toastStore';
+import { ThemeLanguageSwitcher } from '@/components';
 import { MoneyInput } from '@/components/MoneyInput';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
@@ -394,9 +395,14 @@ export default function OnboardingPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col relative"
       style={{ backgroundColor: 'var(--ds-bg-page)', direction: isRtl ? 'rtl' : 'ltr' }}
     >
+      {/* Theme and Language Switcher */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <ThemeLanguageSwitcher />
+      </div>
+
       {/* Header */}
       <header style={{ padding: '16px 24px' }}>
         <div className="max-w-3xl mx-auto flex items-center justify-between">
