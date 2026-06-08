@@ -8,8 +8,7 @@ import { useStore } from '@/store/useStore';
 import { COUNTRIES, getCurrencyForCountry } from '@/lib/countries';
 import { saveOnboarding } from '@/lib/profile';
 import { useAuthStore } from '@/store/authStore';
-import { useEmergencyFund } from '@/store/emergencyFundStore';
-import { useBudgetCycles } from '@/store/budgetCyclesStore';
+import { seedEmergencyFund, seedCurrentBudgetCycle } from '@/lib/onboardingSeed';
 import { showError } from '@/store/toastStore';
 import { MoneyInput } from '@/components/MoneyInput';
 import { CURRENCIES } from '@/lib/constants';
@@ -216,8 +215,12 @@ export default function OnboardingPage() {
   const setCountryStore = useStore((s) => s.setCountry);
   const setBaseCurrencyStore = useStore((s) => s.setBaseCurrency);
   const authUser = useAuthStore((s) => s.user);
-  const { createFund } = useEmergencyFund();
-  const { saveCurrentCycle } = useBudgetCycles();
+  // NOTE: we deliberately don't call useEmergencyFund() / useBudgetCycles()
+  // here. Onboarding lives at /onboarding (root level), outside the
+  // dashboard layout that mounts those providers — calling the hooks
+  // from this tree throws and trips the global error boundary on
+  // fresh signups. The seed helpers write directly via Supabase
+  // instead and the dashboard refetches when the user lands there.
 
   const [currentStep, setCurrentStep] = useState(1);
   const [form, setForm] = useState<OnboardingForm>({
@@ -322,16 +325,19 @@ export default function OnboardingPage() {
 
       if (injectBudget && monthlyIncomeNum > 0) {
         // EF target = 3 months of essentials. Don't block onboarding
-        // if the create call fails — the user can redo from the EF page.
-        try {
-          await createFund(efTarget);
-        } catch (err) {
-          console.error('[onboarding] createFund failed:', err);
-        }
-        try {
-          await saveCurrentCycle(monthlyIncomeNum, {});
-        } catch (err) {
-          console.error('[onboarding] saveCurrentCycle failed:', err);
+        // if a write fails — the user can redo it from the EF /
+        // Plan pages later. Both seed helpers are best-effort.
+        if (authUser?.id) {
+          await seedEmergencyFund({
+            userId: authUser.id,
+            targetAmount: efTarget,
+            baseCurrency: currency,
+          });
+          await seedCurrentBudgetCycle({
+            userId: authUser.id,
+            monthly: monthlyIncomeNum,
+            baseCurrency: currency,
+          });
         }
       }
 
