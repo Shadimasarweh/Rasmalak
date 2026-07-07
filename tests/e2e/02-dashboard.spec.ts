@@ -46,4 +46,14 @@ test.describe('Dashboard', () => {
     await page.waitForLoadState('networkidle');
     expect(errors.filter(e => !e.includes('ResizeObserver'))).toHaveLength(0);
   });
+
+  // Predictive surfaces ship dark (AI_FEATURES flags off). These pin the
+  // flag-off state; flip the assertions when the release step turns them on.
+  test('predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/available today|متاح لك اليوم/i')).toHaveCount(0);
+    await expect(page.locator('text=/end-of-cycle forecast|توقّع نهاية الدورة/i')).toHaveCount(0);
+    await expect(page.locator('text=/your money personality|شخصيتك المالية/i')).toHaveCount(0);
+    // The classic hero is untouched by the new surfaces.
+    await expect(page.locator('text=/total balance|الرصيد الإجمالي/i')).toBeVisible();
+  });
 });
