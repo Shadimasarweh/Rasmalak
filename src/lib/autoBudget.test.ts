@@ -46,7 +46,7 @@ describe('suggestNextMonthPlan', () => {
     expect(food.confidence).toBe('low');
   });
 
-  it('3 months: suggestion never goes below the most recent month', () => {
+  it('3 months: a one-off spike month no longer pins the plan (v2 spike guard)', () => {
     const r = suggestNextMonthPlan(
       [
         tx('2026-02-05', 'transport', 100),
@@ -56,21 +56,45 @@ describe('suggestNextMonthPlan', () => {
       { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0.05 },
     );
     const t = r.byCategory['transport'];
-    // average = (100+100+300)/3 = 166.67, +5% = 175, max(last=300, 175) = 300
-    expect(t.suggestedAmount).toBe(300);
+    // v1 pinned this at last-month 300. v2: EWMA(0.5) = 1800/7 ≈ 214.29,
+    // trend +42.86 (clamped to 20% of EWMA) → projected 257.14; ×1.05 = 270.
+    // The floor is capped at median + 3·MAD = 115 (spike guard), so the
+    // spike month no longer wins.
+    expect(t.suggestedAmount).toBe(270);
     expect(t.confidence).toBe('high');
+    expect(t.method).toBe('ewma_v2');
   });
 
-  it('missing months count as zero in the average', () => {
+  it('gap months (no logging at all) are dropped, not counted as zero', () => {
+    // Feb/Mar have NO transactions of any kind → excluded from the window.
     const r = suggestNextMonthPlan(
       [tx('2026-04-10', 'shopping', 600)],
       { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0 },
     );
     const s = r.byCategory['shopping'];
-    // average across 3 months with only 1 month populated = 600/3 = 200
-    // baseline = max(200, last=600) = 600
+    // Series is just [600]: EWMA 600, floor 600.
     expect(s.suggestedAmount).toBe(600);
     expect(s.basedOnMonths).toBe(1);
+    expect(s.confidence).toBe('low');
+    expect(s.monthsAbsent).toBe(2);
+  });
+
+  it('active months with zero category spend ARE genuine zeros', () => {
+    // Feb/Mar are active (food was logged) but shopping only appears in Apr.
+    const r = suggestNextMonthPlan(
+      [
+        tx('2026-02-08', 'food', 50),
+        tx('2026-03-08', 'food', 50),
+        tx('2026-04-10', 'shopping', 600),
+      ],
+      { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0 },
+    );
+    const s = r.byCategory['shopping'];
+    // Series [0, 0, 600]: EWMA = 300/0.875 ≈ 342.9, trend clamped +68.6
+    // → 411.4; floor = min(600, 0 + 3·effectiveMad) ≈ 0 → ceil5 = 415.
+    expect(s.suggestedAmount).toBe(415);
+    expect(s.monthsAbsent).toBe(0);
+    // Sparse usage still reads as low confidence.
     expect(s.confidence).toBe('low');
   });
 
@@ -100,6 +124,37 @@ describe('suggestNextMonthPlan', () => {
     const t: AutoBudgetTransaction = { type: 'expense', amount: 50, amountBase: 50, date: '2026-04-10', category: null };
     const r = suggestNextMonthPlan([t], { now: NOW, lookbackMonths: 1 });
     expect(r.byCategory['other-expense']).toBeTruthy();
+  });
+
+  it('a 6-month window damps a final-month spike harder than v1 would', () => {
+    const txns = [
+      tx('2025-11-05', 'entertainment', 100),
+      tx('2025-12-05', 'entertainment', 100),
+      tx('2026-01-05', 'entertainment', 100),
+      tx('2026-02-05', 'entertainment', 100),
+      tx('2026-03-05', 'entertainment', 100),
+      tx('2026-04-05', 'entertainment', 300), // one-off spike
+    ];
+    const r = suggestNextMonthPlan(txns, { now: NOW, lookbackMonths: 6, roundTo: 5, buffer: 0 });
+    const e = r.byCategory['entertainment'];
+    // v1 (max of avg/last-month) would say 300; the spike guard caps the
+    // floor at 100 + 3·5 = 115 and the EWMA+trend projects ≈ 230.
+    expect(e.suggestedAmount).toBeLessThan(300);
+    expect(e.suggestedAmount).toBeGreaterThanOrEqual(115);
+    expect(e.basedOnMonths).toBe(6);
+    expect(e.ewma).toBeGreaterThan(100);
+  });
+
+  it('keeps the v1 result shape (additive fields only)', () => {
+    const r = suggestNextMonthPlan([tx('2026-04-12', 'food', 220)], { now: NOW, lookbackMonths: 1 });
+    expect(Object.keys(r)).toEqual(
+      expect.arrayContaining(['byCategory', 'totalSuggested', 'totalAverage', 'monthsAnalyzed', 'hasEnoughHistory']),
+    );
+    const food = r.byCategory['food'];
+    expect(Object.keys(food)).toEqual(
+      expect.arrayContaining(['categoryId', 'suggestedAmount', 'basedOnMonths', 'monthlyAverage', 'monthlyMax', 'confidence']),
+    );
+    expect(r.method).toBe('ewma_v2');
   });
 
   it('totalSuggested is rounded to roundTo granularity', () => {
