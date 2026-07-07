@@ -16,6 +16,17 @@ export interface BehaviorSignals {
   primaryGoalType?: string;
   spendingPatternStability?: number;
   lastSignificantChange?: string;
+  // Predictive-engine writes (guarded, client-side — see
+  // src/lib/predictive/memoryUpdates.ts). Stored in the same jsonb column,
+  // so extending here needs no migration.
+  paydayDayOfMonth?: number;
+  // Privacy: a 500-granularity band ("2000-2500"), never the exact salary.
+  detectedSalaryBand?: string;
+  archetype?: 'planner' | 'impulsive' | 'seasonal' | 'cautious';
+  impulseIndex?: number;
+  spendTiming?: 'front_loader' | 'smooth' | 'back_loader';
+  weekendWeekdayRatio?: number;
+  budgetAdherenceStreak?: number;
 }
 
 export interface UserPreferences {

@@ -13,6 +13,7 @@ import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser, useSession } from '@/store/authStore';
 import { buildUserContext } from '@/ai/context';
+import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 import { AIMessage, AIResponse, SuggestedAction, MessageAttachment, AttachmentType, CreateTransactionPayload, CreateReceiptPayload } from '@/ai/types';
 import MarkdownText from '@/components/ui/MarkdownText';
 import { Toast } from '@/components/ui/Toast';
@@ -505,6 +506,7 @@ export default function MustasharakPage() {
   const { monthlyBudget, categoryBudgets } = useBudget();
   const { savingsGoals } = useGoals();
   const onboardingData = useOnboardingData();
+  const { summary: predictive } = usePredictiveState();
 
   // Lightweight toast for action feedback
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
@@ -541,8 +543,9 @@ export default function MustasharakPage() {
       categoryBudgets,
       savingsGoals,
       onboardingData,
+      predictive,
     });
-  }, [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData]);
+  }, [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData, predictive]);
   
   // Get attachment type from MIME type
   const getAttachmentType = (mimeType: string): AttachmentType => {

@@ -79,6 +79,20 @@ export interface DeterministicOutputs {
   signals: import('../financialSignals').FinancialSignals;
   advisory: import('../financialAdvisory').FinancialAdvisoryState;
   projections: ProjectionResult | null;
+  // Predictive-engine additions — optional so every legacy consumer and
+  // any deploy-skewed client keeps working unchanged.
+  forecast?: {
+    p25: number;
+    p50: number;
+    p75: number;
+    daysRemaining: number;
+    committedRemaining: number;
+  } | null;
+  behavior?: {
+    archetype: import('./behaviorProfile').Archetype | null;
+    impulseIndex: number | null;
+    spendTiming: string | null;
+  } | null;
 }
 
 export function computeProjections(

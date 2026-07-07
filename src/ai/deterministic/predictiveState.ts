@@ -11,7 +11,7 @@
  */
 
 import { getCycleRange, type CycleRange } from '@/lib/cycles';
-import { dateToDayNumber, isoToDayNumber, toIso } from './dates';
+import { dateToDayNumber, isoToDayNumber, monthKeyOf, toIso } from './dates';
 import { PREDICTIVE_ENGINE_VERSION, type EngineTransaction } from './engineTypes';
 import { detectRecurringSeries, collectSeriesMemberIds, type RecurringSeries } from './recurringSeries';
 import { deriveSalaryProfile, type ProfileFallback, type SalaryProfile } from './salaryProfile';
@@ -32,6 +32,7 @@ import {
   type ComputedBehaviorSignals,
 } from './behaviorProfile';
 import { computeSafeToSpend, sumGoalFundingInCycle, type SafeToSpendResult } from './safeToSpend';
+import { isGoalFunding } from './engineTypes';
 
 export interface PredictiveState {
   computedAt: string;
@@ -118,7 +119,8 @@ export function computePredictiveState(input: PredictiveInputs): PredictiveState
     now,
     weekendDays: input.weekendDays,
   });
-  const archetype = deriveArchetype(behavior, input.aux ?? {});
+  const aux = input.aux ?? computeAuxFromData(input.transactions, seriesMemberIds, now);
+  const archetype = deriveArchetype(behavior, aux);
 
   const safeToSpend = computeSafeToSpend({
     forecast,
@@ -149,6 +151,52 @@ export function computePredictiveState(input: PredictiveInputs): PredictiveState
         daysOfHistory >= MIN_HISTORY_DAYS && input.transactions.length >= MIN_HISTORY_TRANSACTIONS,
       transactionCount: input.transactions.length,
     },
+  };
+}
+
+// Archetype context signals derived straight from the data when the caller
+// has no FinancialSignals handy (keeps the React provider dependency-free).
+function computeAuxFromData(
+  transactions: EngineTransaction[],
+  seriesMemberIds: ReadonlySet<string>,
+  now: Date,
+): ArchetypeAux {
+  let income = 0;
+  let expense = 0;
+  let recurringExpense = 0;
+  let discretionaryExpense = 0;
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const monthlyExpense = new Map<string, number>();
+
+  for (const tx of transactions) {
+    if (!Number.isFinite(tx.amountBase)) continue;
+    const abs = Math.abs(tx.amountBase);
+    if (tx.type === 'income') {
+      income += abs;
+      continue;
+    }
+    expense += abs;
+    if (seriesMemberIds.has(tx.id)) recurringExpense += abs;
+    else if (!isGoalFunding(tx.category)) discretionaryExpense += abs;
+    const key = monthKeyOf(tx.date);
+    if (key !== currentMonthKey) monthlyExpense.set(key, (monthlyExpense.get(key) ?? 0) + abs);
+  }
+
+  const monthTotals = [...monthlyExpense.values()];
+  let expenseVolatility: number | undefined;
+  if (monthTotals.length >= 2) {
+    const mean = monthTotals.reduce((s, v) => s + v, 0) / monthTotals.length;
+    if (mean > 0) {
+      const variance = monthTotals.reduce((s, v) => s + (v - mean) ** 2, 0) / monthTotals.length;
+      expenseVolatility = Math.sqrt(variance) / mean;
+    }
+  }
+
+  return {
+    savingsRate: income > 0 ? (income - expense) / income : undefined,
+    recurringExpenseRatio: expense > 0 ? recurringExpense / expense : undefined,
+    discretionaryRatio: expense > 0 ? discretionaryExpense / expense : undefined,
+    expenseVolatility,
   };
 }
 
