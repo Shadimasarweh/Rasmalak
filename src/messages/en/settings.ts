@@ -150,4 +150,21 @@ export default {
   deleting: 'Deleting...',
   complete_setup: 'Complete Setup',
   // Note: Currency names are centralized in src/lib/currencies.ts
+
+  // ===== Budget cycle (A2) =====
+  budget_cycle_title: 'Budget Cycle',
+  budget_cycle_description: 'Choose whether your budget month follows the calendar or runs payday to payday.',
+  budget_cycle_calendar: 'Calendar month',
+  budget_cycle_calendar_hint: 'Starts on the 1st',
+  budget_cycle_payday: 'Payday to payday',
+  budget_cycle_payday_hint: 'Starts on your salary day',
+  payday_day_label: 'Payday day of month',
+  payday_day_option: 'Day {day}',
+  payday_detected_caption: 'Detected from your income pattern.',
+  payday_manual_caption: 'Set manually.',
+  payday_none_detected: 'No salary pattern detected yet — pick your payday manually.',
+  payday_reset_to_detected: 'Use detected day ({day})',
+  payday_required_error: 'Pick your payday day before switching to a payday cycle.',
+  payday_clamp_note: 'In shorter months, day {day} falls on the last day of the month.',
+  budget_cycle_change_note: 'Changing this re-windows budgets and alerts from your payday. Past months are unaffected.',
 };

@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
-import { useBaseCurrency, useUser, useUserName, useLanguage } from '@/store/useStore';
+import { useBaseCurrency, useUser, useUserName, useLanguage, useBudgetCycleMode } from '@/store/useStore';
 import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
-import { useTransactions } from '@/store/transactionStore';
+import { useTransactions, useActiveCycle } from '@/store/transactionStore';
 import { useMemo, useState, useEffect } from 'react';
 import { DEFAULT_EXPENSE_CATEGORIES, ALL_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { AIAlertBanner, AIGoalSuggestions } from '@/components/AIAlertBanner';
@@ -14,6 +14,12 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useNotificationStore } from '@/store/notificationStore';
 import { useEmergencyFund } from '@/store/emergencyFundStore';
 import RealityCheckCard, { shouldShowRealityCheck } from '@/components/money/RealityCheckCard';
+import { usePredictiveState, usePredictions } from '@/lib/predictive/PredictiveProvider';
+import { buildDashboardNotifications } from '@/lib/dashboardNotifications';
+import SafeToSpendCard from '@/components/dashboard/SafeToSpendCard';
+import CycleForecastCard from '@/components/dashboard/CycleForecastCard';
+import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
+import { AI_FEATURES } from '@/ai/config';
 
 /* ═══════════════════════════════════════════════════
    Dashboard — Overview Page
@@ -41,16 +47,18 @@ export default function OverviewPage() {
   const [skipCoaching, setSkipCoaching] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  /* ---------- Current Month Transactions ---------- */
+  /* ---------- Current Cycle Transactions ---------- */
+  // Calendar mode is bit-identical to the old month window except one fix:
+  // the end boundary is 23:59:59.999 (the old midnight endOfMonth silently
+  // dropped last-day transactions).
+  const activeCycle = useActiveCycle(0);
+  const prevCycle = useActiveCycle(-1);
   const currentMonthTransactions = useMemo(() => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     return transactions.filter(t => {
       const date = new Date(t.date);
-      return date >= startOfMonth && date <= endOfMonth;
+      return date >= activeCycle.start && date <= activeCycle.end;
     });
-  }, [transactions]);
+  }, [transactions, activeCycle]);
 
   // Aggregations live in base currency by design (currency
   // architecture rule). Use amountBase, never amount.
@@ -82,15 +90,12 @@ export default function OverviewPage() {
       .filter(cat => categoryBudgets[cat.id] && categoryBudgets[cat.id] > 0)
       .map(cat => {
         const limit = categoryBudgets[cat.id];
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         const spent = transactions
-          .filter(tx => tx.type === 'expense' && tx.category === cat.id && new Date(tx.date) >= startOfMonth && new Date(tx.date) <= endOfMonth)
+          .filter(tx => tx.type === 'expense' && tx.category === cat.id && new Date(tx.date) >= activeCycle.start && new Date(tx.date) <= activeCycle.end)
           .reduce((s, tx) => s + Math.abs(tx.amountBase), 0);
         return { ...cat, limit, spent, percentage: Math.min((spent / limit) * 100, 100) };
       });
-  }, [categoryBudgets, transactions]);
+  }, [categoryBudgets, transactions, activeCycle]);
 
   const hasBudgets = activeBudgets.length > 0;
 
@@ -172,22 +177,19 @@ export default function OverviewPage() {
     { timeOfDay }
   );
 
-  /* ---------- Previous Month Data (for trend comparison) ---------- */
+  /* ---------- Previous Cycle Data (for trend comparison) ---------- */
   const previousMonthData = useMemo(() => {
-    const now = new Date();
-    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
     let prevIncome = 0;
     let prevExpenses = 0;
     transactions.forEach(tx => {
       const d = new Date(tx.date);
-      if (d >= prevStart && d <= prevEnd) {
+      if (d >= prevCycle.start && d <= prevCycle.end) {
         if (tx.type === 'income') prevIncome += Math.abs(tx.amountBase);
         else prevExpenses += Math.abs(tx.amountBase);
       }
     });
     return { income: prevIncome, expenses: prevExpenses, cashFlow: prevIncome - prevExpenses };
-  }, [transactions]);
+  }, [transactions, prevCycle]);
 
   /* ---------- Year-to-Date Cumulative Cash Flow ---------- */
   const ytdCashFlow = useMemo(() => {
@@ -233,103 +235,29 @@ export default function OverviewPage() {
     };
   }, [monthlyCashFlow, previousMonthData]);
 
-  // Smart notification generation
+  // Smart notification generation — pure rules module, cycle-aware inputs.
   const addNotification = useNotificationStore(state => state.addNotification);
+  const predictions = usePredictions();
 
   useEffect(() => {
     if (!transactions.length) return;
-
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-    const daysLeft = endOfMonth.getDate() - now.getDate();
-
-    const currentSpending: Record<string, number> = {};
-    const prevSpending: Record<string, number> = {};
-    let currentMonthIncome = 0;
-
-    transactions.forEach((tx) => {
-      const d = new Date(tx.date);
-      if (tx.type === 'expense' && d >= startOfMonth && d <= endOfMonth) {
-        const cat = tx.category || 'other';
-        currentSpending[cat] = (currentSpending[cat] || 0) + Math.abs(tx.amountBase);
-      }
-      if (tx.type === 'expense' && d >= prevStart && d <= prevEnd) {
-        const cat = tx.category || 'other';
-        prevSpending[cat] = (prevSpending[cat] || 0) + Math.abs(tx.amountBase);
-      }
-      if (tx.type === 'income' && d >= startOfMonth && d <= endOfMonth) {
-        currentMonthIncome += Math.abs(tx.amountBase);
-      }
+    const fmtEn = new Intl.NumberFormat('en-US');
+    const fmtAr = new Intl.NumberFormat('ar-JO-u-nu-arab');
+    const pending = buildDashboardNotifications({
+      transactions,
+      savingsGoals: savingsGoals ?? [],
+      cycle: activeCycle,
+      prevCycle,
+      salaryProfile: predictions.salaryProfile,
+      safeToSpend: predictions.safeToSpend,
+      typicalDailyRate: predictions.forecast?.discretionary.dailyRateP50 ?? null,
+      currency,
+      fmtNumEn: (n) => fmtEn.format(n),
+      fmtNumAr: (n) => fmtAr.format(n),
     });
-
-    // 1. Spending spike — any category up 30%+ vs last month
-    Object.entries(currentSpending).forEach(([cat, amount]) => {
-      const prev = prevSpending[cat] || 0;
-      if (prev > 0 && amount > prev * 1.3) {
-        const pctIncrease = Math.round(((amount - prev) / prev) * 100);
-        addNotification({
-          type: 'spending_alert',
-          severity: 'critical',
-          messageEn: `Your ${cat} spending is trending ${pctIncrease}% higher than last month with ${daysLeft} days left.`,
-          messageAr: `إنفاقك على ${cat} يتجه للارتفاع بنسبة ${intl.formatNumber(pctIncrease)}% مقارنة بالشهر الماضي مع بقاء ${intl.formatNumber(daysLeft)} يوماً.`,
-          actionHref: '/money/track',
-          actionLabelEn: 'View transactions',
-          actionLabelAr: 'عرض المعاملات',
-        });
-      }
-    });
-
-    // 2. Goal proximity — any goal within 10% of completion
-    if (savingsGoals) {
-      savingsGoals.forEach((goal) => {
-        if (goal.targetAmount <= 0) return;
-        const pct = goal.currentAmount / goal.targetAmount;
-        const remaining = goal.targetAmount - goal.currentAmount;
-        if (pct >= 0.9 && pct < 1) {
-          addNotification({
-            type: 'goal_progress',
-            severity: 'positive',
-            messageEn: `You're ${currency} ${intl.formatNumber(Math.round(remaining))} away from your ${goal.name} goal. One more deposit!`,
-            messageAr: `أنت على بعد ${currency} ${intl.formatNumber(Math.round(remaining))} من هدف ${goal.nameAr || goal.name}. إيداع واحد آخر!`,
-            actionHref: '/goals',
-            actionLabelEn: 'Add funds',
-            actionLabelAr: 'إضافة أموال',
-          });
-        }
-      });
-    }
-
-    // 3. Salary not detected — past the 25th with no income recorded
-    if (now.getDate() >= 25 && currentMonthIncome === 0) {
-      addNotification({
-        type: 'salary_missing',
-        severity: 'warning',
-        messageEn: `Your salary usually arrives by the 25th. It hasn't been recorded yet this month.`,
-        messageAr: `عادةً ما يصل راتبك بحلول ال٢٥ من الشهر. لم يتم تسجيله بعد هذا الشهر.`,
-        actionHref: '/money/track/new/income',
-        actionLabelEn: 'Add income',
-        actionLabelAr: 'إضافة دخل',
-      });
-    }
-
-    // 4. Overspending alert — expenses exceed income
-    const totalCurrentExpenses = Object.values(currentSpending).reduce((s, v) => s + v, 0);
-    if (currentMonthIncome > 0 && totalCurrentExpenses > currentMonthIncome) {
-      addNotification({
-        type: 'spending_alert',
-        severity: 'warning',
-        messageEn: `You're spending more than you earn this month. Review your expenses to get back on track.`,
-        messageAr: `إنفاقك أكثر من دخلك هذا الشهر. راجع مصروفاتك للعودة إلى المسار الصحيح.`,
-        actionHref: '/money/track',
-        actionLabelEn: 'Review spending',
-        actionLabelAr: 'مراجعة الإنفاق',
-      });
-    }
+    pending.forEach(addNotification);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, savingsGoals]);
+  }, [transactions, savingsGoals, activeCycle.key, predictions]);
 
   /* ---------- Helpers ---------- */
   const fmtCurrency = (value: number, cur: string = currency) =>
@@ -348,6 +276,22 @@ export default function OverviewPage() {
 
   const incomeRatio = monthlyIncome + monthlyExpenses > 0 ? (monthlyIncome / (monthlyIncome + monthlyExpenses)) * 100 : 50;
   const goalPct = topGoal && topGoal.targetAmount > 0 ? Math.min(Math.round((topGoal.currentAmount / topGoal.targetAmount) * 100), 100) : 0;
+
+  /* ---------- Predictive surfaces ("Rasmalak يعرفك") ---------- */
+  const { state: predictiveState } = usePredictiveState();
+  const cycleMode = useBudgetCycleMode();
+  const showPaydayNudge = mounted && !!predictiveState && shouldShowPaydayNudge(
+    predictiveState.salary.source,
+    predictiveState.salary.paydayDayOfMonth,
+    predictiveState.salary.confidence,
+    cycleMode,
+  );
+  const showForecastCard =
+    AI_FEATURES.forecastCard &&
+    !!predictiveState &&
+    predictiveState.meta.hasMinimumHistory &&
+    predictiveState.forecast.basis.confidence !== 'low' &&
+    predictiveState.forecast.perDay.length >= 2;
 
   if (isInitialLoad) {
     return (
@@ -378,8 +322,12 @@ export default function OverviewPage() {
       {/* ===== AI ALERT ===== */}
       <AIAlertBanner />
 
-      {/* ===== REALITY CHECK BANNER (first 5 days of month) ===== */}
-      {shouldShowRealityCheck() && <RealityCheckCard variant="banner" />}
+      {/* ===== ONE BANNER SLOT: payday nudge wins over reality check ===== */}
+      {showPaydayNudge ? (
+        <PaydayDetectedNudge />
+      ) : (
+        shouldShowRealityCheck(undefined, 5, activeCycle.daysElapsed) && <RealityCheckCard variant="banner" />
+      )}
 
       {/* ===== GREETING ===== */}
       <div className="ds-section-header">
@@ -405,6 +353,9 @@ export default function OverviewPage() {
 
       {transactions.length > 0 || skipCoaching ? (
       <>
+      {/* ===== SAFE TO SPEND (A3 hero strip — flag-gated inside) ===== */}
+      <SafeToSpendCard />
+
       {/* ===== MONTHLY FINANCIAL SUMMARY ===== */}
       <div style={{
         background: 'var(--ds-bg-card)',
@@ -755,6 +706,13 @@ export default function OverviewPage() {
           )}
         </div>
       </div>
+
+      {/* ===== CYCLE FORECAST ROW (flag-gated inside; full width until B1 ships) ===== */}
+      {showForecastCard && (
+        <div className="ds-grid">
+          <CycleForecastCard fullWidth />
+        </div>
+      )}
 
       {/* ===== EMERGENCY FUND ===== */}
       <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>

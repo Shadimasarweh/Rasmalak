@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
-import { useTransactions, getMonthRange, aggregateExpensesByCategory } from '@/store/transactionStore';
+import { useTransactions, useActiveCycle, aggregateExpensesByCategory } from '@/store/transactionStore';
 import { useBudget } from '@/store/budgetStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
@@ -77,8 +77,9 @@ export default function RealityCheckCard({ variant = 'card', now }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const dismissed = useMemo(() => hydrated && isDismissed(mKey), [hydrated, mKey, dismissedTick]);
 
+  const prevCycle = useActiveCycle(-1);
   const { planned, actual, hasData } = useMemo(() => {
-    const range = getMonthRange(-1, today);
+    const range = { start: prevCycle.start, end: prevCycle.end };
     const cats = aggregateExpensesByCategory(transactions, range);
     const actualSum = Object.values(cats).reduce((s, v) => s + v, 0);
 
@@ -87,7 +88,7 @@ export default function RealityCheckCard({ variant = 'card', now }: Props) {
     const plannedSum = monthlyBudget > 0 ? monthlyBudget : categorySum;
 
     return { planned: plannedSum, actual: actualSum, hasData: actualSum > 0 && plannedSum > 0 };
-  }, [transactions, monthlyBudget, categoryBudgets, today]);
+  }, [transactions, monthlyBudget, categoryBudgets, prevCycle]);
 
   if (!hasData || dismissed) return null;
 
@@ -195,7 +196,13 @@ export default function RealityCheckCard({ variant = 'card', now }: Props) {
 }
 
 /** Helper: should the banner show today? Used by parents to gate rendering. */
-export function shouldShowRealityCheck(now: Date = new Date(), windowDays: number = 5): boolean {
-  // Show within the first N days of a new month.
+export function shouldShowRealityCheck(
+  now: Date = new Date(),
+  windowDays: number = 5,
+  cycleDaysElapsed?: number,
+): boolean {
+  // Show within the first N days of a new cycle. Payday-cycle parents pass
+  // their cycle's elapsed days; the calendar default is unchanged.
+  if (cycleDaysElapsed != null) return cycleDaysElapsed <= windowDays;
   return now.getDate() <= windowDays;
 }
