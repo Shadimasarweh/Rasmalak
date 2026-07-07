@@ -26,6 +26,9 @@ export default function CurrencyBootstrap() {
   const country = useStore((s) => s.country);
   const setBaseCurrency = useStore((s) => s.setBaseCurrency);
   const setCountry = useStore((s) => s.setCountry);
+  const budgetCycleMode = useStore((s) => s.budgetCycleMode);
+  const setBudgetCycleMode = useStore((s) => s.setBudgetCycleMode);
+  const setPayday = useStore((s) => s.setPayday);
 
   useEffect(() => {
     if (!initialized || !user) return;
@@ -41,6 +44,13 @@ export default function CurrencyBootstrap() {
         if (profile.country && profile.country !== country) {
           setCountry(profile.country);
         }
+        // Payday-cycle prefs: server wins (cross-device continuity). Only
+        // written when the server actually carries a payday opt-in, so
+        // pre-015 fallbacks never clobber a local setting.
+        if (profile.budgetCycleMode === 'payday' && profile.paydayDayOfMonth != null) {
+          if (budgetCycleMode !== 'payday') setBudgetCycleMode('payday');
+          setPayday(profile.paydayDayOfMonth, profile.paydaySource ?? 'manual');
+        }
       } else {
         // No row yet: write the persisted base currency so the FX
         // refresh job sees this user the next time it runs. Country
@@ -51,6 +61,7 @@ export default function CurrencyBootstrap() {
     return () => {
       cancelled = true;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, initialized, baseCurrency, country, setBaseCurrency, setCountry]);
 
   return null;

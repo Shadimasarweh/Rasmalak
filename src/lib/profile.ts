@@ -20,20 +20,72 @@ export interface UserProfile {
   id: string;
   country: string | null;
   baseCurrency: string;
+  // Migration 015 (payday cycles) — null/'calendar' until the user opts in.
+  paydayDayOfMonth: number | null;
+  budgetCycleMode: 'calendar' | 'payday';
+  paydaySource: 'detected' | 'manual' | null;
 }
 
+const PROFILE_COLUMNS = 'id, country, base_currency, payday_day_of_month, budget_cycle_mode, payday_source';
+const LEGACY_PROFILE_COLUMNS = 'id, country, base_currency';
+
 export async function getProfile(userId: string): Promise<UserProfile | null> {
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('profiles')
-    .select('id, country, base_currency')
+    .select(PROFILE_COLUMNS)
     .eq('id', userId)
     .maybeSingle();
+  if (error) {
+    // Deploy-skew safety: if migration 015 hasn't been applied yet,
+    // PostgREST rejects the unknown columns — fall back to the legacy
+    // select so currency bootstrap keeps working.
+    ({ data, error } = await supabase
+      .from('profiles')
+      .select(LEGACY_PROFILE_COLUMNS)
+      .eq('id', userId)
+      .maybeSingle());
+  }
   if (error || !data) return null;
+  const row = data as Record<string, unknown>;
   return {
-    id: data.id,
-    country: data.country,
-    baseCurrency: data.base_currency,
+    id: row.id as string,
+    country: (row.country as string | null) ?? null,
+    baseCurrency: row.base_currency as string,
+    paydayDayOfMonth: row.payday_day_of_month == null ? null : Number(row.payday_day_of_month),
+    budgetCycleMode: row.budget_cycle_mode === 'payday' ? 'payday' : 'calendar',
+    paydaySource:
+      row.payday_source === 'detected' || row.payday_source === 'manual'
+        ? row.payday_source
+        : null,
   };
+}
+
+/**
+ * Persist the A2 budget-cycle preference (settings Save / payday nudge).
+ * No-ops gracefully when migration 015 hasn't been applied yet.
+ */
+export async function updateCyclePrefs(
+  userId: string,
+  prefs: {
+    mode: 'calendar' | 'payday';
+    day: number | null;
+    source: 'detected' | 'manual' | null;
+  },
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      budget_cycle_mode: prefs.mode,
+      payday_day_of_month: prefs.day,
+      payday_source: prefs.source,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId);
+  if (error) {
+    console.warn('[profile] updateCyclePrefs failed (migration 015 applied?):', error.message);
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -69,6 +121,9 @@ export async function initializeProfile(
     id: data.id,
     country: data.country,
     baseCurrency: data.base_currency,
+    paydayDayOfMonth: null,
+    budgetCycleMode: 'calendar',
+    paydaySource: null,
   };
 }
 
@@ -141,5 +196,8 @@ export async function saveOnboarding(
     id: data.id,
     country: data.country,
     baseCurrency: data.base_currency,
+    paydayDayOfMonth: null,
+    budgetCycleMode: 'calendar',
+    paydaySource: null,
   };
 }

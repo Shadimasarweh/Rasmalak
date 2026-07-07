@@ -40,32 +40,45 @@ export function mapToEngineTransactions(txns: StoreTransactionLike[]): EngineTra
 
 export interface PredictiveProfileBits {
   fallback: ProfileFallback;
-  // profiles.payday_day_of_month — selected only once migration 015 is
-  // applied (see PR-7); until then the override is always null.
+  // profiles.payday_day_of_month — the user's explicit setting; wins over
+  // detection everywhere in the engine.
   paydayOverride: number | null;
 }
 
-// persona + monthly_income exist since migration 014 (onboarding fields).
+const EMPTY_BITS: PredictiveProfileBits = {
+  fallback: { persona: null, monthlyIncome: null },
+  paydayOverride: null,
+};
+
+// persona + monthly_income exist since migration 014; payday_day_of_month
+// arrives with 015 — the legacy retry keeps pre-migration deploys working.
 export async function fetchPredictiveProfileBits(userId: string): Promise<PredictiveProfileBits> {
   try {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('profiles')
-      .select('persona, monthly_income')
+      .select('persona, monthly_income, payday_day_of_month')
       .eq('id', userId)
       .maybeSingle();
-    if (error || !data) {
-      return { fallback: { persona: null, monthlyIncome: null }, paydayOverride: null };
+    if (error) {
+      ({ data, error } = await supabase
+        .from('profiles')
+        .select('persona, monthly_income')
+        .eq('id', userId)
+        .maybeSingle());
     }
-    const persona = data.persona as ProfileFallback['persona'];
-    const income = data.monthly_income == null ? null : Number(data.monthly_income);
+    if (error || !data) return EMPTY_BITS;
+    const row = data as Record<string, unknown>;
+    const persona = row.persona as ProfileFallback['persona'];
+    const income = row.monthly_income == null ? null : Number(row.monthly_income);
+    const payday = row.payday_day_of_month == null ? null : Number(row.payday_day_of_month);
     return {
       fallback: {
         persona: persona === 'salaried' || persona === 'variable' || persona === 'student' ? persona : null,
         monthlyIncome: Number.isFinite(income as number) ? income : null,
       },
-      paydayOverride: null,
+      paydayOverride: Number.isFinite(payday as number) ? payday : null,
     };
   } catch {
-    return { fallback: { persona: null, monthlyIncome: null }, paydayOverride: null };
+    return EMPTY_BITS;
   }
 }

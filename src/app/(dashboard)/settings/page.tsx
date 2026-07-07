@@ -6,7 +6,7 @@ import { useStore, useUser, useUserName, useUpdateUserProfile } from '@/store/us
 import { SUPPORTED_CURRENCY_CODES, getCurrencyDisplayName } from '@/lib/currencies';
 import { ACCENT_COLOR_OPTIONS } from '@/lib/constants';
 import { supabase } from '@/lib/supabaseClient';
-import { setBaseCurrency as persistBaseCurrency } from '@/lib/profile';
+import { setBaseCurrency as persistBaseCurrency, updateCyclePrefs } from '@/lib/profile';
 import { AI_FEATURES } from '@/ai/config';
 import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 
@@ -2835,6 +2835,10 @@ export default function SettingsPage() {
             ? 'detected'
             : 'manual';
       setPayday(pendingPaydayDay, source);
+      if (user?.id) {
+        // Server mirror for cross-device continuity — fail-open pre-015.
+        void updateCyclePrefs(user.id, { mode: pendingCycleMode, day: pendingPaydayDay, source });
+      }
     }
     setGlobalLanguage(pendingLanguage);
     if (pendingBaseCurrency !== globalBaseCurrency) {

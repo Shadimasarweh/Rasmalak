@@ -14,6 +14,8 @@ import { useIntl } from 'react-intl';
 import { AI_FEATURES } from '@/ai/config';
 import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 import { useStore, useBudgetCycleMode, useLanguage } from '@/store/useStore';
+import { useUser as useAuthUser } from '@/store/authStore';
+import { updateCyclePrefs } from '@/lib/profile';
 import { showSuccess } from '@/store/toastStore';
 
 const DISMISS_KEY = 'rasmalak.paydayNudgeDismissed.v1';
@@ -61,6 +63,7 @@ export default function PaydayDetectedNudge() {
   const cycleMode = useBudgetCycleMode();
   const setBudgetCycleMode = useStore((s) => s.setBudgetCycleMode);
   const setPayday = useStore((s) => s.setPayday);
+  const userId = useAuthUser()?.id;
   const [hidden, setHidden] = useState(false);
 
   const salary = state?.salary;
@@ -78,6 +81,9 @@ export default function PaydayDetectedNudge() {
   const accept = () => {
     setBudgetCycleMode('payday');
     setPayday(day, 'detected');
+    if (userId) {
+      void updateCyclePrefs(userId, { mode: 'payday', day, source: 'detected' });
+    }
     persistDismiss();
     setHidden(true);
     showSuccess(

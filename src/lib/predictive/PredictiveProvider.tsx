@@ -30,6 +30,7 @@ import { useGoals, getMonthlyFundingAmount } from '@/store/goalsStore';
 import { useBudgetCycles } from '@/store/budgetCyclesStore';
 import { useUser as useAuthUser } from '@/store/authStore';
 import { fetchPredictiveProfileBits, mapToEngineTransactions, type PredictiveProfileBits } from './inputs';
+import { reconcileDuePredictions, syncPredictiveState } from './service';
 
 export interface PredictiveContextValue {
   status: 'idle' | 'ready';
@@ -72,12 +73,14 @@ export function PredictiveProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(() => setRefreshCounter((c) => c + 1), []);
 
+  const engineTxns = useMemo(() => mapToEngineTransactions(transactions), [transactions]);
+
   const value = useMemo<PredictiveContextValue>(() => {
-    if (!AI_FEATURES.predictionsEnabled || transactions.length === 0) {
+    if (!AI_FEATURES.predictionsEnabled || engineTxns.length === 0) {
       return { ...EMPTY, refresh };
     }
     const state = computePredictiveState({
-      transactions: mapToEngineTransactions(transactions),
+      transactions: engineTxns,
       currentBalance: getNetBalance(),
       profileFallback: profileBits?.fallback ?? { persona: null, monthlyIncome: null },
       paydayOverride: profileBits?.paydayOverride ?? null,
@@ -95,7 +98,35 @@ export function PredictiveProvider({ children }: { children: ReactNode }) {
     };
     // getNetBalance is a stable callback derived from transactions.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, savingsGoals, cycles, profileBits, refresh]);
+  }, [engineTxns, savingsGoals, cycles, profileBits, refresh]);
+
+  // Persistence: reconcile past-horizon predictions once per session, then
+  // sync series/baselines/ledger once per local day (re-forced when the
+  // cycle rolls over or refresh() is called). The 3s debounce absorbs
+  // realtime/refetch bursts; everything is fail-open.
+  useEffect(() => {
+    const state = value.state;
+    if (!userId || !state || !state.meta.hasMinimumHistory) return;
+    const timer = setTimeout(async () => {
+      try {
+        const sessionKey = `rasmalak:predictive:reconciled:${userId}`;
+        if (typeof window !== 'undefined' && !window.sessionStorage.getItem(sessionKey)) {
+          await reconcileDuePredictions(userId, engineTxns);
+          window.sessionStorage.setItem(sessionKey, '1');
+        }
+        const dayKey = `rasmalak:predictive:syncDay:${userId}`;
+        const today = new Date().toISOString().slice(0, 10);
+        const stamp = `${today}|${state.cycle.key}|${refreshCounter}`;
+        if (typeof window !== 'undefined' && window.localStorage.getItem(dayKey) !== stamp) {
+          await syncPredictiveState(userId, state);
+          window.localStorage.setItem(dayKey, stamp);
+        }
+      } catch (e) {
+        console.warn('[predictive] persistence pass failed:', e instanceof Error ? e.message : e);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [userId, value.state, engineTxns, refreshCounter]);
 
   return <PredictiveContext.Provider value={value}>{children}</PredictiveContext.Provider>;
 }
