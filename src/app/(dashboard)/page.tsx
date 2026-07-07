@@ -18,6 +18,7 @@ import { usePredictiveState, usePredictions } from '@/lib/predictive/PredictiveP
 import { buildDashboardNotifications } from '@/lib/dashboardNotifications';
 import SafeToSpendCard from '@/components/dashboard/SafeToSpendCard';
 import CycleForecastCard from '@/components/dashboard/CycleForecastCard';
+import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityCard';
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
 import { AI_FEATURES } from '@/ai/config';
 
@@ -292,6 +293,12 @@ export default function OverviewPage() {
     predictiveState.meta.hasMinimumHistory &&
     predictiveState.forecast.basis.confidence !== 'low' &&
     predictiveState.forecast.perDay.length >= 2;
+  const showPersonalityCard =
+    AI_FEATURES.personalityCard &&
+    !!predictiveState &&
+    predictiveState.meta.hasMinimumHistory &&
+    !!predictiveState.archetype.archetype &&
+    predictiveState.archetype.evidence.length >= 2;
 
   if (isInitialLoad) {
     return (
@@ -707,10 +714,11 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* ===== CYCLE FORECAST ROW (flag-gated inside; full width until B1 ships) ===== */}
-      {showForecastCard && (
+      {/* ===== "رسمالك يعرفك" ROW: forecast (8) + personality (4) ===== */}
+      {(showForecastCard || showPersonalityCard) && (
         <div className="ds-grid">
-          <CycleForecastCard fullWidth />
+          {showForecastCard && <CycleForecastCard fullWidth={!showPersonalityCard} />}
+          {showPersonalityCard && <SpendingPersonalityCard fullWidth={!showForecastCard} />}
         </div>
       )}
 
