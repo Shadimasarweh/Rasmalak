@@ -273,7 +273,7 @@ export function computeBehaviorSignals(input: BehaviorInput): ComputedBehaviorSi
   };
 }
 
-function computeMedianMonthlyIncome(txns: EngineTransaction[]): number {
+export function computeMedianMonthlyIncome(txns: EngineTransaction[]): number {
   const byMonth = new Map<string, number>();
   for (const tx of txns) {
     if (tx.type !== 'income' || !Number.isFinite(tx.amountBase)) continue;

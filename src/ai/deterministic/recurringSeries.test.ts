@@ -6,6 +6,7 @@ import {
   type RecurringSeries,
 } from './recurringSeries';
 import { isoAddDays } from './dates';
+import { mulberry32 } from './stats';
 import { makeTx, salaryEveryMonth, monthlyBill, type FixtureTransaction } from './fixtures';
 
 // June 15, 2026 — all fixtures are built relative to this.
@@ -125,6 +126,26 @@ describe('amount handling', () => {
     expect(series).toHaveLength(2);
     expect(series.map((s) => s.amountMedian).sort((a, b) => a - b)).toEqual([45, 1200]);
     expect(series.every((s) => s.key.includes('#b'))).toBe(true);
+  });
+
+  it('dense daily spending never fabricates a series via amount clustering', () => {
+    // 60 description-less food purchases over 90 days: similar amounts form
+    // clusters whose dates can look accidentally periodic. The dense-stream
+    // guard must reject them all.
+    const rng = mulberry32(17);
+    const txns: FixtureTransaction[] = [];
+    for (let i = 0; i < 90; i++) {
+      if (rng() < 0.33) continue;
+      txns.push(
+        makeTx({
+          date: isoAddDays('2026-03-16', i),
+          type: 'expense',
+          category: 'food',
+          amountBase: Math.round((8 + rng() * 30) * 100) / 100,
+        }),
+      );
+    }
+    expect(detect(txns)).toHaveLength(0);
   });
 
   it('merges same-day rows into one occurrence', () => {

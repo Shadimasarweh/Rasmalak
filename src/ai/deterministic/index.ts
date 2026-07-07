@@ -25,6 +25,48 @@ export {
   type FinancialAdvisoryState,
 } from '../financialAdvisory';
 
+// ============================================================
+// Predictive engine (Phase 1) — pure statistical layer
+// ============================================================
+
+export { PREDICTIVE_ENGINE_VERSION, isGoalFunding, type EngineTransaction } from './engineTypes';
+export {
+  detectRecurringSeries,
+  collectSeriesMemberIds,
+  normalizeMerchant,
+  type RecurringSeries,
+  type Cadence,
+} from './recurringSeries';
+export { deriveSalaryProfile, type SalaryProfile, type ProfileFallback } from './salaryProfile';
+export {
+  computeCategoryBaselines,
+  detectCategoryDeviations,
+  type CategoryBaseline,
+  type CategoryDeviation,
+} from './categoryBaselines';
+export {
+  computeCashflowForecast,
+  type CashflowForecast,
+  type CommittedItem,
+  type ForecastDay,
+} from './cashflowForecast';
+export {
+  computeBehaviorSignals,
+  deriveArchetype,
+  type ComputedBehaviorSignals,
+  type Archetype,
+  type ArchetypeResult,
+  type ArchetypeEvidence,
+} from './behaviorProfile';
+export { computeSafeToSpend, sumGoalFundingInCycle, type SafeToSpendResult } from './safeToSpend';
+export {
+  computePredictiveState,
+  summarizeForContext,
+  type PredictiveState,
+  type PredictiveInputs,
+  type PredictiveContextSummary,
+} from './predictiveState';
+
 export interface ProjectionResult {
   projectedEndOfMonthBalance: number;
   dailySpendRate: number;

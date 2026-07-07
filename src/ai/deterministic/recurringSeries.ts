@@ -182,10 +182,11 @@ export function detectRecurringSeries(
   for (const group of groups.values()) {
     if (group.merchantKey === '') {
       // Category-level bucket: many unrelated one-offs share it. Sub-cluster
-      // by amount so rent doesn't merge with a small same-category fee.
+      // by amount so rent doesn't merge with a small same-category fee. The
+      // full bucket rides along for the dense-stream guard.
       for (const cluster of clusterByAmount(group.occurrences)) {
         const clusterMedian = Math.round(median(cluster.map((o) => o.amount)));
-        const result = analyzeCandidate(group, cluster, `#b${clusterMedian}`, nowDay);
+        const result = analyzeCandidate(group, cluster, `#b${clusterMedian}`, nowDay, group.occurrences);
         if (result) series.push(result);
       }
     } else {
@@ -227,6 +228,7 @@ function analyzeCandidate(
   occurrences: Occurrence[],
   keySuffix: string,
   nowDay: number,
+  fullBucket?: Occurrence[],
 ): RecurringSeries | null {
   const occs = [...occurrences].sort((a, b) => a.dayNumber - b.dayNumber);
   const n = occs.length;
@@ -236,6 +238,21 @@ function analyzeCandidate(
   // and even a lone flagged transaction yields a declared low-confidence series.
   const hasFlag = occs.some((o) => o.flagged);
   if (n < MIN_OCCURRENCES && !hasFlag) return null;
+
+  // Dense-stream guard (amount-clustered candidates only): a subset selected
+  // by amount out of frequent same-category spending can look periodic by
+  // accident. A real bill dominates its own date span — if more OTHER
+  // occurrences of this category are interleaved than the cluster has
+  // members, it is daily-spending noise, not a series.
+  if (fullBucket && !hasFlag) {
+    const inCluster = new Set(occs.map((o) => o.date));
+    const first = occs[0].dayNumber;
+    const last = occs[n - 1].dayNumber;
+    const interleaved = fullBucket.filter(
+      (o) => !inCluster.has(o.date) && o.dayNumber >= first && o.dayNumber <= last,
+    ).length;
+    if (interleaved > n) return null;
+  }
 
   const amounts = occs.map((o) => o.amount);
   const amountMedian = median(amounts);
