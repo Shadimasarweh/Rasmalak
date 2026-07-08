@@ -6,7 +6,9 @@ import { useStore, useUser, useUserName, useUpdateUserProfile } from '@/store/us
 import { SUPPORTED_CURRENCY_CODES, getCurrencyDisplayName } from '@/lib/currencies';
 import { ACCENT_COLOR_OPTIONS } from '@/lib/constants';
 import { supabase } from '@/lib/supabaseClient';
-import { setBaseCurrency as persistBaseCurrency } from '@/lib/profile';
+import { setBaseCurrency as persistBaseCurrency, updateCyclePrefs } from '@/lib/profile';
+import { AI_FEATURES } from '@/ai/config';
+import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 
 /* ============================================
    SETTINGS PAGE
@@ -2025,6 +2027,167 @@ function AccentColorPickerModal({
 }
 
 /* ===== PREFERENCES TAB CONTENT ===== */
+interface BudgetCycleCardProps {
+  intl: ReturnType<typeof useIntl>;
+  selectedCycleMode: 'calendar' | 'payday';
+  onCycleModeChange: (mode: 'calendar' | 'payday') => void;
+  selectedPaydayDay: number | null;
+  onPaydayDayChange: (day: number | null) => void;
+  paydaySource: 'detected' | 'manual' | null;
+  detectedPayday: { day: number; confidence: number } | null;
+  cycleError: string | null;
+}
+
+// Budget Cycle card (A2). Manual-first: the day picker works before the
+// engine ever detects a salary; detection just pre-fills and captions it.
+function BudgetCycleCard({
+  intl,
+  selectedCycleMode,
+  onCycleModeChange,
+  selectedPaydayDay,
+  onPaydayDayChange,
+  paydaySource,
+  detectedPayday,
+  cycleError,
+}: BudgetCycleCardProps) {
+  const optionStyle = (selected: boolean): React.CSSProperties => ({
+    padding: '14px 16px',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    textAlign: 'start',
+    background: selected ? 'var(--ds-bg-tinted)' : 'var(--ds-bg-input)',
+    border: selected ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+  });
+
+  return (
+    <div
+      style={{
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
+        padding: '24px',
+        boxShadow: 'var(--ds-shadow-card)',
+        transition: 'box-shadow 200ms ease',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+        <span style={{ color: 'var(--ds-primary)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </span>
+        <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+          {intl.formatMessage({ id: 'settings.budget_cycle_title', defaultMessage: 'Budget Cycle' })}
+        </h3>
+      </div>
+      <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', marginBottom: '16px' }}>
+        {intl.formatMessage({
+          id: 'settings.budget_cycle_description',
+          defaultMessage: 'Choose whether your budget month follows the calendar or runs payday to payday.',
+        })}
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+        <button type="button" style={optionStyle(selectedCycleMode === 'calendar')} onClick={() => onCycleModeChange('calendar')}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+            {intl.formatMessage({ id: 'settings.budget_cycle_calendar', defaultMessage: 'Calendar month' })}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '2px' }}>
+            {intl.formatMessage({ id: 'settings.budget_cycle_calendar_hint', defaultMessage: 'Starts on the 1st' })}
+          </div>
+        </button>
+        <button type="button" style={optionStyle(selectedCycleMode === 'payday')} onClick={() => onCycleModeChange('payday')}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+            {intl.formatMessage({ id: 'settings.budget_cycle_payday', defaultMessage: 'Payday to payday' })}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '2px' }}>
+            {intl.formatMessage({ id: 'settings.budget_cycle_payday_hint', defaultMessage: 'Starts on your salary day' })}
+          </div>
+        </button>
+      </div>
+
+      {selectedCycleMode === 'payday' && (
+        <>
+          <label style={{ fontSize: '13px', color: 'var(--ds-text-muted)', display: 'block', marginBottom: '6px' }}>
+            {intl.formatMessage({ id: 'settings.payday_day_label', defaultMessage: 'Payday day of month' })}
+          </label>
+          <select
+            value={selectedPaydayDay ?? ''}
+            onChange={(e) => onPaydayDayChange(e.target.value === '' ? null : Number(e.target.value))}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '10px',
+              border: '0.5px solid var(--ds-border)',
+              background: 'var(--ds-bg-input)',
+              color: 'var(--ds-text-heading)',
+              fontSize: '14px',
+              marginBottom: '8px',
+            }}
+          >
+            <option value="">—</option>
+            {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+              <option key={day} value={day}>
+                {intl.formatMessage({ id: 'settings.payday_day_option', defaultMessage: 'Day {day}' }, { day: intl.formatNumber(day) })}
+              </option>
+            ))}
+          </select>
+
+          <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginBottom: '4px' }}>
+            {paydaySource === 'detected' && detectedPayday
+              ? intl.formatMessage({ id: 'settings.payday_detected_caption', defaultMessage: 'Detected from your income pattern.' })
+              : paydaySource === 'manual'
+                ? intl.formatMessage({ id: 'settings.payday_manual_caption', defaultMessage: 'Set manually.' })
+                : detectedPayday
+                  ? null
+                  : intl.formatMessage({ id: 'settings.payday_none_detected', defaultMessage: 'No salary pattern detected yet — pick your payday manually.' })}
+          </p>
+
+          {detectedPayday && selectedPaydayDay !== detectedPayday.day && (
+            <button
+              type="button"
+              onClick={() => onPaydayDayChange(detectedPayday.day)}
+              style={{ background: 'none', border: 'none', color: 'var(--ds-primary)', fontSize: '12.5px', cursor: 'pointer', padding: 0, marginBottom: '4px' }}
+            >
+              {intl.formatMessage(
+                { id: 'settings.payday_reset_to_detected', defaultMessage: 'Use detected day ({day})' },
+                { day: intl.formatNumber(detectedPayday.day) },
+              )}
+            </button>
+          )}
+
+          {selectedPaydayDay != null && selectedPaydayDay >= 29 && (
+            <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)' }}>
+              {intl.formatMessage(
+                { id: 'settings.payday_clamp_note', defaultMessage: 'In shorter months, day {day} falls on the last day of the month.' },
+                { day: intl.formatNumber(selectedPaydayDay) },
+              )}
+            </p>
+          )}
+        </>
+      )}
+
+      {cycleError && (
+        <div style={{ padding: '10px 14px', marginTop: '8px', borderRadius: '8px', background: 'rgba(220, 38, 38, 0.08)', fontSize: '13px', color: 'var(--ds-error)' }}>
+          {cycleError}
+        </div>
+      )}
+
+      <p style={{ fontSize: '12px', color: 'var(--ds-text-muted)', marginTop: '12px' }}>
+        {intl.formatMessage({
+          id: 'settings.budget_cycle_change_note',
+          defaultMessage: 'Changing this re-windows budgets and alerts from your payday. Past months are unaffected.',
+        })}
+      </p>
+    </div>
+  );
+}
+
 function PreferencesContent({
   intl,
   selectedLanguage,
@@ -2041,6 +2204,7 @@ function PreferencesContent({
   onCancelRecalc,
   onDismissRecalcStatus,
   originalBaseCurrency,
+  cycleProps,
 }: {
   intl: ReturnType<typeof useIntl>;
   selectedLanguage: 'en' | 'ar';
@@ -2057,6 +2221,7 @@ function PreferencesContent({
   onCancelRecalc: () => void;
   onDismissRecalcStatus: () => void;
   originalBaseCurrency: string;
+  cycleProps: BudgetCycleCardProps | null;
 }) {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -2332,6 +2497,9 @@ function PreferencesContent({
         )}
       </div>
 
+      {/* Budget Cycle Card (A2 — hidden until the payday flag ships) */}
+      {cycleProps && <BudgetCycleCard {...cycleProps} />}
+
       {/* Appearance Card */}
       <div
         style={{
@@ -2606,6 +2774,22 @@ export default function SettingsPage() {
   // Local state for pending changes (before save)
   const [pendingLanguage, setPendingLanguage] = useState<'en' | 'ar'>(globalLanguage);
   const [pendingBaseCurrency, setPendingBaseCurrency] = useState<string>(globalBaseCurrency);
+
+  // Budget cycle (A2) — pending + Save like language/currency, because a
+  // mode switch re-windows every number on the dashboard.
+  const globalCycleMode = useStore((s) => s.budgetCycleMode);
+  const globalPaydayDay = useStore((s) => s.paydayDayOfMonth);
+  const globalPaydaySource = useStore((s) => s.paydaySource);
+  const setBudgetCycleMode = useStore((s) => s.setBudgetCycleMode);
+  const setPayday = useStore((s) => s.setPayday);
+  const { state: predictiveState } = usePredictiveState();
+  const detectedPayday =
+    predictiveState?.salary.source === 'detected' && predictiveState.salary.paydayDayOfMonth != null
+      ? { day: predictiveState.salary.paydayDayOfMonth, confidence: predictiveState.salary.confidence }
+      : null;
+  const [pendingCycleMode, setPendingCycleMode] = useState<'calendar' | 'payday'>(globalCycleMode);
+  const [pendingPaydayDay, setPendingPaydayDay] = useState<number | null>(globalPaydayDay);
+  const [cycleError, setCycleError] = useState<string | null>(null);
   // Recalc lifecycle: idle | confirm | running | done | error
   const [recalcState, setRecalcState] = useState<'idle' | 'confirm' | 'running' | 'done' | 'error'>('idle');
   const [recalcMessage, setRecalcMessage] = useState<string | null>(null);
@@ -2632,6 +2816,30 @@ export default function SettingsPage() {
 
   // Handle save - apply pending changes to global store
   const handleSaveChanges = () => {
+    if (AI_FEATURES.paydayCycleBudgeting) {
+      if (pendingCycleMode === 'payday' && pendingPaydayDay == null) {
+        setCycleError(
+          intl.formatMessage({
+            id: 'settings.payday_required_error',
+            defaultMessage: 'Pick your payday day before switching to a payday cycle.',
+          }),
+        );
+        return;
+      }
+      setCycleError(null);
+      setBudgetCycleMode(pendingCycleMode);
+      const source =
+        pendingPaydayDay == null
+          ? null
+          : detectedPayday && pendingPaydayDay === detectedPayday.day
+            ? 'detected'
+            : 'manual';
+      setPayday(pendingPaydayDay, source);
+      if (user?.id) {
+        // Server mirror for cross-device continuity — fail-open pre-015.
+        void updateCyclePrefs(user.id, { mode: pendingCycleMode, day: pendingPaydayDay, source });
+      }
+    }
     setGlobalLanguage(pendingLanguage);
     if (pendingBaseCurrency !== globalBaseCurrency) {
       // Surface the confirm dialog rather than apply directly. The
@@ -2646,6 +2854,9 @@ export default function SettingsPage() {
   const handleCancel = () => {
     setPendingLanguage(globalLanguage);
     setPendingBaseCurrency(globalBaseCurrency);
+    setPendingCycleMode(globalCycleMode);
+    setPendingPaydayDay(globalPaydayDay);
+    setCycleError(null);
   };
 
   // Confirm + run the base-currency change. Persists optimistically
@@ -2778,6 +2989,20 @@ export default function SettingsPage() {
               }}
               onDismissRecalcStatus={() => setRecalcState('idle')}
               originalBaseCurrency={globalBaseCurrency}
+              cycleProps={
+                AI_FEATURES.paydayCycleBudgeting
+                  ? {
+                      intl,
+                      selectedCycleMode: pendingCycleMode,
+                      onCycleModeChange: setPendingCycleMode,
+                      selectedPaydayDay: pendingPaydayDay,
+                      onPaydayDayChange: setPendingPaydayDay,
+                      paydaySource: globalPaydaySource,
+                      detectedPayday,
+                      cycleError,
+                    }
+                  : null
+              }
             />
           )}
         </div>

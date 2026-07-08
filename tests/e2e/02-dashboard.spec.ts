@@ -46,4 +46,13 @@ test.describe('Dashboard', () => {
     await page.waitForLoadState('networkidle');
     expect(errors.filter(e => !e.includes('ResizeObserver'))).toHaveLength(0);
   });
+
+  // Predictive surfaces are live (AI_FEATURES flags on) but data-gated:
+  // each card renders only past ≥28 days / ≥10 transactions of history
+  // (Safe-to-Spend also needs a detected salary), so a fresh account may
+  // legitimately show none. Pin only the unconditional invariant: the
+  // classic hero survives alongside whatever predictive cards appear.
+  test('dashboard hero renders with predictive flags on', async ({ page }) => {
+    await expect(page.locator('text=/total balance|الرصيد الإجمالي/i')).toBeVisible();
+  });
 });

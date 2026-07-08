@@ -172,6 +172,15 @@ interface AppState {
   accentColor: string;
   setAccentColor: (color: string) => void;
 
+  // Budget cycle (A2 — payday-to-payday budgeting). 'calendar' preserves
+  // the classic month; paydayDayOfMonth/paydaySource only matter in
+  // 'payday' mode. Mirrored to profiles once migration 015 lands.
+  budgetCycleMode: 'calendar' | 'payday';
+  paydayDayOfMonth: number | null; // 1–31
+  paydaySource: 'detected' | 'manual' | null;
+  setBudgetCycleMode: (mode: 'calendar' | 'payday') => void;
+  setPayday: (day: number | null, source: 'detected' | 'manual' | null) => void;
+
   // User
   userName: string;
   setUserName: (name: string) => void;
@@ -435,6 +444,13 @@ export const useStore = create<AppState>()(
       accentColor: DEFAULT_ACCENT_COLOR,
       setAccentColor: (color) => set({ accentColor: color }),
 
+      // Budget cycle
+      budgetCycleMode: 'calendar',
+      paydayDayOfMonth: null,
+      paydaySource: null,
+      setBudgetCycleMode: (mode) => set({ budgetCycleMode: mode }),
+      setPayday: (day, source) => set({ paydayDayOfMonth: day, paydaySource: source }),
+
       // User
       userName: '',
       setUserName: (name) => set({ userName: name }),
@@ -478,6 +494,9 @@ export const useStore = create<AppState>()(
         language: state.language,
         theme: state.theme,
         accentColor: state.accentColor,
+        budgetCycleMode: state.budgetCycleMode,
+        paydayDayOfMonth: state.paydayDayOfMonth,
+        paydaySource: state.paydaySource,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }
@@ -492,7 +511,10 @@ export const useCountry = () => useStore((state) => state.country);
 export const useUserName = () => useStore((state) => state.userName);
 export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);
-export const useAccentColor = () => useStore((state) => state.accentColor);// Auth selectors - split to avoid SSR hydration issues
+export const useAccentColor = () => useStore((state) => state.accentColor);
+export const useBudgetCycleMode = () => useStore((state) => state.budgetCycleMode);
+export const usePaydayDayOfMonth = () => useStore((state) => state.paydayDayOfMonth);
+export const usePaydaySource = () => useStore((state) => state.paydaySource);// Auth selectors - split to avoid SSR hydration issues
 // Use these individual selectors in components instead of a combined hook
 export const useUser = () => useStore((state) => state.user);
 export const useIsAuthenticated = () => useStore((state) => state.isAuthenticated);

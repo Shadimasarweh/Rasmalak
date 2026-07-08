@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useLanguage, useCurrency } from '@/store/useStore';
-import { useTransactions, getMonthRange, aggregateExpensesByCategory } from '@/store/transactionStore';
+import { useTransactions, useActiveCycle, aggregateExpensesByCategory } from '@/store/transactionStore';
 import { useBudget } from '@/store/budgetStore';
 import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
@@ -46,9 +46,11 @@ export function useCategoryComparisonRows(monthOffset: number = 0, plannedOverri
   const { categoryBudgets } = useBudget();
   const language = useLanguage();
   const isRTL = language === 'ar';
+  // Cycle-aware window: identical to getMonthRange in calendar mode.
+  const cycle = useActiveCycle(monthOffset);
 
   return useMemo(() => {
-    const range = getMonthRange(monthOffset);
+    const range = { start: cycle.start, end: cycle.end };
     const actuals = aggregateExpensesByCategory(transactions, range);
     const planMap = plannedOverride ?? categoryBudgets;
 
@@ -76,7 +78,7 @@ export function useCategoryComparisonRows(monthOffset: number = 0, plannedOverri
     );
 
     return { rows, totals };
-  }, [transactions, categoryBudgets, isRTL, monthOffset, plannedOverride]);
+  }, [transactions, categoryBudgets, isRTL, cycle, plannedOverride]);
 }
 
 export default function CategoryComparisonTable({

@@ -6,6 +6,15 @@
  * spending. No I/O, no React, no LLM here — this is the foundation that
  * the AI refinement (see src/ai/orchestrator.ts) sits on top of.
  *
+ * v2 (predictive engine Phase 1, item 4): recency-weighted EWMA over the
+ * last 6 completed months with a per-category trend term, replacing the
+ * flat 3-month mean. Two robustness rules:
+ *   - Absent ≠ zero: a month with no transactions AT ALL is a gap month
+ *     (the user wasn't logging) and is dropped from every category's
+ *     series; an active month without this category is a true zero.
+ *   - Spike guard: the "never below last month" floor is capped at
+ *     median + 3×MAD, so a one-off expensive month doesn't pin the plan.
+ *
  * Design intent (from the Plan vs Track redesign):
  *   - Past informs future, but past is NOT the plan itself.
  *   - Suggestions must be obviously rounded so users don't think we're
@@ -13,6 +22,8 @@
  *   - We need to expose how confident we are so the UI can dim low-signal
  *     suggestions.
  */
+
+import { ewma, leastSquaresSlope, median, mad, effectiveMad } from '@/ai/deterministic/stats';
 
 export interface AutoBudgetTransaction {
   type: 'income' | 'expense';
@@ -32,6 +43,11 @@ export interface AutoBudgetCategorySuggestion {
   monthlyAverage: number;
   monthlyMax: number;
   confidence: 'low' | 'medium' | 'high';
+  // v2 diagnostics (optional so persisted/serialized v1 shapes stay valid)
+  ewma?: number;
+  trendPerMonth?: number;
+  monthsAbsent?: number;
+  method?: 'ewma_v2';
 }
 
 export interface AutoBudgetResult {
@@ -40,24 +56,31 @@ export interface AutoBudgetResult {
   totalAverage: number;
   monthsAnalyzed: number;
   hasEnoughHistory: boolean;
+  method?: 'flat_v1' | 'ewma_v2';
 }
 
 export interface AutoBudgetOptions {
-  // How many full months of history to analyze (1-12). Default 3.
+  // How many full months of history to analyze (1-12). Default 6 — EWMA
+  // needs depth; recent months still dominate via the weights.
   lookbackMonths?: number;
   // Reference "now" used for window math. Default new Date().
   now?: Date;
   // Rounding granularity for the suggested amount in the user's currency.
   // Default 5 — produces clean numbers like 25, 100, 235.
   roundTo?: number;
-  // Buffer over the average, expressed as a fraction (0.05 = 5% headroom).
+  // Buffer over the projection, expressed as a fraction (0.05 = 5% headroom).
   // Default 0.05 so the plan is realistic, not a stretch goal.
   buffer?: number;
 }
 
-const DEFAULT_LOOKBACK = 3;
+const DEFAULT_LOOKBACK = 6;
 const DEFAULT_ROUND_TO = 5;
 const DEFAULT_BUFFER = 0.05;
+// Recency weight for the EWMA and the cap on how much the trend term may
+// move the projection (fraction of the EWMA).
+const EWMA_ALPHA = 0.5;
+const TREND_CLAMP_FRACTION = 0.2;
+const SPIKE_GUARD_MAD_MULTIPLIER = 3;
 
 function roundUpTo(value: number, granularity: number): number {
   if (granularity <= 0) return Math.round(value);
@@ -93,8 +116,7 @@ export function suggestNextMonthPlan(
   const roundTo = options.roundTo ?? DEFAULT_ROUND_TO;
   const buffer = options.buffer ?? DEFAULT_BUFFER;
 
-  // Build window: last N completed months (skip current month).
-  // e.g. if now is 2026-05-04 and lookback=3, window is Feb, Mar, Apr 2026.
+  // Build window: last N completed months (skip current month), newest first.
   const windowMonths: { year: number; month: number }[] = [];
   for (let offset = 1; offset <= lookbackMonths; offset++) {
     const ref = new Date(now.getFullYear(), now.getMonth() - offset, 1);
@@ -110,16 +132,21 @@ export function suggestNextMonthPlan(
   // category -> monthKey -> total
   const perCategoryPerMonth = new Map<string, Map<string, number>>();
   const monthsWithAnyExpense = new Set<string>();
+  // Any transaction (income too) marks a month as "the user was logging" —
+  // this is what separates gap months from true zeros.
+  const monthsWithAnyActivity = new Set<string>();
 
   for (const tx of transactions) {
-    if (tx.type !== 'expense') continue;
     if (!tx.amountBase || !Number.isFinite(tx.amountBase)) continue;
     const d = new Date(tx.date);
     if (isNaN(d.getTime())) continue;
     if (d < windowStart || d > windowEnd) continue;
 
-    const cat = tx.category || 'other-expense';
     const key = monthKey(d);
+    monthsWithAnyActivity.add(key);
+    if (tx.type !== 'expense') continue;
+
+    const cat = tx.category || 'other-expense';
     const catMap = perCategoryPerMonth.get(cat) ?? new Map<string, number>();
     // Auto-budget projects in base currency — the user's "spending budget" is base.
     catMap.set(key, (catMap.get(key) ?? 0) + Math.abs(tx.amountBase));
@@ -130,31 +157,42 @@ export function suggestNextMonthPlan(
   const monthsAnalyzed = monthsWithAnyExpense.size;
   const hasEnoughHistory = monthsAnalyzed >= 1;
 
+  // Oldest-first keys of months the user was actually logging in.
+  const includedKeys = [...windowMonths]
+    .reverse()
+    .map(({ year, month }) => `${year}-${String(month + 1).padStart(2, '0')}`)
+    .filter((key) => monthsWithAnyActivity.has(key));
+  const monthsAbsent = windowMonths.length - includedKeys.length;
+
   const byCategory: Record<string, AutoBudgetCategorySuggestion> = {};
   let totalSuggested = 0;
   let totalAverage = 0;
 
   for (const [categoryId, monthMap] of perCategoryPerMonth.entries()) {
-    const monthlyTotals: number[] = [];
-    for (const { year, month } of windowMonths) {
-      const key = `${year}-${String(month + 1).padStart(2, '0')}`;
-      // Treat missing months as 0 — a category that didn't appear last month
-      // legitimately drags the average down.
-      monthlyTotals.push(monthMap.get(key) ?? 0);
-    }
-
-    const monthsWithThisCategory = monthlyTotals.filter((v) => v > 0).length;
+    // Oldest-first series over included months; missing entries in an
+    // active month are genuine zeros.
+    const values = includedKeys.map((key) => monthMap.get(key) ?? 0);
+    const monthsWithThisCategory = values.filter((v) => v > 0).length;
     if (monthsWithThisCategory === 0) continue;
 
-    const sum = monthlyTotals.reduce((s, v) => s + v, 0);
-    const average = sum / monthlyTotals.length;
-    const max = Math.max(...monthlyTotals);
+    const sum = values.reduce((s, v) => s + v, 0);
+    const average = sum / values.length;
+    const max = Math.max(...values);
 
-    // Use the higher of (average + buffer) and the most recent month so the
-    // plan isn't immediately tight if last month was a spike.
-    const lastMonthValue = monthlyTotals[0];
-    const baseline = Math.max(average * (1 + buffer), lastMonthValue);
-    const suggested = roundUpTo(baseline, roundTo);
+    const smoothed = ewma(values, EWMA_ALPHA);
+    const trendCap = TREND_CLAMP_FRACTION * smoothed;
+    const trend = Math.max(-trendCap, Math.min(trendCap, leastSquaresSlope(values)));
+    const projected = Math.max(0, smoothed + trend);
+
+    // "Never below last month" keeps a fresh commitment funded, but a one-off
+    // spike month must not pin the whole plan — cap the floor at a robust
+    // upper bound of typical months.
+    const lastMonthValue = values[values.length - 1];
+    const med = median(values);
+    const spikeGuard = med + SPIKE_GUARD_MAD_MULTIPLIER * effectiveMad(mad(values, med), med);
+    const floor = Math.min(lastMonthValue, spikeGuard);
+
+    const suggested = roundUpTo(Math.max(projected * (1 + buffer), floor), roundTo);
 
     const confidence: AutoBudgetCategorySuggestion['confidence'] =
       monthsWithThisCategory >= 3 ? 'high' : monthsWithThisCategory === 2 ? 'medium' : 'low';
@@ -166,6 +204,10 @@ export function suggestNextMonthPlan(
       monthlyAverage: Math.round(average * 100) / 100,
       monthlyMax: Math.round(max * 100) / 100,
       confidence,
+      ewma: Math.round(smoothed * 100) / 100,
+      trendPerMonth: Math.round(trend * 100) / 100,
+      monthsAbsent,
+      method: 'ewma_v2',
     };
 
     totalSuggested += suggested;
@@ -178,6 +220,7 @@ export function suggestNextMonthPlan(
     totalAverage: Math.round(totalAverage * 100) / 100,
     monthsAnalyzed,
     hasEnoughHistory,
+    method: 'ewma_v2',
   };
 }
 

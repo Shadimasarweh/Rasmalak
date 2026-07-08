@@ -42,6 +42,41 @@ export function renderUserProfile(profile: UserProfile, lang: 'ar' | 'en'): stri
       : `- Income stability: ${fmtNum(profile.incomeStabilityScore, lang)}/100`);
   }
 
+  // Predictive-engine behaviour signals (written by memoryUpdates with
+  // guardrails; absent for users the engine hasn't profiled yet).
+  const behavior = profile.behaviorSignals;
+  if (behavior.archetype) {
+    const archetypeAr: Record<string, string> = {
+      planner: 'المخطّط', impulsive: 'المندفع', seasonal: 'الموسمي', cautious: 'الحذر',
+    };
+    lines.push(isAr
+      ? `- النمط السلوكي: ${archetypeAr[behavior.archetype] ?? behavior.archetype} (كيّف الأسلوب دون تسمية النمط)`
+      : `- Behavioural archetype: ${behavior.archetype} (adapt tone; don't label the user)`);
+  }
+  if (behavior.paydayDayOfMonth != null) {
+    lines.push(isAr
+      ? `- يوم الراتب: ${fmtNum(behavior.paydayDayOfMonth, lang)} من الشهر`
+      : `- Payday: day ${fmtNum(behavior.paydayDayOfMonth, lang)} of the month`);
+  }
+  if (behavior.spendTiming || behavior.impulseIndex != null) {
+    const timingAr: Record<string, string> = {
+      front_loader: 'يصرف مبكراً في الدورة', smooth: 'إنفاق منتظم', back_loader: 'يصرف متأخراً في الدورة',
+    };
+    const timingEn: Record<string, string> = {
+      front_loader: 'front-loads spending', smooth: 'spends evenly', back_loader: 'back-loads spending',
+    };
+    const parts: string[] = [];
+    if (behavior.spendTiming) parts.push(isAr ? timingAr[behavior.spendTiming] : timingEn[behavior.spendTiming]);
+    if (behavior.impulseIndex != null) {
+      parts.push(isAr
+        ? `${fmtPct(behavior.impulseIndex * 100, lang, 0)} من الإنفاق المرن خلال ٧٢ ساعة بعد الراتب`
+        : `${fmtPct(behavior.impulseIndex * 100, lang, 0)} of flexible spend lands within 72h of payday`);
+    }
+    if (parts.length) {
+      lines.push(isAr ? `- سلوك الإنفاق: ${parts.join('؛ ')}` : `- Spending behaviour: ${parts.join('; ')}`);
+    }
+  }
+
   if (profile.preferences.focusAreas?.length) {
     lines.push(isAr
       ? `- مجالات الاهتمام: ${profile.preferences.focusAreas.join('، ')}`

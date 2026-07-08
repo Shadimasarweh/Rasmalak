@@ -2,7 +2,16 @@ import { create } from 'zustand';
 
 export interface AppNotification {
   id: string;
-  type: 'spending_alert' | 'goal_progress' | 'salary_missing' | 'health_score' | 'budget_warning' | 'recurring_charge';
+  type:
+    | 'spending_alert'
+    | 'goal_progress'
+    | 'salary_missing'
+    | 'health_score'
+    | 'budget_warning'
+    | 'recurring_charge'
+    | 'payday_detected'
+    | 'safe_to_spend_low'
+    | 'payday';
   severity: 'info' | 'warning' | 'critical' | 'positive';
   messageEn: string;
   messageAr: string;
