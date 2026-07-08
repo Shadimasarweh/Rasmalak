@@ -66,13 +66,13 @@ export const AI_FEATURES = {
   // LLM refinement call (see src/ai/autoBudget/refineWithAI.ts). Off by
   // default so the Plan tab always works without a network round-trip.
   aiAutoBudget: false,
-  // Predictive engine surfaces ("Rasmalak يعرفك" release). All off until the
-  // release step: migration 015 applied + Arabic copy reviewed.
-  salaryDetectionUI: false,   // A1: detected-payday captions, nudge, smarter salary_missing
-  paydayCycleBudgeting: false, // A2: payday-to-payday budget windows
-  safeToSpendCard: false,      // A3: dashboard hero
-  forecastCard: false,         // end-of-cycle P25–P75 band card
-  personalityCard: false,      // B1: spending archetype card
+  // Predictive engine surfaces ("Rasmalak يعرفك" release). Live since
+  // 2026-07-08: migration 015 applied, Arabic copy reviewed.
+  salaryDetectionUI: true,    // A1: detected-payday captions, nudge, smarter salary_missing
+  paydayCycleBudgeting: true, // A2: payday-to-payday budget windows
+  safeToSpendCard: true,      // A3: dashboard hero
+  forecastCard: true,         // end-of-cycle P25–P75 band card
+  personalityCard: true,      // B1: spending archetype card
 };
 
 // ============================================
