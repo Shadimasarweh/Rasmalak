@@ -375,7 +375,7 @@ export default {
   jotax_enter_values: 'Enter Income Details',
   jotax_employment_income: 'Salaries & Other Income (annual)',
   jotax_employment_placeholder: 'e.g. 20000',
-  jotax_retirement_income: 'Retirement Salary Above JOD 2,500 (annual)',
+  jotax_retirement_income: 'Retirement salary above JOD 2,500/month (enter annual total)',
   jotax_retirement_placeholder: 'e.g. 0',
   jotax_disability_count: 'Disability Exemption — Eligible Persons (JOD 2,000 each)',
   jotax_disability_placeholder: 'e.g. 0',

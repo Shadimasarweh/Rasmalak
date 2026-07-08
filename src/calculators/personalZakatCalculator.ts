@@ -26,6 +26,26 @@ export type ZakatAssetCategory =
   | 'silver_pure'
   | 'silver_utensils';
 
+// Display labels for the asset categories, kept in sync with the
+// `zakat_cat_*` i18n keys used by the calculator page. The server-side
+// report pipeline has no access to react-intl, so it localizes through here
+// instead of printing the raw enum key.
+const ZAKAT_CATEGORY_LABELS: Record<ZakatAssetCategory, { en: string; ar: string }> = {
+  cash: { en: 'Cash', ar: 'نقد' },
+  gold_24k: { en: 'Pure 24K Gold', ar: 'ذهب عيار 24' },
+  gold_21k: { en: 'Pure 21K Gold', ar: 'ذهب عيار 21' },
+  gold_14k: { en: 'Pure 14K Gold', ar: 'ذهب عيار 14' },
+  gold_other: { en: 'Other Gold (jewelry / coins)', ar: 'ذهب آخر (مجوهرات / عملات)' },
+  silver_pure: { en: 'Pure Silver', ar: 'فضة' },
+  silver_utensils: { en: 'Silver Utensils', ar: 'أواني فضية' },
+};
+
+export function zakatCategoryLabel(category: ZakatAssetCategory, locale: string): string {
+  const label = ZAKAT_CATEGORY_LABELS[category];
+  if (!label) return category;
+  return locale === 'ar' ? label.ar : label.en;
+}
+
 export interface ZakatAssetRow {
   category: ZakatAssetCategory;
   /** Description / label shown back to the user (free text). */

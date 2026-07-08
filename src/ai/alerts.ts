@@ -7,6 +7,7 @@
 
 import { UserFinancialContext, InsightCard, GeneratedInsight } from './types';
 import { fmtNum, fmtPct } from '@/lib/utils';
+import { getCategoryLabel } from '@/lib/constants';
 
 // ============================================
 // ALERT TYPES
@@ -147,14 +148,16 @@ export function detectSpendingAlerts(context: UserFinancialContext): SpendingAle
   // 4. CATEGORY SPIKE (unusual spending detected)
   for (const unusual of context.patterns.unusualSpending.slice(0, 2)) {
     if (unusual.deviation > 50) { // More than 50% above normal
+      const catEn = getCategoryLabel(unusual.category, 'en');
+      const catAr = getCategoryLabel(unusual.category, 'ar');
       alerts.push({
         id: `alert_spike_${unusual.category}_${Date.now()}`,
         type: 'category_spike',
         severity: unusual.deviation > 100 ? 'high' : 'medium',
-        title: `High ${unusual.category} Spending`,
-        titleAr: `صرف عالي على ${unusual.category}`,
-        message: `${fmtPct(unusual.deviation, 'en', 0)} higher than usual in ${unusual.category}.`,
-        messageAr: `${fmtPct(unusual.deviation, 'ar', 0)} أعلى من المعتاد على ${unusual.category}.`,
+        title: `High ${catEn} Spending`,
+        titleAr: `صرف عالي على ${catAr}`,
+        message: `${fmtPct(unusual.deviation, 'en', 0)} higher than usual in ${catEn}.`,
+        messageAr: `${fmtPct(unusual.deviation, 'ar', 0)} أعلى من المعتاد على ${catAr}.`,
         actionLabel: 'View Details',
         actionLabelAr: 'شوف التفاصيل',
         actionRoute: '/money/track',
@@ -258,19 +261,21 @@ export function generateGoalSuggestions(context: UserFinancialContext): GoalSugg
     const topCategory = context.spendingByCategory[0];
     if (topCategory.percentage > 30) { // If one category is more than 30% of spending
       const savingsTarget = topCategory.amount * 0.2; // Suggest saving 20% of that category
-      
+      const catEn = getCategoryLabel(topCategory.category, 'en');
+      const catAr = getCategoryLabel(topCategory.category, 'ar');
+
       suggestions.push({
         id: `suggest_reduce_${topCategory.category}`,
         type: 'new_goal',
-        title: `Reduce ${topCategory.category} Spending`,
-        titleAr: `قلل صرف ${topCategory.category}`,
-        description: `Your ${topCategory.category} spending is ${fmtPct(topCategory.percentage, 'en', 0)} of total. Try saving ${fmtNum(savingsTarget, 'en')} ${currency}/month.`,
-        descriptionAr: `صرفك على ${topCategory.category} يمثل ${fmtPct(topCategory.percentage, 'ar', 0)} من المجموع. حاول توفر ${fmtNum(savingsTarget, 'ar')} ${currency}/شهر.`,
+        title: `Reduce ${catEn} Spending`,
+        titleAr: `قلل صرف ${catAr}`,
+        description: `Your ${catEn} spending is ${fmtPct(topCategory.percentage, 'en', 0)} of total. Try saving ${fmtNum(savingsTarget, 'en')} ${currency}/month.`,
+        descriptionAr: `صرفك على ${catAr} يمثل ${fmtPct(topCategory.percentage, 'ar', 0)} من المجموع. حاول توفر ${fmtNum(savingsTarget, 'ar')} ${currency}/شهر.`,
         suggestedAmount: savingsTarget * 6, // 6 month goal
-        suggestedName: `${topCategory.category} Savings`,
-        suggestedNameAr: `توفير ${topCategory.category}`,
-        reasoning: `${topCategory.category} is your largest expense category.`,
-        reasoningAr: `${topCategory.category} هي أكبر فئة مصاريف عندك.`,
+        suggestedName: `${catEn} Savings`,
+        suggestedNameAr: `توفير ${catAr}`,
+        reasoning: `${catEn} is your largest expense category.`,
+        reasoningAr: `${catAr} هي أكبر فئة مصاريف عندك.`,
         confidence: 'medium',
       });
     }

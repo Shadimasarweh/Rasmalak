@@ -375,7 +375,7 @@ export default {
   jotax_enter_values: 'أدخل تفاصيل الدخل',
   jotax_employment_income: 'مجموع الدخل من الرواتب والمصادر الأخرى (سنوي)',
   jotax_employment_placeholder: 'مثلاً: 20000',
-  jotax_retirement_income: 'راتب التقاعد بما يزيد عن 2500 دينار (سنوي)',
+  jotax_retirement_income: 'الجزء من الراتب التقاعدي فوق 2500 دينار شهرياً (أدخل المجموع السنوي)',
   jotax_retirement_placeholder: 'مثلاً: 0',
   jotax_disability_count: 'إعفاء الإعاقة — عدد المستحقين (2000 دينار لكل شخص)',
   jotax_disability_placeholder: 'مثلاً: 0',

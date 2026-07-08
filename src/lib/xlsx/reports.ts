@@ -9,6 +9,7 @@ import type { CompoundSavingsResult } from '@/calculators/compoundSavingsCalcula
 import type { HomeAffordabilityResult } from '@/calculators/homeAffordabilityCalculator';
 import type { MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
 import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/personalZakatCalculator';
+import { zakatCategoryLabel } from '@/calculators/personalZakatCalculator';
 import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
 import type { JordanIncomeTaxInput, JordanIncomeTaxResult, JordanTaxBracketKey } from '@/calculators/jordanIncomeTaxCalculator';
 import type { KsaGratuityInput, KsaGratuityResult } from '@/calculators/ksaGratuityCalculator';
@@ -328,7 +329,7 @@ export function personalZakatXlsx(
   assets.addRow(hdrs.map((h) => header(h)));
   for (const row of result.rows) {
     assets.addRow([
-      cell(row.category),
+      cell(zakatCategoryLabel(row.category, locale)),
       cell(row.description || '-'),
       row.category === 'cash' ? cell('-') : numCell(row.weight, 2, locale),
       currencyCell(row.valuePerUnit, locale, currencySymbol),
@@ -398,7 +399,7 @@ export function jordanIncomeTaxXlsx(
   summary.addRow([bold(ar ? 'حاسبة ضريبة الدخل الأردنية' : 'Jordanian Income Tax Calculator')]);
   summary.addRow([]);
   summary.addRow([cell(ar ? 'الرواتب والمصادر الأخرى' : 'Salaries & Other Income'), currencyCell(input.employmentIncome, locale, currencySymbol)]);
-  summary.addRow([cell(ar ? 'راتب التقاعد فوق 2500 دينار' : 'Retirement Above JOD 2,500'), currencyCell(input.retirementIncome, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'الراتب التقاعدي فوق 2500 دينار شهرياً (سنوي)' : 'Retirement above JOD 2,500/mo (annual)'), currencyCell(input.retirementIncome, locale, currencySymbol)]);
   summary.addRow([cell(ar ? 'إعفاء الإعاقة' : 'Disability Exemption'), currencyCell(result.disabilityExemption, locale, currencySymbol)]);
   summary.addRow([cell(ar ? 'مجمل الدخل' : 'Total Income'), currencyCell(result.totalIncome, locale, currencySymbol)]);
   summary.addRow([cell(ar ? 'الإعفاء الشخصي' : 'Personal Deduction'), currencyCell(result.personalDeductionApplied, locale, currencySymbol)]);

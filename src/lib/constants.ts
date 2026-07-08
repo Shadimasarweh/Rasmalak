@@ -30,6 +30,21 @@ export function isGoalFundingCategory(categoryId: string): boolean {
   return categoryId.startsWith('goal-funding-');
 }
 
+/**
+ * Localized display label for a category id. Use this anywhere a category
+ * would otherwise be surfaced to the user by its raw id (e.g. "food") —
+ * notifications, alerts, generated goal names, reports.
+ */
+export function getCategoryLabel(categoryId: string, language: 'en' | 'ar'): string {
+  const category = ALL_CATEGORIES.find(c => c.id === categoryId);
+  if (category) return language === 'ar' ? category.nameAr : category.name;
+  // Aggregation collapses unknown categories to a bare 'other'.
+  if (categoryId === 'other' || categoryId === 'other-expense') {
+    return language === 'ar' ? 'أخرى' : 'Other';
+  }
+  return categoryId;
+}
+
 // Currency Options - Common Arab-region currencies
 export const CURRENCIES = [
   { code: 'JOD', name: 'Jordanian Dinar', nameAr: 'دينار أردني', symbol: 'JOD', symbolAr: 'د.أ' },

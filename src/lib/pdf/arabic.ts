@@ -229,6 +229,17 @@ function isLTRCodepoint(cp: number): boolean {
 }
 
 /**
+ * Paired characters that must be mirrored when their run is reversed for RTL
+ * (Unicode Bidi_Mirrored). Without this, «(نص)» reverses to a visually
+ * inside-out «)نص(» — the opening bracket ends up enclosing the wrong side.
+ */
+const MIRRORED: Record<number, number> = {
+  0x0028: 0x0029, 0x0029: 0x0028, // ( )
+  0x005b: 0x005d, 0x005d: 0x005b, // [ ]
+  0x007b: 0x007d, 0x007d: 0x007b, // { }
+};
+
+/**
  * Reverse Arabic glyph sequence for RTL PDF rendering.
  * Splits codepoints into LTR runs (digits, Latin) and RTL runs (Arabic glyphs, neutral).
  * Run order is reversed for RTL, but each LTR run's internal order is preserved so
@@ -254,7 +265,9 @@ function reverseForRTL(codepoints: number[]): number[] {
     if (run.ltr) {
       result.push(...run.chars);           // LTR: keep internal left-to-right order
     } else {
-      result.push(...run.chars.reverse()); // RTL: flip for visual left-to-right PDF placement
+      // RTL: flip for visual left-to-right PDF placement, mirroring any paired
+      // brackets so they still enclose the correct side after the flip.
+      result.push(...run.chars.reverse().map(cp => MIRRORED[cp] ?? cp));
     }
   }
   return result;

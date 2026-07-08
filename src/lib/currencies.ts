@@ -67,7 +67,7 @@ export const currencies: Record<string, CurrencyMetadata> = {
   },
   IQD: {
     en: 'Iraqi Dinar (IQD)',
-    ar: 'دينار عراقي (ع.د)',
+    ar: 'دينار عراقي (د.ع)',
   },
   LBP: {
     en: 'Lebanese Pound (LBP)',
@@ -79,7 +79,7 @@ export const currencies: Record<string, CurrencyMetadata> = {
   },
   LYD: {
     en: 'Libyan Dinar (LYD)',
-    ar: 'دينار ليبي (ل.د)',
+    ar: 'دينار ليبي (د.ل)',
   },
   SDG: {
     en: 'Sudanese Pound (SDG)',
@@ -91,7 +91,7 @@ export const currencies: Record<string, CurrencyMetadata> = {
   },
   USD: {
     en: 'US Dollar (USD)',
-    ar: 'دولار أمريكي (د.أ)',
+    ar: 'دولار أمريكي ($)',
   },
   EUR: {
     en: 'Euro (EUR)',

@@ -9,6 +9,7 @@ import type { CompoundSavingsInput, CompoundSavingsResult } from '@/calculators/
 import type { HomeAffordabilityInput, HomeAffordabilityResult } from '@/calculators/homeAffordabilityCalculator';
 import type { MortgagePayoffInput, MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
 import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/personalZakatCalculator';
+import { zakatCategoryLabel } from '@/calculators/personalZakatCalculator';
 import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
 import type { JordanIncomeTaxInput, JordanIncomeTaxResult, JordanTaxBracketKey } from '@/calculators/jordanIncomeTaxCalculator';
 import type { KsaGratuityInput, KsaGratuityResult } from '@/calculators/ksaGratuityCalculator';
@@ -418,7 +419,7 @@ export function personalZakatPdf(
 
   const rows: TableRow[] = result.rows.map((r, i) => ({
     cells: [
-      r.category,
+      zakatCategoryLabel(r.category, locale),
       r.description || '-',
       r.category === 'cash' ? '-' : doc.fmtNum(r.weight, 2),
       doc.fmtCurrency(r.valuePerUnit),
@@ -447,7 +448,7 @@ export function uaeGratuityPdf(
   doc.drawPageHeader(
     p1,
     ar ? 'حاسبة مكافأة نهاية الخدمة (الإمارات)' : 'UAE Gratuity Calculator',
-    ar ? 'تقرير نهاية الخدمة وفق قانون العمل الإماراتي' : 'End-of-service report per UAE Labour Law',
+    ar ? 'تقرير تقديري لمكافأة نهاية الخدمة (استرشاداً بقانون العمل الإماراتي)' : 'Estimated end-of-service report (indicative, per UAE Labour Law)',
   );
 
   const contractLabel = input.contractType === 'limited'
@@ -511,7 +512,7 @@ export function jordanIncomeTaxPdf(
     ar ? 'الدخل والإعفاءات' : 'Income & Deductions',
     [
       [ar ? 'الرواتب والمصادر الأخرى' : 'Salaries & Other Income', doc.fmtCurrency(input.employmentIncome)],
-      [ar ? 'راتب التقاعد فوق 2500 دينار' : 'Retirement Above JOD 2,500', doc.fmtCurrency(input.retirementIncome)],
+      [ar ? 'الراتب التقاعدي فوق 2500 دينار شهرياً (سنوي)' : 'Retirement above JOD 2,500/mo (annual)', doc.fmtCurrency(input.retirementIncome)],
       [ar ? 'إعفاء الإعاقة' : 'Disability Exemption', doc.fmtCurrency(result.disabilityExemption)],
       [ar ? 'الإعفاء الشخصي' : 'Personal Deduction', doc.fmtCurrency(result.personalDeductionApplied)],
       [ar ? 'الإعفاء العائلي' : 'Family Deduction', doc.fmtCurrency(result.familyDeductionApplied)],
@@ -575,7 +576,7 @@ export function ksaGratuityPdf(
   doc.drawPageHeader(
     p1,
     ar ? 'حاسبة مكافأة نهاية الخدمة (السعودية)' : 'KSA End of Service Calculator',
-    ar ? 'تقرير نهاية الخدمة وفق نظام العمل السعودي' : 'End-of-service report per Saudi Labor Law',
+    ar ? 'تقرير تقديري لمكافأة نهاية الخدمة (استرشاداً بنظام العمل السعودي)' : 'Estimated end-of-service report (indicative, per Saudi Labor Law)',
   );
 
   const reasonLabel = input.endReason === 'employee'

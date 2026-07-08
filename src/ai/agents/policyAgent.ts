@@ -18,50 +18,61 @@ export interface PolicyViolation {
   matchedPattern?: string;
 }
 
+// Each rule fires when EVERY term group is present in the output.
+//
+// Terms are matched as substrings, not with `\b` word boundaries. JS `\b`
+// is ASCII-only, so it never fires next to Arabic letters (verified:
+// /\bمضمون\b/ fails on «ربح مضمون») — which silently disabled every Arabic
+// rule here. Substring matching also survives Arabic inflection (tanwīn,
+// the definite article, attached pronouns) that a whole-word test would miss.
+// Groups are ANDed order-independently because Arabic places the adjective
+// after the noun («ربح مضمون») — the reverse of the English order these
+// rules were first written in. For a safety filter, over-matching (a retry)
+// is the safe failure direction.
 const PROHIBITED_PATTERNS: Array<{
-  pattern: RegExp;
+  terms: RegExp[];
   rule: string;
   severity: 'warning' | 'block';
   description: string;
 }> = [
   {
-    pattern: /\b(guaranteed|مضمون|ضمان)\b.*\b(return|profit|ربح|عائد)\b/i,
+    terms: [/(guaranteed|مضمون|ضمان)/i, /(return|profit|ربح|أرباح|عائد|عوائد)/i],
     rule: 'no_guaranteed_returns',
     severity: 'block',
     description: 'Claims guaranteed financial returns',
   },
   {
-    pattern: /\b(buy|sell|invest in|اشتر[يِ]?|بيع|استثمر في)\b.*\b(stock|share|سهم|أسهم|bitcoin|بتكوين|crypto|كريبتو|عملة رقمية)\b/i,
+    terms: [/(buy|sell|invest in|اشتر[يِ]?|بيع|استثمر في)/i, /(stock|share|سهم|أسهم|bitcoin|بتكوين|crypto|كريبتو|عملة رقمية)/i],
     rule: 'no_specific_investment',
     severity: 'block',
     description: 'Specific investment recommendation',
   },
   {
-    pattern: /\b(you must|you should definitely|يجب عليك|لازم تسوي|لازم)\b.*\b(invest|استثمر|حط فلوسك)\b/i,
+    terms: [/(you must|you should definitely|يجب عليك|لازم تسوي|لازم)/i, /(invest|استثمر|حط فلوسك)/i],
     rule: 'no_imperative_investment',
     severity: 'block',
     description: 'Imperative investment directive',
   },
   {
-    pattern: /\b(tax evasion|تهرب ضريبي|hide.*income|اخف[يِ]?.*دخل)\b/i,
+    terms: [/(tax evasion|تهرب ضريبي|hide.*income|اخف[يِ]?.*دخل)/i],
     rule: 'no_tax_evasion',
     severity: 'block',
     description: 'Tax evasion suggestion',
   },
   {
-    pattern: /\b(legal advice|مشورة قانونية|نصيحة قانونية|legally you should|قانونياً يجب)\b/i,
+    terms: [/(legal advice|مشورة قانونية|نصيحة قانونية|legally you should|قانونياً يجب)/i],
     rule: 'no_legal_advice',
     severity: 'warning',
     description: 'Providing legal advice',
   },
   {
-    pattern: /\b(100%|certain|أكيد|مؤكد)\b.*\b(will|سوف|رح|بيصير)\b.*\b(profit|grow|increase|يزيد|يرتفع|ربح)\b/i,
+    terms: [/(100%|certain|أكيد|مؤكد)/i, /(will|سوف|رح|بيصير)/i, /(profit|grow|increase|يزيد|يرتفع|ربح)/i],
     rule: 'no_certainty_claims',
     severity: 'warning',
     description: 'False certainty about financial outcomes',
   },
   {
-    pattern: /\b(hurry|act now|quickly|بسرعة|اسرع|لا تضيع الفرصة|الحق)\b.*\b(invest|buy|sell|استثمر|اشتري|بيع)\b/i,
+    terms: [/(hurry|act now|quickly|بسرعة|اسرع|لا تضيع الفرصة|الحق)/i, /(invest|buy|sell|استثمر|اشتري|بيع)/i],
     rule: 'no_urgency_pressure',
     severity: 'warning',
     description: 'Urgency pressure for financial decisions',
@@ -95,13 +106,17 @@ export function evaluatePolicy(
   const normalized = normalizeForMatching(output);
 
   for (const rule of PROHIBITED_PATTERNS) {
-    const match = normalized.match(rule.pattern) || output.match(rule.pattern);
-    if (match) {
+    // A rule fires only when all of its term groups are present (in either the
+    // normalized or the raw output). Order between groups does not matter.
+    const hits = rule.terms.map(
+      term => (normalized.match(term) || output.match(term) || [])[0],
+    );
+    if (hits.every(Boolean)) {
       violations.push({
         rule: rule.rule,
         severity: rule.severity,
         description: rule.description,
-        matchedPattern: match[0],
+        matchedPattern: hits.join(' + '),
       });
     }
   }

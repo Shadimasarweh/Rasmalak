@@ -334,8 +334,12 @@ export function classifyIntent(message: string, hasAttachments?: boolean): Inten
     };
   }
 
-  // Out of scope detection
-  const financialKeywords = /\b(مال|فلوس|مصاري|دفع|صرف|ادخر|وفر|ميزانية|راتب|هدف|money|spend|save|budget|salary|goal|income|expense|debt|loan|invest)\b/i;
+  // Out of scope detection.
+  // Substring match (no `\b`): JS word boundaries are ASCII-only and never fire
+  // next to Arabic letters, so the anchored version matched none of the Arabic
+  // keywords — sending Arabic financial questions to out_of_scope. Substring
+  // matching also catches the definite article and clitics («المال», «راتبي»).
+  const financialKeywords = /(مال|فلوس|مصاري|دفع|صرف|ادخر|وفر|ميزانية|راتب|هدف|money|spend|save|budget|salary|goal|income|expense|debt|loan|invest)/i;
   if (!financialKeywords.test(trimmed)) {
     return {
       intent: 'out_of_scope',

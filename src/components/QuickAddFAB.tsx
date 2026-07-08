@@ -80,9 +80,16 @@ export default function QuickAddFAB() {
     if (pct > 80) {
       const cat = DEFAULT_EXPENSE_CATEGORIES.find(c => c.id === category);
       const catName = cat ? (isRtl ? cat.nameAr : cat.name) : category;
+      const amountText = intl.formatNumber(Math.round(newTotal));
       return {
-        messageEn: `This puts ${catName} at ${currencySymbol} ${intl.formatNumber(Math.round(newTotal))} — ${pct}% ${pct > 100 ? 'over' : 'of'} budget`,
-        messageAr: `هذا سيجعل ${catName} عند ${currencySymbol} ${intl.formatNumber(Math.round(newTotal))} — ${intl.formatNumber(pct)}% ${pct > 100 ? 'فوق' : 'من'} الميزانية`,
+        // When over budget, report the overshoot (pct − 100), not the raw
+        // ratio: 120% of budget is 20% *over*, not 120% over.
+        messageEn: pct > 100
+          ? `This puts ${catName} at ${currencySymbol} ${amountText} — ${pct - 100}% over budget`
+          : `This puts ${catName} at ${currencySymbol} ${amountText} — ${pct}% of budget`,
+        messageAr: pct > 100
+          ? `سيرفع هذا إنفاقك على ${catName} إلى ${amountText} ${currencySymbol} — بتجاوز الميزانية بنسبة ${intl.formatNumber(pct - 100)}٪`
+          : `سيرفع هذا إنفاقك على ${catName} إلى ${amountText} ${currencySymbol} — ${intl.formatNumber(pct)}٪ من الميزانية`,
         isOver: pct > 100,
       };
     }
