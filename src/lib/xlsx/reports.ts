@@ -10,6 +10,8 @@ import type { HomeAffordabilityResult } from '@/calculators/homeAffordabilityCal
 import type { MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
 import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/personalZakatCalculator';
 import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
+import type { JordanIncomeTaxInput, JordanIncomeTaxResult, JordanTaxBracketKey } from '@/calculators/jordanIncomeTaxCalculator';
+import type { KsaGratuityInput, KsaGratuityResult } from '@/calculators/ksaGratuityCalculator';
 
 import {
   XlsxWorkbook,
@@ -366,6 +368,109 @@ export function uaeGratuityXlsx(
   sheet.addRow([cell(ar ? 'سنوات الخدمة' : 'Years of Service'), numCell(result.yearsOfService, 2, locale)]);
   sheet.addRow([cell(ar ? 'الأيام المعادلة' : 'Equivalent Days of Basic'), numCell(result.equivalentDaysOfBasic, 1, locale)]);
   sheet.addRow([cell(ar ? 'مكافأة نهاية الخدمة' : 'Gratuity Amount'), currencyCell(result.gratuity, locale, currencySymbol)]);
+
+  return wb.build();
+}
+
+// ── Jordan Income Tax ─────────────────────────────────────────────────────────
+
+const JORDAN_BRACKET_LABELS_XLSX: Record<JordanTaxBracketKey, { en: string; ar: string }> = {
+  first5k: { en: 'First JOD 5,000', ar: 'أول 5000 دينار' },
+  second5k: { en: 'Second JOD 5,000', ar: 'ثاني 5000 دينار' },
+  third5k: { en: 'Third JOD 5,000', ar: 'ثالث 5000 دينار' },
+  fourth5k: { en: 'Fourth JOD 5,000', ar: 'رابع 5000 دينار' },
+  over20k: { en: 'JOD 20,000 – 1,000,000', ar: 'من 20 ألف إلى مليون دينار' },
+  over1m: { en: 'Above JOD 1,000,000', ar: 'أكثر من مليون دينار' },
+};
+
+export function jordanIncomeTaxXlsx(
+  input: JordanIncomeTaxInput,
+  result: JordanIncomeTaxResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const wb = new XlsxWorkbook();
+
+  const summary = wb.addSheet(ar ? 'ملخص الضريبة' : 'Tax Summary', { rtl: ar });
+  summary.setColWidths([{ col: 1, width: 36 }, { col: 2, width: 22 }]);
+
+  summary.addRow([bold(ar ? 'حاسبة ضريبة الدخل الأردنية' : 'Jordanian Income Tax Calculator')]);
+  summary.addRow([]);
+  summary.addRow([cell(ar ? 'الرواتب والمصادر الأخرى' : 'Salaries & Other Income'), currencyCell(input.employmentIncome, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'راتب التقاعد فوق 2500 دينار' : 'Retirement Above JOD 2,500'), currencyCell(input.retirementIncome, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'إعفاء الإعاقة' : 'Disability Exemption'), currencyCell(result.disabilityExemption, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'مجمل الدخل' : 'Total Income'), currencyCell(result.totalIncome, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'الإعفاء الشخصي' : 'Personal Deduction'), currencyCell(result.personalDeductionApplied, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'الإعفاء العائلي' : 'Family Deduction'), currencyCell(result.familyDeductionApplied, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'إعفاءات أخرى' : 'Other Deductions'), currencyCell(input.otherDeductions, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'الدخل الخاضع للضريبة' : 'Taxable Income'), currencyCell(result.taxableIncome, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'التبرعات المعترف بها' : 'Accepted Donations'), currencyCell(result.contributionsApplied, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'الدخل الخاضع للضريبة المعدل' : 'Adjusted Taxable Income'), currencyCell(result.adjustedTaxableIncome, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'مجموع الضريبة المستحقة' : 'Total Tax Payable'), currencyCell(result.totalTax, locale, currencySymbol)]);
+  summary.addRow([cell(ar ? 'نسبة الضريبة الفعلية' : 'Effective Tax Rate'), pctCell(result.effectiveRate, locale)]);
+  summary.addRow([cell(ar ? 'الدخل بعد الضريبة' : 'Income After Tax'), currencyCell(result.netIncomeAfterTax, locale, currencySymbol)]);
+
+  const brackets = wb.addSheet(ar ? 'الشرائح الضريبية' : 'Tax Brackets', { rtl: ar });
+  brackets.setColWidths([
+    { col: 1, width: 28 }, { col: 2, width: 12 },
+    { col: 3, width: 20 }, { col: 4, width: 20 },
+  ]);
+  const hdrs = ar
+    ? ['شريحة الضريبة', 'نسبة الضريبة', 'المبلغ الخاضع', 'الضريبة']
+    : ['Tax Bracket', 'Tax %', 'Taxable Amount', 'Tax'];
+  brackets.addRow(hdrs.map((h) => header(h)));
+  for (const b of result.brackets) {
+    brackets.addRow([
+      cell(JORDAN_BRACKET_LABELS_XLSX[b.key][ar ? 'ar' : 'en']),
+      pctCell(b.rate, locale),
+      currencyCell(b.amount, locale, currencySymbol),
+      currencyCell(b.tax, locale, currencySymbol),
+    ]);
+  }
+  brackets.addRow([
+    bold(ar ? 'مجموع الضريبة المستحقة' : 'Total Tax Payable'),
+    cell(''),
+    cell(''),
+    currencyCell(result.totalTax, locale, currencySymbol),
+  ]);
+
+  return wb.build();
+}
+
+// ── KSA Gratuity ──────────────────────────────────────────────────────────────
+
+export function ksaGratuityXlsx(
+  input: KsaGratuityInput,
+  result: KsaGratuityResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const wb = new XlsxWorkbook();
+
+  const sheet = wb.addSheet(ar ? 'مكافأة نهاية الخدمة' : 'End of Service', { rtl: ar });
+  sheet.setColWidths([{ col: 1, width: 34 }, { col: 2, width: 22 }]);
+
+  sheet.addRow([bold(ar ? 'حاسبة مكافأة نهاية الخدمة (السعودية)' : 'KSA End of Service Calculator')]);
+  sheet.addRow([
+    cell(ar ? 'سبب انتهاء العقد' : 'Contract Ended By'),
+    cell(input.endReason === 'employee' ? (ar ? 'من قبل العامل (استقالة)' : 'By employee (resignation)') : (ar ? 'من قبل صاحب العمل' : 'By employer')),
+  ]);
+  sheet.addRow([cell(ar ? 'تاريخ الالتحاق بالعمل' : 'Joining Date'), dateCell(new Date(input.joiningDate), locale)]);
+  sheet.addRow([cell(ar ? 'تاريخ انتهاء العقد' : 'End Date'), dateCell(new Date(input.endDate), locale)]);
+  sheet.addRow([cell(ar ? 'الراتب الأساسي' : 'Basic Salary'), currencyCell(input.basicSalary, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'بدل السكن' : 'Housing Allowance'), currencyCell(input.housing, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'بدل المواصلات' : 'Transportation'), currencyCell(input.transportation, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'مجموع الراتب' : 'Total Salary'), currencyCell(result.totalSalary, locale, currencySymbol)]);
+  sheet.addRow([cell(ar ? 'أشهر الخدمة' : 'Months of Service'), intCell(result.monthsOfService, locale)]);
+  sheet.addRow([cell(ar ? 'سنوات الخدمة' : 'Years of Service'), numCell(result.yearsOfService, 2, locale)]);
+  sheet.addRow([cell(ar ? 'أشهر الراتب الأساسي المعادلة' : 'Equivalent Months of Basic'), numCell(result.equivalentMonthsOfBasic, 2, locale)]);
+  if (result.bracket === 'employee_under_2y') {
+    sheet.addRow([cell(ar ? 'مكافأة نهاية الخدمة' : 'End of Service Award'), cell(ar ? 'لا مكافأة' : 'No award')]);
+  } else {
+    sheet.addRow([cell(ar ? 'مكافأة نهاية الخدمة' : 'End of Service Award'), currencyCell(result.gratuity, locale, currencySymbol)]);
+  }
 
   return wb.build();
 }

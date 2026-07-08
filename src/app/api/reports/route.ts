@@ -20,13 +20,15 @@ import { calculateHomeAffordability } from '@/calculators/homeAffordabilityCalcu
 import { calculateMortgagePayoff } from '@/calculators/mortgagePayoffCalculator';
 import { calculatePersonalZakat } from '@/calculators/personalZakatCalculator';
 import { calculateUaeGratuity } from '@/calculators/uaeGratuityCalculator';
+import { calculateJordanIncomeTax } from '@/calculators/jordanIncomeTaxCalculator';
+import { calculateKsaGratuity } from '@/calculators/ksaGratuityCalculator';
 
-import { simpleLoanPdf, creditCardPdf, compoundSavingsPdf, homeAffordabilityPdf, mortgagePayoffPdf, personalZakatPdf, uaeGratuityPdf } from '@/lib/pdf/reports';
-import { simpleLoanXlsx, creditCardXlsx, compoundSavingsXlsx, homeAffordabilityXlsx, mortgagePayoffXlsx, personalZakatXlsx, uaeGratuityXlsx } from '@/lib/xlsx/reports';
+import { simpleLoanPdf, creditCardPdf, compoundSavingsPdf, homeAffordabilityPdf, mortgagePayoffPdf, personalZakatPdf, uaeGratuityPdf, jordanIncomeTaxPdf, ksaGratuityPdf } from '@/lib/pdf/reports';
+import { simpleLoanXlsx, creditCardXlsx, compoundSavingsXlsx, homeAffordabilityXlsx, mortgagePayoffXlsx, personalZakatXlsx, uaeGratuityXlsx, jordanIncomeTaxXlsx, ksaGratuityXlsx } from '@/lib/xlsx/reports';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type Calculator = 'simple-loan' | 'credit-card' | 'compound-savings' | 'home-affordability' | 'mortgage-payoff' | 'personal-zakat' | 'uae-gratuity';
+type Calculator = 'simple-loan' | 'credit-card' | 'compound-savings' | 'home-affordability' | 'mortgage-payoff' | 'personal-zakat' | 'uae-gratuity' | 'jordan-income-tax' | 'ksa-gratuity';
 type Format = 'pdf' | 'xlsx';
 
 interface ReportRequest {
@@ -67,6 +69,14 @@ const FILENAMES: Record<Calculator, Record<'ar' | 'en', Record<Format, string>>>
   'uae-gratuity': {
     ar: { pdf: 'تقرير_مكافأة_نهاية_الخدمة.pdf', xlsx: 'تقرير_مكافأة_نهاية_الخدمة.xlsx' },
     en: { pdf: 'UAE_Gratuity_Report.pdf', xlsx: 'UAE_Gratuity_Report.xlsx' },
+  },
+  'jordan-income-tax': {
+    ar: { pdf: 'تقرير_ضريبة_الدخل_الأردنية.pdf', xlsx: 'تقرير_ضريبة_الدخل_الأردنية.xlsx' },
+    en: { pdf: 'Jordan_Income_Tax_Report.pdf', xlsx: 'Jordan_Income_Tax_Report.xlsx' },
+  },
+  'ksa-gratuity': {
+    ar: { pdf: 'تقرير_نهاية_الخدمة_السعودية.pdf', xlsx: 'تقرير_نهاية_الخدمة_السعودية.xlsx' },
+    en: { pdf: 'KSA_End_of_Service_Report.pdf', xlsx: 'KSA_End_of_Service_Report.xlsx' },
   },
 };
 
@@ -190,6 +200,24 @@ async function generateReport(
       return format === 'pdf'
         ? uaeGratuityPdf(input, result, locale, currency)
         : uaeGratuityXlsx(input, result, locale, currency);
+    }
+
+    case 'jordan-income-tax': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const input = rawInput as any;
+      const result = calculateJordanIncomeTax(input);
+      return format === 'pdf'
+        ? jordanIncomeTaxPdf(input, result, locale, currency)
+        : jordanIncomeTaxXlsx(input, result, locale, currency);
+    }
+
+    case 'ksa-gratuity': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const input = rawInput as any;
+      const result = calculateKsaGratuity(input);
+      return format === 'pdf'
+        ? ksaGratuityPdf(input, result, locale, currency)
+        : ksaGratuityXlsx(input, result, locale, currency);
     }
 
     default:

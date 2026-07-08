@@ -278,6 +278,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: '#F59E0B',
     category: 'tax',
     countries: ['jordan'],
+    href: '/calculators/jordan-income-tax',
   },
   {
     id: 'jordan-social-security',
@@ -330,6 +331,7 @@ const TOOLS_DATA: Tool[] = [
     iconColor: '#2D6A4F',
     category: 'social',
     countries: ['ksa'],
+    href: '/calculators/ksa-gratuity',
   },
   // Egypt and Iraq tools (income tax + social security) are hidden
   // for this release. Their full definitions live in git history and

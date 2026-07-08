@@ -10,6 +10,8 @@ import type { HomeAffordabilityInput, HomeAffordabilityResult } from '@/calculat
 import type { MortgagePayoffInput, MortgagePayoffResult } from '@/calculators/mortgagePayoffCalculator';
 import type { PersonalZakatInput, PersonalZakatResult } from '@/calculators/personalZakatCalculator';
 import type { UaeGratuityInput, UaeGratuityResult } from '@/calculators/uaeGratuityCalculator';
+import type { JordanIncomeTaxInput, JordanIncomeTaxResult, JordanTaxBracketKey } from '@/calculators/jordanIncomeTaxCalculator';
+import type { KsaGratuityInput, KsaGratuityResult } from '@/calculators/ksaGratuityCalculator';
 
 import { ReportDocument, buildScheduleColumns, AVAIL_H } from './builder';
 import { MARGIN_X, MARGIN_TOP, CONTENT_W, PAGE_H, MARGIN_BOTTOM, COLORS } from './layout';
@@ -470,6 +472,138 @@ export function uaeGratuityPdf(
       [ar ? 'سنوات الخدمة' : 'Years of Service', doc.fmtNum(result.yearsOfService, 2)],
       [ar ? 'الأيام المعادلة' : 'Equivalent Days of Basic', doc.fmtNum(result.equivalentDaysOfBasic, 1)],
       [ar ? 'مكافأة نهاية الخدمة' : 'Gratuity Amount', doc.fmtCurrency(result.gratuity)],
+    ],
+  );
+
+  doc.finalizePage(p1, 1, 1);
+  return doc.build();
+}
+
+// ── Jordan Income Tax ─────────────────────────────────────────────────────────
+
+const JORDAN_BRACKET_LABELS: Record<JordanTaxBracketKey, { en: string; ar: string }> = {
+  first5k: { en: 'First JOD 5,000', ar: 'أول 5000 دينار' },
+  second5k: { en: 'Second JOD 5,000', ar: 'ثاني 5000 دينار' },
+  third5k: { en: 'Third JOD 5,000', ar: 'ثالث 5000 دينار' },
+  fourth5k: { en: 'Fourth JOD 5,000', ar: 'رابع 5000 دينار' },
+  over20k: { en: 'JOD 20,000 – 1,000,000', ar: 'من 20 ألف إلى مليون دينار' },
+  over1m: { en: 'Above JOD 1,000,000', ar: 'أكثر من مليون دينار' },
+};
+
+export function jordanIncomeTaxPdf(
+  input: JordanIncomeTaxInput,
+  result: JordanIncomeTaxResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const doc = new ReportDocument({ locale, currencySymbol });
+
+  const p1 = doc.newPage(true);
+  doc.drawPageHeader(
+    p1,
+    ar ? 'حاسبة ضريبة الدخل الأردنية' : 'Jordanian Income Tax Calculator',
+    ar ? 'تقدير ضريبة الدخل الشخصية وفق الشرائح الأردنية' : 'Personal income tax estimate per the Jordanian brackets',
+  );
+
+  doc.drawSummaryColumns(
+    p1,
+    ar ? 'الدخل والإعفاءات' : 'Income & Deductions',
+    [
+      [ar ? 'الرواتب والمصادر الأخرى' : 'Salaries & Other Income', doc.fmtCurrency(input.employmentIncome)],
+      [ar ? 'راتب التقاعد فوق 2500 دينار' : 'Retirement Above JOD 2,500', doc.fmtCurrency(input.retirementIncome)],
+      [ar ? 'إعفاء الإعاقة' : 'Disability Exemption', doc.fmtCurrency(result.disabilityExemption)],
+      [ar ? 'الإعفاء الشخصي' : 'Personal Deduction', doc.fmtCurrency(result.personalDeductionApplied)],
+      [ar ? 'الإعفاء العائلي' : 'Family Deduction', doc.fmtCurrency(result.familyDeductionApplied)],
+      [ar ? 'إعفاءات أخرى' : 'Other Deductions', doc.fmtCurrency(input.otherDeductions)],
+      [ar ? 'التبرعات المعترف بها' : 'Accepted Donations', doc.fmtCurrency(result.contributionsApplied)],
+    ],
+    ar ? 'النتيجة' : 'Result',
+    [
+      [ar ? 'مجمل الدخل' : 'Total Income', doc.fmtCurrency(result.totalIncome)],
+      [ar ? 'الدخل الخاضع للضريبة' : 'Taxable Income', doc.fmtCurrency(result.taxableIncome)],
+      [ar ? 'الدخل الخاضع المعدل' : 'Adjusted Taxable Income', doc.fmtCurrency(result.adjustedTaxableIncome)],
+      [ar ? 'مجموع الضريبة' : 'Total Tax Payable', doc.fmtCurrency(result.totalTax)],
+      [ar ? 'نسبة الضريبة الفعلية' : 'Effective Tax Rate', `${doc.fmtNum(result.effectiveRate * 100)}%`],
+      [ar ? 'الدخل بعد الضريبة' : 'Income After Tax', doc.fmtCurrency(result.netIncomeAfterTax)],
+    ],
+  );
+
+  doc.drawSectionHeading(p1, ar ? 'تفصيل الشرائح الضريبية' : 'Tax Bracket Breakdown');
+
+  const hdrs = ar
+    ? ['الضريبة', 'المبلغ الخاضع', 'نسبة الضريبة', 'شريحة الضريبة']
+    : ['Tax Bracket', 'Tax %', 'Taxable Amount', 'Tax'];
+  const colW = CONTENT_W / 4;
+  const cols = buildScheduleColumns(ar ? [...hdrs].reverse() : hdrs, Array(4).fill(colW));
+
+  const rows: TableRow[] = result.brackets.map((b, i) => ({
+    cells: [
+      JORDAN_BRACKET_LABELS[b.key][ar ? 'ar' : 'en'],
+      `${doc.fmtNum(b.rate * 100, 0)}%`,
+      doc.fmtCurrency(b.amount),
+      doc.fmtCurrency(b.tax),
+    ],
+    altFill: i % 2 === 1,
+  }));
+  rows.push({
+    cells: [
+      ar ? 'مجموع الضريبة المستحقة' : 'Total Tax Payable',
+      '',
+      '',
+      doc.fmtCurrency(result.totalTax),
+    ],
+  });
+
+  drawTable(p1, MARGIN_X, p1.y, cols, [{ cells: cols.map((c) => c.label), isHeader: true }, ...rows], { fontSize: 8, rowHeight: 14 });
+  doc.finalizePage(p1, 1, 1);
+  return doc.build();
+}
+
+// ── KSA Gratuity ──────────────────────────────────────────────────────────────
+
+export function ksaGratuityPdf(
+  input: KsaGratuityInput,
+  result: KsaGratuityResult,
+  locale: string,
+  currencySymbol: string,
+): Buffer {
+  const ar = locale === 'ar';
+  const doc = new ReportDocument({ locale, currencySymbol });
+
+  const p1 = doc.newPage(true);
+  doc.drawPageHeader(
+    p1,
+    ar ? 'حاسبة مكافأة نهاية الخدمة (السعودية)' : 'KSA End of Service Calculator',
+    ar ? 'تقرير نهاية الخدمة وفق نظام العمل السعودي' : 'End-of-service report per Saudi Labor Law',
+  );
+
+  const reasonLabel = input.endReason === 'employee'
+    ? (ar ? 'من قبل العامل (استقالة)' : 'By employee (resignation)')
+    : (ar ? 'من قبل صاحب العمل' : 'By employer');
+
+  const awardValue = result.bracket === 'employee_under_2y'
+    ? (ar ? 'لا مكافأة' : 'No award')
+    : doc.fmtCurrency(result.gratuity);
+
+  doc.drawSummaryColumns(
+    p1,
+    ar ? 'بيانات الموظف' : 'Employee Inputs',
+    [
+      [ar ? 'سبب انتهاء العقد' : 'Contract Ended By', reasonLabel],
+      [ar ? 'تاريخ الالتحاق بالعمل' : 'Joining Date', doc.fmtDate(new Date(input.joiningDate))],
+      [ar ? 'تاريخ انتهاء العقد' : 'End Date', doc.fmtDate(new Date(input.endDate))],
+      [ar ? 'الراتب الأساسي' : 'Basic Salary', doc.fmtCurrency(input.basicSalary)],
+      [ar ? 'بدل السكن' : 'Housing Allowance', doc.fmtCurrency(input.housing)],
+      [ar ? 'بدل المواصلات' : 'Transportation', doc.fmtCurrency(input.transportation)],
+      [ar ? 'مجموع الراتب' : 'Total Salary', doc.fmtCurrency(result.totalSalary)],
+    ],
+    ar ? 'النتيجة' : 'Result',
+    [
+      [ar ? 'أشهر الخدمة' : 'Months of Service', doc.fmtInt(result.monthsOfService)],
+      [ar ? 'سنوات الخدمة' : 'Years of Service', doc.fmtNum(result.yearsOfService, 2)],
+      [ar ? 'أشهر الراتب الأساسي المعادلة' : 'Equivalent Months of Basic', doc.fmtNum(result.equivalentMonthsOfBasic, 2)],
+      [ar ? 'مكافأة نهاية الخدمة' : 'End of Service Award', awardValue],
     ],
   );
 

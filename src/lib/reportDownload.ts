@@ -3,7 +3,7 @@
  * Replaces all direct pdfmake / SheetJS calls in calculator pages.
  */
 
-type Calculator = 'simple-loan' | 'credit-card' | 'compound-savings' | 'home-affordability' | 'mortgage-payoff' | 'personal-zakat' | 'uae-gratuity';
+type Calculator = 'simple-loan' | 'credit-card' | 'compound-savings' | 'home-affordability' | 'mortgage-payoff' | 'personal-zakat' | 'uae-gratuity' | 'jordan-income-tax' | 'ksa-gratuity';
 type Format = 'pdf' | 'xlsx';
 
 export async function downloadReport(
