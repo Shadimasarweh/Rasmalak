@@ -17,15 +17,15 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useUserName, useUser, useLogout, useOnboardingData } from '@/store/useStore';
+import { useUserName, useUser, useLogout } from '@/store/useStore';
 
 const navItems = [
-  { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard', smeOnly: false },
-  { id: 'money', path: '/money/plan', icon: Wallet, labelAr: 'أموالي', labelEn: 'Money', smeOnly: false },
-  { id: 'learn', path: '/learn', icon: GraduationCap, labelAr: 'تعلّم', labelEn: 'Learn', smeOnly: false },
-  { id: 'chat', path: '/chat', icon: MessageSquareText, labelAr: 'مستشارك', labelEn: 'Mustasharak', smeOnly: false },
-  { id: 'tools', path: '/tools', icon: Calculator, labelAr: 'الأدوات', labelEn: 'Tools', smeOnly: false },
-  { id: 'community', path: '/community', icon: Users, labelAr: 'المجتمع', labelEn: 'Community', smeOnly: true },
+  { id: 'dashboard', path: '/', icon: LayoutDashboard, labelAr: 'الرئيسية', labelEn: 'Dashboard' },
+  { id: 'money', path: '/money/plan', icon: Wallet, labelAr: 'أموالي', labelEn: 'Money' },
+  { id: 'learn', path: '/learn', icon: GraduationCap, labelAr: 'تعلّم', labelEn: 'Learn' },
+  { id: 'chat', path: '/chat', icon: MessageSquareText, labelAr: 'مستشارك', labelEn: 'Mustasharak' },
+  { id: 'tools', path: '/tools', icon: Calculator, labelAr: 'الأدوات', labelEn: 'Tools' },
+  { id: 'community', path: '/community', icon: Users, labelAr: 'المجتمع', labelEn: 'Community' },
 ];
 
 const bottomNavItems = [
@@ -44,11 +44,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
   const userName = useUserName();
   const user = useUser();
   const logout = useLogout();
-  const onboardingData = useOnboardingData();
   const displayName = user?.name || userName || (language === 'ar' ? 'مستخدم' : 'User');
-
-  const isSmeUser = onboardingData?.segment === 'sme' || onboardingData?.segment === 'self_employed';
-  const visibleNavItems = navItems.filter(item => !item.smeOnly || isSmeUser);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -187,7 +183,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           </p>
         )}
 
-        {visibleNavItems.map((item) => {
+        {navItems.map((item) => {
           const active = isActive(item.path);
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
