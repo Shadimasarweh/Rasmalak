@@ -203,6 +203,21 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
 
   projections: (ctx, lang) => {
     const currency = ctx.currency || 'JOD';
+    // Predictive band when the engine ran; legacy point estimate otherwise.
+    if (ctx.predictive) {
+      const { p25, p50, p75 } = ctx.predictive.endOfCycleBalance;
+      const sts = ctx.predictive.safeToSpend;
+      if (lang === 'ar') {
+        return `### التوقعات
+- المدى المتوقع لرصيد نهاية الدورة: بين ${fmtNum(p25, lang)} و ${fmtNum(p75, lang)} ${currency} (الوسيط ${fmtNum(p50, lang)})
+- التزامات متبقية هذه الدورة: ${fmtNum(ctx.predictive.committedRemaining, lang)} ${currency}
+- المتاح للصرف: ${fmtNum(sts.total, lang)} ${currency} (${fmtNum(sts.perDay, lang)} يومياً)`;
+      }
+      return `### Projections
+- Expected end-of-cycle balance: between ${fmtNum(p25, lang)} and ${fmtNum(p75, lang)} ${currency} (median ${fmtNum(p50, lang)})
+- Committed bills remaining this cycle: ${fmtNum(ctx.predictive.committedRemaining, lang)} ${currency}
+- Safe to spend: ${fmtNum(sts.total, lang)} ${currency} (${fmtNum(sts.perDay, lang)} per day)`;
+    }
     if (lang === 'ar') {
       return `### التوقعات
 - الرصيد المتوقع نهاية الشهر: ${fmtNum(ctx.currentMonth.projectedEndBalance, lang)} ${currency}`;

@@ -24,6 +24,7 @@ import {
 import { useBudget } from '@/store/budgetStore';
 import { useGoals } from '@/store/goalsStore';
 import { useUser as useAuthUser } from '@/store/authStore';
+import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 import { buildUserContext } from '../context';
 import { 
   detectSpendingAlerts, 
@@ -177,6 +178,8 @@ export function useAIInsights(): AIInsights {
   const onboardingData = useOnboardingData();
   const userId = useAuthUser()?.id;
   
+  const { summary: predictive } = usePredictiveState();
+
   const context = useMemo(() => buildUserContext({
     transactions,
     currency,
@@ -185,7 +188,8 @@ export function useAIInsights(): AIInsights {
     categoryBudgets,
     savingsGoals,
     onboardingData,
-  }), [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData]);
+    predictive,
+  }), [transactions, currency, language, monthlyBudget, categoryBudgets, savingsGoals, onboardingData, predictive]);
 
   // Read from structured memory (non-blocking, best-effort)
   const [memory, setMemory] = useState<Partial<UserSemanticState>>({});

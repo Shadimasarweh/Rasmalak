@@ -203,7 +203,31 @@ export function computeDeterministicFromContext(
     context.budget?.monthlyLimit,
   );
 
-  return { financialHealth: health, signals, advisory, projections };
+  // Predictive-engine summary (computed client-side over full history)
+  // enriches the outputs; `projections` keeps its legacy value for
+  // backward compatibility with updateRules/validators.
+  const predictive = context.predictive;
+
+  return {
+    financialHealth: health,
+    signals,
+    advisory,
+    projections,
+    forecast: predictive
+      ? {
+          ...predictive.endOfCycleBalance,
+          daysRemaining: predictive.cycle.daysRemaining,
+          committedRemaining: predictive.committedRemaining,
+        }
+      : null,
+    behavior: predictive
+      ? {
+          archetype: predictive.archetype,
+          impulseIndex: predictive.behavior.impulseIndex,
+          spendTiming: predictive.behavior.spendTiming,
+        }
+      : null,
+  };
 }
 
 export class AIOrchestrator {

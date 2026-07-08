@@ -257,6 +257,11 @@ export interface UserFinancialContext {
   userType: 'individual' | 'self_employed' | 'sme';
   currency: string;
   language: 'ar' | 'en';
+
+  // Predictive-engine summary (compact, prompt-safe — never raw rows).
+  // Present only when the client computed PredictiveState with enough
+  // history; every consumer must handle its absence.
+  predictive?: import('./deterministic/predictiveState').PredictiveContextSummary;
 }
 
 // ============================================

@@ -61,6 +61,10 @@ interface AppState {
   onboardingData?: {
     segment: 'individual' | 'self_employed' | 'sme';
   } | null;
+  // Predictive-engine summary from usePredictiveState(). When present it
+  // supersedes the naive projection and n=1 unusual-spending detection
+  // below — same output shapes, better numbers.
+  predictive?: import('./deterministic/predictiveState').PredictiveContextSummary | null;
 }
 
 // ============================================
@@ -149,6 +153,11 @@ function computeSpendingByCategory(transactions: Transaction[]): CategorySpendin
   return result.sort((a, b) => b.amount - a.amount);
 }
 
+/**
+ * @deprecated Fallback only — compares a partial current month against last
+ * month alone (n=1 baseline). When `AppState.predictive` is supplied the
+ * MAD-based baseline deviations from the engine are used instead.
+ */
 function detectUnusualSpending(
   currentMonthTransactions: Transaction[],
   lastMonthTransactions: Transaction[]
@@ -242,6 +251,11 @@ function computeMonthComparison(
   return { incomeChange, expenseChange, trend };
 }
 
+/**
+ * @deprecated Fallback only — linear run-rate that ignores recurring bills
+ * and payday timing. When `AppState.predictive` is supplied the engine's
+ * P50 end-of-cycle balance is used instead.
+ */
 function projectEndOfMonthBalance(
   currentBalance: number,
   currentMonthExpenses: number,
@@ -302,20 +316,30 @@ export function buildUserContext(state: AppState): UserFinancialContext {
     lastMonthTransactions
   );
   
-  // Pattern detection
-  const unusualSpending = detectUnusualSpending(
-    currentMonthTransactions,
-    lastMonthTransactions
-  );
+  // Pattern detection — engine deviations (median+MAD, pace-adjusted,
+  // ≥3-month gate) supersede the legacy last-month-only comparison.
+  const unusualSpending = state.predictive
+    ? state.predictive.baselineDeviations.map((d) => ({
+        category: d.category,
+        amount: d.paceAdjustedSpend,
+        deviation:
+          d.monthlyMedian > 0
+            ? ((d.paceAdjustedSpend - d.monthlyMedian) / d.monthlyMedian) * 100
+            : 0,
+      }))
+    : detectUnusualSpending(currentMonthTransactions, lastMonthTransactions);
   const recurringExpenses = detectRecurringExpenses(transactions);
-  
-  // Project end of month
-  const projectedEndBalance = projectEndOfMonthBalance(
-    netBalance,
-    currentMonthExpenses,
-    daysElapsed,
-    daysRemaining
-  );
+
+  // Project end of period — engine P50 (committed + discretionary range)
+  // supersedes the linear run-rate.
+  const projectedEndBalance = state.predictive
+    ? state.predictive.endOfCycleBalance.p50
+    : projectEndOfMonthBalance(
+        netBalance,
+        currentMonthExpenses,
+        daysElapsed,
+        daysRemaining
+      );
   
   // Build budget status if budget is set
   let budget: UserFinancialContext['budget'] = undefined;
@@ -423,8 +447,11 @@ export function buildUserContext(state: AppState): UserFinancialContext {
     userType: onboardingData?.segment || 'individual',
     currency,
     language,
+
+    // Predictive summary rides along for agents/prompts that want the band.
+    predictive: state.predictive ?? undefined,
   };
-  
+
   return context;
 }
 

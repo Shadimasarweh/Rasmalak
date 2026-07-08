@@ -149,4 +149,21 @@ export default {
   verifying: 'جاري التحقق...',
   deleting: 'جاري الحذف...',
   complete_setup: 'إكمال الإعداد',
+
+  // ===== دورة الميزانية (A2) — بحاجة لمراجعة لغوية قبل الإطلاق =====
+  budget_cycle_title: 'دورة الميزانية',
+  budget_cycle_description: 'اختر إن كانت ميزانيتك الشهرية تتبع الشهر الميلادي أو تمتد من راتب إلى راتب.',
+  budget_cycle_calendar: 'الشهر الميلادي',
+  budget_cycle_calendar_hint: 'تبدأ في اليوم الأول',
+  budget_cycle_payday: 'من راتب إلى راتب',
+  budget_cycle_payday_hint: 'تبدأ يوم الراتب',
+  payday_day_label: 'يوم الراتب في الشهر',
+  payday_day_option: 'اليوم {day}',
+  payday_detected_caption: 'تم اكتشافه من نمط دخلك.',
+  payday_manual_caption: 'تم تحديده يدوياً.',
+  payday_none_detected: 'لم نكتشف نمط راتب بعد — اختر يوم راتبك يدوياً.',
+  payday_reset_to_detected: 'استخدام اليوم المكتشف ({day})',
+  payday_required_error: 'اختر يوم راتبك قبل التحويل إلى دورة الراتب.',
+  payday_clamp_note: 'في الأشهر الأقصر، يقع اليوم {day} في آخر يوم من الشهر.',
+  budget_cycle_change_note: 'تغيير هذا الإعداد يعيد ضبط نوافذ الميزانية والتنبيهات بدءاً من يوم راتبك. الأشهر السابقة لا تتأثر.',
 };

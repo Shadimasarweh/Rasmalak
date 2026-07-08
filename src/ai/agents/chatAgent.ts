@@ -10,6 +10,7 @@ import type { AgentDefinition, AgentPromptParams } from './types';
 import type { AIIntent, ExtractedDocument } from '../types';
 import type { DeterministicOutputs } from '../deterministic';
 import type { BillAnalysis } from '../deterministic/billAnalysis';
+import { fmtNum } from '@/lib/utils';
 
 const SUPPORTED_INTENTS: AIIntent[] = [
   'analyze_spending',
@@ -142,6 +143,25 @@ function buildDeterministicGuidance(det: DeterministicOutputs, isAr: boolean): s
         ? `التوقعات: ${projections.onTrackForBudget ? '✓ ضمن الميزانية بنهاية الشهر' : '⚠️ سيتجاوز الميزانية بنهاية الشهر'}`
         : `Projection: ${projections.onTrackForBudget ? '✓ On track for budget by month end' : '⚠️ Will exceed budget by month end'}`);
     }
+  }
+
+  // Predictive forecast band (do NOT change these figures — quote them as-is)
+  if (det.forecast) {
+    const f = det.forecast;
+    lines.push(isAr
+      ? `توقع رصيد نهاية الدورة (لا تغيّر هذه الأرقام): بين ${fmtNum(f.p25, 'ar')} و ${fmtNum(f.p75, 'ar')}، الوسيط ${fmtNum(f.p50, 'ar')} — متبقٍ ${fmtNum(f.daysRemaining, 'ar')} يوم والتزامات قادمة ${fmtNum(f.committedRemaining, 'ar')}`
+      : `End-of-cycle balance forecast (do not alter these figures): between ${fmtNum(f.p25, 'en')} and ${fmtNum(f.p75, 'en')}, median ${fmtNum(f.p50, 'en')} — ${fmtNum(f.daysRemaining, 'en')} days left, ${fmtNum(f.committedRemaining, 'en')} in upcoming committed bills`);
+  }
+
+  // Behavioural tone hint — adapt style, never label the user out loud.
+  if (det.behavior?.archetype) {
+    const archetypeAr: Record<string, string> = {
+      planner: 'المخطّط', impulsive: 'المندفع', seasonal: 'الموسمي', cautious: 'الحذر',
+    };
+    const label = isAr ? archetypeAr[det.behavior.archetype] ?? det.behavior.archetype : det.behavior.archetype;
+    lines.push(isAr
+      ? `نمط المستخدم السلوكي: ${label} — كيّف نبرة النصيحة معه دون تسميته مباشرةً`
+      : `User behavioural archetype: ${label} — adapt advice tone accordingly; do not label the user directly`);
   }
 
   return lines.join('\n');

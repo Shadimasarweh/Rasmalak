@@ -76,4 +76,9 @@ test.describe('Settings page', () => {
     await page.locator('span', { hasText: 'Preferences' }).evaluate((el) => (el.parentElement as HTMLElement)?.click());
     await expect(page.locator('text=/currency|العملة/i').first()).toBeVisible();
   });
+
+  test('budget cycle card shows while the payday flag is on', async ({ page }) => {
+    await page.locator('span', { hasText: 'Preferences' }).evaluate((el) => (el.parentElement as HTMLElement)?.click());
+    await expect(page.locator('text=/budget cycle|دورة الميزانية/i').first()).toBeVisible();
+  });
 });

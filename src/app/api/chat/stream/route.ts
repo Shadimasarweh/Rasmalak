@@ -11,6 +11,7 @@
 
 import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseUserClient } from '@/lib/supabaseServer';
 import { classifyIntent } from '@/ai/orchestrator/intentClassifier';
 import { findAgentForIntent } from '@/ai/agents/registry';
 import { composePrompt } from '@/ai/orchestrator/promptComposer';
@@ -38,7 +39,7 @@ import type { UserFinancialContext } from '@/ai/types';
 // AUTH
 // ============================================
 
-async function authenticateRequest(request: NextRequest): Promise<{ userId: string } | null> {
+async function authenticateRequest(request: NextRequest): Promise<{ userId: string; accessToken: string } | null> {
   const authHeader = request.headers.get('authorization');
   if (!authHeader?.startsWith('Bearer ')) return null;
 
@@ -50,7 +51,9 @@ async function authenticateRequest(request: NextRequest): Promise<{ userId: stri
 
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return null;
-  return { userId: user.id };
+  // The token rides along so memory reads/writes can run AS this user —
+  // without it the RLS-scoped user_semantic_state calls silently no-op.
+  return { userId: user.id, accessToken: token };
 }
 
 // ============================================
@@ -180,6 +183,7 @@ export async function POST(request: NextRequest) {
   }
 
   const userId = authResult.userId;
+  const userClient = getSupabaseUserClient(authResult.accessToken);
   const convId = conversationId || `conv_${crypto.randomUUID()}`;
   const userContext = context || buildEmptyContext('JOD', lang);
 
@@ -190,7 +194,7 @@ export async function POST(request: NextRequest) {
 
   // ── Memory read (async, non-blocking for deterministic layer) ──
   const memoryPromise = userId && agent.requiredMemoryFields.length > 0
-    ? readMemoryFields(userId, agent.requiredMemoryFields).catch(() => ({}))
+    ? readMemoryFields(userId, agent.requiredMemoryFields, userClient).catch(() => ({}))
     : Promise.resolve({});
 
   // ── Deterministic layer (sync) ──
@@ -311,7 +315,7 @@ export async function POST(request: NextRequest) {
         void (async () => {
           try {
             if (userId && deterministic) {
-              await updateMemoryFromSignals(userId, deterministic, agent.id);
+              await updateMemoryFromSignals(userId, deterministic, agent.id, userClient);
             }
           } catch { /* non-fatal */ }
 

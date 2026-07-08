@@ -6,8 +6,10 @@
  */
 
 import type { AgentId } from '../agents/types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DeterministicOutputs } from '../deterministic';
 import type { FinancialHealthBand } from '../deterministic';
+import type { UserSemanticState } from './types';
 import { writeMemoryFields } from './memoryService';
 
 const HEALTH_BAND_THRESHOLDS = {
@@ -23,6 +25,10 @@ export async function updateMemoryFromSignals(
   userId: string,
   deterministic: DeterministicOutputs,
   agentId: AgentId,
+  // Server callers must pass a user-scoped client (getSupabaseUserClient) —
+  // the browser-default client has no session on the server and RLS
+  // silently rejects the write.
+  client?: SupabaseClient,
 ): Promise<string[]> {
   const fieldsToWrite: Record<string, unknown> = {};
   const writtenFields: string[] = [];
@@ -49,7 +55,7 @@ export async function updateMemoryFromSignals(
   // Only write if there are fields to update
   if (writtenFields.length > 0) {
     try {
-      await writeMemoryFields(userId, fieldsToWrite as any, agentId);
+      await writeMemoryFields(userId, fieldsToWrite as Partial<UserSemanticState>, agentId, client);
     } catch (err) {
       console.error('[UpdateRules] Failed to write memory:', err);
       return [];

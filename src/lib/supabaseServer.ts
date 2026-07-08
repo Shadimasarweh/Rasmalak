@@ -34,3 +34,24 @@ export function getSupabaseServerClient(): SupabaseClient {
   });
   return cachedClient;
 }
+
+/**
+ * Per-request client that acts AS the calling user: anon key + the user's
+ * JWT on every request, so RLS resolves auth.uid() server-side.
+ *
+ * Required for any route that reads/writes user-scoped tables (e.g.
+ * user_semantic_state): the plain anon server client has no session, so
+ * RLS silently returns nothing / rejects writes. Never cached — the token
+ * is request-scoped.
+ */
+export function getSupabaseUserClient(accessToken: string): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    throw new Error('Supabase URL / anon key not configured');
+  }
+  return createClient(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+  });
+}

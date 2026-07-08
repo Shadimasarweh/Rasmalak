@@ -7,6 +7,7 @@ import { BudgetProvider } from '@/store/budgetStore';
 import { BudgetCyclesProvider } from '@/store/budgetCyclesStore';
 import { GoalsProvider } from '@/store/goalsStore';
 import { EmergencyFundProvider } from '@/store/emergencyFundStore';
+import { PredictiveProvider } from '@/lib/predictive/PredictiveProvider';
 import QuickAddFAB from '@/components/QuickAddFAB';
 import CurrencyBootstrap from '@/components/CurrencyBootstrap';
 import ToastHost from '@/components/ui/ToastHost';
@@ -25,6 +26,7 @@ export default function DashboardLayout({
       <BudgetCyclesProvider>
       <GoalsProvider>
       <EmergencyFundProvider>
+      <PredictiveProvider>
       <CurrencyBootstrap />
       {/* Flex container: sidebar + main content side by side */}
       <div className="flex min-h-screen w-full" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
@@ -44,6 +46,7 @@ export default function DashboardLayout({
       </div>
       <QuickAddFAB />
       <ToastHost />
+      </PredictiveProvider>
       </EmergencyFundProvider>
       </GoalsProvider>
       </BudgetCyclesProvider>

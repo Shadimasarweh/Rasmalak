@@ -99,9 +99,20 @@ export function detectSpendingAlerts(context: UserFinancialContext): SpendingAle
   if (context.budget && !context.budget.isOverBudget) {
     const percentUsed = context.budget.percentageUsed;
     const daysRemaining = context.currentMonth.daysRemaining;
-    const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-    const expectedPercent = ((daysInMonth - daysRemaining) / daysInMonth) * 100;
-    
+    // Expected pace over the active cycle when the engine ran (payday-aware);
+    // calendar month otherwise.
+    let expectedPercent: number;
+    if (context.predictive) {
+      const cycleDaysRemaining = context.predictive.cycle.daysRemaining;
+      const start = new Date(context.predictive.cycle.start);
+      const end = new Date(context.predictive.cycle.end);
+      const totalDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1);
+      expectedPercent = ((totalDays - cycleDaysRemaining) / totalDays) * 100;
+    } else {
+      const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+      expectedPercent = ((daysInMonth - daysRemaining) / daysInMonth) * 100;
+    }
+
     if (percentUsed > expectedPercent + 15 && percentUsed > 60) {
       alerts.push({
         id: `alert_overspending_${Date.now()}`,
@@ -124,8 +135,43 @@ export function detectSpendingAlerts(context: UserFinancialContext): SpendingAle
     }
   }
   
-  // 3. LOW BALANCE PREDICTED
-  if (context.currentMonth.projectedEndBalance < 0) {
+  // 3. LOW BALANCE PREDICTED — two-tier with the forecast band when the
+  // engine ran (median short = high; only the pessimistic path short =
+  // medium), single-tier on the legacy point estimate otherwise.
+  if (context.predictive) {
+    const { p25, p50 } = context.predictive.endOfCycleBalance;
+    if (p50 < 0) {
+      alerts.push({
+        id: `alert_lowbalance_${Date.now()}`,
+        type: 'low_balance_predicted',
+        severity: 'high',
+        title: 'May Run Short',
+        titleAr: 'قد لا يكفي',
+        message: `At current pace, you may be short ${fmtNum(Math.abs(p50), 'en')} ${currency} by cycle end.`,
+        messageAr: `بهالمعدل، ممكن ينقصك ${fmtNum(Math.abs(p50), 'ar')} ${currency} آخر الدورة.`,
+        actionLabel: 'Plan Ahead',
+        actionLabelAr: 'خطط مقدماً',
+        actionRoute: '/budget',
+        metric: { value: p50, unit: currency },
+        createdAt: now,
+      });
+    } else if (p25 < 0) {
+      alerts.push({
+        id: `alert_lowbalance_${Date.now()}`,
+        type: 'low_balance_predicted',
+        severity: 'medium',
+        title: 'Could Run Tight',
+        titleAr: 'قد يكون الوضع ضيقاً',
+        message: `In a higher-spend scenario you could be short ${fmtNum(Math.abs(p25), 'en')} ${currency} by cycle end.`,
+        messageAr: `في سيناريو الصرف الأعلى، ممكن ينقصك ${fmtNum(Math.abs(p25), 'ar')} ${currency} آخر الدورة.`,
+        actionLabel: 'Plan Ahead',
+        actionLabelAr: 'خطط مقدماً',
+        actionRoute: '/budget',
+        metric: { value: p25, unit: currency },
+        createdAt: now,
+      });
+    }
+  } else if (context.currentMonth.projectedEndBalance < 0) {
     alerts.push({
       id: `alert_lowbalance_${Date.now()}`,
       type: 'low_balance_predicted',
@@ -145,28 +191,58 @@ export function detectSpendingAlerts(context: UserFinancialContext): SpendingAle
     });
   }
   
-  // 4. CATEGORY SPIKE (unusual spending detected)
-  for (const unusual of context.patterns.unusualSpending.slice(0, 2)) {
-    if (unusual.deviation > 50) { // More than 50% above normal
-      const catEn = getCategoryLabel(unusual.category, 'en');
-      const catAr = getCategoryLabel(unusual.category, 'ar');
+  // 4. CATEGORY SPIKE — MAD-based deviations when the engine ran (baseline
+  // over up to 12 months, ≥3-month gate, pace-adjusted), legacy n=1
+  // last-month comparison otherwise.
+  if (context.predictive) {
+    for (const dev of context.predictive.baselineDeviations.slice(0, 2)) {
+      const catEn = getCategoryLabel(dev.category, 'en');
+      const catAr = getCategoryLabel(dev.category, 'ar');
+      const pctAbove = dev.monthlyMedian > 0
+        ? ((dev.paceAdjustedSpend - dev.monthlyMedian) / dev.monthlyMedian) * 100
+        : 0;
       alerts.push({
-        id: `alert_spike_${unusual.category}_${Date.now()}`,
+        id: `alert_spike_${dev.category}_${Date.now()}`,
         type: 'category_spike',
-        severity: unusual.deviation > 100 ? 'high' : 'medium',
+        severity: dev.severity,
         title: `High ${catEn} Spending`,
         titleAr: `صرف عالي على ${catAr}`,
-        message: `${fmtPct(unusual.deviation, 'en', 0)} higher than usual in ${catEn}.`,
-        messageAr: `${fmtPct(unusual.deviation, 'ar', 0)} أعلى من المعتاد على ${catAr}.`,
+        message: `Pacing ${fmtPct(pctAbove, 'en', 0)} above your typical month in ${catEn}.`,
+        messageAr: `وتيرة الصرف ${fmtPct(pctAbove, 'ar', 0)} أعلى من شهرك المعتاد على ${catAr}.`,
         actionLabel: 'View Details',
         actionLabelAr: 'شوف التفاصيل',
         actionRoute: '/money/track',
         metric: {
-          value: unusual.amount,
+          value: dev.paceAdjustedSpend,
           unit: currency,
+          threshold: dev.monthlyMedian,
         },
         createdAt: now,
       });
+    }
+  } else {
+    for (const unusual of context.patterns.unusualSpending.slice(0, 2)) {
+      if (unusual.deviation > 50) { // More than 50% above normal
+        const catEn = getCategoryLabel(unusual.category, 'en');
+        const catAr = getCategoryLabel(unusual.category, 'ar');
+        alerts.push({
+          id: `alert_spike_${unusual.category}_${Date.now()}`,
+          type: 'category_spike',
+          severity: unusual.deviation > 100 ? 'high' : 'medium',
+          title: `High ${catEn} Spending`,
+          titleAr: `صرف عالي على ${catAr}`,
+          message: `${fmtPct(unusual.deviation, 'en', 0)} higher than usual in ${catEn}.`,
+          messageAr: `${fmtPct(unusual.deviation, 'ar', 0)} أعلى من المعتاد على ${catAr}.`,
+          actionLabel: 'View Details',
+          actionLabelAr: 'شوف التفاصيل',
+          actionRoute: '/money/track',
+          metric: {
+            value: unusual.amount,
+            unit: currency,
+          },
+          createdAt: now,
+        });
+      }
     }
   }
   

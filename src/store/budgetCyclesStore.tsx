@@ -13,6 +13,8 @@ import {
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 import { useStore } from '@/store/useStore';
+import { getCycleRange } from '@/lib/cycles';
+import { AI_FEATURES } from '@/ai/config';
 
 /**
  * Budget Cycles Store
@@ -99,8 +101,18 @@ export function BudgetCyclesProvider({ children }: { children: ReactNode }) {
   const initialized = useAuthStore((s) => s.initialized);
   const baseCurrency = useStore((s) => s.baseCurrency);
 
-  const monthYear = currentMonthYear();
-  const prevMonthYear = previousMonthYear();
+  // Payday mode relabels which cycle is "current": keyed by the month the
+  // cycle STARTS in (one payday per calendar month → keys stay unique, no
+  // schema change to budget_cycles).
+  const cycleMode = useStore((s) => s.budgetCycleMode);
+  const paydayDay = useStore((s) => s.paydayDayOfMonth);
+  const paydayActive = AI_FEATURES.paydayCycleBudgeting && cycleMode === 'payday' && paydayDay != null;
+  const monthYear = paydayActive
+    ? getCycleRange({ mode: 'payday', anchorDay: paydayDay, offset: 0 }).key
+    : currentMonthYear();
+  const prevMonthYear = paydayActive
+    ? getCycleRange({ mode: 'payday', anchorDay: paydayDay, offset: -1 }).key
+    : previousMonthYear();
 
   useEffect(() => {
     const fetchCycles = async () => {

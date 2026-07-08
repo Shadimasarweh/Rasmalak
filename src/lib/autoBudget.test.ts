@@ -1,45 +1,14 @@
 /**
- * autoBudget unit tests
- * ---------------------
- * Self-contained, dependency-free assertions runnable via `npx tsx` if a
- * test runner is added later. Until then this file is a living spec for
- * the suggestion engine — read it to understand the expected behavior.
- *
- * Run manually:  npx tsx src/lib/autoBudget.test.ts
+ * autoBudget unit tests — the living spec for the suggestion engine.
+ * Run: npm run test:unit
  */
 
+import { describe, it, expect } from 'vitest';
 import {
   AutoBudgetTransaction,
   suggestNextMonthPlan,
   suggestionRationale,
 } from './autoBudget';
-
-interface TestResult {
-  name: string;
-  passed: boolean;
-  message?: string;
-}
-
-const results: TestResult[] = [];
-
-function test(name: string, fn: () => void): void {
-  try {
-    fn();
-    results.push({ name, passed: true });
-  } catch (err) {
-    results.push({ name, passed: false, message: err instanceof Error ? err.message : String(err) });
-  }
-}
-
-function assertEqual<T>(actual: T, expected: T, label: string): void {
-  if (actual !== expected) {
-    throw new Error(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
-  }
-}
-
-function assertTrue(condition: boolean, label: string): void {
-  if (!condition) throw new Error(label);
-}
 
 // "Now" used for tests so windows are deterministic.
 const NOW = new Date(2026, 4, 15); // May 15, 2026 (month is 0-indexed)
@@ -50,163 +19,170 @@ function tx(date: string, category: string, amount: number, type: 'income' | 'ex
   return { date, category, amount, amountBase: amount, type };
 }
 
-// ============================================================
-// Empty input
-// ============================================================
-test('empty transactions => empty result, no history', () => {
-  const r = suggestNextMonthPlan([], { now: NOW });
-  assertEqual(Object.keys(r.byCategory).length, 0, 'no categories');
-  assertEqual(r.hasEnoughHistory, false, 'hasEnoughHistory false');
-  assertEqual(r.totalSuggested, 0, 'total is 0');
+describe('suggestNextMonthPlan', () => {
+  it('empty transactions => empty result, no history', () => {
+    const r = suggestNextMonthPlan([], { now: NOW });
+    expect(Object.keys(r.byCategory).length).toBe(0);
+    expect(r.hasEnoughHistory).toBe(false);
+    expect(r.totalSuggested).toBe(0);
+  });
+
+  it('current month spending is excluded from suggestions', () => {
+    // Only one transaction, in current month -> no signal.
+    const r = suggestNextMonthPlan([tx('2026-05-10', 'food', 100)], { now: NOW });
+    expect(Object.keys(r.byCategory).length).toBe(0);
+  });
+
+  it('one prior month with one category => suggestion with buffer + rounding', () => {
+    const r = suggestNextMonthPlan(
+      [tx('2026-04-12', 'food', 220)],
+      { now: NOW, lookbackMonths: 1, roundTo: 5, buffer: 0.05 },
+    );
+    const food = r.byCategory['food'];
+    expect(food).toBeTruthy();
+    // average = 220, +5% = 231, max(lastMonth=220, 231) = 231, ceil to 5 = 235
+    expect(food.suggestedAmount).toBe(235);
+    expect(food.basedOnMonths).toBe(1);
+    expect(food.confidence).toBe('low');
+  });
+
+  it('3 months: a one-off spike month no longer pins the plan (v2 spike guard)', () => {
+    const r = suggestNextMonthPlan(
+      [
+        tx('2026-02-05', 'transport', 100),
+        tx('2026-03-05', 'transport', 100),
+        tx('2026-04-05', 'transport', 300), // spike
+      ],
+      { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0.05 },
+    );
+    const t = r.byCategory['transport'];
+    // v1 pinned this at last-month 300. v2: EWMA(0.5) = 1800/7 ≈ 214.29,
+    // trend +42.86 (clamped to 20% of EWMA) → projected 257.14; ×1.05 = 270.
+    // The floor is capped at median + 3·MAD = 115 (spike guard), so the
+    // spike month no longer wins.
+    expect(t.suggestedAmount).toBe(270);
+    expect(t.confidence).toBe('high');
+    expect(t.method).toBe('ewma_v2');
+  });
+
+  it('gap months (no logging at all) are dropped, not counted as zero', () => {
+    // Feb/Mar have NO transactions of any kind → excluded from the window.
+    const r = suggestNextMonthPlan(
+      [tx('2026-04-10', 'shopping', 600)],
+      { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0 },
+    );
+    const s = r.byCategory['shopping'];
+    // Series is just [600]: EWMA 600, floor 600.
+    expect(s.suggestedAmount).toBe(600);
+    expect(s.basedOnMonths).toBe(1);
+    expect(s.confidence).toBe('low');
+    expect(s.monthsAbsent).toBe(2);
+  });
+
+  it('active months with zero category spend ARE genuine zeros', () => {
+    // Feb/Mar are active (food was logged) but shopping only appears in Apr.
+    const r = suggestNextMonthPlan(
+      [
+        tx('2026-02-08', 'food', 50),
+        tx('2026-03-08', 'food', 50),
+        tx('2026-04-10', 'shopping', 600),
+      ],
+      { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0 },
+    );
+    const s = r.byCategory['shopping'];
+    // Series [0, 0, 600]: EWMA = 300/0.875 ≈ 342.9, trend clamped +68.6
+    // → 411.4; floor = min(600, 0 + 3·effectiveMad) ≈ 0 → ceil5 = 415.
+    expect(s.suggestedAmount).toBe(415);
+    expect(s.monthsAbsent).toBe(0);
+    // Sparse usage still reads as low confidence.
+    expect(s.confidence).toBe('low');
+  });
+
+  it('income transactions are skipped', () => {
+    const r = suggestNextMonthPlan(
+      [tx('2026-04-01', 'salary', 5000, 'income')],
+      { now: NOW },
+    );
+    expect(Object.keys(r.byCategory).length).toBe(0);
+  });
+
+  it('multiple categories aggregate independently', () => {
+    const r = suggestNextMonthPlan(
+      [
+        tx('2026-04-01', 'food', 100),
+        tx('2026-04-15', 'food', 200),
+        tx('2026-04-20', 'bills', 400),
+      ],
+      { now: NOW, lookbackMonths: 1, buffer: 0, roundTo: 5 },
+    );
+    // food: total 300, avg 300, baseline=max(300, 300)=300
+    expect(r.byCategory['food'].suggestedAmount).toBe(300);
+    expect(r.byCategory['bills'].suggestedAmount).toBe(400);
+  });
+
+  it('null category falls into other-expense', () => {
+    const t: AutoBudgetTransaction = { type: 'expense', amount: 50, amountBase: 50, date: '2026-04-10', category: null };
+    const r = suggestNextMonthPlan([t], { now: NOW, lookbackMonths: 1 });
+    expect(r.byCategory['other-expense']).toBeTruthy();
+  });
+
+  it('a 6-month window damps a final-month spike harder than v1 would', () => {
+    const txns = [
+      tx('2025-11-05', 'entertainment', 100),
+      tx('2025-12-05', 'entertainment', 100),
+      tx('2026-01-05', 'entertainment', 100),
+      tx('2026-02-05', 'entertainment', 100),
+      tx('2026-03-05', 'entertainment', 100),
+      tx('2026-04-05', 'entertainment', 300), // one-off spike
+    ];
+    const r = suggestNextMonthPlan(txns, { now: NOW, lookbackMonths: 6, roundTo: 5, buffer: 0 });
+    const e = r.byCategory['entertainment'];
+    // v1 (max of avg/last-month) would say 300; the spike guard caps the
+    // floor at 100 + 3·5 = 115 and the EWMA+trend projects ≈ 230.
+    expect(e.suggestedAmount).toBeLessThan(300);
+    expect(e.suggestedAmount).toBeGreaterThanOrEqual(115);
+    expect(e.basedOnMonths).toBe(6);
+    expect(e.ewma).toBeGreaterThan(100);
+  });
+
+  it('keeps the v1 result shape (additive fields only)', () => {
+    const r = suggestNextMonthPlan([tx('2026-04-12', 'food', 220)], { now: NOW, lookbackMonths: 1 });
+    expect(Object.keys(r)).toEqual(
+      expect.arrayContaining(['byCategory', 'totalSuggested', 'totalAverage', 'monthsAnalyzed', 'hasEnoughHistory']),
+    );
+    const food = r.byCategory['food'];
+    expect(Object.keys(food)).toEqual(
+      expect.arrayContaining(['categoryId', 'suggestedAmount', 'basedOnMonths', 'monthlyAverage', 'monthlyMax', 'confidence']),
+    );
+    expect(r.method).toBe('ewma_v2');
+  });
+
+  it('totalSuggested is rounded to roundTo granularity', () => {
+    const r = suggestNextMonthPlan(
+      [
+        tx('2026-04-01', 'food', 91),
+        tx('2026-04-02', 'transport', 33),
+      ],
+      { now: NOW, lookbackMonths: 1, buffer: 0, roundTo: 10 },
+    );
+    // food: 91 -> 100, transport: 33 -> 40, sum = 140, already multiple of 10
+    expect(r.byCategory['food'].suggestedAmount).toBe(100);
+    expect(r.byCategory['transport'].suggestedAmount).toBe(40);
+    expect(r.totalSuggested).toBe(140);
+  });
 });
 
-// ============================================================
-// Current month is excluded
-// ============================================================
-test('current month spending is excluded from suggestions', () => {
-  // Only one transaction, in current month -> no signal.
-  const r = suggestNextMonthPlan([tx('2026-05-10', 'food', 100)], { now: NOW });
-  assertEqual(Object.keys(r.byCategory).length, 0, 'current-month tx ignored');
+describe('suggestionRationale', () => {
+  it('returns localized strings', () => {
+    const en = suggestionRationale({
+      categoryId: 'food', suggestedAmount: 300, basedOnMonths: 3,
+      monthlyAverage: 280, monthlyMax: 320, confidence: 'high',
+    }, 'en');
+    expect(en).toContain('3 months');
+    const ar = suggestionRationale({
+      categoryId: 'food', suggestedAmount: 300, basedOnMonths: 3,
+      monthlyAverage: 280, monthlyMax: 320, confidence: 'high',
+    }, 'ar');
+    expect(ar).toContain('أشهر');
+  });
 });
-
-// ============================================================
-// Single previous month, single category
-// ============================================================
-test('one prior month with one category => high suggestion with buffer + rounding', () => {
-  const r = suggestNextMonthPlan(
-    [tx('2026-04-12', 'food', 220)],
-    { now: NOW, lookbackMonths: 1, roundTo: 5, buffer: 0.05 },
-  );
-  const food = r.byCategory['food'];
-  assertTrue(!!food, 'food entry exists');
-  // average = 220, +5% = 231, max(lastMonth=220, 231) = 231, ceil to 5 = 235
-  assertEqual(food.suggestedAmount, 235, 'suggested rounded up');
-  assertEqual(food.basedOnMonths, 1, 'basedOnMonths=1');
-  assertEqual(food.confidence, 'low', 'low confidence with 1 month');
-});
-
-// ============================================================
-// 3 months, smoothing happens, last-month spike preserved
-// ============================================================
-test('3 months: suggestion never goes below the most recent month', () => {
-  const r = suggestNextMonthPlan(
-    [
-      // Feb
-      tx('2026-02-05', 'transport', 100),
-      // Mar
-      tx('2026-03-05', 'transport', 100),
-      // Apr (spike)
-      tx('2026-04-05', 'transport', 300),
-    ],
-    { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0.05 },
-  );
-  const t = r.byCategory['transport'];
-  // average = (100+100+300)/3 = 166.67, +5% = 175, max(last=300, 175) = 300
-  assertEqual(t.suggestedAmount, 300, 'suggestion not below last month');
-  assertEqual(t.confidence, 'high', '3 months => high confidence');
-});
-
-// ============================================================
-// Missing months counted as zero
-// ============================================================
-test('missing months count as zero in the average', () => {
-  const r = suggestNextMonthPlan(
-    [tx('2026-04-10', 'shopping', 600)],
-    { now: NOW, lookbackMonths: 3, roundTo: 5, buffer: 0 },
-  );
-  const s = r.byCategory['shopping'];
-  // average across 3 months with only 1 month populated = 600/3 = 200
-  // baseline = max(200, last=600) = 600
-  assertEqual(s.suggestedAmount, 600, 'last-month value wins when sparse');
-  assertEqual(s.basedOnMonths, 1, 'only 1 month with this category');
-  assertEqual(s.confidence, 'low', 'sparse history => low confidence');
-});
-
-// ============================================================
-// Income transactions are ignored
-// ============================================================
-test('income transactions are skipped', () => {
-  const r = suggestNextMonthPlan(
-    [tx('2026-04-01', 'salary', 5000, 'income')],
-    { now: NOW },
-  );
-  assertEqual(Object.keys(r.byCategory).length, 0, 'no expense categories from income');
-});
-
-// ============================================================
-// Multiple categories in same month
-// ============================================================
-test('multiple categories aggregate independently', () => {
-  const r = suggestNextMonthPlan(
-    [
-      tx('2026-04-01', 'food', 100),
-      tx('2026-04-15', 'food', 200),
-      tx('2026-04-20', 'bills', 400),
-    ],
-    { now: NOW, lookbackMonths: 1, buffer: 0, roundTo: 5 },
-  );
-  // food: total 300, avg 300, baseline=max(300, 300)=300
-  assertEqual(r.byCategory['food'].suggestedAmount, 300, 'food sum across month');
-  // bills: 400
-  assertEqual(r.byCategory['bills'].suggestedAmount, 400, 'bills sum across month');
-});
-
-// ============================================================
-// Null category => other-expense bucket
-// ============================================================
-test('null category falls into other-expense', () => {
-  const t: AutoBudgetTransaction = { type: 'expense', amount: 50, amountBase: 50, date: '2026-04-10', category: null };
-  const r = suggestNextMonthPlan([t], { now: NOW, lookbackMonths: 1 });
-  assertTrue(!!r.byCategory['other-expense'], 'other-expense exists');
-});
-
-// ============================================================
-// Total is rounded to roundTo
-// ============================================================
-test('totalSuggested is rounded to roundTo granularity', () => {
-  const r = suggestNextMonthPlan(
-    [
-      tx('2026-04-01', 'food', 91),
-      tx('2026-04-02', 'transport', 33),
-    ],
-    { now: NOW, lookbackMonths: 1, buffer: 0, roundTo: 10 },
-  );
-  // food: 91 -> 100, transport: 33 -> 40, sum = 140, already multiple of 10
-  assertEqual(r.byCategory['food'].suggestedAmount, 100, 'food rounded to 100');
-  assertEqual(r.byCategory['transport'].suggestedAmount, 40, 'transport rounded to 40');
-  assertEqual(r.totalSuggested, 140, 'total is sum of rounded categories');
-});
-
-// ============================================================
-// Rationale returns localized string
-// ============================================================
-test('suggestionRationale returns localized string', () => {
-  const en = suggestionRationale({
-    categoryId: 'food', suggestedAmount: 300, basedOnMonths: 3,
-    monthlyAverage: 280, monthlyMax: 320, confidence: 'high',
-  }, 'en');
-  assertTrue(en.includes('3 months'), 'EN includes month count');
-  const ar = suggestionRationale({
-    categoryId: 'food', suggestedAmount: 300, basedOnMonths: 3,
-    monthlyAverage: 280, monthlyMax: 320, confidence: 'high',
-  }, 'ar');
-  assertTrue(ar.includes('أشهر'), 'AR includes Arabic month word');
-});
-
-// ============================================================
-// Reporter
-// ============================================================
-const passed = results.filter((r) => r.passed).length;
-const failed = results.filter((r) => !r.passed);
-
-// eslint-disable-next-line no-console
-console.log(`\nautoBudget tests: ${passed}/${results.length} passed`);
-for (const f of failed) {
-  // eslint-disable-next-line no-console
-  console.error(`  FAIL: ${f.name}\n    ${f.message ?? ''}`);
-}
-if (failed.length > 0) {
-  // Exit non-zero so CI can pick this up if wired in.
-  if (typeof process !== 'undefined') process.exit(1);
-  throw new Error('autoBudget tests failed');
-}

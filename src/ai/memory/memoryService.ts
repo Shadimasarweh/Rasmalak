@@ -6,6 +6,7 @@
  */
 
 import { supabase } from '@/lib/supabaseClient';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { UserSemanticState } from './types';
 import { createEmptySemanticState } from './types';
 
@@ -35,12 +36,15 @@ function toDbColumn(field: keyof UserSemanticState): string {
 export async function readMemoryFields(
   userId: string,
   fields: (keyof UserSemanticState)[],
+  // Server routes MUST pass a user-scoped client (getSupabaseUserClient):
+  // the browser default has no session there and RLS returns nothing.
+  client: SupabaseClient = supabase,
 ): Promise<Partial<UserSemanticState>> {
   if (fields.length === 0) return {};
 
   const columns = fields.map(toDbColumn).join(', ');
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('user_semantic_state')
     .select(columns)
     .eq('user_id', userId)
@@ -83,6 +87,7 @@ export async function writeMemoryFields(
   userId: string,
   fields: Partial<UserSemanticState>,
   source: string,
+  client: SupabaseClient = supabase,
 ): Promise<void> {
   const dbFields: Record<string, unknown> = {};
 
@@ -96,7 +101,7 @@ export async function writeMemoryFields(
   dbFields['updated_at'] = new Date().toISOString();
 
   // Upsert: create if not exists, update if exists
-  const { error } = await supabase
+  const { error } = await client
     .from('user_semantic_state')
     .upsert(
       {
@@ -112,7 +117,7 @@ export async function writeMemoryFields(
 
   // Increment version — best-effort, non-blocking
   try {
-    await supabase.rpc('increment_semantic_state_version', { p_user_id: userId });
+    await client.rpc('increment_semantic_state_version', { p_user_id: userId });
   } catch {
     // RPC may not exist yet — version tracking is best-effort
   }

@@ -4,6 +4,9 @@ import { createContext, useContext, useMemo, useState, useCallback, useEffect, R
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore, getAuthState } from '@/store/authStore';
 import { showError } from '@/store/toastStore';
+import { useBudgetCycleMode, usePaydayDayOfMonth } from '@/store/useStore';
+import { getCycleRange, type CycleRange } from '@/lib/cycles';
+import { AI_FEATURES } from '@/ai/config';
 
 const isDev = process.env.NODE_ENV === 'development';
 const devLog = (...args: unknown[]) => { if (isDev) console.log(...args); };
@@ -713,4 +716,37 @@ export function useMonthlySpendByCategory(monthOffset: number = 0): Record<strin
     const range = getMonthRange(monthOffset);
     return aggregateExpensesByCategory(transactions, range);
   }, [transactions, monthOffset]);
+}
+
+/* ============================================
+   CYCLE-AWARE WINDOWS (A2 — payday budgeting)
+   Same contract as getMonthRange, parametrized
+   on the user's cycle setting. Calendar mode is
+   bit-identical to getMonthRange, so consumers
+   that adopt these are regression-safe.
+   ============================================ */
+
+// Reads the active budget-cycle window. Payday windows require BOTH the
+// feature flag and the user's opt-in; anything else degrades to calendar.
+export function useActiveCycle(offset: number = 0): CycleRange {
+  const mode = useBudgetCycleMode();
+  const paydayDay = usePaydayDayOfMonth();
+  return useMemo(() => {
+    const paydayActive =
+      AI_FEATURES.paydayCycleBudgeting && mode === 'payday' && paydayDay != null;
+    return getCycleRange({
+      mode: paydayActive ? 'payday' : 'calendar',
+      anchorDay: paydayActive ? paydayDay : null,
+      offset,
+    });
+  }, [mode, paydayDay, offset]);
+}
+
+export function useCycleSpendByCategory(offset: number = 0): Record<string, number> {
+  const { transactions } = useTransactions();
+  const cycle = useActiveCycle(offset);
+  return useMemo(
+    () => aggregateExpensesByCategory(transactions, { start: cycle.start, end: cycle.end }),
+    [transactions, cycle],
+  );
 }
