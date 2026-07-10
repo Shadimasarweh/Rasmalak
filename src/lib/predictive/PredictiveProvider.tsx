@@ -38,6 +38,11 @@ export interface PredictiveContextValue {
   // null until the engine has minimum history — consumers pass this to
   // buildUserContext verbatim.
   summary: PredictiveContextSummary | null;
+  // Cold-start inputs (Phase 2, item 9): profile country + onboarding
+  // income for the regional-prior blend. Populated even when the engine
+  // itself is idle — a day-one user with zero transactions is exactly
+  // who the priors exist for.
+  coldStart: { countryCode: string | null; monthlyIncomeBase: number | null };
   refresh: () => void;
 }
 
@@ -45,6 +50,7 @@ const EMPTY: PredictiveContextValue = {
   status: 'idle',
   state: null,
   summary: null,
+  coldStart: { countryCode: null, monthlyIncomeBase: null },
   refresh: () => {},
 };
 
@@ -76,8 +82,12 @@ export function PredictiveProvider({ children }: { children: ReactNode }) {
   const engineTxns = useMemo(() => mapToEngineTransactions(transactions), [transactions]);
 
   const value = useMemo<PredictiveContextValue>(() => {
+    const coldStart = {
+      countryCode: profileBits?.countryCode ?? null,
+      monthlyIncomeBase: profileBits?.fallback.monthlyIncome ?? null,
+    };
     if (!AI_FEATURES.predictionsEnabled || engineTxns.length === 0) {
-      return { ...EMPTY, refresh };
+      return { ...EMPTY, coldStart, refresh };
     }
     const state = computePredictiveState({
       transactions: engineTxns,
@@ -94,6 +104,7 @@ export function PredictiveProvider({ children }: { children: ReactNode }) {
       status: 'ready',
       state,
       summary: state.meta.hasMinimumHistory ? summarizeForContext(state) : null,
+      coldStart,
       refresh,
     };
     // getNetBalance is a stable callback derived from transactions.

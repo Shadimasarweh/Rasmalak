@@ -15,11 +15,12 @@ import { DEFAULT_EXPENSE_CATEGORIES, CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { MoneyInput } from '@/components/MoneyInput';
 import {
-  suggestNextMonthPlan,
   suggestionRationale,
   AutoBudgetCategorySuggestion,
   AutoBudgetResult,
 } from '@/lib/autoBudget';
+import { suggestPlanWithColdStart } from '@/ai/deterministic/countryPriors';
+import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 import CategoryComparisonTable from '@/components/money/CategoryComparisonTable';
 import { AI_FEATURES } from '@/ai/config';
 
@@ -241,15 +242,22 @@ export default function PlanPage() {
 
   // Derive auto-budget suggestions from prior months. Pass amountBase
   // so the projection lives in base currency (architectural rule).
+  // Thin history (< 3 months) blends toward the regional cold-start
+  // prior scaled to onboarding income; at full trust this is exactly
+  // the personal EWMA plan.
+  const { coldStart } = usePredictiveState();
   const suggestion = useMemo(
-    () => suggestNextMonthPlan(transactions.map((t) => ({
+    () => suggestPlanWithColdStart(transactions.map((t) => ({
       type: t.type,
       amount: t.amount,
       amountBase: t.amountBase,
       date: t.date,
       category: t.category,
-    }))),
-    [transactions],
+    })), {
+      countryCode: coldStart.countryCode,
+      monthlyIncomeBase: coldStart.monthlyIncomeBase,
+    }),
+    [transactions, coldStart.countryCode, coldStart.monthlyIncomeBase],
   );
 
   // Local edit state
