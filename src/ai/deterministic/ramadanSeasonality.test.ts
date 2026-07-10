@@ -161,6 +161,42 @@ describe('buildRamadanPlan — year-1 (priors)', () => {
   });
 });
 
+describe('predictive-state wiring (phase 2 item 8 → AI context)', () => {
+  it('surfaces ramadan on the state + summary only inside the lead window', async () => {
+    const { computePredictiveState, summarizeForContext, RAMADAN_CONTEXT_LEAD_DAYS } =
+      await import('./predictiveState');
+    const base = {
+      currentBalance: 1000,
+      profileFallback: { persona: null, monthlyIncome: null },
+      paydayOverride: null,
+      plannedGoalContributionsMonthly: 0,
+    };
+
+    // ~3 weeks before Ramadan 1448 (starts early Feb 2027): included.
+    const near = computePredictiveState({
+      ...base,
+      transactions: yearTwoFixture(),
+      now: new Date('2027-01-20T12:00:00Z'),
+    });
+    expect(near.ramadan).not.toBeNull();
+    expect(near.ramadan!.daysUntilStart).toBeGreaterThan(0);
+    expect(near.ramadan!.daysUntilStart).toBeLessThanOrEqual(RAMADAN_CONTEXT_LEAD_DAYS);
+    expect(near.ramadan!.source).toBe('personal');
+    expect(near.ramadan!.topShifts.length).toBeGreaterThan(0);
+    const summary = summarizeForContext(near);
+    expect(summary.ramadan).toEqual(near.ramadan);
+    expect(Array.isArray(summary.habits)).toBe(true);
+
+    // Mid-year (months out): the model has no business bringing it up.
+    const far = computePredictiveState({
+      ...base,
+      transactions: yearTwoFixture(),
+      now: new Date('2026-07-10T12:00:00Z'),
+    });
+    expect(far.ramadan).toBeNull();
+  });
+});
+
 describe('buildRamadanPlan — clock behaviour', () => {
   it('targets the ONGOING Ramadan with a zero countdown', () => {
     const during = new Date('2026-03-01T12:00:00Z'); // inside Ramadan 1447

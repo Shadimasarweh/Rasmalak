@@ -33,6 +33,19 @@ import {
 } from './behaviorProfile';
 import { computeSafeToSpend, sumGoalFundingInCycle, type SafeToSpendResult } from './safeToSpend';
 import { isGoalFunding } from './engineTypes';
+import { buildRamadanPlan } from './ramadanSeasonality';
+import { deriveHabitInsights } from './habitInsights';
+
+/** Only surface Ramadan context when it's actually near (or ongoing) —
+ * eleven months a year the model has no business bringing it up. */
+export const RAMADAN_CONTEXT_LEAD_DAYS = 60;
+
+export interface RamadanContext {
+  daysUntilStart: number; // 0 while ongoing
+  ongoing: boolean;
+  source: 'personal' | 'population_prior';
+  topShifts: Array<{ category: string; factor: number }>;
+}
 
 export interface PredictiveState {
   computedAt: string;
@@ -46,6 +59,8 @@ export interface PredictiveState {
   behavior: ComputedBehaviorSignals;
   archetype: ArchetypeResult;
   safeToSpend: SafeToSpendResult;
+  // null outside the RAMADAN_CONTEXT_LEAD_DAYS window (phase 2, item 8).
+  ramadan: RamadanContext | null;
   meta: {
     daysOfHistory: number;
     hasMinimumHistory: boolean; // ≥28 days AND ≥10 transactions
@@ -133,6 +148,19 @@ export function computePredictiveState(input: PredictiveInputs): PredictiveState
     .filter((d) => Number.isFinite(d));
   const daysOfHistory = validDays.length > 0 ? Math.max(0, nowDay - Math.min(...validDays)) : 0;
 
+  const ramadanPlan = buildRamadanPlan({ transactions: input.transactions, now });
+  const ramadan: RamadanContext | null =
+    ramadanPlan.daysUntilStart <= RAMADAN_CONTEXT_LEAD_DAYS
+      ? {
+          daysUntilStart: ramadanPlan.daysUntilStart,
+          ongoing: ramadanPlan.daysUntilStart === 0,
+          source: ramadanPlan.source,
+          topShifts: ramadanPlan.adjustments
+            .slice(0, 3)
+            .map((a) => ({ category: a.categoryId, factor: a.factor })),
+        }
+      : null;
+
   return {
     computedAt: toIso({ year: now.getFullYear(), monthIndex: now.getMonth(), day: now.getDate() }),
     engineVersion: PREDICTIVE_ENGINE_VERSION,
@@ -145,6 +173,7 @@ export function computePredictiveState(input: PredictiveInputs): PredictiveState
     behavior,
     archetype,
     safeToSpend,
+    ramadan,
     meta: {
       daysOfHistory,
       hasMinimumHistory:
@@ -224,6 +253,10 @@ export interface PredictiveContextSummary {
     spendTiming: string | null;
     weekendWeekdayRatio: number | null;
   };
+  // Phase 2: near-Ramadan seasonality + the top earned habit insights,
+  // so Mustasharak cites the same facts the dashboard shows.
+  ramadan: RamadanContext | null;
+  habits: Array<{ id: string; params: Record<string, number> }>;
   confidence: 'low' | 'medium' | 'high';
 }
 
@@ -257,6 +290,10 @@ export function summarizeForContext(state: PredictiveState): PredictiveContextSu
       spendTiming: state.behavior.spendTiming?.profile ?? null,
       weekendWeekdayRatio: state.behavior.weekendWeekdayRatio,
     },
+    ramadan: state.ramadan,
+    habits: deriveHabitInsights({ behavior: state.behavior, series: state.series })
+      .slice(0, 2)
+      .map((h) => ({ id: h.id, params: h.params })),
     confidence: state.forecast.basis.confidence,
   };
 }

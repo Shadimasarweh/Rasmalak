@@ -207,16 +207,48 @@ const SLICE_BUILDERS: Record<ContextSliceType, SliceBuilder> = {
     if (ctx.predictive) {
       const { p25, p50, p75 } = ctx.predictive.endOfCycleBalance;
       const sts = ctx.predictive.safeToSpend;
+      // Phase-2 lines only exist when earned (Ramadan near, habits above
+      // threshold) — absent facts cost zero tokens. Habit ids are compact
+      // machine labels; the agent prompt instructs the model to phrase
+      // them naturally, never to echo them verbatim.
+      const ramadan = ctx.predictive.ramadan;
+      const shifts = (ramadan?.topShifts ?? [])
+        .map((s) => `${s.category} ×${s.factor}`)
+        .join(', ');
+      const habits = ctx.predictive.habits ?? [];
+      const extras: string[] = [];
       if (lang === 'ar') {
+        if (ramadan) {
+          const label = ramadan.source === 'personal' ? 'من نمط المستخدم في رمضان الماضي' : 'إرشاد عام للمنطقة';
+          extras.push(
+            ramadan.ongoing
+              ? `- رمضان جارٍ الآن${shifts ? ` — تغيّرات متوقعة: ${shifts}` : ''} (${label})`
+              : `- رمضان يبدأ بعد ${fmtNum(ramadan.daysUntilStart, lang)} يوم${shifts ? ` — تغيّرات متوقعة: ${shifts}` : ''} (${label})`,
+          );
+        }
+        for (const h of habits) {
+          extras.push(`- عادة ملحوظة: ${h.id} ${JSON.stringify(h.params)}`);
+        }
         return `### التوقعات
 - المدى المتوقع لرصيد نهاية الدورة: بين ${fmtNum(p25, lang)} و ${fmtNum(p75, lang)} ${currency} (الوسيط ${fmtNum(p50, lang)})
 - التزامات متبقية هذه الدورة: ${fmtNum(ctx.predictive.committedRemaining, lang)} ${currency}
-- المتاح للصرف: ${fmtNum(sts.total, lang)} ${currency} (${fmtNum(sts.perDay, lang)} يومياً)`;
+- المتاح للصرف: ${fmtNum(sts.total, lang)} ${currency} (${fmtNum(sts.perDay, lang)} يومياً)${extras.length ? '\n' + extras.join('\n') : ''}`;
+      }
+      if (ramadan) {
+        const label = ramadan.source === 'personal' ? "from the user's own last Ramadan" : 'general regional guidance';
+        extras.push(
+          ramadan.ongoing
+            ? `- Ramadan is ongoing${shifts ? ` — expected shifts: ${shifts}` : ''} (${label})`
+            : `- Ramadan starts in ${ramadan.daysUntilStart} days${shifts ? ` — expected shifts: ${shifts}` : ''} (${label})`,
+        );
+      }
+      for (const h of habits) {
+        extras.push(`- Observed habit: ${h.id} ${JSON.stringify(h.params)}`);
       }
       return `### Projections
 - Expected end-of-cycle balance: between ${fmtNum(p25, lang)} and ${fmtNum(p75, lang)} ${currency} (median ${fmtNum(p50, lang)})
 - Committed bills remaining this cycle: ${fmtNum(ctx.predictive.committedRemaining, lang)} ${currency}
-- Safe to spend: ${fmtNum(sts.total, lang)} ${currency} (${fmtNum(sts.perDay, lang)} per day)`;
+- Safe to spend: ${fmtNum(sts.total, lang)} ${currency} (${fmtNum(sts.perDay, lang)} per day)${extras.length ? '\n' + extras.join('\n') : ''}`;
     }
     if (lang === 'ar') {
       return `### التوقعات
