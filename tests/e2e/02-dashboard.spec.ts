@@ -55,4 +55,11 @@ test.describe('Dashboard', () => {
   test('dashboard hero renders with predictive flags on', async ({ page }) => {
     await expect(page.locator('text=/total balance|الرصيد الإجمالي/i')).toBeVisible();
   });
+
+  // Phase-2 surfaces ship dark (ramadanMode / habitInsights flags off).
+  // These pin the flag-off state; flip when the release step turns them on.
+  test('phase-2 predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/ramadan mode|وضع رمضان/i')).toHaveCount(0);
+    await expect(page.locator('text=/your money habits|عاداتك المالية/i')).toHaveCount(0);
+  });
 });
