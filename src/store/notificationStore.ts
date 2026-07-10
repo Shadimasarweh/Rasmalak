@@ -1,4 +1,22 @@
 import { create } from 'zustand';
+import { AI_FEATURES } from '@/ai/config';
+import { shouldSuppressAlert } from '@/ai/deterministic/alertLearning';
+import { loadEngagement, trackAlertEvent } from '@/lib/predictive/alertEngagement';
+import { useAuthStore } from '@/store/authStore';
+
+// Alert learning (Phase 3 item 13) — everything below is fail-open and
+// flag-gated: with alertLearning off, this store behaves exactly as
+// before. 'shown' is counted on add, 'acted' when a notification is
+// opened (markAsRead), 'dismissed' when clearAll wipes it unread.
+function learningUserId(): string | null {
+  if (!AI_FEATURES.alertLearning) return null;
+  try {
+    return useAuthStore.getState().user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 
 export interface AppNotification {
   id: string;
@@ -40,6 +58,14 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     const isDuplicate = existing.some(n => n.messageEn === notification.messageEn);
     if (isDuplicate) return;
 
+    const learnerId = learningUserId();
+    if (learnerId) {
+      if (shouldSuppressAlert(notification.type, notification.severity, loadEngagement(learnerId))) {
+        return; // this user has voted this type into silence — respect it
+      }
+      trackAlertEvent(learnerId, notification.type, 'shown');
+    }
+
     set((state) => ({
       notifications: [{
         ...notification,
@@ -50,17 +76,32 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     }));
   },
 
-  markAsRead: (id) => set((state) => ({
-    notifications: state.notifications.map(n =>
-      n.id === id ? { ...n, read: true } : n
-    ),
-  })),
+  markAsRead: (id) => {
+    const learnerId = learningUserId();
+    if (learnerId) {
+      const target = get().notifications.find((n) => n.id === id);
+      if (target && !target.read) trackAlertEvent(learnerId, target.type, 'acted');
+    }
+    set((state) => ({
+      notifications: state.notifications.map(n =>
+        n.id === id ? { ...n, read: true } : n
+      ),
+    }));
+  },
 
   markAllAsRead: () => set((state) => ({
     notifications: state.notifications.map(n => ({ ...n, read: true })),
   })),
 
-  clearAll: () => set({ notifications: [] }),
+  clearAll: () => {
+    const learnerId = learningUserId();
+    if (learnerId) {
+      for (const n of get().notifications) {
+        if (!n.read) trackAlertEvent(learnerId, n.type, 'dismissed');
+      }
+    }
+    set({ notifications: [] });
+  },
 
   unreadCount: () => get().notifications.filter(n => !n.read).length,
 }));
