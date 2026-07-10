@@ -298,4 +298,18 @@ export default {
   ramadan_applied: 'Budgets adjusted for Ramadan.',
   ramadan_not_now: 'Not this year',
   ramadan_dismiss: 'Dismiss',
+
+  // Habit insights (B2 — phase 2)
+  habit_title: 'Your money habits',
+  habit_impulse: '{percent}% of your flexible spending happens within 72 hours of payday.',
+  habit_impulse_nudge: 'Give big purchases a 3-day pause — payday money feels lighter than it is.',
+  habit_weekend: 'Your weekend days cost {ratio}× your weekdays.',
+  habit_weekend_nudge: 'Decide a weekend envelope before Thursday evening arrives.',
+  habit_front_loaded: '{percent}% of your spending lands in the first third of the cycle.',
+  habit_front_loaded_nudge: 'Split the flexible budget into weekly pots so the last week isn’t a squeeze.',
+  habit_subscriptions: '{count} subscriptions cost you {amount} every month.',
+  habit_subscriptions_nudge: 'Cancel one you didn’t open this month — an instant raise.',
+  habit_streak: '{months, plural, one {# month} other {# months}} in a row inside budget. That’s discipline.',
+  habit_streak_nudge: 'Your consistency is investment-ready — put the surplus to work.',
+  habit_course_cta: 'Lesson for this: {title}',
 };

@@ -21,6 +21,7 @@ import CycleForecastCard from '@/components/dashboard/CycleForecastCard';
 import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityCard';
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
 import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
+import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
 import { AI_FEATURES } from '@/ai/config';
 
 /* ═══════════════════════════════════════════════════
@@ -725,6 +726,9 @@ export default function OverviewPage() {
           {showPersonalityCard && <SpendingPersonalityCard fullWidth={!showForecastCard} />}
         </div>
       )}
+
+      {/* ===== HABIT INSIGHTS (B2 — flag-gated inside) ===== */}
+      <HabitInsightsCard />
 
       {/* ===== EMERGENCY FUND ===== */}
       <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>

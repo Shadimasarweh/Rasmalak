@@ -310,4 +310,18 @@ export default {
   ramadan_applied: 'تم تعديل الميزانيات لرمضان.',
   ramadan_not_now: 'ليس هذه السنة',
   ramadan_dismiss: 'إغلاق',
+
+  // عاداتك المالية (B2 — المرحلة الثانية) — مسودة بانتظار المراجعة اللغوية
+  habit_title: 'عاداتك المالية',
+  habit_impulse: '{percent}٪ من إنفاقك المرن يحدث خلال ٧٢ ساعة بعد الراتب.',
+  habit_impulse_nudge: 'أمهل المشتريات الكبيرة ٣ أيام — مال الراتب يبدو أخف مما هو عليه.',
+  habit_weekend: 'أيام نهاية الأسبوع تكلّفك {ratio}× مقارنة بأيام الدوام.',
+  habit_weekend_nudge: 'حدّد ظرف نهاية الأسبوع قبل مساء الخميس.',
+  habit_front_loaded: '{percent}٪ من إنفاقك يقع في الثلث الأول من الدورة.',
+  habit_front_loaded_nudge: 'قسّم الميزانية المرنة إلى محافظ أسبوعية حتى لا يضيق الأسبوع الأخير.',
+  habit_subscriptions: '{count} اشتراكات تكلّفك {amount} كل شهر.',
+  habit_subscriptions_nudge: 'ألغِ اشتراكاً لم تفتحه هذا الشهر — زيادة فورية.',
+  habit_streak: '{months, plural, one {شهر واحد} two {شهران} few {# أشهر} many {# شهراً} other {# شهر}} على التوالي ضمن الميزانية. هذا انضباط.',
+  habit_streak_nudge: 'انتظامك جاهز للاستثمار — شغّل الفائض.',
+  habit_course_cta: 'درس يناسب هذا: {title}',
 };
