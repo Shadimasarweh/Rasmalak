@@ -285,4 +285,17 @@ export default {
   personality_evidence_discretionary: 'Only {percent}% of your spending is flexible',
   personality_evidence_recurring: '{percent}% of your expenses are fixed commitments',
   personality_evidence_drift: '{count, plural, one {# category} other {# categories}} shifted pattern recently',
+
+  // Ramadan mode (C2 — phase 2)
+  ramadan_title: 'Ramadan mode',
+  ramadan_countdown: '{days, plural, one {# day to go} other {# days to go}}',
+  ramadan_ongoing: 'Ramadan Kareem',
+  ramadan_source_personal: 'Based on how your spending actually changed last Ramadan.',
+  ramadan_source_general: 'General guidance for your region — your first Ramadan with us will make this personal.',
+  ramadan_budget_shift: '{from} → {to}',
+  ramadan_eid_envelope: 'Eid envelope: set aside {amount} — that’s what last Eid cost you.',
+  ramadan_apply: 'Adjust my budgets',
+  ramadan_applied: 'Budgets adjusted for Ramadan.',
+  ramadan_not_now: 'Not this year',
+  ramadan_dismiss: 'Dismiss',
 };

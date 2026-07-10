@@ -297,4 +297,17 @@ export default {
   personality_evidence_discretionary: '{percent}٪ فقط من إنفاقك مرن',
   personality_evidence_recurring: '{percent}٪ من مصاريفك التزامات ثابتة',
   personality_evidence_drift: '{count, plural, one {فئة واحدة غيّرت نمطها} two {فئتان غيّرتا نمطهما} few {# فئات غيّرت نمطها} many {# فئة غيّرت نمطها} other {# فئة غيّرت نمطها}} مؤخراً',
+
+  // وضع رمضان (C2 — المرحلة الثانية) — مسودة بانتظار المراجعة اللغوية
+  ramadan_title: 'وضع رمضان',
+  ramadan_countdown: '{days, plural, one {باقي يوم واحد} two {باقي يومان} few {باقي # أيام} many {باقي # يوماً} other {باقي # يوم}}',
+  ramadan_ongoing: 'رمضان كريم',
+  ramadan_source_personal: 'بناءً على تغيّر إنفاقك الفعلي في رمضان الماضي.',
+  ramadan_source_general: 'إرشادات عامة لمنطقتك — أول رمضان معنا سيجعلها شخصية.',
+  ramadan_budget_shift: '{from} ← {to}',
+  ramadan_eid_envelope: 'ظرف العيد: خصّص {amount} — هذا ما كلّفك إياه العيد الماضي.',
+  ramadan_apply: 'عدّل ميزانياتي',
+  ramadan_applied: 'تم تعديل الميزانيات لرمضان.',
+  ramadan_not_now: 'ليس هذه السنة',
+  ramadan_dismiss: 'إغلاق',
 };

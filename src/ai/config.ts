@@ -73,6 +73,11 @@ export const AI_FEATURES = {
   safeToSpendCard: true,      // A3: dashboard hero
   forecastCard: true,         // end-of-cycle P25–P75 band card
   personalityCard: true,      // B1: spending archetype card
+  // Phase 2 surfaces (behaviour engine + Hijri seasonality). All off
+  // until the release step: Arabic copy review + manual RTL/LTR pass.
+  ramadanMode: false,       // C2: pre-Ramadan budget adjustments + Eid envelope
+  habitInsights: false,     // B2: behaviour-signal insight cards + course links
+  coolingOffNudge: false,   // B4: opt-in post-payday large-purchase pause
 };
 
 // ============================================

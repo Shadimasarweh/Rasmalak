@@ -20,6 +20,7 @@ import SafeToSpendCard from '@/components/dashboard/SafeToSpendCard';
 import CycleForecastCard from '@/components/dashboard/CycleForecastCard';
 import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityCard';
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
+import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
 import { AI_FEATURES } from '@/ai/config';
 
 /* ═══════════════════════════════════════════════════
@@ -335,6 +336,9 @@ export default function OverviewPage() {
       ) : (
         shouldShowRealityCheck(undefined, 5, activeCycle.daysElapsed) && <RealityCheckCard variant="banner" />
       )}
+
+      {/* ===== RAMADAN MODE (C2 — flag-gated + seasonal-window-gated inside) ===== */}
+      <RamadanModeCard />
 
       {/* ===== GREETING ===== */}
       <div className="ds-section-header">
