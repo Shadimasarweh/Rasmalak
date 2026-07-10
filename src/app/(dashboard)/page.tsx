@@ -22,6 +22,7 @@ import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityC
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
 import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
 import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
+import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
 
 /* ═══════════════════════════════════════════════════
@@ -729,6 +730,9 @@ export default function OverviewPage() {
 
       {/* ===== HABIT INSIGHTS (B2 — flag-gated inside) ===== */}
       <HabitInsightsCard />
+
+      {/* ===== PEER BENCHMARK (phase 3 item 12 — flag+cohort-gated inside) ===== */}
+      <PeerBenchmarkCard />
 
       {/* ===== EMERGENCY FUND ===== */}
       <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>

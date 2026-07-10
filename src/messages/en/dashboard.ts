@@ -315,4 +315,7 @@ export default {
 // Goal risk (phase 3 item 10)
   goals_risk_on_track: '{percent}% on track',
   goals_risk_boost: 'Add {amount}/month to reach 90%',
+// Peer benchmark (phase 3 item 12)
+  peer_headline: 'You save more than ~{percent}% of Rasmalak users in {country}.',
+  peer_footnote: 'Anonymous comparison of savings rates across {count} users — amounts never leave anyone’s account.',
 };
