@@ -10,6 +10,7 @@ import { useBudget } from '@/store/budgetStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { MoneyInput } from '@/components/MoneyInput';
+import GoalRiskChip from '@/components/goals/GoalRiskChip';
 
 /* ===== FIXED PALETTE (matching existing brand colors) ===== */
 const GOAL_COLORS = [
@@ -278,6 +279,8 @@ function GoalCard({
                 })}
               </p>
             )}
+            {/* Phase 3 item 10 — flag-gated inside */}
+            <GoalRiskChip goal={goal} />
           </div>
         </div>
 

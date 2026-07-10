@@ -324,4 +324,7 @@ export default {
   habit_streak: '{months, plural, one {شهر واحد} two {شهران} few {# أشهر} many {# شهراً} other {# شهر}} على التوالي ضمن الميزانية. هذا انضباط.',
   habit_streak_nudge: 'انتظامك جاهز للاستثمار — شغّل الفائض.',
   habit_course_cta: 'درس يناسب هذا: {title}',
+// احتمالية تحقيق الهدف (المرحلة الثالثة) — مسودة بانتظار المراجعة اللغوية
+  goals_risk_on_track: '{percent}٪ على المسار',
+  goals_risk_boost: 'أضِف {amount} شهرياً لتصل إلى ٩٠٪',
 };

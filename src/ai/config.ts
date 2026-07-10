@@ -78,6 +78,11 @@ export const AI_FEATURES = {
   ramadanMode: false,       // C2: pre-Ramadan budget adjustments + Eid envelope
   habitInsights: false,     // B2: behaviour-signal insight cards + course links
   coolingOffNudge: false,   // B4: opt-in post-payday large-purchase pause
+  // Phase 3 surfaces. Off until: migration 016 (peer stats) applied +
+  // Arabic review + RTL/LTR pass.
+  goalRiskCard: false,      // item 10: Monte Carlo per-goal odds + 90% delta
+  peerBenchmark: false,     // item 12: cohort percentile card (volume-gated)
+  alertLearning: false,     // item 13: dismissal-driven alert suppression
 };
 
 // ============================================

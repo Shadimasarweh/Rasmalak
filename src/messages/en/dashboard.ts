@@ -312,4 +312,7 @@ export default {
   habit_streak: '{months, plural, one {# month} other {# months}} in a row inside budget. That’s discipline.',
   habit_streak_nudge: 'Your consistency is investment-ready — put the surplus to work.',
   habit_course_cta: 'Lesson for this: {title}',
+// Goal risk (phase 3 item 10)
+  goals_risk_on_track: '{percent}% on track',
+  goals_risk_boost: 'Add {amount}/month to reach 90%',
 };
