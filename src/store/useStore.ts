@@ -181,6 +181,11 @@ interface AppState {
   setBudgetCycleMode: (mode: 'calendar' | 'payday') => void;
   setPayday: (day: number | null, source: 'detected' | 'manual' | null) => void;
 
+  // Cooling-off nudge (B4). Consent is asked in-flow on first trigger:
+  // 'unset' until the user answers, then 'on'/'off' forever (their call).
+  coolingOffPref: 'unset' | 'on' | 'off';
+  setCoolingOffPref: (pref: 'unset' | 'on' | 'off') => void;
+
   // User
   userName: string;
   setUserName: (name: string) => void;
@@ -449,6 +454,8 @@ export const useStore = create<AppState>()(
       paydayDayOfMonth: null,
       paydaySource: null,
       setBudgetCycleMode: (mode) => set({ budgetCycleMode: mode }),
+      coolingOffPref: 'unset',
+      setCoolingOffPref: (pref) => set({ coolingOffPref: pref }),
       setPayday: (day, source) => set({ paydayDayOfMonth: day, paydaySource: source }),
 
       // User
@@ -497,6 +504,7 @@ export const useStore = create<AppState>()(
         budgetCycleMode: state.budgetCycleMode,
         paydayDayOfMonth: state.paydayDayOfMonth,
         paydaySource: state.paydaySource,
+        coolingOffPref: state.coolingOffPref,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }
@@ -513,6 +521,7 @@ export const useLanguage = () => useStore((state) => state.language);
 export const useTheme = () => useStore((state) => state.theme);
 export const useAccentColor = () => useStore((state) => state.accentColor);
 export const useBudgetCycleMode = () => useStore((state) => state.budgetCycleMode);
+export const useCoolingOffPref = () => useStore((state) => state.coolingOffPref);
 export const usePaydayDayOfMonth = () => useStore((state) => state.paydayDayOfMonth);
 export const usePaydaySource = () => useStore((state) => state.paydaySource);// Auth selectors - split to avoid SSR hydration issues
 // Use these individual selectors in components instead of a combined hook
