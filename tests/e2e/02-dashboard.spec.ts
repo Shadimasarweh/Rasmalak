@@ -62,4 +62,10 @@ test.describe('Dashboard', () => {
     await expect(page.locator('text=/ramadan mode|وضع رمضان/i')).toHaveCount(0);
     await expect(page.locator('text=/your money habits|عاداتك المالية/i')).toHaveCount(0);
   });
+
+  // Phase-3 surfaces ship dark too (goalRiskCard / peerBenchmark off).
+  test('phase-3 predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/save more than|توفّر أكثر من/i')).toHaveCount(0);
+    await expect(page.locator('text=/% on track|على المسار/i')).toHaveCount(0);
+  });
 });
