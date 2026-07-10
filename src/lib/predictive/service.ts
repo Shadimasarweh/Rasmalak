@@ -11,6 +11,7 @@
  * is the one that gets scored. Reconciliation only fills actual/error.
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 import { PREDICTIVE_ENGINE_VERSION, type EngineTransaction } from '@/ai/deterministic/engineTypes';
 import { isGoalFunding } from '@/ai/deterministic/engineTypes';
@@ -26,16 +27,32 @@ function isoDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export async function syncPredictiveState(userId: string, state: PredictiveState): Promise<void> {
-  await syncSeries(userId, state).catch((e) => console.warn('[predictive] series sync failed:', e?.message ?? e));
-  await syncBaselines(userId, state).catch((e) => console.warn('[predictive] baseline sync failed:', e?.message ?? e));
-  await logPredictions(userId, state).catch((e) => console.warn('[predictive] ledger write failed:', e?.message ?? e));
-  await updateBehaviorMemoryFromState(userId, state).catch((e) =>
-    console.warn('[predictive] memory update failed:', e?.message ?? e),
-  );
+export interface SyncOptions {
+  // Injectable so the phase-3 nightly job (service-role, server) reuses
+  // the exact same row shapes + natural keys as the client sync.
+  client?: SupabaseClient;
+  // Behavioural-memory writes stay a client-session concern; the cron
+  // must not mutate user_semantic_state.
+  includeMemory?: boolean;
 }
 
-async function syncSeries(userId: string, state: PredictiveState): Promise<void> {
+export async function syncPredictiveState(
+  userId: string,
+  state: PredictiveState,
+  options: SyncOptions = {},
+): Promise<void> {
+  const db = options.client ?? supabase;
+  await syncSeries(db, userId, state).catch((e) => console.warn('[predictive] series sync failed:', e?.message ?? e));
+  await syncBaselines(db, userId, state).catch((e) => console.warn('[predictive] baseline sync failed:', e?.message ?? e));
+  await logPredictions(db, userId, state).catch((e) => console.warn('[predictive] ledger write failed:', e?.message ?? e));
+  if (options.includeMemory !== false) {
+    await updateBehaviorMemoryFromState(userId, state).catch((e) =>
+      console.warn('[predictive] memory update failed:', e?.message ?? e),
+    );
+  }
+}
+
+async function syncSeries(db: SupabaseClient, userId: string, state: PredictiveState): Promise<void> {
   if (state.series.length > 0) {
     const rows = state.series.map((s) => ({
       user_id: userId,
@@ -61,7 +78,7 @@ async function syncSeries(userId: string, state: PredictiveState): Promise<void>
       computed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }));
-    const { error } = await supabase
+    const { error } = await db
       .from('recurring_series')
       .upsert(rows, { onConflict: 'user_id,series_key' });
     if (error) throw new Error(error.message);
@@ -71,7 +88,7 @@ async function syncSeries(userId: string, state: PredictiveState): Promise<void>
   // sets to stay clear of .in() limits — stale rows are harmless caches.
   const keys = state.series.map((s) => s.key);
   if (keys.length > 0 && keys.length <= STALE_DELETE_CAP) {
-    await supabase
+    await db
       .from('recurring_series')
       .delete()
       .eq('user_id', userId)
@@ -79,7 +96,7 @@ async function syncSeries(userId: string, state: PredictiveState): Promise<void>
   }
 }
 
-async function syncBaselines(userId: string, state: PredictiveState): Promise<void> {
+async function syncBaselines(db: SupabaseClient, userId: string, state: PredictiveState): Promise<void> {
   if (state.baselines.length === 0) return;
   const rows = state.baselines.map((b) => ({
     user_id: userId,
@@ -94,13 +111,13 @@ async function syncBaselines(userId: string, state: PredictiveState): Promise<vo
     computed_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));
-  const { error } = await supabase
+  const { error } = await db
     .from('category_baselines')
     .upsert(rows, { onConflict: 'user_id,category_id' });
   if (error) throw new Error(error.message);
 }
 
-async function logPredictions(userId: string, state: PredictiveState): Promise<void> {
+async function logPredictions(db: SupabaseClient, userId: string, state: PredictiveState): Promise<void> {
   if (!state.meta.hasMinimumHistory) return;
   const snapshot = state.cycle.daysElapsed <= 7 ? 'cycle_start' : 'mid_cycle';
   const basis = { ...state.forecast.basis, anchor: state.forecast.cycle.anchor };
@@ -127,7 +144,7 @@ async function logPredictions(userId: string, state: PredictiveState): Promise<v
   // The schema supports the kind for when totals-based predictions ship.
 
   // Append-only: first write per (kind, target, horizon, snapshot) wins.
-  const { error } = await supabase
+  const { error } = await db
     .from('prediction_log')
     .upsert(rows, { onConflict: 'user_id,kind,target_id,horizon_date,snapshot', ignoreDuplicates: true });
   if (error) throw new Error(error.message);
@@ -144,9 +161,11 @@ export async function reconcileDuePredictions(
   userId: string,
   txns: EngineTransaction[],
   now: Date = new Date(),
+  client?: SupabaseClient,
 ): Promise<ReconcileResult> {
+  const db = client ?? supabase;
   const todayIso = isoDate(now);
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('prediction_log')
     .select('id, kind, target_id, cycle_start, horizon_date, predicted_p25, predicted_p50, predicted_p75')
     .eq('user_id', userId)
@@ -169,7 +188,7 @@ export async function reconcileDuePredictions(
     const p25 = row.predicted_p25 == null ? null : Number(row.predicted_p25);
     const p75 = row.predicted_p75 == null ? null : Number(row.predicted_p75);
     const absError = Math.abs(actual - p50);
-    const { error: updateError } = await supabase
+    const { error: updateError } = await db
       .from('prediction_log')
       .update({
         actual_value: actual,
