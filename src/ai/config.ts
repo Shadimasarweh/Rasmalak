@@ -83,6 +83,13 @@ export const AI_FEATURES = {
   goalRiskCard: false,      // item 10: Monte Carlo per-goal odds + 90% delta
   peerBenchmark: false,     // item 12: cohort percentile card (volume-gated)
   alertLearning: false,     // item 13: dismissal-driven alert suppression
+  // Phase 4 (individual roadmap tail). Off until Arabic review + RTL pass.
+  paydayRitual: false,      // B3: payday report card + pay-yourself-first
+  hajjGoalTemplate: false,  // C4: prefilled Hajj goal w/ hijri deadline
+  zakatPlanner: false,      // C3: zakat anniversary set-aside planner
+  schoolFeesPlanner: false, // C5: annual education pulse sinking fund
+  remittanceInsight: false, // C1: recurring-transfer awareness + FX context
+  lifeEventCheckin: false,  // Pillar E: confirm-first re-planning nudge
 };
 
 // ============================================

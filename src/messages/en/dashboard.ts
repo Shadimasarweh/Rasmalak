@@ -318,4 +318,14 @@ export default {
 // Peer benchmark (phase 3 item 12)
   peer_headline: 'You save more than ~{percent}% of Rasmalak users in {country}.',
   peer_footnote: 'Anonymous comparison of savings rates across {count} users — amounts never leave anyone’s account.',
+// Payday ritual (B3 — phase 4)
+  ritual_title: 'Payday — last cycle’s report card',
+  ritual_saved: 'You ended the cycle {amount} ahead.',
+  ritual_overspent: 'The cycle closed {amount} short — this one starts fresh.',
+  ritual_win: 'Top win: {category} down {amount}.',
+  ritual_leak: 'Watch: {category} up {amount}.',
+  ritual_streak: '{months, plural, one {# month} other {# months}} inside budget and counting.',
+  ritual_pyf: 'Pay yourself first: {amount} into “{goal}”?',
+  ritual_pyf_cta: 'Set it aside',
+  ritual_dismiss: 'Dismiss',
 };

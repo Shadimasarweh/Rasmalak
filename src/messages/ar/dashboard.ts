@@ -330,4 +330,14 @@ export default {
 // مقارنة الأقران (المرحلة الثالثة) — مسودة بانتظار المراجعة اللغوية
   peer_headline: 'أنت توفّر أكثر من ~{percent}٪ من مستخدمي رسمالك في {country}.',
   peer_footnote: 'مقارنة مجهولة لمعدلات الادخار بين {count} مستخدماً — المبالغ لا تغادر حساب أحد.',
+// طقس يوم الراتب (B3 — المرحلة الرابعة) — مسودة بانتظار المراجعة اللغوية
+  ritual_title: 'يوم الراتب — تقرير الدورة الماضية',
+  ritual_saved: 'أنهيت الدورة متقدماً بمقدار {amount}.',
+  ritual_overspent: 'أُغلقت الدورة ناقصة {amount} — هذه الدورة تبدأ من جديد.',
+  ritual_win: 'أفضل إنجاز: {category} انخفض {amount}.',
+  ritual_leak: 'انتبه: {category} ارتفع {amount}.',
+  ritual_streak: '{months, plural, one {شهر واحد} two {شهران} few {# أشهر} many {# شهراً} other {# شهر}} ضمن الميزانية على التوالي.',
+  ritual_pyf: 'ادفع لنفسك أولاً: {amount} في «{goal}»؟',
+  ritual_pyf_cta: 'خصّصه الآن',
+  ritual_dismiss: 'إغلاق',
 };

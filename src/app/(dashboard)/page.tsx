@@ -21,6 +21,7 @@ import CycleForecastCard from '@/components/dashboard/CycleForecastCard';
 import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityCard';
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
 import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
+import PaydayRitualCard from '@/components/dashboard/PaydayRitualCard';
 import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
 import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
@@ -338,6 +339,9 @@ export default function OverviewPage() {
       ) : (
         shouldShowRealityCheck(undefined, 5, activeCycle.daysElapsed) && <RealityCheckCard variant="banner" />
       )}
+
+      {/* ===== PAYDAY RITUAL (B3 — flag+payday-gated inside) ===== */}
+      <PaydayRitualCard />
 
       {/* ===== RAMADAN MODE (C2 — flag-gated + seasonal-window-gated inside) ===== */}
       <RamadanModeCard />
