@@ -68,4 +68,13 @@ test.describe('Dashboard', () => {
     await expect(page.locator('text=/save more than|توفّر أكثر من/i')).toHaveCount(0);
     await expect(page.locator('text=/% on track|على المسار/i')).toHaveCount(0);
   });
+
+  // Phase-4 surfaces (individual-roadmap tail) ship dark as well.
+  test('phase-4 predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/last cycle’s report card|تقرير الدورة الماضية/i')).toHaveCount(0);
+    await expect(page.locator('text=/when is your zakat date|متى موعد زكاتك/i')).toHaveCount(0);
+    await expect(page.locator('text=/school fees in|رسوم المدرسة بعد/i')).toHaveCount(0);
+    await expect(page.locator('text=/your regular transfer|حوالتك المنتظمة/i')).toHaveCount(0);
+    await expect(page.locator('text=/looks like something changed|يبدو أن شيئاً تغيّر/i')).toHaveCount(0);
+  });
 });

@@ -5,8 +5,13 @@
 > **C2** Ramadan mode (personal prior-year deltas + Eid envelope),
 > **B2** habit insights with course prescriptions (Pillar-D signal→course
 > map), **B4** cooling-off nudge (in-flow consent), and cold-start
-> regional priors on the Plan tab. Remaining: B3, C1, C3, C4, C5, full
-> Pillar D/E.
+> regional priors on the Plan tab.
+> **Phase 4 implemented 2026-07-12** on `feature/predictive-phase4` (dark):
+> B3 payday ritual, C1 remittance awareness, C3 zakat anniversary,
+> C4 Hajj goal template, C5 school-fees sinking fund, Pillar E life-event
+> check-in. THE INDIVIDUAL ROADMAP IS FULLY IMPLEMENTED — everything
+> from here is release gates, tuning against real usage, and Pillar D's
+> measured course→behaviour claims once the ledger has volume.
 
 **Date:** 2026-07-02 · **Companion to:** `PREDICTIVE_ENGINE_AUDIT_AND_ROADMAP.md`
 **Relationship between the two documents:** the engine doc describes the shared statistical machinery (recurring-series detection, forecasting, baselines, prediction ledger). This doc describes what the **individual consumer** actually sees, feels, and pays for. Every feature below consumes the engine; none duplicates it. The SME segment gets its own roadmap later, per the CLAUDE.md rule that SME features are not built before that section is finalized.
