@@ -349,4 +349,10 @@ export default {
   fees_create_goal: 'Start the sinking fund',
   fees_goal_exists: 'Sinking fund created',
   fees_dismiss: 'Dismiss',
+// Remittance awareness (C1 — phase 4)
+  remit_title: 'Your regular transfer',
+  remit_pattern_day: 'You usually send about {amount}/month around day {day} — it’s already counted in your Safe to Spend.',
+  remit_pattern: 'You usually send about {amount}/month — it’s already counted in your Safe to Spend.',
+  remit_rate_better: '{pair}: today’s rate is {pct}% better than the 30-day average.',
+  remit_rate_worse: '{pair}: today’s rate is {pct}% below the 30-day average.',
 };

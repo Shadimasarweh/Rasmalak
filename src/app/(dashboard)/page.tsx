@@ -24,6 +24,7 @@ import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
 import PaydayRitualCard from '@/components/dashboard/PaydayRitualCard';
 import ZakatPlannerCard from '@/components/dashboard/ZakatPlannerCard';
 import SchoolFeesCard from '@/components/dashboard/SchoolFeesCard';
+import RemittanceCard from '@/components/dashboard/RemittanceCard';
 import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
 import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
@@ -745,6 +746,9 @@ export default function OverviewPage() {
 
       {/* ===== PEER BENCHMARK (phase 3 item 12 — flag+cohort-gated inside) ===== */}
       <PeerBenchmarkCard />
+
+      {/* ===== REMITTANCE AWARENESS (C1 — flag+detection-gated inside) ===== */}
+      <RemittanceCard />
 
       {/* ===== EMERGENCY FUND ===== */}
       <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>
