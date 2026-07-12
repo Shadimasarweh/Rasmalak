@@ -355,4 +355,10 @@ export default {
   zakat_create_goal: 'أنشئ هدف التخصيص',
   zakat_goal_exists: 'تم إنشاء هدف الزكاة',
   zakat_dismiss: 'إغلاق',
+// صندوق رسوم المدرسة (C5 — المرحلة الرابعة) — مسودة بانتظار المراجعة اللغوية
+  fees_title: 'رسوم المدرسة بعد {days, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يوماً} other {# يوم}}',
+  fees_body: '«{label}» تكلّف عادة {amount}. خصّص {monthly} شهرياً وستكون مغطاة قبل موعدها.',
+  fees_create_goal: 'ابدأ صندوق التخصيص',
+  fees_goal_exists: 'تم إنشاء الصندوق',
+  fees_dismiss: 'إغلاق',
 };

@@ -23,6 +23,7 @@ import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboa
 import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
 import PaydayRitualCard from '@/components/dashboard/PaydayRitualCard';
 import ZakatPlannerCard from '@/components/dashboard/ZakatPlannerCard';
+import SchoolFeesCard from '@/components/dashboard/SchoolFeesCard';
 import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
 import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
@@ -349,6 +350,9 @@ export default function OverviewPage() {
 
       {/* ===== ZAKAT PLANNER (C3 — flag+window-gated inside) ===== */}
       <ZakatPlannerCard />
+
+      {/* ===== SCHOOL FEES (C5 — flag+window-gated inside) ===== */}
+      <SchoolFeesCard />
 
       {/* ===== GREETING ===== */}
       <div className="ds-section-header">

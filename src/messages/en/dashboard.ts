@@ -343,4 +343,10 @@ export default {
   zakat_create_goal: 'Create the set-aside goal',
   zakat_goal_exists: 'Zakat goal created',
   zakat_dismiss: 'Dismiss',
+// School fees sinking fund (C5 — phase 4)
+  fees_title: 'School fees in {days, plural, one {# day} other {# days}}',
+  fees_body: '“{label}” usually costs {amount}. Set aside {monthly}/month and it’s covered before it lands.',
+  fees_create_goal: 'Start the sinking fund',
+  fees_goal_exists: 'Sinking fund created',
+  fees_dismiss: 'Dismiss',
 };
