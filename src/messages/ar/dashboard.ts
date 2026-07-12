@@ -367,4 +367,11 @@ export default {
   remit_pattern: 'ترسل عادة نحو {amount} شهرياً — وهي محسوبة مسبقاً في المتاح للصرف.',
   remit_rate_better: '{pair}: سعر اليوم أفضل بـ {pct}٪ من متوسط ٣٠ يوماً.',
   remit_rate_worse: '{pair}: سعر اليوم أقل بـ {pct}٪ من متوسط ٣٠ يوماً.',
+// تغيّرات الحياة (Pillar E — المرحلة الرابعة) — مسودة بانتظار المراجعة اللغوية
+  life_title: 'يبدو أن شيئاً تغيّر',
+  life_new_category: '«{category}» فئة جديدة في إنفاقك — نحو {recent} شهرياً منذ شهرين.',
+  life_housing: 'السكن يكلّف مؤخراً {recent} شهرياً، ارتفاعاً من {prior}. بيت جديد؟',
+  life_review: 'راجع خطتي',
+  life_keep: 'كل شيء بخير — أبقِها كما هي',
+  life_dismiss: 'إغلاق',
 };

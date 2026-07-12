@@ -355,4 +355,11 @@ export default {
   remit_pattern: 'You usually send about {amount}/month — it’s already counted in your Safe to Spend.',
   remit_rate_better: '{pair}: today’s rate is {pct}% better than the 30-day average.',
   remit_rate_worse: '{pair}: today’s rate is {pct}% below the 30-day average.',
+// Life-event check-in (Pillar E — phase 4)
+  life_title: 'Looks like something changed',
+  life_new_category: '“{category}” is new in your spending — around {recent}/month for two months now.',
+  life_housing: 'Housing has been running {recent}/month lately, up from {prior}. New place?',
+  life_review: 'Review my plan',
+  life_keep: 'All good — keep as is',
+  life_dismiss: 'Dismiss',
 };

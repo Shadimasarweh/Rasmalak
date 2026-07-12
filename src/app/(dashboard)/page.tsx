@@ -25,6 +25,7 @@ import PaydayRitualCard from '@/components/dashboard/PaydayRitualCard';
 import ZakatPlannerCard from '@/components/dashboard/ZakatPlannerCard';
 import SchoolFeesCard from '@/components/dashboard/SchoolFeesCard';
 import RemittanceCard from '@/components/dashboard/RemittanceCard';
+import LifeEventCheckinCard from '@/components/dashboard/LifeEventCheckinCard';
 import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
 import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
@@ -749,6 +750,9 @@ export default function OverviewPage() {
 
       {/* ===== REMITTANCE AWARENESS (C1 — flag+detection-gated inside) ===== */}
       <RemittanceCard />
+
+      {/* ===== LIFE EVENT CHECK-IN (Pillar E — flag+detection-gated inside) ===== */}
+      <LifeEventCheckinCard />
 
       {/* ===== EMERGENCY FUND ===== */}
       <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>
