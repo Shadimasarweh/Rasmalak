@@ -328,4 +328,7 @@ export default {
   ritual_pyf: 'Pay yourself first: {amount} into “{goal}”?',
   ritual_pyf_cta: 'Set it aside',
   ritual_dismiss: 'Dismiss',
+// Hajj goal template (C4 — phase 4)
+  goals_hajj_template: 'Hajj goal',
+  goals_hajj_hint: 'Prefilled with a typical local package cost and a Dhu al-Hijjah deadline — edit freely.',
 };
