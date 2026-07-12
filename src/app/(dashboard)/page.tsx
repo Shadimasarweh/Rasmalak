@@ -22,6 +22,7 @@ import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityC
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
 import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
 import PaydayRitualCard from '@/components/dashboard/PaydayRitualCard';
+import ZakatPlannerCard from '@/components/dashboard/ZakatPlannerCard';
 import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
 import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
@@ -345,6 +346,9 @@ export default function OverviewPage() {
 
       {/* ===== RAMADAN MODE (C2 — flag-gated + seasonal-window-gated inside) ===== */}
       <RamadanModeCard />
+
+      {/* ===== ZAKAT PLANNER (C3 — flag+window-gated inside) ===== */}
+      <ZakatPlannerCard />
 
       {/* ===== GREETING ===== */}
       <div className="ds-section-header">

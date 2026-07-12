@@ -331,4 +331,16 @@ export default {
 // Hajj goal template (C4 — phase 4)
   goals_hajj_template: 'Hajj goal',
   goals_hajj_hint: 'Prefilled with a typical local package cost and a Dhu al-Hijjah deadline — edit freely.',
+// Zakat planner (C3 — phase 4)
+  zakat_setup_title: 'When is your zakat date?',
+  zakat_setup_body: 'Set your hijri anniversary once — we’ll estimate the amount ahead of time and help you set it aside monthly.',
+  zakat_set_date: 'Set my zakat date',
+  zakat_save_date: 'Save',
+  zakat_title: 'Zakat in {days, plural, one {# day} other {# days}}',
+  zakat_estimate: 'Estimated: {amount} (2.5% of your tracked cash).',
+  zakat_setaside: 'Set aside {amount}/month to be ready on the day.',
+  zakat_calc_link: 'Full calculation →',
+  zakat_create_goal: 'Create the set-aside goal',
+  zakat_goal_exists: 'Zakat goal created',
+  zakat_dismiss: 'Dismiss',
 };

@@ -186,6 +186,10 @@ interface AppState {
   coolingOffPref: 'unset' | 'on' | 'off';
   setCoolingOffPref: (pref: 'unset' | 'on' | 'off') => void;
 
+  // Zakat anniversary (C3) — the user's hijri حول date; null until set.
+  zakatAnniversary: { hijriMonth: number; hijriDay: number } | null;
+  setZakatAnniversary: (pref: { hijriMonth: number; hijriDay: number } | null) => void;
+
   // User
   userName: string;
   setUserName: (name: string) => void;
@@ -456,6 +460,8 @@ export const useStore = create<AppState>()(
       setBudgetCycleMode: (mode) => set({ budgetCycleMode: mode }),
       coolingOffPref: 'unset',
       setCoolingOffPref: (pref) => set({ coolingOffPref: pref }),
+      zakatAnniversary: null,
+      setZakatAnniversary: (pref) => set({ zakatAnniversary: pref }),
       setPayday: (day, source) => set({ paydayDayOfMonth: day, paydaySource: source }),
 
       // User
@@ -505,6 +511,7 @@ export const useStore = create<AppState>()(
         paydayDayOfMonth: state.paydayDayOfMonth,
         paydaySource: state.paydaySource,
         coolingOffPref: state.coolingOffPref,
+        zakatAnniversary: state.zakatAnniversary,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }
@@ -522,6 +529,7 @@ export const useTheme = () => useStore((state) => state.theme);
 export const useAccentColor = () => useStore((state) => state.accentColor);
 export const useBudgetCycleMode = () => useStore((state) => state.budgetCycleMode);
 export const useCoolingOffPref = () => useStore((state) => state.coolingOffPref);
+export const useZakatAnniversary = () => useStore((state) => state.zakatAnniversary);
 export const usePaydayDayOfMonth = () => useStore((state) => state.paydayDayOfMonth);
 export const usePaydaySource = () => useStore((state) => state.paydaySource);// Auth selectors - split to avoid SSR hydration issues
 // Use these individual selectors in components instead of a combined hook
