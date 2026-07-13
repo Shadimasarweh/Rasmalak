@@ -43,11 +43,15 @@ export interface PredictiveProfileBits {
   // profiles.payday_day_of_month — the user's explicit setting; wins over
   // detection everywhere in the engine.
   paydayOverride: number | null;
+  // profiles.country (migration 012) — feeds the cold-start regional
+  // priors (countryPriors.ts) for thin-history users.
+  countryCode: string | null;
 }
 
 const EMPTY_BITS: PredictiveProfileBits = {
   fallback: { persona: null, monthlyIncome: null },
   paydayOverride: null,
+  countryCode: null,
 };
 
 // persona + monthly_income exist since migration 014; payday_day_of_month
@@ -56,13 +60,15 @@ export async function fetchPredictiveProfileBits(userId: string): Promise<Predic
   try {
     let { data, error } = await supabase
       .from('profiles')
-      .select('persona, monthly_income, payday_day_of_month')
+      .select('persona, monthly_income, country, payday_day_of_month')
       .eq('id', userId)
       .maybeSingle();
     if (error) {
+      // country predates 014 (migration 012), so it stays in the legacy
+      // retry alongside the 014 columns.
       ({ data, error } = await supabase
         .from('profiles')
-        .select('persona, monthly_income')
+        .select('persona, monthly_income, country')
         .eq('id', userId)
         .maybeSingle());
     }
@@ -77,6 +83,7 @@ export async function fetchPredictiveProfileBits(userId: string): Promise<Predic
         monthlyIncome: Number.isFinite(income as number) ? income : null,
       },
       paydayOverride: Number.isFinite(payday as number) ? payday : null,
+      countryCode: typeof row.country === 'string' && row.country ? row.country : null,
     };
   } catch {
     return EMPTY_BITS;

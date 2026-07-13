@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useIntl } from 'react-intl';
 import { useTransactions } from '@/store/transactionStore';
-import { useBaseCurrency, useCountry, useLanguage } from '@/store/useStore';
+import { useBaseCurrency, useCountry, useLanguage, useCoolingOffPref, useStore } from '@/store/useStore';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabaseClient';
 import { styledNum } from '@/components/StyledNumber';
 import { CurrencyAndRateField, type CurrencyRateValue } from '@/components/transactions/CurrencyAndRateField';
 import { MoneyInput } from '@/components/MoneyInput';
+import { AI_FEATURES } from '@/ai/config';
+import { checkCoolingOff, CoolingOffCheck } from '@/ai/deterministic/coolingOff';
+import { mapToEngineTransactions } from '@/lib/predictive/inputs';
 
 /* ============================================
    ADD EXPENSE PAGE
@@ -216,7 +219,11 @@ function CategoryItem({
 export default function AddExpensePage() {
   const intl = useIntl();
   const router = useRouter();
-  const { addTransaction } = useTransactions();
+  const { addTransaction, transactions } = useTransactions();
+  const coolingOffPref = useCoolingOffPref();
+  const setCoolingOffPref = useStore((s) => s.setCoolingOffPref);
+  // B4: non-null while the gentle pause panel is showing (blocks save).
+  const [coolingOff, setCoolingOff] = useState<CoolingOffCheck | null>(null);
   const baseCurrency = useBaseCurrency();
   const country = useCountry();
   const language = useLanguage();
@@ -291,10 +298,7 @@ export default function AddExpensePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
-  const handleSubmit = () => {
-    if (!validate()) return;
-
+  const saveAndLeave = () => {
     const nativeAmount = parseFloat(amount);
     const rate = currencyValue.exchangeRate > 0 ? currencyValue.exchangeRate : 1;
     addTransaction({
@@ -313,6 +317,34 @@ export default function AddExpensePage() {
     });
 
     router.push('/money/track');
+  };
+
+  // Handle form submission
+  const handleSubmit = () => {
+    if (!validate()) return;
+
+    // B4 cooling-off: a rare, gentle pause when a big discretionary
+    // purchase lands inside the 72h post-payday window. Never blocks —
+    // "add anyway" is always one tap away.
+    if (AI_FEATURES.coolingOffNudge && coolingOffPref !== 'off' && !coolingOff) {
+      const nativeAmount = parseFloat(amount);
+      const rate = currencyValue.exchangeRate > 0 ? currencyValue.exchangeRate : 1;
+      const check = checkCoolingOff({
+        transactions: mapToEngineTransactions(transactions),
+        candidate: {
+          category,
+          amountBase: nativeAmount * rate,
+          date: new Date(`${date}T12:00:00`),
+        },
+        now: new Date(),
+      });
+      if (check.triggered) {
+        setCoolingOff(check);
+        return;
+      }
+    }
+
+    saveAndLeave();
   };
 
   const handleCancel = () => {
@@ -611,8 +643,81 @@ export default function AddExpensePage() {
               justifyContent: 'space-between',
               paddingTop: 'var(--spacing-2)',
               borderTop: '0.5px solid var(--ds-border)',
+              position: 'relative',
             }}
           >
+            {coolingOff?.triggered && (
+              <div
+                style={{
+                  position: 'absolute',
+                  insetInline: 0,
+                  bottom: '100%',
+                  marginBottom: 8,
+                  background: 'var(--color-primary-light)',
+                  border: '1px solid var(--color-primary)',
+                  borderRadius: 12,
+                  padding: '12px 16px',
+                  fontSize: '0.85rem',
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                  {intl.formatMessage({
+                    id: 'transactions.cooloff_title',
+                    defaultMessage: 'Bigger than your usual — and payday just landed.',
+                  })}
+                </div>
+                <div style={{ color: 'var(--ds-text-muted)', marginBottom: 10 }}>
+                  {intl.formatMessage({
+                    id: 'transactions.cooloff_body',
+                    defaultMessage:
+                      'Money feels lighter right after it arrives. No judgment — just a breath.',
+                  })}
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (coolingOffPref === 'unset') setCoolingOffPref('on');
+                      router.push('/money/track');
+                    }}
+                    style={{
+                      fontSize: '13px', fontWeight: 600, color: '#fff',
+                      background: 'var(--color-primary)', border: 'none',
+                      borderRadius: 8, padding: '8px 14px', cursor: 'pointer',
+                    }}
+                  >
+                    {intl.formatMessage({ id: 'transactions.cooloff_wait', defaultMessage: "Good call — I'll wait" })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (coolingOffPref === 'unset') setCoolingOffPref('on');
+                      saveAndLeave();
+                    }}
+                    style={{
+                      fontSize: '13px', fontWeight: 500, color: 'var(--color-primary)',
+                      background: 'none', border: '1px solid var(--color-primary)',
+                      borderRadius: 8, padding: '8px 14px', cursor: 'pointer',
+                    }}
+                  >
+                    {intl.formatMessage({ id: 'transactions.cooloff_add_anyway', defaultMessage: 'Add it anyway' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCoolingOffPref('off');
+                      saveAndLeave();
+                    }}
+                    style={{
+                      fontSize: '12px', color: 'var(--ds-text-muted)',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0',
+                    }}
+                  >
+                    {intl.formatMessage({ id: 'transactions.cooloff_never', defaultMessage: "Don't show these again" })}
+                  </button>
+                </div>
+              </div>
+            )}
             <button
               type="button"
               onClick={handleCancel}

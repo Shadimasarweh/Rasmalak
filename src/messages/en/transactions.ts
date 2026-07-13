@@ -122,4 +122,10 @@ export default {
   // Subcategory breakdown widgets
   food_breakdown: 'Food breakdown',
   bills_breakdown: 'Bills breakdown',
+// Cooling-off nudge (B4 — phase 2)
+  cooloff_title: 'Bigger than your usual — and payday just landed.',
+  cooloff_body: 'Money feels lighter right after it arrives. No judgment — just a breath.',
+  cooloff_wait: "Good call — I'll wait",
+  cooloff_add_anyway: 'Add it anyway',
+  cooloff_never: "Don't show these again",
 };

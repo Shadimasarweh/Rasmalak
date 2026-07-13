@@ -1,5 +1,18 @@
 # Predictive Budgeting & Behaviour Analysis — Audit and Roadmap
 
+> **Status 2026-07-10:** Phase 1 (items 1–5) shipped and LIVE since
+> 2026-07-08. Phase 2 implemented on `feature/predictive-phase2` (dark):
+> items 6–7 were already live via B1; item 8 (Hijri/Ramadan seasonality)
+> and item 9 (cold-start priors) landed with this branch, plus the
+> unlocked individual surfaces (C2, B2, B4) and AI-context wiring.
+> **Phase 3 implemented 2026-07-10** on `feature/predictive-phase3` (dark):
+> item 10 Monte Carlo goal risk (+ goals-page chip), item 11 nightly
+> server-side recompute (/api/forecasts/recompute, Vercel cron), item 12
+> peer benchmarking foundation (migration 016, k-anonymous, ratio-only),
+> item 13 alert learning (dismissal-driven suppression). Deferred, as the
+> roadmap intended: peer benchmark stays volume-gated until real cohorts
+> exist. Individual-roadmap B3/C1/C3/C4/C5 + Pillar E remain.
+
 **Date:** 2026-07-02 · **Scope:** `src/ai/*`, `src/lib/autoBudget.ts`, `src/lib/healthScore.ts`, supporting stores/migrations
 **Verdict:** The current system is a well-architected *deterministic heuristics* layer. It is transparent, currency-compliant, and cheap — but nothing in it is genuinely predictive or behavioural yet. The scaffolding (memory schema, deterministic-feeds-AI pipeline, audit logging) is unusually good and gives us a fast path to a real predictive engine.
 

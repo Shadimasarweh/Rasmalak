@@ -47,7 +47,9 @@ export interface AutoBudgetCategorySuggestion {
   ewma?: number;
   trendPerMonth?: number;
   monthsAbsent?: number;
-  method?: 'ewma_v2';
+  // 'prior_blend' = shrunk toward the regional cold-start prior
+  // (ai/deterministic/countryPriors.ts) because history is thin.
+  method?: 'ewma_v2' | 'prior_blend';
 }
 
 export interface AutoBudgetResult {
@@ -56,7 +58,7 @@ export interface AutoBudgetResult {
   totalAverage: number;
   monthsAnalyzed: number;
   hasEnoughHistory: boolean;
-  method?: 'flat_v1' | 'ewma_v2';
+  method?: 'flat_v1' | 'ewma_v2' | 'prior_blend';
 }
 
 export interface AutoBudgetOptions {

@@ -55,4 +55,26 @@ test.describe('Dashboard', () => {
   test('dashboard hero renders with predictive flags on', async ({ page }) => {
     await expect(page.locator('text=/total balance|الرصيد الإجمالي/i')).toBeVisible();
   });
+
+  // Phase-2 surfaces ship dark (ramadanMode / habitInsights flags off).
+  // These pin the flag-off state; flip when the release step turns them on.
+  test('phase-2 predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/ramadan mode|وضع رمضان/i')).toHaveCount(0);
+    await expect(page.locator('text=/your money habits|عاداتك المالية/i')).toHaveCount(0);
+  });
+
+  // Phase-3 surfaces ship dark too (goalRiskCard / peerBenchmark off).
+  test('phase-3 predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/save more than|توفّر أكثر من/i')).toHaveCount(0);
+    await expect(page.locator('text=/% on track|على المسار/i')).toHaveCount(0);
+  });
+
+  // Phase-4 surfaces (individual-roadmap tail) ship dark as well.
+  test('phase-4 predictive cards are absent while their flags are off', async ({ page }) => {
+    await expect(page.locator('text=/last cycle’s report card|تقرير الدورة الماضية/i')).toHaveCount(0);
+    await expect(page.locator('text=/when is your zakat date|متى موعد زكاتك/i')).toHaveCount(0);
+    await expect(page.locator('text=/school fees in|رسوم المدرسة بعد/i')).toHaveCount(0);
+    await expect(page.locator('text=/your regular transfer|حوالتك المنتظمة/i')).toHaveCount(0);
+    await expect(page.locator('text=/looks like something changed|يبدو أن شيئاً تغيّر/i')).toHaveCount(0);
+  });
 });

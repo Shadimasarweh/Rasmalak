@@ -20,6 +20,14 @@ import SafeToSpendCard from '@/components/dashboard/SafeToSpendCard';
 import CycleForecastCard from '@/components/dashboard/CycleForecastCard';
 import SpendingPersonalityCard from '@/components/dashboard/SpendingPersonalityCard';
 import PaydayDetectedNudge, { shouldShowPaydayNudge } from '@/components/dashboard/PaydayDetectedNudge';
+import RamadanModeCard from '@/components/dashboard/RamadanModeCard';
+import PaydayRitualCard from '@/components/dashboard/PaydayRitualCard';
+import ZakatPlannerCard from '@/components/dashboard/ZakatPlannerCard';
+import SchoolFeesCard from '@/components/dashboard/SchoolFeesCard';
+import RemittanceCard from '@/components/dashboard/RemittanceCard';
+import LifeEventCheckinCard from '@/components/dashboard/LifeEventCheckinCard';
+import HabitInsightsCard from '@/components/dashboard/HabitInsightsCard';
+import PeerBenchmarkCard from '@/components/dashboard/PeerBenchmarkCard';
 import { AI_FEATURES } from '@/ai/config';
 
 /* ═══════════════════════════════════════════════════
@@ -335,6 +343,18 @@ export default function OverviewPage() {
       ) : (
         shouldShowRealityCheck(undefined, 5, activeCycle.daysElapsed) && <RealityCheckCard variant="banner" />
       )}
+
+      {/* ===== PAYDAY RITUAL (B3 — flag+payday-gated inside) ===== */}
+      <PaydayRitualCard />
+
+      {/* ===== RAMADAN MODE (C2 — flag-gated + seasonal-window-gated inside) ===== */}
+      <RamadanModeCard />
+
+      {/* ===== ZAKAT PLANNER (C3 — flag+window-gated inside) ===== */}
+      <ZakatPlannerCard />
+
+      {/* ===== SCHOOL FEES (C5 — flag+window-gated inside) ===== */}
+      <SchoolFeesCard />
 
       {/* ===== GREETING ===== */}
       <div className="ds-section-header">
@@ -721,6 +741,18 @@ export default function OverviewPage() {
           {showPersonalityCard && <SpendingPersonalityCard fullWidth={!showForecastCard} />}
         </div>
       )}
+
+      {/* ===== HABIT INSIGHTS (B2 — flag-gated inside) ===== */}
+      <HabitInsightsCard />
+
+      {/* ===== PEER BENCHMARK (phase 3 item 12 — flag+cohort-gated inside) ===== */}
+      <PeerBenchmarkCard />
+
+      {/* ===== REMITTANCE AWARENESS (C1 — flag+detection-gated inside) ===== */}
+      <RemittanceCard />
+
+      {/* ===== LIFE EVENT CHECK-IN (Pillar E — flag+detection-gated inside) ===== */}
+      <LifeEventCheckinCard />
 
       {/* ===== EMERGENCY FUND ===== */}
       <div className="ds-card" style={{ animation: 'fadeIn 300ms ease-out' }}>

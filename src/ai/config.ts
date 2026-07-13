@@ -73,6 +73,23 @@ export const AI_FEATURES = {
   safeToSpendCard: true,      // A3: dashboard hero
   forecastCard: true,         // end-of-cycle P25–P75 band card
   personalityCard: true,      // B1: spending archetype card
+  // Phase 2 surfaces (behaviour engine + Hijri seasonality). All off
+  // until the release step: Arabic copy review + manual RTL/LTR pass.
+  ramadanMode: false,       // C2: pre-Ramadan budget adjustments + Eid envelope
+  habitInsights: false,     // B2: behaviour-signal insight cards + course links
+  coolingOffNudge: false,   // B4: opt-in post-payday large-purchase pause
+  // Phase 3 surfaces. Off until: migration 016 (peer stats) applied +
+  // Arabic review + RTL/LTR pass.
+  goalRiskCard: false,      // item 10: Monte Carlo per-goal odds + 90% delta
+  peerBenchmark: false,     // item 12: cohort percentile card (volume-gated)
+  alertLearning: false,     // item 13: dismissal-driven alert suppression
+  // Phase 4 (individual roadmap tail). Off until Arabic review + RTL pass.
+  paydayRitual: false,      // B3: payday report card + pay-yourself-first
+  hajjGoalTemplate: false,  // C4: prefilled Hajj goal w/ hijri deadline
+  zakatPlanner: false,      // C3: zakat anniversary set-aside planner
+  schoolFeesPlanner: false, // C5: annual education pulse sinking fund
+  remittanceInsight: false, // C1: recurring-transfer awareness + FX context
+  lifeEventCheckin: false,  // Pillar E: confirm-first re-planning nudge
 };
 
 // ============================================

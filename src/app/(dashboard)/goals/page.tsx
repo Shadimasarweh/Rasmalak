@@ -10,6 +10,10 @@ import { useBudget } from '@/store/budgetStore';
 import { CURRENCIES } from '@/lib/constants';
 import { styledNum } from '@/components/StyledNumber';
 import { MoneyInput } from '@/components/MoneyInput';
+import GoalRiskChip from '@/components/goals/GoalRiskChip';
+import { AI_FEATURES } from '@/ai/config';
+import { buildHajjGoalTemplate } from '@/ai/deterministic/hajjTemplate';
+import { usePredictiveState } from '@/lib/predictive/PredictiveProvider';
 
 /* ===== FIXED PALETTE (matching existing brand colors) ===== */
 const GOAL_COLORS = [
@@ -278,6 +282,8 @@ function GoalCard({
                 })}
               </p>
             )}
+            {/* Phase 3 item 10 — flag-gated inside */}
+            <GoalRiskChip goal={goal} />
           </div>
         </div>
 
@@ -750,6 +756,25 @@ export default function GoalsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [addFundsGoalId, setAddFundsGoalId] = useState<string | null>(null);
 
+  // C4 (phase 4): one-tap Hajj goal, prefilled from the country prior
+  // with a 1-Dhu-al-Hijjah deadline. Duplicate-guarded by hijri year.
+  const { coldStart } = usePredictiveState();
+  const createHajjGoal = () => {
+    const template = buildHajjGoalTemplate({ countryCode: coldStart.countryCode });
+    if (savingsGoals.some((g) => g.name === template.name)) return;
+    addSavingsGoal({
+      name: template.name,
+      nameAr: template.nameAr,
+      targetAmount: template.targetAmount,
+      currentAmount: 0,
+      deadline: template.deadlineIso,
+      color: '#F59E0B',
+      fundingType: 'none',
+      fundingValue: 0,
+      currencyNative: template.currency,
+    });
+  };
+
   // Sync goal funding amounts into budget categories
   const prevGoalIdsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
@@ -843,27 +868,46 @@ export default function GoalsPage() {
         </div>
 
         {!showCreate && (
-          <button
-            onClick={() => setShowCreate(true)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '9px 18px',
-              fontSize: '13px',
-              fontWeight: 500,
-              border: 'none',
-              borderRadius: '8px',
-              background: 'var(--ds-primary)',
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-            className="hover:opacity-90 transition-opacity"
-          >
-            <PlusIcon />
-            {intl.formatMessage({ id: 'dashboard.goals_new_goal', defaultMessage: 'New Goal' })}
-          </button>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            {AI_FEATURES.hajjGoalTemplate && (
+              <button
+                onClick={createHajjGoal}
+                title={intl.formatMessage({
+                  id: 'dashboard.goals_hajj_hint',
+                  defaultMessage: 'Prefilled with a typical local package cost and a Dhu al-Hijjah deadline — edit freely.',
+                })}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '9px 14px', fontSize: '13px', fontWeight: 500,
+                  border: '1px solid var(--color-accent-gold)', borderRadius: '8px',
+                  background: 'transparent', color: 'var(--color-accent-gold)', cursor: 'pointer',
+                }}
+              >
+                🕋 {intl.formatMessage({ id: 'dashboard.goals_hajj_template', defaultMessage: 'Hajj goal' })}
+              </button>
+            )}
+            <button
+              onClick={() => setShowCreate(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '9px 18px',
+                fontSize: '13px',
+                fontWeight: 500,
+                border: 'none',
+                borderRadius: '8px',
+                background: 'var(--ds-primary)',
+                color: '#FFFFFF',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+              className="hover:opacity-90 transition-opacity"
+            >
+              <PlusIcon />
+              {intl.formatMessage({ id: 'dashboard.goals_new_goal', defaultMessage: 'New Goal' })}
+            </button>
+          </div>
         )}
       </div>
 
