@@ -22,7 +22,7 @@ import type { ExtractedDocument, MessageAttachment } from './types';
 import { getAgent } from './agents/registry';
 import { lookupVendor } from './vendors/menaVendors';
 import { classifySubcategory } from './taxonomy';
-import { AI_CONFIG } from './config';
+import { AI_CONFIG, AI_FEATURES } from './config';
 import {
   sendChatCompletionWithRetry as openaiSendCompletionWithRetry,
   formatMessagesForOpenAI,
@@ -31,6 +31,11 @@ import {
   sendChatCompletionWithRetry as geminiSendCompletionWithRetry,
   formatMessagesForProvider as geminiFormatMessages,
 } from './providers/gemini';
+import {
+  sendChatCompletionWithRetry as qwenSendCompletionWithRetry,
+  formatMessagesForProvider as qwenFormatMessages,
+  isQwenConfigured,
+} from './providers/qwen';
 
 const isGemini = AI_CONFIG.provider === 'gemini';
 
@@ -93,34 +98,61 @@ export async function extractDocument(
     conversationHistory: [],
   });
 
-  const messages = formatMessages(
-    systemPrompt,
-    [],
-    'Extract the document fields per schema.',
-    [attachment],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ) as any;
+  const responseSchema = extractor.outputSchema
+    ? { name: 'ExtractedDocument', schema: extractor.outputSchema }
+    : undefined;
 
-  // Flash + zero thinking budget here: bill JSON extraction does not
-  // benefit from a reasoning model and the heavier Pro model is what
-  // pushed total turn time near the request budget on chat replies.
-  const fastModel = AI_CONFIG.flashModel ?? AI_CONFIG.model;
-  const result = await sendChatCompletionWithRetry(messages, {
-    model: fastModel,
-    max_tokens: 1500,
-    temperature: 0.1,
-    thinkingBudget: 0,
-    responseSchema: extractor.outputSchema
-      ? { name: 'ExtractedDocument', schema: extractor.outputSchema }
-      : undefined,
-  });
+  // Self-hosted Qwen VL is preferred when configured: financial documents
+  // never leave the operator's infrastructure and Arabic OCR quality on
+  // MENA receipts is the reason the model was brought in. Any failure
+  // (unreachable endpoint, timeout, malformed output) falls through to
+  // the cloud provider so the scanner never regresses.
+  let content: string | null = null;
 
-  if (!result.success) return null;
+  if (AI_FEATURES.qwenDocumentExtraction && isQwenConfigured()) {
+    const qwenMessages = qwenFormatMessages(
+      systemPrompt,
+      [],
+      'Extract the document fields per schema.',
+      [attachment],
+    );
+    const qwenResult = await qwenSendCompletionWithRetry(qwenMessages, {
+      max_tokens: 1500,
+      temperature: 0.1,
+      responseSchema,
+    });
+    if (qwenResult.success) content = qwenResult.content;
+  }
 
-  // Flash models occasionally wrap JSON in ```json … ``` fences or add a
-  // leading/trailing prose line even when JSON mode is requested. Strip
-  // those before parsing instead of failing the extraction.
-  const cleaned = result.content
+  if (content === null) {
+    const messages = formatMessages(
+      systemPrompt,
+      [],
+      'Extract the document fields per schema.',
+      [attachment],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) as any;
+
+    // Flash + zero thinking budget here: bill JSON extraction does not
+    // benefit from a reasoning model and the heavier Pro model is what
+    // pushed total turn time near the request budget on chat replies.
+    const fastModel = AI_CONFIG.flashModel ?? AI_CONFIG.model;
+    const result = await sendChatCompletionWithRetry(messages, {
+      model: fastModel,
+      max_tokens: 1500,
+      temperature: 0.1,
+      thinkingBudget: 0,
+      responseSchema,
+    });
+
+    if (!result.success) return null;
+    content = result.content;
+  }
+
+  // Flash and local models occasionally wrap JSON in ```json … ``` fences
+  // or add a leading/trailing prose line even when JSON mode is requested.
+  // Strip those before parsing instead of failing the extraction.
+  const cleaned = content
     .replace(/^\s*```(?:json)?\s*/i, '')
     .replace(/\s*```\s*$/i, '')
     .trim();

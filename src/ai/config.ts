@@ -57,6 +57,13 @@ export const AI_THINKING = {
 
 export const AI_FEATURES = {
   chatEnabled: true,
+  // When true AND QWEN_BASE_URL + QWEN_MODEL are set in the environment,
+  // document extraction (receipt scanner + chat attachments) tries the
+  // self-hosted Qwen VL endpoint FIRST and silently falls back to the
+  // cloud provider on any failure — so deployments without a reachable
+  // Qwen endpoint (e.g. Vercel while the model runs on a dev machine)
+  // behave exactly as before. See src/ai/providers/qwen.ts.
+  qwenDocumentExtraction: true,
   insightsEnabled: true,
   predictionsEnabled: true,
   learningEnabled: true,

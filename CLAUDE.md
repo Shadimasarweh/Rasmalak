@@ -243,7 +243,13 @@ NEXT_PUBLIC_SUPABASE_URL=        # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=   # Supabase anonymous key
 GOOGLE_AI_API_KEY=               # Gemini (default provider)
 OPENAI_API_KEY=                  # OpenAI (alternate provider)
+QWEN_BASE_URL=                   # Optional: self-hosted Qwen VL, OpenAI-compatible (e.g. http://localhost:11434/v1)
+QWEN_MODEL=                      # Optional: model tag, e.g. qwen2.5vl:32b — both must be set to enable
+QWEN_API_KEY=                    # Optional: only if the Qwen endpoint sits behind auth
+QWEN_TIMEOUT_MS=                 # Optional: default 45000
 ```
+
+**Self-hosted Qwen VL (document extraction only):** when `QWEN_BASE_URL` + `QWEN_MODEL` are set and `AI_FEATURES.qwenDocumentExtraction` is true, receipt/bill/statement extraction (`src/ai/extractDocument.ts`) calls the Qwen endpoint first and silently falls back to the cloud provider on any failure. Chat and all other agents always use the cloud provider. Adapter: `src/ai/providers/qwen.ts`.
 
 ---
 
