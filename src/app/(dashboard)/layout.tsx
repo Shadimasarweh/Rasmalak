@@ -22,8 +22,8 @@ export default function DashboardLayout({
   return (
     <AuthGuard>
       <TransactionProvider>
-      <BudgetProvider>
       <BudgetCyclesProvider>
+      <BudgetProvider>
       <GoalsProvider>
       <EmergencyFundProvider>
       <PredictiveProvider>
@@ -49,8 +49,8 @@ export default function DashboardLayout({
       </PredictiveProvider>
       </EmergencyFundProvider>
       </GoalsProvider>
-      </BudgetCyclesProvider>
       </BudgetProvider>
+      </BudgetCyclesProvider>
       </TransactionProvider>
     </AuthGuard>
   );

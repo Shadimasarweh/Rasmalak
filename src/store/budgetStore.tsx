@@ -1,16 +1,28 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuthStore, getAuthState } from '@/store/authStore';
-import { useStore } from '@/store/useStore';
+import { createContext, useContext, ReactNode } from 'react';
+import { useBudgetCycles } from '@/store/budgetCyclesStore';
+
+/**
+ * Legacy budget store — now an adapter over `useBudgetCycles`.
+ *
+ * Historically this held its own single-row copy of the budget in the
+ * `budgets` table. That created a split-brain: the Plan page (and
+ * onboarding) write to the month-stamped `budget_cycles` table
+ * (migration 013), while the dashboard and other legacy consumers read
+ * from here. Saved budgets therefore never showed up on the dashboard.
+ *
+ * To keep a single source of truth without touching every legacy
+ * consumer, this provider now projects the current `budget_cycles` row
+ * through the same `useBudget()` API. `BudgetCyclesProvider` must be
+ * mounted above `BudgetProvider` (see the dashboard layout).
+ */
 
 interface BudgetStore {
   monthlyBudget: number;
   categoryBudgets: Record<string, number>;
-  // ISO 4217 currency the caps were typed in. Per migration 012 we
-  // "store native + display in base"; comparisons against transactions
-  // (which are in base currency) need this for display-time conversion.
+  // ISO 4217 currency the caps were typed in. Mirrors the current
+  // cycle's `currency_native`; display layers convert to base on read.
   currencyNative: string;
   setMonthlyBudget: (amount: number) => void;
   setCategoryBudget: (category: string, limit: number) => void;
@@ -21,158 +33,25 @@ interface BudgetStore {
 const BudgetContext = createContext<BudgetStore | null>(null);
 
 export function BudgetProvider({ children }: { children: ReactNode }) {
-  const [monthlyBudget, setMonthlyBudgetLocal] = useState(0);
-  const [categoryBudgets, setCategoryBudgetsLocal] = useState<Record<string, number>>({});
-  const [currencyNative, setCurrencyNative] = useState<string>('');
-
-  const monthlyRef = useRef(0);
-  const categoriesRef = useRef<Record<string, number>>({});
-  // Empty string until fetch / first save resolves. The save path
-  // falls back to the user's current base currency when this is empty.
-  const currencyRef = useRef<string>('');
-
-  const user = useAuthStore((state) => state.user);
-  const initialized = useAuthStore((state) => state.initialized);
-  const baseCurrency = useStore((s) => s.baseCurrency);
-
-  useEffect(() => {
-    const fetchBudget = async () => {
-      if (!initialized || !user) {
-        setMonthlyBudgetLocal(0);
-        setCategoryBudgetsLocal({});
-        monthlyRef.current = 0;
-        categoriesRef.current = {};
-        return;
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        console.warn('[BudgetStore] No active session, skipping fetch');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('budgets')
-        .select('*')
-        .eq('user_id', sessionData.session.user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('[BudgetStore] Error fetching budget:', error.message, error.code);
-        return;
-      }
-
-      if (data) {
-        const m = Number(data.monthly_budget) || 0;
-        const c = (data.category_budgets as Record<string, number>) ?? {};
-        const cur = (data.currency_native as string | undefined) ?? baseCurrency;
-        setMonthlyBudgetLocal(m);
-        setCategoryBudgetsLocal(c);
-        setCurrencyNative(cur);
-        monthlyRef.current = m;
-        categoriesRef.current = c;
-        currencyRef.current = cur;
-      }
-    };
-
-    fetchBudget();
-  }, [user, initialized, baseCurrency]);
-
-  const upsertBudget = useCallback(
-    async (monthly: number, categories: Record<string, number>): Promise<boolean> => {
-      const { user, initialized } = getAuthState();
-      if (!initialized || !user) {
-        console.warn('[BudgetStore] Cannot save: auth not ready');
-        return false;
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        console.error('[BudgetStore] Cannot save: no active session');
-        return false;
-      }
-
-      const userId = sessionData.session.user.id;
-
-      // Lock the row's currency_native to whichever currency is the
-      // user's base RIGHT NOW. Subsequent base-currency changes leave
-      // this column alone; the display layer converts on read.
-      const currencyToWrite = currencyRef.current || baseCurrency;
-      currencyRef.current = currencyToWrite;
-      setCurrencyNative(currencyToWrite);
-
-      const { error } = await supabase.from('budgets').upsert(
-        {
-          user_id: userId,
-          monthly_budget: monthly,
-          category_budgets: categories,
-          currency_native: currencyToWrite,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' },
-      );
-
-      if (error) {
-        console.error('[BudgetStore] Error saving budget:', error.message, error.code, error.details);
-        return false;
-      }
-
-      return true;
-    },
-    [baseCurrency],
-  );
-
-  const setMonthlyBudget = useCallback(
-    (amount: number) => {
-      if (!Number.isFinite(amount) || amount < 0 || amount > 1_000_000_000) return;
-      setMonthlyBudgetLocal(amount);
-      monthlyRef.current = amount;
-      upsertBudget(amount, categoriesRef.current);
-    },
-    [upsertBudget],
-  );
-
-  const setCategoryBudget = useCallback(
-    (category: string, limit: number) => {
-      if (!Number.isFinite(limit) || limit < 0 || limit > 1_000_000_000) return;
-      const next = { ...categoriesRef.current, [category]: limit };
-      setCategoryBudgetsLocal(next);
-      categoriesRef.current = next;
-      upsertBudget(monthlyRef.current, next);
-    },
-    [upsertBudget],
-  );
-
-  const removeCategoryBudget = useCallback(
-    (category: string) => {
-      const { [category]: _, ...rest } = categoriesRef.current;
-      setCategoryBudgetsLocal(rest);
-      categoriesRef.current = rest;
-      upsertBudget(monthlyRef.current, rest);
-    },
-    [upsertBudget],
-  );
-
-  const saveAll = useCallback(
-    (monthly: number, categories: Record<string, number>) => {
-      if (!Number.isFinite(monthly) || monthly < 0) return;
-      setMonthlyBudgetLocal(monthly);
-      setCategoryBudgetsLocal(categories);
-      monthlyRef.current = monthly;
-      categoriesRef.current = categories;
-      upsertBudget(monthly, categories);
-    },
-    [upsertBudget],
-  );
+  const cycles = useBudgetCycles();
+  const current = cycles.currentCycle;
 
   const store: BudgetStore = {
-    monthlyBudget,
-    categoryBudgets,
-    currencyNative,
-    setMonthlyBudget,
-    setCategoryBudget,
-    removeCategoryBudget,
-    saveAll,
+    monthlyBudget: current?.monthlyBudget ?? 0,
+    categoryBudgets: current?.categoryBudgets ?? {},
+    currencyNative: current?.currencyNative ?? '',
+    setMonthlyBudget: (amount) => {
+      void cycles.setMonthlyBudget(amount);
+    },
+    setCategoryBudget: (category, limit) => {
+      void cycles.setCategoryBudget(category, limit);
+    },
+    removeCategoryBudget: (category) => {
+      void cycles.removeCategoryBudget(category);
+    },
+    saveAll: (monthly, categories) => {
+      void cycles.saveCurrentCycle(monthly, categories);
+    },
   };
 
   return (
