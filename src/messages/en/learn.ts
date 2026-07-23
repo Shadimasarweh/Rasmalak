@@ -181,4 +181,9 @@ export default {
   'articles.heading': 'Practical Financial Insights',
   'articles.subheading': 'Understand your options. Make better money decisions.',
   'article.read_article': 'Read Article',
+  // Article reader v2
+  'article.on_this_page': 'On this page',
+  'article.percent_read': '{percent}% read',
+  'article.keep_reading': 'Keep reading',
+  'article.author_team': 'Rasmalak Team',
 };

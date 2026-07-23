@@ -181,4 +181,9 @@ export default {
   'articles.heading': 'رؤى مالية عملية',
   'articles.subheading': 'افهم خياراتك واتخذ قرارات مالية أفضل',
   'article.read_article': 'اقرأ المقال',
+  // Article reader v2
+  'article.on_this_page': 'في هذه الصفحة',
+  'article.percent_read': 'قرأت {percent}%',
+  'article.keep_reading': 'تابع القراءة',
+  'article.author_team': 'فريق رسمالك',
 };
