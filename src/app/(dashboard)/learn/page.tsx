@@ -245,7 +245,7 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
       }}
     >
       <div style={{ flex: 1, minWidth: '220px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px', fontFeatureSettings: '"kern" 1' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px', fontFeatureSettings: '"kern" 1', fontFamily: isRtl ? 'var(--font-arabic)' : undefined }}>
           {intl.formatMessage({ id: 'learn.title', defaultMessage: 'Learn' })}
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0 }}>
@@ -380,7 +380,7 @@ function ResumeStrip({
           <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             {intl.formatMessage({ id: 'learn.continue_learning', defaultMessage: 'Continue Learning' })}
           </span>
-          <span style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3, fontFeatureSettings: '"kern" 1' }}>
+          <span style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3, fontFeatureSettings: '"kern" 1', fontFamily: isRtl ? 'var(--font-arabic)' : undefined }}>
             {course.title}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -900,7 +900,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                             style={{
                               position: 'absolute',
                               top: '8px',
-                              [isRtl ? 'left' : 'right']: '8px',
+                              insetInlineEnd: '8px',
                               fontSize: '10px',
                               fontWeight: 500,
                               color: '#FFFFFF',

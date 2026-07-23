@@ -73,9 +73,30 @@
 }
 
 /* ============================================================
+   1b. ARABIC DISPLAY FONT
+   Amiri ships with the repo for PDF reports; reuse it for Arabic
+   display headings on the education screens (--font-arabic).
+   ============================================================ */
+@font-face {
+  font-family: 'Amiri';
+  src: url('/fonts/Amiri-Regular.ttf') format('truetype');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Amiri';
+  src: url('/fonts/Amiri-Bold.ttf') format('truetype');
+  font-weight: 600 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
    2. LIGHT THEME  (default)
    ============================================================ */
 :root {
+  --font-arabic: 'Amiri', var(--font-sans);
   /* --- User-selectable accent color (updated by JS) --- */
   --accent-color: #2D6A4F;
   --accent-color-hover: #1B4332;

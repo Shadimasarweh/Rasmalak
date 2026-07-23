@@ -96,7 +96,7 @@ export default function LessonSectionContainer({
           position: 'absolute',
           top: 'var(--spacing-4)',
           bottom: 'var(--spacing-4)',
-          [isRtl ? 'right' : 'left']: 0,
+          insetInlineStart: 0,
           width: '2px',
           background: completed
             ? 'var(--color-success)'

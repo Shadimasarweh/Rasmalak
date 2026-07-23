@@ -379,6 +379,7 @@ export default function ArticlePage() {
               marginBottom: '12px',
               lineHeight: 1.35,
               fontFeatureSettings: '"kern" 1',
+              fontFamily: isRtl ? 'var(--font-arabic)' : undefined,
             }}
           >
             {article.title}
