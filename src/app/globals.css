@@ -692,6 +692,85 @@ html, body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Learn v2 CTA fill effect — CSS-only take on the PillNav hover: a circle
+   expands from the bottom to fill the pill while the label swaps. The fill
+   color comes from --fill-bg (navy on emerald buttons — green-on-green reads
+   as a glitch), hover label color from --fill-fg. Physical left/translate
+   values are intentional: the motion is horizontally symmetric, so it is
+   RTL-safe without logical properties. */
+.ds-fill-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ds-fill-btn-circle {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 240%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: var(--fill-bg, #0F1E2E);
+  transform: translate(-50%, 50%) scale(0);
+  transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+  pointer-events: none;
+}
+.ds-fill-btn-label,
+.ds-fill-btn-hover {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+.ds-fill-btn-hover {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  transform: translateY(120%);
+  opacity: 0;
+  color: var(--fill-fg, #FFFFFF);
+}
+.ds-fill-btn:hover .ds-fill-btn-circle,
+.ds-fill-btn:focus-visible .ds-fill-btn-circle {
+  transform: translate(-50%, 50%) scale(1);
+}
+.ds-fill-btn:hover .ds-fill-btn-label,
+.ds-fill-btn:focus-visible .ds-fill-btn-label {
+  transform: translateY(-120%);
+  opacity: 0;
+}
+.ds-fill-btn:hover .ds-fill-btn-hover,
+.ds-fill-btn:focus-visible .ds-fill-btn-hover {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-fill-btn-circle,
+  .ds-fill-btn-label,
+  .ds-fill-btn-hover {
+    transition: none;
+  }
+  .ds-fill-btn:hover .ds-fill-btn-circle,
+  .ds-fill-btn:focus-visible .ds-fill-btn-circle {
+    display: none;
+  }
+  .ds-fill-btn:hover .ds-fill-btn-label,
+  .ds-fill-btn:focus-visible .ds-fill-btn-label {
+    transform: none;
+    opacity: 1;
+  }
+  .ds-fill-btn:hover .ds-fill-btn-hover,
+  .ds-fill-btn:focus-visible .ds-fill-btn-hover {
+    display: none;
+  }
+  .ds-fill-btn:hover {
+    opacity: 0.88;
+  }
+}
 @keyframes learnAccordionIn {
   from {
     opacity: 0;

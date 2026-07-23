@@ -19,6 +19,8 @@ import {
   Play,
   Lock,
   Bell,
+  ArrowLeft,
+  ArrowRight,
   Wallet,
   TrendingUp,
   PiggyBank,
@@ -307,6 +309,21 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
   );
 }
 
+/* ----- CTA fill-effect inner layers (see .ds-fill-btn in globals.css) ----- */
+function FillLabel({ label, isRtl }: { label: string; isRtl: boolean }) {
+  const Arrow = isRtl ? ArrowLeft : ArrowRight;
+  return (
+    <>
+      <span className="ds-fill-btn-circle" aria-hidden />
+      <span className="ds-fill-btn-label">{label}</span>
+      <span className="ds-fill-btn-hover" aria-hidden>
+        {label}
+        <Arrow size={14} />
+      </span>
+    </>
+  );
+}
+
 /* ----- Resume strip (Continue learning) ----- */
 function ResumeStrip({
   course,
@@ -393,6 +410,7 @@ function ResumeStrip({
         </div>
 
         <span
+          className="ds-fill-btn"
           style={{
             background: '#FFFFFF',
             color: '#0F1E2E',
@@ -405,9 +423,13 @@ function ResumeStrip({
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-          }}
+            '--fill-bg': 'var(--ds-primary)',
+          } as React.CSSProperties}
         >
-          {intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })}
+          <FillLabel
+            label={intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })}
+            isRtl={isRtl}
+          />
         </span>
       </div>
     </Link>
@@ -613,14 +635,40 @@ function CourseCardV2({
           )}
 
           {isCompleted ? (
-            <span style={{ ...ctaBase, background: 'transparent', color: 'var(--ds-primary)', border: '1.5px solid var(--ds-btn-secondary-border)' }}>
-              {intl.formatMessage({ id: 'learn.review', defaultMessage: 'Review' })}
+            <span
+              className="ds-fill-btn"
+              style={{
+                ...ctaBase,
+                background: 'transparent',
+                color: 'var(--ds-primary)',
+                border: '1.5px solid var(--ds-btn-secondary-border)',
+                '--fill-bg': 'var(--ds-primary)',
+              } as React.CSSProperties}
+            >
+              <FillLabel
+                label={intl.formatMessage({ id: 'learn.review', defaultMessage: 'Review' })}
+                isRtl={isRtl}
+              />
             </span>
           ) : (
-            <span style={{ ...ctaBase, background: 'var(--ds-primary)', color: '#FFFFFF', border: 'none' }}>
-              {isInProgress
-                ? intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })
-                : intl.formatMessage({ id: 'learn.start_course', defaultMessage: 'Start Course' })}
+            <span
+              className="ds-fill-btn"
+              style={{
+                ...ctaBase,
+                background: 'var(--ds-primary)',
+                color: '#FFFFFF',
+                border: 'none',
+                '--fill-bg': '#0F1E2E',
+              } as React.CSSProperties}
+            >
+              <FillLabel
+                label={
+                  isInProgress
+                    ? intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })
+                    : intl.formatMessage({ id: 'learn.start_course', defaultMessage: 'Start Course' })
+                }
+                isRtl={isRtl}
+              />
             </span>
           )}
         </div>
