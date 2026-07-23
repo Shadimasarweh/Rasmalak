@@ -86,6 +86,22 @@ export default {
   'completed_check': 'Completed ✓',
   'review': 'Review',
   'resume_next_lesson': 'Next: {title}',
+  // Achievements states
+  'achievements_unlocked_of': '{count} of {total} unlocked',
+  'achievements_earned': 'Earned ✓',
+  'achievements_locked': 'Locked',
+  'achievements_unlock_by': 'Unlock by: {condition}',
+  'achievements_remaining': '{count} to go',
+  // Coming-soon placeholders (Topics & Videos)
+  'coming_soon_tag': 'Coming soon',
+  'coming_soon_planned': 'Planned',
+  'coming_soon_notify': 'Notify me',
+  'coming_soon_notified': "You're on the list ✓",
+  'coming_soon_toast': "We'll notify you when it launches.",
+  'coming_soon_topics_title': 'Topics & Skills are on the way',
+  'coming_soon_topics_desc': "Focused skill tracks that connect courses, tools, and practice. These are the tracks we're planning.",
+  'coming_soon_videos_title': 'Video lessons are coming',
+  'coming_soon_videos_desc': 'Short, practical videos that pair with the courses. Tell us to notify you and be first to watch.',
   // Literacy score milestones
   'milestone.beginner': 'Beginner',
   'milestone.confident': 'Confident',

@@ -18,6 +18,7 @@ import {
   BookOpen,
   Play,
   Lock,
+  Bell,
   Wallet,
   TrendingUp,
   PiggyBank,
@@ -35,6 +36,7 @@ import {
   Trophy,
   Star,
 } from 'lucide-react';
+import { Toast } from '@/components/ui/Toast';
 
 /* ============================================
    LEARN PAGE – Course grid + filters + tabs
@@ -914,6 +916,157 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
   );
 }
 
+/* ----- Coming-soon banner (Topics & Videos placeholders) ----- */
+const NOTIFY_PREFS_KEY = 'rasmalak-learn-notify';
+
+function getNotifyPrefs(): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(NOTIFY_PREFS_KEY) ?? '{}');
+  } catch {
+    return {};
+  }
+}
+
+function ComingSoonBanner({
+  feature,
+  titleKey,
+  titleDefault,
+  descKey,
+  descDefault,
+  intl,
+  language,
+}: {
+  feature: string;
+  titleKey: string;
+  titleDefault: string;
+  descKey: string;
+  descDefault: string;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+}) {
+  const isRtl = language === 'ar';
+  const [notified, setNotified] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !!getNotifyPrefs()[feature];
+  });
+  const [toastVisible, setToastVisible] = useState(false);
+
+  // The notification endpoint is not built yet — persist the opt-in locally
+  // and confirm with a toast so the button stays a real interaction.
+  const handleNotify = () => {
+    try {
+      const prefs = getNotifyPrefs();
+      prefs[feature] = true;
+      localStorage.setItem(NOTIFY_PREFS_KEY, JSON.stringify(prefs));
+    } catch { /* storage unavailable */ }
+    setNotified(true);
+    setToastVisible(true);
+  };
+
+  return (
+    <div
+      style={{
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
+        boxShadow: 'var(--ds-shadow-card)',
+        padding: '20px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        flexWrap: 'wrap',
+        direction: isRtl ? 'rtl' : 'ltr',
+      }}
+    >
+      <div
+        style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '12px',
+          background: 'var(--ds-plan-bg)',
+          border: '0.5px solid var(--ds-plan-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        <Bell size={22} style={{ color: 'var(--ds-plan)' }} />
+      </div>
+
+      <div style={{ flex: 1, minWidth: '220px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
+            {intl.formatMessage({ id: titleKey, defaultMessage: titleDefault })}
+          </h2>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
+            fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
+            background: 'var(--ds-plan-bg)', color: 'var(--ds-plan)', border: '0.5px solid var(--ds-plan-border)',
+          }}>
+            {intl.formatMessage({ id: 'learn.coming_soon_tag', defaultMessage: 'Coming soon' })}
+          </span>
+        </div>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6, maxWidth: '520px' }}>
+          {intl.formatMessage({ id: descKey, defaultMessage: descDefault })}
+        </p>
+      </div>
+
+      {notified ? (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '10px 18px',
+            minHeight: '44px',
+            borderRadius: '8px',
+            border: '1.5px solid var(--ds-btn-secondary-border)',
+            color: 'var(--ds-primary)',
+            fontSize: '13px',
+            fontWeight: 500,
+            flexShrink: 0,
+          }}
+        >
+          {intl.formatMessage({ id: 'learn.coming_soon_notified', defaultMessage: "You're on the list ✓" })}
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={handleNotify}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '10px 18px',
+            minHeight: '44px',
+            background: 'var(--ds-primary)',
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background-color 150ms ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
+        >
+          <Bell size={14} />
+          {intl.formatMessage({ id: 'learn.coming_soon_notify', defaultMessage: 'Notify me' })}
+        </button>
+      )}
+
+      <Toast
+        message={intl.formatMessage({ id: 'learn.coming_soon_toast', defaultMessage: "We'll notify you when it launches." })}
+        visible={toastVisible}
+        onHide={() => setToastVisible(false)}
+      />
+    </div>
+  );
+}
+
 /* ----- Videos tab (placeholder) ----- */
 const VIDEO_CARDS: { titleEn: string; titleAr: string; duration: string; level: CourseLevel }[] = [
   { titleEn: 'Introduction to Stock Markets', titleAr: 'مقدمة إلى أسواق الأسهم', duration: '15:20', level: 'beginner' },
@@ -924,71 +1077,73 @@ const VIDEO_CARDS: { titleEn: string; titleAr: string; duration: string; level: 
   { titleEn: 'Options Trading: Risk and Reward', titleAr: 'تداول الخيارات: المخاطر والعوائد', duration: '30:15', level: 'advanced' },
 ];
 
-function VideosTab({ language }: { language: string }) {
+function VideosTab({ language, intl }: { language: string; intl: ReturnType<typeof useIntl> }) {
   const isRtl = language === 'ar';
   return (
-    <div className="learn-accordion-grid" style={{ marginTop: '16px' }}>
-      {VIDEO_CARDS.map((card, i) => {
-        const levelLabel = language === 'ar' ? LEVEL_CONFIG[card.level].labelAr : LEVEL_CONFIG[card.level].labelEn;
-        return (
-          <div
-            key={i}
-            style={{
-              background: 'var(--ds-bg-card)',
-              borderRadius: '16px',
-              boxShadow: 'var(--ds-shadow-card)',
-              overflow: 'hidden',
-              border: '0.5px solid var(--ds-border)',
-              opacity: 0.7,
-              cursor: 'default',
-              direction: isRtl ? 'rtl' : 'ltr',
-            }}
-          >
-            <div style={{ position: 'relative', height: '140px', background: 'linear-gradient(135deg, #1B4332 0%, #0d2818 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Play size={28} style={{ color: '#FFFFFF', marginLeft: '4px' }} fill="currentColor" />
+    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <ComingSoonBanner
+        feature="videos"
+        titleKey="learn.coming_soon_videos_title"
+        titleDefault="Video lessons are coming"
+        descKey="learn.coming_soon_videos_desc"
+        descDefault="Short, practical videos that pair with the courses. Tell us to notify you and be first to watch."
+        intl={intl}
+        language={language}
+      />
+
+      <div className="learn-accordion-grid">
+        {VIDEO_CARDS.map((card, i) => {
+          const levelLabel = isRtl ? LEVEL_CONFIG[card.level].labelAr : LEVEL_CONFIG[card.level].labelEn;
+          return (
+            <div
+              key={i}
+              style={{
+                background: 'var(--ds-bg-card)',
+                borderRadius: '16px',
+                boxShadow: 'var(--ds-shadow-card)',
+                overflow: 'hidden',
+                border: '1px dashed var(--ds-border)',
+                direction: isRtl ? 'rtl' : 'ltr',
+              }}
+            >
+              <div style={{ position: 'relative', height: '140px', background: 'linear-gradient(135deg, #1B4332 0%, #0d2818 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Lock size={24} style={{ color: '#FFFFFF' }} />
+                </div>
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    insetInlineEnd: '8px',
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    color: '#FFFFFF',
+                    background: 'rgba(0,0,0,0.4)',
+                    padding: '4px 8px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  {isRtl ? toArabicNumerals(card.duration) : card.duration}
+                </span>
               </div>
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  [isRtl ? 'left' : 'right']: '8px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  color: '#FFFFFF',
-                  background: 'rgba(0,0,0,0.4)',
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                }}
-              >
-                {isRtl ? toArabicNumerals(card.duration) : card.duration}
-              </span>
+              <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'start' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                  {isRtl ? card.titleAr : card.titleEn}
+                </h3>
+                <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>{levelLabel}</span>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '4px', borderRadius: '4px',
+                  fontSize: '10px', fontWeight: 500, padding: '3px 8px', letterSpacing: '0.04em',
+                  background: 'var(--ds-plan-bg)', color: 'var(--ds-plan)', border: '0.5px solid var(--ds-plan-border)',
+                  alignSelf: 'flex-start', marginTop: '4px',
+                }}>
+                  {intl.formatMessage({ id: 'learn.coming_soon_tag', defaultMessage: 'Coming soon' })}
+                </span>
+              </div>
             </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: isRtl ? 'right' : 'left' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-                {isRtl ? card.titleAr : card.titleEn}
-              </h3>
-              <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>{levelLabel}</span>
-              <button
-                style={{
-                  background: 'transparent',
-                  color: 'var(--ds-primary)',
-                  border: '1.5px solid var(--ds-btn-secondary-border)',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'default',
-                  alignSelf: isRtl ? 'flex-end' : 'flex-start',
-                  marginTop: '8px',
-                }}
-              >
-                {language === 'ar' ? 'قريباً' : 'Coming soon'}
-              </button>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -1009,51 +1164,57 @@ const TOPIC_CARDS = [
   { titleEn: 'Financial Goals', titleAr: 'الأهداف المالية', icon: Target },
 ];
 
-function TopicsTab({ language }: { language: string }) {
+function TopicsTab({ language, intl }: { language: string; intl: ReturnType<typeof useIntl> }) {
   const isRtl = language === 'ar';
   return (
-    <div style={{ marginTop: '16px' }} className="learn-topics-grid">
-      {TOPIC_CARDS.map((card, i) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={i}
-            style={{
-              background: 'var(--ds-bg-card)',
-              borderRadius: '16px',
-              boxShadow: 'var(--ds-shadow-card)',
-              padding: '20px 24px',
-              border: '0.5px solid var(--ds-border)',
-              opacity: 0.7,
-              cursor: 'default',
-              direction: isRtl ? 'rtl' : 'ltr',
-              textAlign: isRtl ? 'right' : 'left',
-            }}
-          >
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: LEARN_GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-              <Icon size={24} style={{ color: '#FFFFFF' }} />
-            </div>
-            <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '8px', fontFeatureSettings: '"kern" 1' }}>
-              {isRtl ? card.titleAr : card.titleEn}
-            </h3>
-            <button
+    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <ComingSoonBanner
+        feature="topics"
+        titleKey="learn.coming_soon_topics_title"
+        titleDefault="Topics & Skills are on the way"
+        descKey="learn.coming_soon_topics_desc"
+        descDefault="Focused skill tracks that connect courses, tools, and practice. These are the tracks we're planning."
+        intl={intl}
+        language={language}
+      />
+
+      <div className="learn-topics-grid">
+        {TOPIC_CARDS.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={i}
               style={{
-                background: 'transparent',
-                color: 'var(--ds-primary)',
-                border: '1.5px solid var(--ds-btn-secondary-border)',
-                borderRadius: '8px',
-                padding: '10px 16px',
-                fontSize: '13px',
-                fontWeight: 500,
-                minHeight: '44px',
-                cursor: 'default',
+                background: 'var(--ds-bg-card)',
+                borderRadius: '16px',
+                boxShadow: 'var(--ds-shadow-card)',
+                padding: '20px 24px',
+                border: '1px dashed var(--ds-border)',
+                direction: isRtl ? 'rtl' : 'ltr',
+                textAlign: 'start',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: '8px',
               }}
             >
-              {language === 'ar' ? 'قريباً' : 'Coming soon'}
-            </button>
-          </div>
-        );
-      })}
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={24} style={{ color: 'var(--ds-primary)' }} />
+              </div>
+              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                {isRtl ? card.titleAr : card.titleEn}
+              </h3>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
+                fontSize: '10px', fontWeight: 500, padding: '3px 8px', letterSpacing: '0.04em',
+                background: 'var(--ds-plan-bg)', color: 'var(--ds-plan)', border: '0.5px solid var(--ds-plan-border)',
+              }}>
+                {intl.formatMessage({ id: 'learn.coming_soon_planned', defaultMessage: 'Planned' })}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -1167,77 +1328,188 @@ function AchievementsTab({
     [0, 5],
   ];
 
+  const intl = useIntl();
+  const unlockedCount = ACHIEVEMENT_BADGES.reduce((sum, _badge, i) => {
+    const [current, total] = badgeProgress[i] ?? [0, 1];
+    return sum + (current >= total ? 1 : 0);
+  }, 0);
+  const summaryPct = Math.round((unlockedCount / ACHIEVEMENT_BADGES.length) * 100);
+
   return (
-    <div style={{ marginTop: '16px' }} className="learn-achievements-grid">
-      {ACHIEVEMENT_BADGES.map((badge, i) => {
-        const [current, total] = badgeProgress[i] ?? [0, 1];
-        const unlocked = current >= total;
-        const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
-        const IconComponent = ACHIEVEMENT_ICONS[badge.icon] || Lock;
-        const progressLabel = isAr
-          ? `${toArabicNumerals(String(current))} / ${toArabicNumerals(String(total))}`
-          : `${current} / ${total}`;
+    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Summary bar */}
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          boxShadow: 'var(--ds-shadow-card)',
+          padding: '16px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
+        }}
+      >
+        <div style={{
+          width: '44px', height: '44px', borderRadius: '12px',
+          background: 'rgba(217,119,6,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          <Trophy size={22} style={{ color: 'var(--ds-accent-gold)' }} />
+        </div>
+        <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+          {intl.formatMessage(
+            { id: 'learn.achievements_unlocked_of', defaultMessage: '{count} of {total} unlocked' },
+            {
+              count: intl.formatNumber(unlockedCount),
+              total: intl.formatNumber(ACHIEVEMENT_BADGES.length),
+            }
+          )}
+        </span>
+        <div style={{ flex: 1, minWidth: '120px', maxWidth: '260px', height: '5px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: `${summaryPct}%`, height: '100%', background: 'var(--ds-accent-gold)', borderRadius: '4px', transition: 'width 600ms ease-out' }} />
+        </div>
+      </div>
 
-        return (
-          <div
-            key={i}
-            style={{
-              opacity: unlocked ? 1 : 0.7,
-              background: 'var(--ds-bg-card)',
-              border: `0.5px solid ${unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-border)'}`,
-              borderRadius: '16px',
-              padding: '20px 24px',
-              boxShadow: 'var(--ds-shadow-card)',
-              textAlign: 'center',
-              direction: isRtl ? 'rtl' : 'ltr',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                background: unlocked ? 'rgba(217,119,6,0.1)' : 'var(--ds-bg-tinted)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <IconComponent
-                  size={28}
-                  style={{ color: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-primary)', opacity: unlocked ? 1 : 0.5 }}
-                />
+      {/* Badge grid — three explicit states: earned / in-progress / locked */}
+      <div className="learn-achievements-grid">
+        {ACHIEVEMENT_BADGES.map((badge, i) => {
+          const [current, total] = badgeProgress[i] ?? [0, 1];
+          const earned = current >= total;
+          const inProgress = !earned && current > 0;
+          const locked = !earned && !inProgress;
+          const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
+          const IconComponent = ACHIEVEMENT_ICONS[badge.icon] || Lock;
+          const remaining = Math.max(0, total - current);
+          const progressLabel = isAr
+            ? `${toArabicNumerals(String(current))} / ${toArabicNumerals(String(total))}`
+            : `${current} / ${total}`;
+
+          const ringRadius = 25;
+          const ringCircumference = 2 * Math.PI * ringRadius;
+
+          return (
+            <div
+              key={i}
+              style={{
+                background: 'var(--ds-bg-card)',
+                border: earned
+                  ? '1px solid var(--ds-accent-gold)'
+                  : locked
+                    ? '1px dashed var(--ds-border)'
+                    : '0.5px solid var(--ds-border)',
+                borderRadius: '16px',
+                padding: '20px 24px',
+                boxShadow: 'var(--ds-shadow-card)',
+                textAlign: 'center',
+                direction: isRtl ? 'rtl' : 'ltr',
+                position: 'relative',
+              }}
+            >
+              {/* State chip, pinned to the top corner */}
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '12px',
+                  insetInlineEnd: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  padding: '3px 8px',
+                  letterSpacing: '0.04em',
+                  ...(earned
+                    ? { background: 'rgba(217,119,6,0.1)', color: 'var(--ds-accent-gold)', border: '0.5px solid var(--ds-warning-border)' }
+                    : locked
+                      ? { background: 'var(--ds-bg-tinted)', color: 'var(--ds-text-muted)', border: '0.5px solid var(--ds-border)' }
+                      : { background: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: '0.5px solid var(--ds-success-border)' }),
+                }}
+              >
+                {earned ? (
+                  intl.formatMessage({ id: 'learn.achievements_earned', defaultMessage: 'Earned ✓' })
+                ) : locked ? (
+                  <>
+                    <Lock size={10} />
+                    {intl.formatMessage({ id: 'learn.achievements_locked', defaultMessage: 'Locked' })}
+                  </>
+                ) : (
+                  progressLabel
+                )}
+              </span>
+
+              {/* Icon — earned: gold disc; in-progress: emerald progress ring; locked: muted disc */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', marginTop: '8px' }}>
+                {inProgress ? (
+                  <div style={{ position: 'relative', width: 56, height: 56 }}>
+                    <svg width="56" height="56" viewBox="0 0 56 56" style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}>
+                      <circle cx="28" cy="28" r={ringRadius} fill="none" stroke="var(--ds-bg-tinted)" strokeWidth="3" />
+                      <circle
+                        cx="28" cy="28" r={ringRadius} fill="none"
+                        stroke="var(--ds-primary)" strokeWidth="3" strokeLinecap="round"
+                        strokeDasharray={ringCircumference}
+                        strokeDashoffset={ringCircumference - (pct / 100) * ringCircumference}
+                      />
+                    </svg>
+                    <div style={{ position: 'absolute', inset: '7px', borderRadius: '50%', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <IconComponent size={22} style={{ color: 'var(--ds-primary)' }} />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    background: earned ? 'rgba(217,119,6,0.1)' : 'var(--ds-bg-tinted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <IconComponent
+                      size={28}
+                      style={{ color: earned ? 'var(--ds-accent-gold)' : 'var(--ds-text-muted)' }}
+                    />
+                  </div>
+                )}
               </div>
+
+              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
+                {isAr ? badge.titleAr : badge.titleEn}
+              </h3>
+
+              <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', margin: 0, marginBottom: '10px', lineHeight: 1.5 }}>
+                {locked
+                  ? intl.formatMessage(
+                      { id: 'learn.achievements_unlock_by', defaultMessage: 'Unlock by: {condition}' },
+                      { condition: isAr ? badge.conditionAr : badge.conditionEn }
+                    )
+                  : isAr ? badge.conditionAr : badge.conditionEn}
+              </p>
+
+              {inProgress && (
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  borderRadius: '9999px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '4px 12px',
+                  background: 'var(--ds-bg-tinted)',
+                  color: 'var(--ds-primary)',
+                }}>
+                  {intl.formatMessage(
+                    { id: 'learn.achievements_remaining', defaultMessage: '{count} to go' },
+                    { count: intl.formatNumber(remaining) }
+                  )}
+                </span>
+              )}
             </div>
-
-            <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
-              {isAr ? badge.titleAr : badge.titleEn}
-            </h3>
-
-            <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', margin: 0, marginBottom: '12px' }}>
-              {isAr ? badge.conditionAr : badge.conditionEn}
-            </p>
-
-            <div style={{ height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{
-                width: `${pct}%`,
-                height: '100%',
-                background: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-primary-glow)',
-                borderRadius: '4px',
-              }} />
-            </div>
-
-            <span style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              color: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-text-muted)',
-              marginTop: '6px',
-              display: 'block',
-            }}>
-              {unlocked ? (isAr ? 'مكتمل ✓' : 'Completed ✓') : progressLabel}
-            </span>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -1337,10 +1609,10 @@ export default function LearnPage() {
           />
         )}
         {activeTab === 'videos' && (
-          <VideosTab language={language} />
+          <VideosTab language={language} intl={intl} />
         )}
         {activeTab === 'topics' && (
-          <TopicsTab language={language} />
+          <TopicsTab language={language} intl={intl} />
         )}
         {activeTab === 'achievements' && <AchievementsTab language={language} progressMap={progressMap} courses={courses} />}
       </div>

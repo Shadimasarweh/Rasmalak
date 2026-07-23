@@ -86,6 +86,22 @@ export default {
   'completed_check': 'مكتملة ✓',
   'review': 'راجع الدورة',
   'resume_next_lesson': 'التالي: {title}',
+  // Achievements states
+  'achievements_unlocked_of': '{count} من {total} مفتوحة',
+  'achievements_earned': 'محققة ✓',
+  'achievements_locked': 'مقفلة',
+  'achievements_unlock_by': 'تُفتح عند: {condition}',
+  'achievements_remaining': 'تبقى {count}',
+  // Coming-soon placeholders (Topics & Videos)
+  'coming_soon_tag': 'قريباً',
+  'coming_soon_planned': 'مخطط لها',
+  'coming_soon_notify': 'نبّهني',
+  'coming_soon_notified': 'أنت على القائمة ✓',
+  'coming_soon_toast': 'سنُعلمك عند الإطلاق.',
+  'coming_soon_topics_title': 'المواضيع والمهارات في الطريق',
+  'coming_soon_topics_desc': 'مسارات مهارات مركّزة تربط الدورات بالأدوات والتطبيق العملي. هذه هي المسارات التي نخطط لها.',
+  'coming_soon_videos_title': 'دروس الفيديو قادمة',
+  'coming_soon_videos_desc': 'فيديوهات قصيرة وعملية ترافق الدورات. فعّل التنبيه لتكون أول من يشاهدها.',
   // Literacy score milestones
   'milestone.beginner': 'مبتدئ',
   'milestone.confident': 'واثق',
