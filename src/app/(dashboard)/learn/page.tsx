@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getAllCourses } from '@/data/courses';
+import { getCategory } from '@/data/courses/categories';
 import { getAllArticles } from '@/data/articles';
 import { getTotalSections } from '@/types/course';
 import type { CourseData, CourseLevel } from '@/types/course';
@@ -36,7 +37,7 @@ import {
 } from 'lucide-react';
 
 /* ============================================
-   LEARN PAGE – Accordion layout + tabs
+   LEARN PAGE – Course grid + filters + tabs
    ============================================ */
 
 type LearnTab = 'home' | 'articles' | 'videos' | 'topics' | 'achievements';
@@ -58,94 +59,115 @@ const LEVEL_CONFIG: Record<
   advanced: { dotColor: 'var(--ds-error)', expandedBg: 'var(--ds-error-bg)', labelEn: 'Advanced', labelAr: 'متقدم' },
 };
 
-const LEVEL_GRADIENTS: Record<CourseLevel, string> = {
-  beginner: 'linear-gradient(90deg, #2D6A4F, #22c55e)',
-  intermediate: 'linear-gradient(90deg, #D97706, #FBBF24)',
-  advanced: 'linear-gradient(90deg, #DC2626, #F87171)',
-};
-
 const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; border: string }> = {
   beginner: { background: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: '0.5px solid var(--ds-success-border)' },
   intermediate: { background: 'var(--ds-warning-bg)', color: 'var(--ds-warning-text)', border: '0.5px solid var(--ds-warning-border)' },
   advanced: { background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: '0.5px solid var(--ds-error-border)' },
 };
 
-/* ----- Data hook (unchanged) ----- */
+/* ----- Data hook ----- */
+function baseCourseIdOf(courseId: string): string {
+  return courseId.replace(/_(en|ar)$/, '');
+}
+
 function useLearnPageData() {
   const language = useStore((s) => s.language);
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
   const courses = useMemo(() => getAllCourses(language), [language]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  // Completed section ids are tracked per base course (locales share section
+  // ids), so progress, the resume strip, and the next-lesson line all derive
+  // from one merged local + Supabase source.
+  const [completedByBase, setCompletedByBase] = useState<Record<string, string[]>>({});
+  const [lastActivityByBase, setLastActivityByBase] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const map: Record<string, number> = {};
-    const localProgress = getAllLocalProgress();
-    for (const course of courses) {
-      const baseCourseId = course.courseId.replace(/_(en|ar)$/, '');
-      const enData = localProgress[`${baseCourseId}_en`];
-      const arData = localProgress[`${baseCourseId}_ar`];
-      const merged = new Set<string>();
-      for (const d of [enData, arData]) {
-        if (!d) continue;
-        for (const id of d.completedSectionIds ?? []) merged.add(id);
-      }
-      if (merged.size > 0) {
-        const total = getTotalSections(course);
-        map[course.courseId] = total > 0 ? Math.min(100, Math.round((merged.size / total) * 100)) : 0;
-      }
+    const mergeIn = (incoming: Record<string, Set<string>>) => {
+      setCompletedByBase((prev) => {
+        const merged: Record<string, string[]> = { ...prev };
+        for (const [base, ids] of Object.entries(incoming)) {
+          merged[base] = Array.from(new Set([...(merged[base] ?? []), ...ids]));
+        }
+        return merged;
+      });
+    };
+
+    const localByBase: Record<string, Set<string>> = {};
+    for (const [courseId, data] of Object.entries(getAllLocalProgress())) {
+      const base = baseCourseIdOf(courseId);
+      if (!localByBase[base]) localByBase[base] = new Set();
+      for (const id of data.completedSectionIds ?? []) localByBase[base].add(id);
     }
-    setProgressMap((prev) => ({ ...prev, ...map }));
+    mergeIn(localByBase);
 
     if (!initialized || !user) return;
     const fetchProgress = async () => {
       try {
         const { data } = await supabase
           .from('course_progress')
-          .select('course_id, completed_section_ids, locale')
+          .select('course_id, completed_section_ids, locale, updated_at')
           .eq('user_id', user.id);
         if (!data) return;
-        const sectionsByBase = new Map<string, Set<string>>();
+        const supaByBase: Record<string, Set<string>> = {};
+        const activity: Record<string, string> = {};
         for (const row of data) {
-          const base = (row.course_id as string).replace(/_(en|ar)$/, '');
-          if (!sectionsByBase.has(base)) sectionsByBase.set(base, new Set());
+          const base = baseCourseIdOf(row.course_id as string);
+          if (!supaByBase[base]) supaByBase[base] = new Set();
           for (const id of (row.completed_section_ids as string[]) ?? []) {
-            sectionsByBase.get(base)!.add(id);
+            supaByBase[base].add(id);
           }
+          const ts = row.updated_at as string | null;
+          if (ts && (!activity[base] || ts > activity[base])) activity[base] = ts;
         }
-        const supaMap: Record<string, number> = {};
-        for (const course of courses) {
-          const base = course.courseId.replace(/_(en|ar)$/, '');
-          const ids = sectionsByBase.get(base);
-          if (ids && ids.size > 0) {
-            const total = getTotalSections(course);
-            supaMap[course.courseId] = total > 0 ? Math.min(100, Math.round((ids.size / total) * 100)) : 0;
-          }
-        }
-        setProgressMap((prev) => {
-          const merged = { ...prev };
-          for (const [k, v] of Object.entries(supaMap)) {
-            merged[k] = Math.max(merged[k] ?? 0, v);
-          }
-          return merged;
-        });
+        mergeIn(supaByBase);
+        setLastActivityByBase((prev) => ({ ...prev, ...activity }));
       } catch {
         // Supabase unavailable
       }
     };
     fetchProgress();
-  }, [initialized, user, language, courses]);
+  }, [initialized, user]);
 
-  const hasStartedAnyCourse = Object.values(progressMap).some((p) => p > 0);
-  const firstCourse = courses[0];
-  const recommendedCourse = hasStartedAnyCourse
-    ? courses.find((c) => {
-        const p = progressMap[c.courseId] ?? 0;
-        return p > 0 && p < 100;
-      }) || firstCourse
-    : firstCourse;
+  const progressMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const course of courses) {
+      const ids = completedByBase[baseCourseIdOf(course.courseId)];
+      if (ids && ids.length > 0) {
+        const total = getTotalSections(course);
+        map[course.courseId] = total > 0 ? Math.min(100, Math.round((ids.length / total) * 100)) : 0;
+      }
+    }
+    return map;
+  }, [courses, completedByBase]);
 
-  return { courses, progressMap, recommendedCourse: recommendedCourse ?? null };
+  const resumeCourse = useMemo(() => {
+    const inProgress = courses.filter((c) => {
+      const p = progressMap[c.courseId] ?? 0;
+      return p > 0 && p < 100;
+    });
+    if (inProgress.length === 0) return null;
+    return [...inProgress].sort((a, b) => {
+      const ta = lastActivityByBase[baseCourseIdOf(a.courseId)] ?? '';
+      const tb = lastActivityByBase[baseCourseIdOf(b.courseId)] ?? '';
+      return tb.localeCompare(ta);
+    })[0];
+  }, [courses, progressMap, lastActivityByBase]);
+
+  return { courses, progressMap, completedByBase, resumeCourse };
+}
+
+function getNextLessonTitle(course: CourseData, completedIds: string[] | undefined): string | null {
+  const done = new Set(completedIds ?? []);
+  for (const lesson of course.lessons) {
+    if (lesson.sections.some((s) => !done.has(s.id))) return lesson.title;
+  }
+  return null;
+}
+
+function parseEstimatedMinutes(estimatedTime: string | undefined): number | null {
+  if (!estimatedTime) return null;
+  const match = estimatedTime.match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
 }
 
 /* ----- Animated score ring ----- */
@@ -187,9 +209,27 @@ function ScoreRing({ score }: { score: number | string }) {
   );
 }
 
-/* ----- Slim hero ----- */
+/* ----- Slim hero with literacy milestone context ----- */
+const SCORE_MILESTONES = [
+  { threshold: 0, labelKey: 'learn.milestone.beginner', labelDefault: 'Beginner' },
+  { threshold: 60, labelKey: 'learn.milestone.confident', labelDefault: 'Confident' },
+  { threshold: 90, labelKey: 'learn.milestone.expert', labelDefault: 'Expert' },
+];
+
 function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof useIntl>; scoreDisplay: number | string; language: string }) {
   const isRtl = language === 'ar';
+  const [showExplainer, setShowExplainer] = useState(false);
+  const numericScore = typeof scoreDisplay === 'number' ? scoreDisplay : 0;
+  const nextMilestone = SCORE_MILESTONES.find((m) => m.threshold > numericScore) ?? null;
+  const currentMilestone =
+    [...SCORE_MILESTONES].reverse().find((m) => m.threshold <= numericScore) ?? SCORE_MILESTONES[0];
+  const milestoneProgress = nextMilestone
+    ? Math.min(100, Math.round((numericScore / nextMilestone.threshold) * 100))
+    : 100;
+
+  const milestoneLabel = (m: (typeof SCORE_MILESTONES)[number]) =>
+    intl.formatMessage({ id: m.labelKey, defaultMessage: m.labelDefault });
+
   return (
     <div
       style={{
@@ -206,21 +246,390 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
         direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
-      <div>
+      <div style={{ flex: 1, minWidth: '220px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px', fontFeatureSettings: '"kern" 1' }}>
           {intl.formatMessage({ id: 'learn.title', defaultMessage: 'Learn' })}
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0 }}>
           {intl.formatMessage({ id: 'learn.subtitle', defaultMessage: 'Master your financial future' })}
         </p>
+        {showExplainer && (
+          <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', margin: '10px 0 0', lineHeight: 1.6, maxWidth: '420px' }}>
+            {intl.formatMessage({
+              id: 'learn.how_to_raise_explainer',
+              defaultMessage: 'Your score is the average completion across all courses. Complete course sections to raise it.',
+            })}
+          </p>
+        )}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', minWidth: '176px' }}>
         <ScoreRing score={scoreDisplay} />
-        <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: '4px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {intl.formatMessage({ id: 'learn.literacy_score', defaultMessage: 'Financial Literacy Score' })}
         </span>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ds-text-body)' }}>
+          {nextMilestone
+            ? intl.formatMessage(
+                { id: 'learn.milestone_path', defaultMessage: '{from} → {to} at {score}' },
+                {
+                  from: milestoneLabel(currentMilestone),
+                  to: milestoneLabel(nextMilestone),
+                  score: intl.formatNumber(nextMilestone.threshold),
+                }
+              )
+            : intl.formatMessage({ id: 'learn.milestone_reached', defaultMessage: 'Top milestone reached' })}
+        </span>
+        <div style={{ width: '100%', maxWidth: '176px', height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div
+            style={{
+              width: `${milestoneProgress}%`,
+              height: '100%',
+              background: 'var(--ds-primary)',
+              borderRadius: '4px',
+              transition: 'width 600ms ease-out',
+            }}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowExplainer((v) => !v)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--ds-primary)',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            padding: '10px 8px',
+            margin: '-6px 0',
+          }}
+        >
+          {intl.formatMessage({ id: 'learn.how_to_raise', defaultMessage: 'How to raise it' })}
+        </button>
       </div>
     </div>
+  );
+}
+
+/* ----- Resume strip (Continue learning) ----- */
+function ResumeStrip({
+  course,
+  progress,
+  nextLessonTitle,
+  intl,
+  language,
+  mounted,
+}: {
+  course: CourseData;
+  progress: number;
+  nextLessonTitle: string | null;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+  mounted: boolean;
+}) {
+  const isRtl = language === 'ar';
+  const category = getCategory(course.courseId);
+  const Icon = category.icon;
+
+  return (
+    <Link href={`/learn/courses/${course.courseId}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <div
+        style={{
+          background: 'var(--color-bg-hero)',
+          borderRadius: '20px',
+          padding: '20px 24px',
+          boxShadow: 'var(--shadow-hero)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '20px',
+          flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '12px',
+            background: 'rgba(255,255,255,0.12)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <Icon size={26} style={{ color: '#FFFFFF' }} />
+        </div>
+
+        <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {intl.formatMessage({ id: 'learn.continue_learning', defaultMessage: 'Continue Learning' })}
+          </span>
+          <span style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3, fontFeatureSettings: '"kern" 1' }}>
+            {course.title}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ flex: 1, maxWidth: '260px', height: '5px', background: 'rgba(255,255,255,0.18)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div
+                style={{
+                  width: mounted ? `${progress}%` : '0%',
+                  height: '100%',
+                  background: 'var(--color-primary-glow)',
+                  borderRadius: '4px',
+                  transition: 'width 600ms ease-out',
+                }}
+              />
+            </div>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF' }}>
+              {intl.formatNumber(progress)}%
+            </span>
+          </div>
+          {nextLessonTitle && (
+            <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)' }}>
+              {intl.formatMessage(
+                { id: 'learn.resume_next_lesson', defaultMessage: 'Next: {title}' },
+                { title: nextLessonTitle }
+              )}
+            </span>
+          )}
+        </div>
+
+        <span
+          style={{
+            background: '#FFFFFF',
+            color: '#0F1E2E',
+            borderRadius: '9999px',
+            padding: '12px 24px',
+            fontSize: '13px',
+            fontWeight: 600,
+            minHeight: '44px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+/* ----- Course filter bar ----- */
+type CourseFilter = 'all' | CourseLevel | 'in_progress';
+
+const COURSE_FILTERS: CourseFilter[] = ['all', 'beginner', 'intermediate', 'advanced', 'in_progress'];
+
+function FilterBar({
+  filter,
+  onChange,
+  intl,
+  language,
+}: {
+  filter: CourseFilter;
+  onChange: (f: CourseFilter) => void;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+}) {
+  const isRtl = language === 'ar';
+  const labelFor = (f: CourseFilter): string => {
+    if (f === 'all') return intl.formatMessage({ id: 'learn.filter_all', defaultMessage: 'All courses' });
+    if (f === 'in_progress') return intl.formatMessage({ id: 'learn.filter_in_progress', defaultMessage: 'In progress' });
+    return isRtl ? LEVEL_CONFIG[f].labelAr : LEVEL_CONFIG[f].labelEn;
+  };
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', direction: isRtl ? 'rtl' : 'ltr' }}>
+      {COURSE_FILTERS.map((f) => {
+        const isActive = filter === f;
+        return (
+          <button
+            key={f}
+            type="button"
+            onClick={() => onChange(f)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '9999px',
+              border: isActive ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+              fontSize: '12px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              minHeight: '44px',
+              background: isActive ? 'var(--ds-primary)' : 'transparent',
+              color: isActive ? '#FFFFFF' : 'var(--ds-text-body)',
+              transition: 'background 0.2s, color 0.2s, border-color 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive) e.currentTarget.style.background = 'var(--ds-bg-tinted)';
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            {labelFor(f)}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ----- Course card (grid) ----- */
+function CourseCardV2({
+  course,
+  progress,
+  intl,
+  language,
+  mounted,
+}: {
+  course: CourseData;
+  progress: number;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+  mounted: boolean;
+}) {
+  const isRtl = language === 'ar';
+  const level = course.level ?? 'beginner';
+  const badgeColor = BADGE_COLORS[level];
+  const category = getCategory(course.courseId);
+  const Icon = category.icon;
+  const lessonCount = course.lessons.length;
+  const estMinutes = parseEstimatedMinutes(course.estimatedTime);
+  const isCompleted = progress >= 100;
+  const isInProgress = progress > 0 && progress < 100;
+
+  const ctaBase: React.CSSProperties = {
+    borderRadius: '8px',
+    padding: '10px 18px',
+    fontSize: '13px',
+    fontWeight: 500,
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+  };
+
+  const metaParts = [
+    intl.formatMessage(
+      { id: 'learn.card_lessons', defaultMessage: '{count} lessons' },
+      { count: intl.formatNumber(lessonCount) }
+    ),
+  ];
+  if (estMinutes !== null) {
+    metaParts.push(
+      intl.formatMessage(
+        { id: 'learn.card_minutes', defaultMessage: '{min} min' },
+        { min: intl.formatNumber(estMinutes) }
+      )
+    );
+  }
+
+  return (
+    <Link href={`/learn/courses/${course.courseId}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          boxShadow: 'var(--ds-shadow-card)',
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          height: '100%',
+          transition: 'box-shadow 0.2s ease',
+          direction: isRtl ? 'rtl' : 'ltr',
+          textAlign: 'start',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--ds-shadow-card)'; }}
+      >
+        {/* Icon chip + level badge */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: category.color,
+              boxShadow: `0 4px 10px ${category.color}40`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={24} style={{ color: '#FFFFFF' }} />
+          </div>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
+            fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
+            background: badgeColor.background, color: badgeColor.color, border: badgeColor.border,
+          }}>
+            {isRtl ? LEVEL_CONFIG[level].labelAr : LEVEL_CONFIG[level].labelEn}
+          </span>
+        </div>
+
+        {/* Category label */}
+        <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: category.labelVar }}>
+          {isRtl ? category.labelAr : category.labelEn}
+        </span>
+
+        {/* Title */}
+        <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, lineHeight: 1.4, fontFeatureSettings: '"kern" 1' }}>
+          {course.title}
+        </h3>
+
+        {/* Description — 2 line clamp */}
+        <p style={{
+          fontSize: '13px', fontWeight: 400, color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6,
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+        }}>
+          {course.description ?? ''}
+        </p>
+
+        {/* Meta row */}
+        <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
+          {metaParts.join(' · ')}
+        </span>
+
+        {/* State area, pinned to card bottom */}
+        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {isInProgress && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ flex: 1, height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: mounted ? `${progress}%` : '0%', height: '100%', background: 'var(--ds-primary-glow)', borderRadius: '4px', transition: 'width 600ms ease-out' }} />
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)' }}>
+                {intl.formatNumber(progress)}%
+              </span>
+            </div>
+          )}
+
+          {isCompleted && (
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ds-success-text)' }}>
+              {intl.formatMessage({ id: 'learn.completed_check', defaultMessage: 'Completed ✓' })}
+            </span>
+          )}
+
+          {isCompleted ? (
+            <span style={{ ...ctaBase, background: 'transparent', color: 'var(--ds-primary)', border: '1.5px solid var(--ds-btn-secondary-border)' }}>
+              {intl.formatMessage({ id: 'learn.review', defaultMessage: 'Review' })}
+            </span>
+          ) : (
+            <span style={{ ...ctaBase, background: 'var(--ds-primary)', color: '#FFFFFF', border: 'none' }}>
+              {isInProgress
+                ? intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })
+                : intl.formatMessage({ id: 'learn.start_course', defaultMessage: 'Start Course' })}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -833,236 +1242,12 @@ function AchievementsTab({
   );
 }
 
-/* ----- Course card (inside accordion body) ----- */
-function AccordionCourseCard({
-  course,
-  progress,
-  intl,
-  language,
-  mounted,
-}: {
-  course: CourseData;
-  progress: number;
-  intl: ReturnType<typeof useIntl>;
-  language: string;
-  mounted?: boolean;
-}) {
-  const total = getTotalSections(course);
-  const isRtl = language === 'ar';
-  const level = course.level ?? 'beginner';
-  const badgeColor = BADGE_COLORS[level];
-
-  return (
-    <Link
-      href={`/learn/courses/${course.courseId}`}
-      style={{ textDecoration: 'none', display: 'block' }}
-    >
-      <div
-        style={{
-          background: 'var(--ds-bg-card)',
-          border: '0.5px solid var(--ds-border)',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: 'var(--ds-shadow-card)',
-          transition: 'box-shadow 0.2s ease',
-          direction: isRtl ? 'rtl' : 'ltr',
-          textAlign: isRtl ? 'right' : 'left',
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
-      >
-        {/* Thin top strip — 6px */}
-        <div style={{ height: '6px', background: LEVEL_GRADIENTS[level] }} />
-
-        {/* Card body */}
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-
-          {/* Row: level badge + section count */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
-              fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
-              background: badgeColor.background, color: badgeColor.color, border: badgeColor.border,
-            }}>
-              {language === 'ar' ? LEVEL_CONFIG[level].labelAr : LEVEL_CONFIG[level].labelEn}
-            </span>
-            <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
-              {intl.formatMessage({ id: 'learn.sections_count', defaultMessage: '{count} sections' }, { count: intl.formatNumber(total) })}
-            </span>
-          </div>
-
-          {/* Primary title (active locale) */}
-          <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-            {course.title}
-          </h3>
-
-          {/* Description — 2 line clamp */}
-          <p style={{
-            fontSize: '14px', fontWeight: 400, color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6,
-            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
-          }}>
-            {course.description ?? ''}
-          </p>
-
-          {/* Progress bar + label (only if progress > 0) */}
-          {progress > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-              <div style={{ flex: 1, height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: mounted ? `${progress}%` : '0%', height: '100%', background: 'var(--ds-primary-glow)', borderRadius: '4px', transition: 'width 600ms ease-out' }} />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)', minWidth: '32px', textAlign: isRtl ? 'left' : 'right' }}>
-                {intl.formatNumber(progress)}%
-              </span>
-            </div>
-          )}
-
-          {/* CTA button */}
-          <button
-            style={{
-              marginTop: '4px',
-              background: 'var(--ds-primary)',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '10px 18px',
-              fontSize: '13px',
-              fontWeight: 500,
-              minHeight: '44px',
-              cursor: 'pointer',
-              alignSelf: isRtl ? 'flex-end' : 'flex-start',
-              transition: 'background-color 150ms ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
-          >
-            {progress > 0
-              ? intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })
-              : intl.formatMessage({ id: 'learn.start_course', defaultMessage: 'Start Course' })}
-          </button>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-/* ----- Single accordion section ----- */
-function LevelAccordion({
-  level,
-  courses,
-  progressMap,
-  intl,
-  isOpen,
-  onToggle,
-  language,
-  mounted,
-}: {
-  level: CourseLevel;
-  courses: CourseData[];
-  progressMap: Record<string, number>;
-  intl: ReturnType<typeof useIntl>;
-  isOpen: boolean;
-  onToggle: () => void;
-  language: string;
-  mounted?: boolean;
-}) {
-  const config = LEVEL_CONFIG[level];
-  const label = language === 'ar' ? config.labelAr : config.labelEn;
-  const isRtl = language === 'ar';
-
-  return (
-    <div
-      style={{
-        background: 'var(--ds-bg-card)',
-        border: '0.5px solid var(--ds-border)',
-        borderRadius: '16px',
-        boxShadow: 'var(--ds-shadow-card)',
-        overflow: 'hidden',
-      }}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px 24px',
-          background: isOpen ? config.expandedBg : 'var(--ds-bg-card)',
-          border: 'none',
-          cursor: 'pointer',
-          direction: isRtl ? 'rtl' : 'ltr',
-          textAlign: isRtl ? 'right' : 'left',
-          transition: 'background 0.2s ease',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
-              background: config.dotColor,
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {label}
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
-            {intl.formatMessage({ id: 'learn.courses_count', defaultMessage: '{count} courses' }, { count: intl.formatNumber(courses.length) })}
-          </span>
-          <ChevronDown
-            size={20}
-            style={{
-              color: '#0F1914',
-              flexShrink: 0,
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 200ms ease',
-            }}
-          />
-        </div>
-      </button>
-      <div
-        style={{
-          maxHeight: isOpen ? '2000px' : '0px',
-          overflow: 'hidden',
-          transition: 'max-height 300ms ease',
-        }}
-      >
-        <div
-          style={{
-            padding: '16px 24px',
-            background: config.expandedBg,
-            borderTop: '0.5px solid var(--ds-border-tinted)',
-          }}
-        >
-          <div className="learn-accordion-grid">
-            {courses.map((course) => (
-              <AccordionCourseCard
-                key={course.courseId}
-                course={course}
-                progress={progressMap[course.courseId] ?? 0}
-                intl={intl}
-                language={language}
-                mounted={mounted}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ===== PAGE ===== */
 export default function LearnPage() {
   const intl = useIntl();
   const language = useStore((s) => s.language);
   const isRtl = language === 'ar';
-  const { courses, progressMap } = useLearnPageData();
+  const { courses, progressMap, completedByBase, resumeCourse } = useLearnPageData();
   const searchParams = useSearchParams();
 
   const VALID_TABS: LearnTab[] = ['home', 'articles', 'videos', 'topics', 'achievements'];
@@ -1070,7 +1255,7 @@ export default function LearnPage() {
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'home';
 
   const [activeTab, setActiveTab] = useState<LearnTab>(initialTab);
-  const [openAccordion, setOpenAccordion] = useState<CourseLevel | null>(null);
+  const [courseFilter, setCourseFilter] = useState<CourseFilter>('all');
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
@@ -1080,18 +1265,16 @@ export default function LearnPage() {
     return Math.min(100, Math.round(vals.reduce((a, b) => a + b, 0) / vals.length));
   }, [progressMap]);
 
-  const grouped = useMemo(() => {
-    const groups: Record<CourseLevel, CourseData[]> = { beginner: [], intermediate: [], advanced: [] };
-    for (const c of courses) {
-      const level = c.level ?? 'beginner';
-      groups[level].push(c);
+  const visibleCourses = useMemo(() => {
+    if (courseFilter === 'all') return courses;
+    if (courseFilter === 'in_progress') {
+      return courses.filter((c) => {
+        const p = progressMap[c.courseId] ?? 0;
+        return p > 0 && p < 100;
+      });
     }
-    return groups;
-  }, [courses]);
-
-  const toggle = (level: CourseLevel) => {
-    setOpenAccordion((prev) => (prev === level ? null : level));
-  };
+    return courses.filter((c) => (c.level ?? 'beginner') === courseFilter);
+  }, [courses, courseFilter, progressMap]);
 
   return (
     <div className="ds-page" style={{ background: PAGE_BG, direction: isRtl ? 'rtl' : 'ltr' }}>
@@ -1103,20 +1286,46 @@ export default function LearnPage() {
 
       <div key={activeTab} style={{ animation: 'fadeIn 200ms ease-out' }}>
         {activeTab === 'home' && (
-          <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {(['beginner', 'intermediate', 'advanced'] as CourseLevel[]).map((level) => (
-              <LevelAccordion
-                key={level}
-                level={level}
-                courses={grouped[level]}
-                progressMap={progressMap}
+          <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {resumeCourse && (
+              <ResumeStrip
+                course={resumeCourse}
+                progress={progressMap[resumeCourse.courseId] ?? 0}
+                nextLessonTitle={getNextLessonTitle(
+                  resumeCourse,
+                  completedByBase[baseCourseIdOf(resumeCourse.courseId)]
+                )}
                 intl={intl}
-                isOpen={openAccordion === level}
-                onToggle={() => toggle(level)}
                 language={language}
                 mounted={mounted}
               />
-            ))}
+            )}
+
+            <FilterBar filter={courseFilter} onChange={setCourseFilter} intl={intl} language={language} />
+
+            {visibleCourses.length > 0 ? (
+              <div className="learn-grid">
+                {visibleCourses.map((course) => (
+                  <CourseCardV2
+                    key={course.courseId}
+                    course={course}
+                    progress={progressMap[course.courseId] ?? 0}
+                    intl={intl}
+                    language={language}
+                    mounted={mounted}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="ds-empty-state">
+                <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0 }}>
+                  {intl.formatMessage({
+                    id: 'learn.filter_in_progress_empty',
+                    defaultMessage: "You haven't started any course yet — pick one to begin.",
+                  })}
+                </p>
+              </div>
+            )}
           </div>
         )}
 

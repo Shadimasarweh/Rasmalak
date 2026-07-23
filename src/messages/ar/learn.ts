@@ -77,6 +77,23 @@ export default {
   continue: 'متابعة',
   start_course: 'ابدأ الدورة',
   courses_count: '{count} دورات',
+  // Course grid (Learn v2)
+  'filter_all': 'كل الدورات',
+  'filter_in_progress': 'قيد التقدم',
+  'filter_in_progress_empty': 'لم تبدأ أي دورة بعد — اختر دورة وابدأ.',
+  'card_lessons': '{count} دروس',
+  'card_minutes': '{min} دقيقة',
+  'completed_check': 'مكتملة ✓',
+  'review': 'راجع الدورة',
+  'resume_next_lesson': 'التالي: {title}',
+  // Literacy score milestones
+  'milestone.beginner': 'مبتدئ',
+  'milestone.confident': 'واثق',
+  'milestone.expert': 'خبير',
+  'milestone_path': '{from} ← {to} عند {score}',
+  'milestone_reached': 'وصلت لأعلى مستوى',
+  'how_to_raise': 'كيف ترفع نتيجتك؟',
+  'how_to_raise_explainer': 'نتيجتك هي متوسط إكمالك لجميع الدورات. أكمل أقسام الدورات لترفعها.',
   // Hero section
   featured_title: 'ابدأ رحلتك المالية',
   featured_desc: 'ابدأ بمسار أساسيات المال وابنِ معرفتك خطوة بخطوة.',

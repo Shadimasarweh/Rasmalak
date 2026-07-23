@@ -215,6 +215,19 @@
   --ds-over: #DC2626;
   --ds-over-bg: #FEF2F2;
   --ds-over-border: #FECACA;
+
+  /* Learn v2 — subject category label colors (chips keep their solid hex;
+     these are for colored text, lightened in dark mode for contrast) */
+  --cat-foundations: #2D6A4F;
+  --cat-budgeting: #3B5C7A;
+  --cat-saving: #0D9488;
+  --cat-debt: #B54747;
+  --cat-investing: #059669;
+  --cat-insurance: #0E7490;
+  --cat-taxes: #475569;
+  --cat-business: #92400E;
+  --cat-islamic: #7C6F1B;
+  --cat-planning: #0F1E2E;
 }
 
 /* ============================================================
@@ -318,6 +331,18 @@
   --ds-over: #F87171;
   --ds-over-bg: rgba(220,38,38,0.10);
   --ds-over-border: rgba(220,38,38,0.25);
+
+  /* Learn v2 — category label colors, lightened for dark surfaces */
+  --cat-foundations: #6EE7B7;
+  --cat-budgeting: #7AA0C4;
+  --cat-saving: #2DD4BF;
+  --cat-debt: #F49999;
+  --cat-investing: #34D399;
+  --cat-insurance: #22D3EE;
+  --cat-taxes: #94A3B8;
+  --cat-business: #D9884A;
+  --cat-islamic: #C4B454;
+  --cat-planning: #93A8BC;
 }
 
 /* ============================================================
@@ -653,6 +678,19 @@ html, body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-4);
+}
+
+/* Learn v2 course grid — auto-fill so cards keep their width when filters
+   leave only one or two results */
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+@media (max-width: 360px) {
+  .learn-grid {
+    grid-template-columns: 1fr;
+  }
 }
 @keyframes learnAccordionIn {
   from {

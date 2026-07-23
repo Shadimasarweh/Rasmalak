@@ -77,6 +77,23 @@ export default {
   continue: 'Continue',
   start_course: 'Start Course',
   courses_count: '{count} courses',
+  // Course grid (Learn v2)
+  'filter_all': 'All courses',
+  'filter_in_progress': 'In progress',
+  'filter_in_progress_empty': "You haven't started any course yet — pick one to begin.",
+  'card_lessons': '{count} lessons',
+  'card_minutes': '{min} min',
+  'completed_check': 'Completed ✓',
+  'review': 'Review',
+  'resume_next_lesson': 'Next: {title}',
+  // Literacy score milestones
+  'milestone.beginner': 'Beginner',
+  'milestone.confident': 'Confident',
+  'milestone.expert': 'Expert',
+  'milestone_path': '{from} → {to} at {score}',
+  'milestone_reached': 'Top milestone reached',
+  'how_to_raise': 'How to raise it',
+  'how_to_raise_explainer': 'Your score is the average completion across all courses. Complete course sections to raise it.',
   // Hero section
   featured_title: 'Start Your Financial Journey',
   featured_desc: 'Begin with our beginner-friendly Financial Foundations path and build your knowledge step by step.',
