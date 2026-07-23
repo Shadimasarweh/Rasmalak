@@ -151,6 +151,20 @@ export default {
   'course.next': 'Next',
   'course.previous': 'Previous',
   'course.complete_course': 'Complete Course',
+  // Course viewer stepper
+  'course.stepper_section_of': 'Section {current} of {total}',
+  'course.stepper_time_left': '~{min} min left',
+  // Course tutor chat
+  'course.tutor_title': 'Course Tutor',
+  'course.tutor_placeholder': 'Ask about this course...',
+  'course.tutor_minimize': 'Minimize',
+  'course.tutor_welcome': 'Need help with the course?',
+  'course.tutor_welcome_sub': 'Ask me to explain a topic, expand on a concept, or help you understand anything in this course.',
+  'course.tutor_send': 'Send',
+  'course.tutor_ask': 'Ask Mustasharak',
+  'course.tutor_quick_explain': 'Explain this lesson simply',
+  'course.tutor_quick_example': 'Give me a real-life example',
+  'course.tutor_quick_summary': 'Summarize the key points',
   // Article viewer
   'article.not_found': 'Article not found',
   'article.back_to_learn': 'Back to Learn',

@@ -112,21 +112,21 @@ interface CourseTutorChatProps {
   courseId: string;
   courseTitle: string;
   currentLessons: Lesson[];
-  onOpenChange?: (open: boolean) => void;
 }
 
 /* ===== MAIN COMPONENT ===== */
 
-export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, currentLessons: _currentLessons, onOpenChange }: CourseTutorChatProps) {
+export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, currentLessons: _currentLessons }: CourseTutorChatProps) {
   const intl = useIntl();
   const language = useLanguage();
   const session = useSession();
 
+  // Overlay dock: closed by default so the reading column stays full-width;
+  // reopens only if the user left it open last time.
   const STORAGE_KEY = 'course-tutor-open';
   const [isOpen, setIsOpen] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === null ? true : stored === '1';
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(STORAGE_KEY) === '1';
   });
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -138,12 +138,16 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
   const toggleOpen = useCallback((open: boolean) => {
     setIsOpen(open);
     localStorage.setItem(STORAGE_KEY, open ? '1' : '0');
-    onOpenChange?.(open);
-  }, [onOpenChange]);
+  }, []);
 
   useEffect(() => {
-    onOpenChange?.(isOpen);
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') toggleOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, toggleOpen]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -267,7 +271,13 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
     defaultMessage: 'Ask about this course...',
   });
 
-  /* ===== COLLAPSED STATE — FAB BUTTON ===== */
+  const quickPrompts = [
+    intl.formatMessage({ id: 'learn.course.tutor_quick_explain', defaultMessage: 'Explain this lesson simply' }),
+    intl.formatMessage({ id: 'learn.course.tutor_quick_example', defaultMessage: 'Give me a real-life example' }),
+    intl.formatMessage({ id: 'learn.course.tutor_quick_summary', defaultMessage: 'Summarize the key points' }),
+  ];
+
+  /* ===== COLLAPSED STATE — "ASK MUSTASHARAK" PILL ===== */
   if (!isOpen) {
     return (
       <>
@@ -279,16 +289,14 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
         <button
           className="tutor-chat-fab"
           onClick={() => toggleOpen(true)}
-          aria-label={tutorTitle}
+          aria-label={intl.formatMessage({ id: 'learn.course.tutor_ask', defaultMessage: 'Ask Mustasharak' })}
           style={{
             position: 'fixed',
             bottom: '24px',
-            right: '24px',
             insetInlineEnd: '24px',
-            insetInlineStart: 'auto',
-            width: '56px',
             height: '56px',
-            borderRadius: '50%',
+            padding: '0 22px',
+            borderRadius: '9999px',
             background: 'var(--ds-primary)',
             color: '#FFFFFF',
             border: 'none',
@@ -296,12 +304,12 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: '10px',
             zIndex: 40,
             transition: 'transform 0.2s ease, box-shadow 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.08)';
+            e.currentTarget.style.transform = 'scale(1.04)';
             e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.2)';
           }}
           onMouseLeave={(e) => {
@@ -310,27 +318,46 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
           }}
         >
           <TutorIcon />
+          <span style={{ fontSize: '14px', fontWeight: 600 }}>
+            {intl.formatMessage({ id: 'learn.course.tutor_ask', defaultMessage: 'Ask Mustasharak' })}
+          </span>
         </button>
       </>
     );
   }
 
-  /* ===== EXPANDED STATE — CHAT PANEL ===== */
+  /* ===== EXPANDED STATE — OVERLAY DOCK ===== */
   return (
     <>
     <style>{`
       @media (max-width: 1023px) {
         .tutor-chat-panel { bottom: 80px !important; }
       }
+      @keyframes tutorBackdropIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
     `}</style>
+    {/* Dim backdrop — click anywhere outside the panel to close */}
+    <div
+      onClick={() => toggleOpen(false)}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0, 0, 0, 0.4)',
+        zIndex: 39,
+        animation: 'tutorBackdropIn 200ms ease-out',
+      }}
+    />
     <div
       className="tutor-chat-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label={tutorTitle}
       style={{
         position: 'fixed',
         bottom: '24px',
-        right: '24px',
         insetInlineEnd: '24px',
-        insetInlineStart: 'auto',
         width: '380px',
         maxWidth: 'calc(100vw - 32px)',
         height: '500px',
@@ -338,22 +365,24 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
         borderRadius: '16px',
         background: 'var(--ds-bg-card)',
         border: '0.5px solid var(--ds-border)',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.18)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
         zIndex: 40,
       }}
     >
-      {/* Header */}
+      {/* Header — dark glass treatment */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '14px 16px',
-          background: 'var(--ds-primary)',
-          color: '#FFFFFF',
+          background: 'var(--ds-bg-card-dark)',
+          color: 'var(--ds-dark-card-heading)',
+          borderBottom: '0.5px solid var(--ds-dark-card-border)',
+          boxShadow: 'var(--ds-dark-card-glow)',
           flexShrink: 0,
         }}
       >
@@ -362,7 +391,8 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
             width: '32px',
             height: '32px',
             borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.15)',
+            background: 'rgba(34, 197, 94, 0.15)',
+            color: 'var(--ds-primary-glow)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -375,13 +405,13 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
           onClick={() => toggleOpen(false)}
           aria-label={intl.formatMessage({ id: 'learn.course.tutor_minimize', defaultMessage: 'Minimize' })}
           style={{
-            background: 'rgba(255, 255, 255, 0.15)',
+            background: 'rgba(255, 255, 255, 0.1)',
             border: 'none',
             borderRadius: '8px',
             width: '44px',
             height: '44px',
             padding: '0',
-            color: '#FFFFFF',
+            color: 'var(--ds-dark-card-heading)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -453,6 +483,33 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
                 defaultMessage: 'Ask me to explain a topic, expand on a concept, or help you understand anything in this course.',
               })}
             </p>
+            {/* Quick-reply chips */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginTop: '4px' }}>
+              {quickPrompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => sendMessage(prompt)}
+                  disabled={isLoading}
+                  style={{
+                    background: 'transparent',
+                    color: 'var(--ds-primary)',
+                    border: '1.5px solid var(--ds-btn-secondary-border)',
+                    borderRadius: '9999px',
+                    padding: '10px 14px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    minHeight: '44px',
+                    cursor: 'pointer',
+                    transition: 'background-color 150ms ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-btn-secondary-hover)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           messages.map((msg) => (

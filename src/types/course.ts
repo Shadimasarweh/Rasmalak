@@ -82,3 +82,9 @@ export function getAllSectionIds(course: CourseData): string[] {
     lesson.sections.map((section) => section.id)
   );
 }
+
+export function parseEstimatedMinutes(estimatedTime: string | undefined): number | null {
+  if (!estimatedTime) return null;
+  const match = estimatedTime.match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+}

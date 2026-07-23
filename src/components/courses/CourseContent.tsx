@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { Clock } from 'lucide-react';
 import { useCourseProgress } from '@/store/courseProgressStore';
+import { getTotalSections, parseEstimatedMinutes } from '@/types/course';
 import CourseHero from './CourseHero';
 import LessonSectionContainer from './CourseSection';
 import type { CourseData } from '@/types/course';
@@ -39,6 +41,44 @@ export default function CourseContent({
     return course.lessons.slice(start, start + lessonsPerPage);
   }, [course, currentPage, lessonsPerPage]);
 
+  const pageSections = useMemo(() => pageLessons.flatMap((l) => l.sections), [pageLessons]);
+
+  // Flat section index at which each page lesson starts, for the stepper.
+  const lessonSectionOffsets = useMemo(() => {
+    const offsets: number[] = [];
+    let acc = 0;
+    for (const lesson of pageLessons) {
+      offsets.push(acc);
+      acc += lesson.sections.length;
+    }
+    return offsets;
+  }, [pageLessons]);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [activeSectionIdx, setActiveSectionIdx] = useState(0);
+
+  // Track which section currently sits in the upper reading band so the
+  // stepper follows the reader's scroll position.
+  useEffect(() => {
+    const rootEl = contentRef.current;
+    if (!rootEl) return;
+    const nodes = Array.from(rootEl.querySelectorAll<HTMLElement>('[data-stepper-idx]'));
+    if (nodes.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const idx = Number((entry.target as HTMLElement).dataset.stepperIdx);
+            if (!Number.isNaN(idx)) setActiveSectionIdx(idx);
+          }
+        }
+      },
+      { rootMargin: '-15% 0px -70% 0px' }
+    );
+    nodes.forEach((n) => observer.observe(n));
+    return () => observer.disconnect();
+  }, [currentPage, pageLessons]);
+
   useEffect(() => {
     if (loading || pageLessons.length === 0) return;
     const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
@@ -51,6 +91,18 @@ export default function CourseContent({
   const isLastPage = currentPage === totalPages - 1;
 
   const startLessonIndex = currentPage * lessonsPerPage;
+
+  const displayIdx = Math.max(0, Math.min(activeSectionIdx, pageSections.length - 1));
+  const estMinutes = parseEstimatedMinutes(course.estimatedTime);
+  const totalCourseSections = getTotalSections(course);
+  const sectionsBeforePage = course.lessons
+    .slice(0, startLessonIndex)
+    .reduce((sum, l) => sum + l.sections.length, 0);
+  const remainingSections = Math.max(1, totalCourseSections - (sectionsBeforePage + displayIdx));
+  const minutesLeft =
+    estMinutes !== null && totalCourseSections > 0
+      ? Math.max(1, Math.ceil((estMinutes / totalCourseSections) * remainingSections))
+      : null;
 
   const handleNext = () => {
     const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
@@ -69,12 +121,70 @@ export default function CourseContent({
       {showHero && isFirstPage && <CourseHero course={course} />}
 
       <div
+        ref={contentRef}
         style={{
           maxWidth: '800px',
           margin: '0 auto',
           padding: 'var(--spacing-6) var(--spacing-4)',
         }}
       >
+        {/* Sticky per-page progress stepper */}
+        <div
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 12,
+            background: 'var(--ds-bg-card)',
+            border: '0.5px solid var(--ds-border)',
+            borderRadius: '12px',
+            boxShadow: 'var(--ds-shadow-card)',
+            padding: '10px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px',
+            flexWrap: 'wrap',
+            marginBottom: 'var(--spacing-5)',
+          }}
+        >
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ds-text-heading)', whiteSpace: 'nowrap' }}>
+            {intl.formatMessage(
+              { id: 'learn.course.stepper_section_of', defaultMessage: 'Section {current} of {total}' },
+              {
+                current: intl.formatNumber(displayIdx + 1),
+                total: intl.formatNumber(pageSections.length),
+              }
+            )}
+          </span>
+          <div style={{ flex: 1, minWidth: '120px', display: 'flex', gap: '4px' }}>
+            {pageSections.map((section, i) => (
+              <div
+                key={section.id}
+                style={{
+                  flex: 1,
+                  height: '4px',
+                  borderRadius: '2px',
+                  background:
+                    i < displayIdx
+                      ? 'var(--ds-primary)'
+                      : i === displayIdx
+                        ? 'var(--ds-primary-glow)'
+                        : 'var(--ds-bg-tinted)',
+                  transition: 'background 300ms ease',
+                }}
+              />
+            ))}
+          </div>
+          {minutesLeft !== null && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', whiteSpace: 'nowrap' }}>
+              <Clock size={12} />
+              {intl.formatMessage(
+                { id: 'learn.course.stepper_time_left', defaultMessage: '~{min} min left' },
+                { min: intl.formatNumber(minutesLeft) }
+              )}
+            </span>
+          )}
+        </div>
+
         {pageLessons.map((lesson, pageIdx) => {
           const globalIndex = startLessonIndex + pageIdx;
           return (
@@ -101,15 +211,16 @@ export default function CourseContent({
               </div>
 
               {lesson.sections.map((section, idx) => (
-                <LessonSectionContainer
-                  key={section.id}
-                  section={section}
-                  sectionIndex={idx}
-                  lessonLabel={`${courseNumber}.${globalIndex + 1}`}
-                  isRtl={isRtl}
-                  completed={isSectionComplete(section.id)}
-                  alternateBackground={idx % 2 === 1}
-                />
+                <div key={section.id} data-stepper-idx={lessonSectionOffsets[pageIdx] + idx}>
+                  <LessonSectionContainer
+                    section={section}
+                    sectionIndex={idx}
+                    lessonLabel={`${courseNumber}.${globalIndex + 1}`}
+                    isRtl={isRtl}
+                    completed={isSectionComplete(section.id)}
+                    alternateBackground={idx % 2 === 1}
+                  />
+                </div>
               ))}
             </div>
           );

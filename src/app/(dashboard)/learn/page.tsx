@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { getAllCourses } from '@/data/courses';
 import { getCategory } from '@/data/courses/categories';
 import { getAllArticles } from '@/data/articles';
-import { getTotalSections } from '@/types/course';
+import { getTotalSections, parseEstimatedMinutes } from '@/types/course';
 import type { CourseData, CourseLevel } from '@/types/course';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/store/authStore';
@@ -164,12 +164,6 @@ function getNextLessonTitle(course: CourseData, completedIds: string[] | undefin
     if (lesson.sections.some((s) => !done.has(s.id))) return lesson.title;
   }
   return null;
-}
-
-function parseEstimatedMinutes(estimatedTime: string | undefined): number | null {
-  if (!estimatedTime) return null;
-  const match = estimatedTime.match(/\d+/);
-  return match ? parseInt(match[0], 10) : null;
 }
 
 /* ----- Animated score ring ----- */

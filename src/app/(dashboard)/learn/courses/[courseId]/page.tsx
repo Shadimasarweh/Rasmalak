@@ -44,7 +44,6 @@ export default function CourseViewerPage() {
     return localStorage.getItem('courseSidebarOpen') === 'true';
   });
   const [currentPage, setCurrentPage] = useState(0);
-  const [tutorOpen, setTutorOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -250,8 +249,8 @@ export default function CourseViewerPage() {
           </button>
         </div>
 
-        {/* Scrollable content */}
-        <div ref={scrollRef} className={tutorOpen ? 'course-content-with-tutor' : undefined} style={{ flex: 1, overflowY: 'auto' }}>
+        {/* Scrollable content — always full width; the tutor is an overlay dock */}
+        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto' }}>
           <CourseContent
             course={course}
             courseNumber={courseNumber}
@@ -270,21 +269,12 @@ export default function CourseViewerPage() {
         courseId={courseId}
         courseTitle={course.title}
         currentLessons={currentPageLessons}
-        onOpenChange={setTutorOpen}
       />
 
       <style>{`
-        .course-content-with-tutor {
-          padding-right: 400px;
-        }
         @media (min-width: 640px) {
           .course-viewer-responsive {
             margin: calc(-1 * 1.5rem) !important;
-          }
-        }
-        @media (max-width: 900px) {
-          .course-content-with-tutor {
-            padding-right: 0 !important;
           }
         }
       `}</style>

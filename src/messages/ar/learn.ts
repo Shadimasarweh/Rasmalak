@@ -151,6 +151,9 @@ export default {
   'course.next': 'التالي',
   'course.previous': 'السابق',
   'course.complete_course': 'إكمال الدورة',
+  // Course viewer stepper
+  'course.stepper_section_of': 'القسم {current} من {total}',
+  'course.stepper_time_left': 'يتبقى نحو {min} دقيقة',
   // Course tutor chat
   'course.tutor_title': 'مساعد الدورة',
   'course.tutor_placeholder': 'اسأل عن هذه الدورة...',
@@ -158,6 +161,10 @@ export default {
   'course.tutor_welcome': 'تحتاج مساعدة في الدورة؟',
   'course.tutor_welcome_sub': 'اسألني عن أي موضوع أو مفهوم أو أي شيء في هذه الدورة وسأساعدك.',
   'course.tutor_send': 'إرسال',
+  'course.tutor_ask': 'اسأل مستشارك',
+  'course.tutor_quick_explain': 'اشرح هذا الدرس ببساطة',
+  'course.tutor_quick_example': 'أعطني مثالاً من الواقع',
+  'course.tutor_quick_summary': 'لخّص أهم النقاط',
   // Article viewer
   'article.not_found': 'المقال غير موجود',
   'article.back_to_learn': 'العودة للتعلّم',
