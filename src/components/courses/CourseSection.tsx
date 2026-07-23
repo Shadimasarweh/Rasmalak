@@ -9,9 +9,20 @@ import {
   ComparisonBlock as ComparisonComp,
   ActionPromptBlock as ActionPromptComp,
   CheckpointBlock as CheckpointComp,
+  CheckpointQuiz,
 } from './blocks';
 
-function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
+function BlockRenderer({
+  block,
+  isRtl,
+  quizPassed,
+  onQuizPass,
+}: {
+  block: Block;
+  isRtl: boolean;
+  quizPassed?: boolean;
+  onQuizPass?: () => void;
+}) {
   switch (block.type) {
     case 'p':
       return <TextBlock text={block.text} />;
@@ -33,7 +44,17 @@ function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
     case 'action_prompt':
       return <ActionPromptComp text={block.text} />;
     case 'checkpoint':
-      return <CheckpointComp title={block.title} items={block.items} isRtl={isRtl} />;
+      return block.quiz && block.quiz.length > 0 ? (
+        <CheckpointQuiz
+          title={block.title}
+          quiz={block.quiz}
+          isRtl={isRtl}
+          passed={quizPassed}
+          onPass={onQuizPass}
+        />
+      ) : (
+        <CheckpointComp title={block.title} items={block.items} isRtl={isRtl} />
+      );
     default:
       return null;
   }
@@ -46,6 +67,8 @@ interface LessonSectionContainerProps {
   isRtl: boolean;
   completed: boolean;
   alternateBackground: boolean;
+  quizPassed?: boolean;
+  onQuizPass?: () => void;
 }
 
 export default function LessonSectionContainer({
@@ -54,6 +77,8 @@ export default function LessonSectionContainer({
   isRtl,
   completed,
   alternateBackground,
+  quizPassed,
+  onQuizPass,
 }: LessonSectionContainerProps) {
   return (
     <div
@@ -151,7 +176,7 @@ export default function LessonSectionContainer({
       {/* Content blocks */}
       <div style={{ paddingInlineStart: '50px' }}>
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} isRtl={isRtl} />
+          <BlockRenderer key={i} block={block} isRtl={isRtl} quizPassed={quizPassed} onQuizPass={onQuizPass} />
         ))}
       </div>
     </div>

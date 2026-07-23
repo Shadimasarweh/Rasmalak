@@ -154,6 +154,15 @@ export default {
   // Course viewer stepper
   'course.stepper_section_of': 'القسم {current} من {total}',
   'course.stepper_time_left': 'يتبقى نحو {min} دقيقة',
+  // Checkpoint quiz
+  'course.quiz_answered': 'أجبت عن {answered} من {total}',
+  'course.quiz_correct': 'إجابة صحيحة',
+  'course.quiz_incorrect': 'إجابة غير صحيحة',
+  'course.quiz_passed': 'اجتزت نقطة المراجعة!',
+  'course.quiz_passed_sub': 'اعتُبر القسم مكتملاً — واصل التقدم.',
+  'course.quiz_failed': 'اقتربت — راجع التوضيحات وحاول مرة أخرى.',
+  'course.quiz_retry': 'حاول مجدداً',
+  'course.quiz_locked_next': 'اجتز اختبار نقطة المراجعة للمتابعة',
   // Course tutor chat
   'course.tutor_title': 'مساعد الدورة',
   'course.tutor_placeholder': 'اسأل عن هذه الدورة...',

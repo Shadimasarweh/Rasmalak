@@ -2,11 +2,11 @@
 
 export default function CheckpointBlock({
   title,
-  items,
+  items = [],
   isRtl,
 }: {
   title?: string;
-  items: string[];
+  items?: string[];
   isRtl: boolean;
 }) {
   return (

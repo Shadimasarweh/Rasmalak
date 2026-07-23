@@ -7,7 +7,13 @@ import { useCourseProgress } from '@/store/courseProgressStore';
 import { getTotalSections, parseEstimatedMinutes } from '@/types/course';
 import CourseHero from './CourseHero';
 import LessonSectionContainer from './CourseSection';
-import type { CourseData } from '@/types/course';
+import type { CourseData, Section } from '@/types/course';
+
+// Sections whose checkpoint carries quiz data gate page navigation: they are
+// only marked complete when the quiz is passed, never by merely viewing.
+function sectionHasQuiz(section: Section): boolean {
+  return section.blocks.some((b) => b.type === 'checkpoint' && !!b.quiz && b.quiz.length > 0);
+}
 
 interface CourseContentProps {
   course: CourseData;
@@ -34,7 +40,7 @@ export default function CourseContent({
 }: CourseContentProps) {
   const intl = useIntl();
   const isRtl = course.locale === 'ar';
-  const { markSectionsComplete, isSectionComplete, loading } = useCourseProgress();
+  const { markSectionsComplete, markSectionComplete, isSectionComplete, loading } = useCourseProgress();
 
   const pageLessons = useMemo(() => {
     const start = currentPage * lessonsPerPage;
@@ -79,16 +85,26 @@ export default function CourseContent({
     return () => observer.disconnect();
   }, [currentPage, pageLessons]);
 
+  const quizSectionIds = useMemo(
+    () => pageSections.filter(sectionHasQuiz).map((s) => s.id),
+    [pageSections]
+  );
+
   useEffect(() => {
     if (loading || pageLessons.length === 0) return;
-    const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
-    markSectionsComplete(sectionIds);
-  }, [currentPage, loading, pageLessons, markSectionsComplete]);
+    const quizIds = new Set(quizSectionIds);
+    const sectionIds = pageLessons
+      .flatMap((l) => l.sections.map((s) => s.id))
+      .filter((id) => !quizIds.has(id));
+    if (sectionIds.length > 0) markSectionsComplete(sectionIds);
+  }, [currentPage, loading, pageLessons, quizSectionIds, markSectionsComplete]);
 
   if (pageLessons.length === 0) return null;
 
   const isFirstPage = currentPage === 0;
   const isLastPage = currentPage === totalPages - 1;
+
+  const allQuizzesPassed = quizSectionIds.every((id) => isSectionComplete(id));
 
   const startLessonIndex = currentPage * lessonsPerPage;
 
@@ -104,15 +120,23 @@ export default function CourseContent({
       ? Math.max(1, Math.ceil((estMinutes / totalCourseSections) * remainingSections))
       : null;
 
+  const markViewedSections = () => {
+    const quizIds = new Set(quizSectionIds);
+    const sectionIds = pageLessons
+      .flatMap((l) => l.sections.map((s) => s.id))
+      .filter((id) => !quizIds.has(id));
+    if (sectionIds.length > 0) markSectionsComplete(sectionIds);
+  };
+
   const handleNext = () => {
-    const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
-    markSectionsComplete(sectionIds);
+    if (!allQuizzesPassed) return;
+    markViewedSections();
     onNextPage();
   };
 
   const handleComplete = () => {
-    const sectionIds = pageLessons.flatMap((l) => l.sections.map((s) => s.id));
-    markSectionsComplete(sectionIds);
+    if (!allQuizzesPassed) return;
+    markViewedSections();
     onComplete();
   };
 
@@ -219,6 +243,8 @@ export default function CourseContent({
                     isRtl={isRtl}
                     completed={isSectionComplete(section.id)}
                     alternateBackground={idx % 2 === 1}
+                    quizPassed={isSectionComplete(section.id)}
+                    onQuizPass={() => markSectionComplete(section.id)}
                   />
                 </div>
               ))}
@@ -241,24 +267,26 @@ export default function CourseContent({
             <button
               type="button"
               onClick={handleComplete}
+              disabled={!allQuizzesPassed}
               style={{
                 width: '100%',
                 padding: '12px 24px',
-                background: 'var(--ds-primary)',
+                background: allQuizzesPassed ? 'var(--ds-primary)' : 'var(--ds-text-muted)',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: 500,
-                cursor: 'pointer',
+                cursor: allQuizzesPassed ? 'pointer' : 'not-allowed',
+                opacity: allQuizzesPassed ? 1 : 0.6,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
                 transition: 'background-color 150ms ease',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
+              onMouseEnter={(e) => { if (allQuizzesPassed) e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+              onMouseLeave={(e) => { if (allQuizzesPassed) e.currentTarget.style.background = 'var(--ds-primary)'; }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -269,30 +297,41 @@ export default function CourseContent({
             <button
               type="button"
               onClick={handleNext}
+              disabled={!allQuizzesPassed}
               style={{
                 width: '100%',
                 padding: '12px 24px',
-                background: 'var(--ds-primary)',
+                background: allQuizzesPassed ? 'var(--ds-primary)' : 'var(--ds-text-muted)',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: 500,
-                cursor: 'pointer',
+                cursor: allQuizzesPassed ? 'pointer' : 'not-allowed',
+                opacity: allQuizzesPassed ? 1 : 0.6,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
                 transition: 'background-color 150ms ease',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
+              onMouseEnter={(e) => { if (allQuizzesPassed) e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+              onMouseLeave={(e) => { if (allQuizzesPassed) e.currentTarget.style.background = 'var(--ds-primary)'; }}
             >
               {intl.formatMessage({ id: 'learn.course.next', defaultMessage: 'Next' })}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points={isRtl ? '15 18 9 12 15 6' : '9 18 15 12 9 6'} />
               </svg>
             </button>
+          )}
+
+          {!allQuizzesPassed && (
+            <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', textAlign: 'center', margin: 0 }}>
+              {intl.formatMessage({
+                id: 'learn.course.quiz_locked_next',
+                defaultMessage: 'Pass the checkpoint quiz to continue',
+              })}
+            </p>
           )}
 
           {!isFirstPage && (

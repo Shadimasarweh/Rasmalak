@@ -154,6 +154,15 @@ export default {
   // Course viewer stepper
   'course.stepper_section_of': 'Section {current} of {total}',
   'course.stepper_time_left': '~{min} min left',
+  // Checkpoint quiz
+  'course.quiz_answered': '{answered} / {total} answered',
+  'course.quiz_correct': 'Correct',
+  'course.quiz_incorrect': 'Not quite',
+  'course.quiz_passed': 'Checkpoint passed!',
+  'course.quiz_passed_sub': 'Section marked complete — keep going.',
+  'course.quiz_failed': 'Almost there — review the explanations and try again.',
+  'course.quiz_retry': 'Try again',
+  'course.quiz_locked_next': 'Pass the checkpoint quiz to continue',
   // Course tutor chat
   'course.tutor_title': 'Course Tutor',
   'course.tutor_placeholder': 'Ask about this course...',

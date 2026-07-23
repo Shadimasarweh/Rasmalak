@@ -93,8 +93,10 @@ function blockToText(block: Block): string {
       ].join(' | ');
     case 'action_prompt':
       return `Action: ${block.text}`;
-    case 'checkpoint':
-      return `Checkpoint${block.title ? ` — ${block.title}` : ''}: ${block.items.join('; ')}`;
+    case 'checkpoint': {
+      const parts = [...(block.items ?? []), ...(block.quiz ?? []).map((q) => q.question)];
+      return `Checkpoint${block.title ? ` — ${block.title}` : ''}: ${parts.join('; ')}`;
+    }
     default:
       return '';
   }
