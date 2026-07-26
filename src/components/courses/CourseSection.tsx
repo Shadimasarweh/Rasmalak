@@ -14,12 +14,10 @@ import {
 
 function BlockRenderer({
   block,
-  isRtl,
   quizPassed,
   onQuizPass,
 }: {
   block: Block;
-  isRtl: boolean;
   quizPassed?: boolean;
   onQuizPass?: () => void;
 }) {
@@ -48,12 +46,11 @@ function BlockRenderer({
         <CheckpointQuiz
           title={block.title}
           quiz={block.quiz}
-          isRtl={isRtl}
           passed={quizPassed}
           onPass={onQuizPass}
         />
       ) : (
-        <CheckpointComp title={block.title} items={block.items} isRtl={isRtl} />
+        <CheckpointComp title={block.title} items={block.items} />
       );
     default:
       return null;
@@ -64,7 +61,6 @@ interface LessonSectionContainerProps {
   section: Section;
   sectionIndex: number;
   lessonLabel: string;
-  isRtl: boolean;
   completed: boolean;
   alternateBackground: boolean;
   quizPassed?: boolean;
@@ -74,7 +70,6 @@ interface LessonSectionContainerProps {
 export default function LessonSectionContainer({
   section,
   lessonLabel,
-  isRtl,
   completed,
   alternateBackground,
   quizPassed,
@@ -176,7 +171,7 @@ export default function LessonSectionContainer({
       {/* Content blocks */}
       <div style={{ paddingInlineStart: '50px' }}>
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} isRtl={isRtl} quizPassed={quizPassed} onQuizPass={onQuizPass} />
+          <BlockRenderer key={i} block={block} quizPassed={quizPassed} onQuizPass={onQuizPass} />
         ))}
       </div>
     </div>

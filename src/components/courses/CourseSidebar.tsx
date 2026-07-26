@@ -53,11 +53,10 @@ export default function CourseSidebar({
           position: 'absolute',
           top: 0,
           bottom: 0,
-          [isRtl ? 'right' : 'left']: 0,
+          insetInlineStart: 0,
           zIndex: 10,
           background: 'var(--color-bg-surface-1)',
-          borderRight: isRtl ? 'none' : '0.5px solid var(--ds-border)',
-          borderLeft: isRtl ? '0.5px solid var(--ds-border)' : 'none',
+          borderInlineEnd: '0.5px solid var(--ds-border)',
           display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
@@ -186,7 +185,7 @@ export default function CourseSidebar({
                       border: 'none',
                       borderInlineStart: active ? '3px solid var(--color-accent-growth)' : '3px solid transparent',
                       cursor: 'pointer',
-                      textAlign: isRtl ? 'right' : 'left',
+                      textAlign: 'start',
                       transition: 'background 0.15s ease',
                     }}
                   >

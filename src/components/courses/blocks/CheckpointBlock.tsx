@@ -1,14 +1,15 @@
 'use client';
 
+import { useIntl } from 'react-intl';
+
 export default function CheckpointBlock({
   title,
   items = [],
-  isRtl,
 }: {
   title?: string;
   items?: string[];
-  isRtl: boolean;
 }) {
+  const intl = useIntl();
   return (
     <div
       style={{
@@ -49,7 +50,7 @@ export default function CheckpointBlock({
             letterSpacing: '0.04em',
           }}
         >
-          {title || (isRtl ? 'نقطة مراجعة' : 'Checkpoint')}
+          {title || intl.formatMessage({ id: 'learn.course.checkpoint_title' })}
         </span>
       </div>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

@@ -8,13 +8,12 @@ import type { QuizQuestion } from '@/types/course';
 interface CheckpointQuizProps {
   title?: string;
   quiz: QuizQuestion[];
-  isRtl: boolean;
   // True when the section is already complete (e.g. passed in a previous visit).
   passed?: boolean;
   onPass?: () => void;
 }
 
-export default function CheckpointQuiz({ title, quiz, isRtl, passed, onPass }: CheckpointQuizProps) {
+export default function CheckpointQuiz({ title, quiz, passed, onPass }: CheckpointQuizProps) {
   const intl = useIntl();
   const [selected, setSelected] = useState<Record<number, number>>({});
 
@@ -86,7 +85,7 @@ export default function CheckpointQuiz({ title, quiz, isRtl, passed, onPass }: C
               letterSpacing: '0.04em',
             }}
           >
-            {title || (isRtl ? 'نقطة مراجعة' : 'Checkpoint')}
+            {title || intl.formatMessage({ id: 'learn.course.checkpoint_title' })}
           </span>
         </div>
         <span

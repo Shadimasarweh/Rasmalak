@@ -20,6 +20,10 @@ import {
  * achievements): taxes was #6366F1, planning was #8B5CF6, business was
  * #D97706 in the mock map.
  *
+ * The seven remaining hues already occupy green/emerald/teal/cyan/slate-blue
+ * plus brick red and olive, so the substitutes are drawn from the only lanes
+ * left that stay off the banned palette: deep rose, burnt orange and moss.
+ *
  * `color` is the solid chip/hero hue (constant across themes).
  * `heroDark` is the darker end of the article hero gradient.
  * `labelVar` is a theme-aware CSS variable for colored text labels — the
@@ -42,10 +46,10 @@ const CATEGORY_LIST: SubjectCategory[] = [
   { slug: 'debt_and_credit', color: '#B54747', heroDark: '#8F3A3A', labelVar: 'var(--cat-debt)', icon: CreditCard, labelEn: 'Debt & Credit', labelAr: 'الديون والائتمان' },
   { slug: 'investment_fundamentals', color: '#059669', heroDark: '#047857', labelVar: 'var(--cat-investing)', icon: TrendingUp, labelEn: 'Investing', labelAr: 'الاستثمار' },
   { slug: 'insurance_literacy', color: '#0E7490', heroDark: '#155E75', labelVar: 'var(--cat-insurance)', icon: Shield, labelEn: 'Insurance', labelAr: 'التأمين' },
-  { slug: 'taxes_and_legal', color: '#475569', heroDark: '#334155', labelVar: 'var(--cat-taxes)', icon: FileText, labelEn: 'Taxes & Legal', labelAr: 'الضرائب والقانون' },
-  { slug: 'sme_financial_management', color: '#92400E', heroDark: '#78350F', labelVar: 'var(--cat-business)', icon: Briefcase, labelEn: 'Business', labelAr: 'الأعمال' },
+  { slug: 'taxes_and_legal', color: '#9D174D', heroDark: '#7A0F3C', labelVar: 'var(--cat-taxes)', icon: FileText, labelEn: 'Taxes & Legal', labelAr: 'الضرائب والقانون' },
+  { slug: 'sme_financial_management', color: '#C2410C', heroDark: '#9A3412', labelVar: 'var(--cat-business)', icon: Briefcase, labelEn: 'Business', labelAr: 'الأعمال' },
   { slug: 'islamic_finance_basics', color: '#7C6F1B', heroDark: '#5D5414', labelVar: 'var(--cat-islamic)', icon: MoonStar, labelEn: 'Islamic Finance', labelAr: 'التمويل الإسلامي' },
-  { slug: 'life_stage_financial_planning', color: '#0F1E2E', heroDark: '#0A1220', labelVar: 'var(--cat-planning)', icon: Target, labelEn: 'Planning', labelAr: 'التخطيط' },
+  { slug: 'life_stage_financial_planning', color: '#4D7C0F', heroDark: '#3F6212', labelVar: 'var(--cat-planning)', icon: Target, labelEn: 'Planning', labelAr: 'التخطيط' },
 ];
 
 const CATEGORY_MAP = new Map(CATEGORY_LIST.map((c) => [c.slug, c]));

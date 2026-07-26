@@ -148,7 +148,7 @@ function LinkedActionPromptBlock({ text }: { text: string }) {
   );
 }
 
-function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
+function BlockRenderer({ block }: { block: Block }) {
   switch (block.type) {
     case 'p':
       return <LinkedTextBlock text={block.text} />;
@@ -170,7 +170,7 @@ function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
     case 'action_prompt':
       return <LinkedActionPromptBlock text={block.text} />;
     case 'checkpoint':
-      return <CheckpointComp title={block.title} items={block.items} isRtl={isRtl} />;
+      return <CheckpointComp title={block.title} items={block.items} />;
     default:
       return null;
   }
@@ -191,13 +191,20 @@ export default function ArticlePage() {
   const [readPct, setReadPct] = useState(0);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
 
-  const relatedArticles = useMemo(
-    () =>
-      getAllArticles(language)
-        .filter((a) => a.articleId !== (article?.articleId ?? ''))
-        .slice(0, 3),
-    [language, article]
-  );
+  // Same-category articles first, then the rest as filler so the row still
+  // fills out while the library is small.
+  const relatedArticles = useMemo(() => {
+    if (!article) return [];
+    const currentSlug = getArticleCategory(article.tagEn, article.tagAr).slug;
+    const others = getAllArticles(language).filter((a) => a.articleId !== article.articleId);
+    const sameCategory = others.filter(
+      (a) => getArticleCategory(a.tagEn, a.tagAr).slug === currentSlug
+    );
+    const rest = others.filter(
+      (a) => getArticleCategory(a.tagEn, a.tagAr).slug !== currentSlug
+    );
+    return [...sameCategory, ...rest].slice(0, 3);
+  }, [language, article]);
 
   // Reading progress — % of the article body that has passed the fold.
   useEffect(() => {
@@ -371,6 +378,7 @@ export default function ArticlePage() {
             {isRtl ? article.tagAr : article.tagEn}
           </span>
           <h1
+            className="ds-display-heading"
             style={{
               fontSize: '24px',
               fontWeight: 700,
@@ -378,8 +386,6 @@ export default function ArticlePage() {
               margin: 0,
               marginBottom: '12px',
               lineHeight: 1.35,
-              fontFeatureSettings: '"kern" 1',
-              fontFamily: isRtl ? 'var(--font-arabic)' : undefined,
             }}
           >
             {article.title}
@@ -427,9 +433,10 @@ export default function ArticlePage() {
             <span aria-hidden style={{ color: 'rgba(255,255,255,0.4)' }}>·</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>
               <Clock size={14} />
-              {isRtl
-                ? `${intl.formatNumber(article.readMin)} دقيقة قراءة`
-                : `${article.readMin} min read`}
+              {intl.formatMessage(
+                { id: 'learn.min_read' },
+                { min: intl.formatNumber(article.readMin) }
+              )}
             </span>
           </div>
         </div>
@@ -494,6 +501,7 @@ export default function ArticlePage() {
                   {intl.formatNumber(sectionIdx + 1, { minimumIntegerDigits: 2 })}
                 </span>
                 <h2
+                  className="ds-display-heading"
                   style={{
                     fontSize: '18px',
                     fontWeight: 700,
@@ -508,7 +516,7 @@ export default function ArticlePage() {
 
               <div style={{ paddingInlineStart: '2px' }}>
                 {section.blocks.map((block, i) => (
-                  <BlockRenderer key={i} block={block} isRtl={isRtl} />
+                  <BlockRenderer key={i} block={block} />
                 ))}
               </div>
             </div>
@@ -556,9 +564,10 @@ export default function ArticlePage() {
                             {related.title}
                           </h3>
                           <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
-                            {isRtl
-                              ? `${intl.formatNumber(related.readMin)} دقيقة قراءة`
-                              : `${related.readMin} min read`}
+                            {intl.formatMessage(
+                              { id: 'learn.min_read' },
+                              { min: intl.formatNumber(related.readMin) }
+                            )}
                           </span>
                         </div>
                       </div>

@@ -6,8 +6,6 @@ import { useLanguage } from '@/store/useStore';
 import { useSession } from '@/store/authStore';
 import { AIMessage } from '@/ai/types';
 import MarkdownText from '@/components/ui/MarkdownText';
-import type { Lesson } from '@/types/course';
-
 /* ===== ICONS ===== */
 
 const TutorIcon = () => (
@@ -74,9 +72,11 @@ function TutorMessageBubble({ message, isUser }: { message: AIMessage; isUser: b
         style={{
           maxWidth: '85%',
           padding: '10px 14px',
-          borderRadius: isUser
-            ? '14px 14px 2px 14px'
-            : '14px 14px 14px 2px',
+          // Logical corners so the bubble's tail stays on the side the bubble
+          // is aligned to when the document flips to RTL.
+          borderRadius: '14px',
+          borderEndEndRadius: isUser ? '2px' : undefined,
+          borderEndStartRadius: isUser ? undefined : '2px',
           background: isUser
             ? 'var(--ds-primary)'
             : 'var(--ds-bg-card)',
@@ -108,15 +108,15 @@ function TutorMessageBubble({ message, isUser }: { message: AIMessage; isUser: b
 
 /* ===== PROPS ===== */
 
+// The tutor route loads the full course server-side from `courseId`, so the
+// title and lesson list no longer need to be passed down.
 interface CourseTutorChatProps {
   courseId: string;
-  courseTitle: string;
-  currentLessons: Lesson[];
 }
 
 /* ===== MAIN COMPONENT ===== */
 
-export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, currentLessons: _currentLessons }: CourseTutorChatProps) {
+export default function CourseTutorChat({ courseId }: CourseTutorChatProps) {
   const intl = useIntl();
   const language = useLanguage();
   const session = useSession();
@@ -224,9 +224,7 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
         const errorMessage: AIMessage = {
           id: `tutor_${Date.now()}_error`,
           role: 'assistant',
-          content: data.error || (language === 'ar'
-            ? 'حدث خطأ. الرجاء المحاولة مرة أخرى.'
-            : 'An error occurred. Please try again.'),
+          content: data.error || intl.formatMessage({ id: 'learn.course.tutor_error_generic' }),
           timestamp: new Date().toISOString(),
           isError: true,
           errorMessage: data.error,
@@ -237,9 +235,7 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
       const errorMessage: AIMessage = {
         id: `tutor_${Date.now()}_error`,
         role: 'assistant',
-        content: language === 'ar'
-          ? 'خطأ في الاتصال. الرجاء التحقق من الإنترنت والمحاولة مرة أخرى.'
-          : 'Connection error. Please check your internet and try again.',
+        content: intl.formatMessage({ id: 'learn.course.tutor_error_network' }),
         timestamp: new Date().toISOString(),
         isError: true,
       };
@@ -247,7 +243,7 @@ export default function CourseTutorChat({ courseId, courseTitle: _courseTitle, c
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, courseId, language, conversationHistory, session?.access_token]);
+  }, [isLoading, courseId, language, conversationHistory, session?.access_token, intl]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

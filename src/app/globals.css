@@ -245,10 +245,10 @@
   --cat-debt: #B54747;
   --cat-investing: #059669;
   --cat-insurance: #0E7490;
-  --cat-taxes: #475569;
-  --cat-business: #92400E;
+  --cat-taxes: #9D174D;
+  --cat-business: #C2410C;
   --cat-islamic: #7C6F1B;
-  --cat-planning: #0F1E2E;
+  --cat-planning: #4D7C0F;
 }
 
 /* ============================================================
@@ -360,10 +360,10 @@
   --cat-debt: #F49999;
   --cat-investing: #34D399;
   --cat-insurance: #22D3EE;
-  --cat-taxes: #94A3B8;
-  --cat-business: #D9884A;
+  --cat-taxes: #F472A0;
+  --cat-business: #F09562;
   --cat-islamic: #C4B454;
-  --cat-planning: #93A8BC;
+  --cat-planning: #A3C853;
 }
 
 /* ============================================================
@@ -699,6 +699,15 @@ html, body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-4);
+}
+
+/* Learn v2 display headings — Amiri is an Arabic-only face, so it applies
+   under RTL and leaves Inter in place for Latin copy. */
+.ds-display-heading {
+  font-feature-settings: 'kern' 1;
+}
+[dir='rtl'] .ds-display-heading {
+  font-family: var(--font-arabic);
 }
 
 /* Learn v2 course grid — auto-fill so cards keep their width when filters

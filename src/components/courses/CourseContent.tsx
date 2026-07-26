@@ -239,8 +239,7 @@ export default function CourseContent({
                   <LessonSectionContainer
                     section={section}
                     sectionIndex={idx}
-                    lessonLabel={`${courseNumber}.${globalIndex + 1}`}
-                    isRtl={isRtl}
+                    lessonLabel={`${intl.formatNumber(courseNumber, { useGrouping: false })}.${intl.formatNumber(globalIndex + 1, { useGrouping: false })}`}
                     completed={isSectionComplete(section.id)}
                     alternateBackground={idx % 2 === 1}
                     quizPassed={isSectionComplete(section.id)}

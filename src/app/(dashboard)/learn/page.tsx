@@ -38,6 +38,7 @@ import {
   Trophy,
   Star,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Toast } from '@/components/ui/Toast';
 
 /* ============================================
@@ -54,13 +55,10 @@ function toArabicNumerals(str: string): string {
 const PAGE_BG = 'var(--ds-bg-page)';
 const LEARN_GREEN = 'var(--ds-primary)';
 
-const LEVEL_CONFIG: Record<
-  CourseLevel,
-  { dotColor: string; expandedBg: string; labelEn: string; labelAr: string }
-> = {
-  beginner: { dotColor: 'var(--ds-primary)', expandedBg: 'var(--ds-bg-tinted)', labelEn: 'Beginner', labelAr: 'مبتدئ' },
-  intermediate: { dotColor: 'var(--ds-accent-gold)', expandedBg: 'var(--ds-warning-bg)', labelEn: 'Intermediate', labelAr: 'متوسط' },
-  advanced: { dotColor: 'var(--ds-error)', expandedBg: 'var(--ds-error-bg)', labelEn: 'Advanced', labelAr: 'متقدم' },
+const LEVEL_CONFIG: Record<CourseLevel, { dotColor: string; labelKey: string }> = {
+  beginner: { dotColor: 'var(--ds-primary)', labelKey: 'learn.level_beginner' },
+  intermediate: { dotColor: 'var(--ds-accent-gold)', labelKey: 'learn.level_intermediate' },
+  advanced: { dotColor: 'var(--ds-error)', labelKey: 'learn.level_advanced' },
 };
 
 const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; border: string }> = {
@@ -157,7 +155,7 @@ function useLearnPageData() {
     })[0];
   }, [courses, progressMap, lastActivityByBase]);
 
-  return { courses, progressMap, completedByBase, resumeCourse };
+  return { courses, progressMap, completedByBase, resumeCourse, lastActivityByBase };
 }
 
 function getNextLessonTitle(course: CourseData, completedIds: string[] | undefined): string | null {
@@ -245,7 +243,7 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
       }}
     >
       <div style={{ flex: 1, minWidth: '220px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px', fontFeatureSettings: '"kern" 1', fontFamily: isRtl ? 'var(--font-arabic)' : undefined }}>
+        <h1 className="ds-display-heading" style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'learn.title', defaultMessage: 'Learn' })}
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0 }}>
@@ -298,8 +296,14 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
             fontSize: '12px',
             fontWeight: 600,
             cursor: 'pointer',
-            padding: '10px 8px',
-            margin: '-6px 0',
+            // Padded out to the 44px minimum hit target, then pulled back so
+            // the extra tap area doesn't push the milestone stack apart.
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '44px',
+            padding: '0 8px',
+            margin: '-9px 0',
           }}
         >
           {intl.formatMessage({ id: 'learn.how_to_raise', defaultMessage: 'How to raise it' })}
@@ -380,7 +384,7 @@ function ResumeStrip({
           <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             {intl.formatMessage({ id: 'learn.continue_learning', defaultMessage: 'Continue Learning' })}
           </span>
-          <span style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3, fontFeatureSettings: '"kern" 1', fontFamily: isRtl ? 'var(--font-arabic)' : undefined }}>
+          <span className="ds-display-heading" style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3 }}>
             {course.title}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -456,7 +460,7 @@ function FilterBar({
   const labelFor = (f: CourseFilter): string => {
     if (f === 'all') return intl.formatMessage({ id: 'learn.filter_all', defaultMessage: 'All courses' });
     if (f === 'in_progress') return intl.formatMessage({ id: 'learn.filter_in_progress', defaultMessage: 'In progress' });
-    return isRtl ? LEVEL_CONFIG[f].labelAr : LEVEL_CONFIG[f].labelEn;
+    return intl.formatMessage({ id: LEVEL_CONFIG[f].labelKey });
   };
 
   return (
@@ -588,7 +592,7 @@ function CourseCardV2({
             fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
             background: badgeColor.background, color: badgeColor.color, border: badgeColor.border,
           }}>
-            {isRtl ? LEVEL_CONFIG[level].labelAr : LEVEL_CONFIG[level].labelEn}
+            {intl.formatMessage({ id: LEVEL_CONFIG[level].labelKey })}
           </span>
         </div>
 
@@ -598,7 +602,7 @@ function CourseCardV2({
         </span>
 
         {/* Title */}
-        <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, lineHeight: 1.4, fontFeatureSettings: '"kern" 1' }}>
+        <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, lineHeight: 1.4 }}>
           {course.title}
         </h3>
 
@@ -799,8 +803,8 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
 
   return (
     <div style={{ marginTop: '16px' }}>
-      <div style={{ marginBottom: '20px', direction: isRtl ? 'rtl' : 'ltr', textAlign: isRtl ? 'right' : 'left' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)', margin: 0 }}>
+      <div style={{ marginBottom: '20px', direction: isRtl ? 'rtl' : 'ltr', textAlign: 'start' }}>
+        <h2 className="ds-display-heading" style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)', margin: 0 }}>
           {intl.formatMessage({ id: 'learn.articles.heading', defaultMessage: 'Practical Financial Insights' })}
         </h2>
         <p style={{ fontSize: '15px', color: 'var(--ds-text-body)', margin: '6px 0 0', lineHeight: 1.5 }}>
@@ -838,7 +842,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                   border: 'none',
                   cursor: 'pointer',
                   direction: isRtl ? 'rtl' : 'ltr',
-                  textAlign: isRtl ? 'right' : 'left',
+                  textAlign: 'start',
                   minHeight: '56px',
                   gap: '12px',
                 }}
@@ -848,9 +852,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                     {weekLabel}
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--ds-text-body)' }}>
-                    {language === 'ar'
-                      ? `${intl.formatNumber(articleCount)} ${articleCount === 1 ? 'مقال' : 'مقالات'}`
-                      : `${articleCount} ${articleCount === 1 ? 'article' : 'articles'}`}
+                    {intl.formatMessage({ id: 'learn.articles_count' }, { count: articleCount })}
                   </span>
                 </div>
                 <ChevronDown
@@ -889,7 +891,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                           border: '0.5px solid var(--ds-border)',
                           cursor: 'pointer',
                           direction: isRtl ? 'rtl' : 'ltr',
-                          textAlign: isRtl ? 'right' : 'left',
+                          textAlign: 'start',
                           transition: 'box-shadow 0.2s ease',
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
@@ -913,7 +915,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                           </span>
                         </div>
                         <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                          <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
                             {article.title}
                           </h3>
                           <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>
@@ -942,7 +944,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                               transition: 'background-color 150ms ease',
                             }}
                           >
-                            {language === 'ar' ? 'اقرأ المقال' : 'Read Article'}
+                            {intl.formatMessage({ id: 'learn.article.read_article' })}
                           </span>
                         </div>
                       </div>
@@ -1038,7 +1040,7 @@ function ComingSoonBanner({
 
       <div style={{ flex: 1, minWidth: '220px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
+          <h2 className="ds-display-heading" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
             {intl.formatMessage({ id: titleKey, defaultMessage: titleDefault })}
           </h2>
           <span style={{
@@ -1110,13 +1112,13 @@ function ComingSoonBanner({
 }
 
 /* ----- Videos tab (placeholder) ----- */
-const VIDEO_CARDS: { titleEn: string; titleAr: string; duration: string; level: CourseLevel }[] = [
-  { titleEn: 'Introduction to Stock Markets', titleAr: 'مقدمة إلى أسواق الأسهم', duration: '15:20', level: 'beginner' },
-  { titleEn: 'How Central Banks Work', titleAr: 'كيف تعمل البنوك المركزية', duration: '22:45', level: 'intermediate' },
-  { titleEn: 'Technical Analysis Basics', titleAr: 'أساسيات التحليل الفني', duration: '18:30', level: 'intermediate' },
-  { titleEn: 'Crypto and Blockchain Explained', titleAr: 'العملات الرقمية والبلوكتشين', duration: '25:00', level: 'advanced' },
-  { titleEn: 'Budgeting for Beginners', titleAr: 'وضع الميزانية للمبتدئين', duration: '12:10', level: 'beginner' },
-  { titleEn: 'Options Trading: Risk and Reward', titleAr: 'تداول الخيارات: المخاطر والعوائد', duration: '30:15', level: 'advanced' },
+const VIDEO_CARDS: { titleKey: string; duration: string; level: CourseLevel }[] = [
+  { titleKey: 'learn.video.stock_markets', duration: '15:20', level: 'beginner' },
+  { titleKey: 'learn.video.central_banks', duration: '22:45', level: 'intermediate' },
+  { titleKey: 'learn.video.technical_analysis', duration: '18:30', level: 'intermediate' },
+  { titleKey: 'learn.video.crypto_blockchain', duration: '25:00', level: 'advanced' },
+  { titleKey: 'learn.video.budgeting_beginners', duration: '12:10', level: 'beginner' },
+  { titleKey: 'learn.video.options_trading', duration: '30:15', level: 'advanced' },
 ];
 
 function VideosTab({ language, intl }: { language: string; intl: ReturnType<typeof useIntl> }) {
@@ -1135,7 +1137,7 @@ function VideosTab({ language, intl }: { language: string; intl: ReturnType<type
 
       <div className="learn-accordion-grid">
         {VIDEO_CARDS.map((card, i) => {
-          const levelLabel = isRtl ? LEVEL_CONFIG[card.level].labelAr : LEVEL_CONFIG[card.level].labelEn;
+          const levelLabel = intl.formatMessage({ id: LEVEL_CONFIG[card.level].labelKey });
           return (
             <div
               key={i}
@@ -1169,8 +1171,8 @@ function VideosTab({ language, intl }: { language: string; intl: ReturnType<type
                 </span>
               </div>
               <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'start' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-                  {isRtl ? card.titleAr : card.titleEn}
+                <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                  {intl.formatMessage({ id: card.titleKey })}
                 </h3>
                 <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>{levelLabel}</span>
                 <span style={{
@@ -1192,18 +1194,18 @@ function VideosTab({ language, intl }: { language: string; intl: ReturnType<type
 
 /* ----- Topics & Skills tab (placeholder) ----- */
 const TOPIC_CARDS = [
-  { titleEn: 'Budgeting', titleAr: 'الميزانية', icon: Wallet },
-  { titleEn: 'Investing', titleAr: 'الاستثمار', icon: TrendingUp },
-  { titleEn: 'Saving', titleAr: 'الادخار', icon: PiggyBank },
-  { titleEn: 'Debt Management', titleAr: 'إدارة الديون', icon: CreditCard },
-  { titleEn: 'Real Estate', titleAr: 'العقارات', icon: HomeIcon },
-  { titleEn: 'Stock Market', titleAr: 'سوق الأسهم', icon: BarChart2 },
-  { titleEn: 'Crypto', titleAr: 'العملات الرقمية', icon: Zap },
-  { titleEn: 'Insurance', titleAr: 'التأمين', icon: Shield },
-  { titleEn: 'Retirement', titleAr: 'التقاعد', icon: Clock },
-  { titleEn: 'Tax Planning', titleAr: 'التخطيط الضريبي', icon: FileText },
-  { titleEn: 'Business Finance', titleAr: 'تمويل الأعمال', icon: Briefcase },
-  { titleEn: 'Financial Goals', titleAr: 'الأهداف المالية', icon: Target },
+  { titleKey: 'learn.topic.budgeting', icon: Wallet },
+  { titleKey: 'learn.topic.investing', icon: TrendingUp },
+  { titleKey: 'learn.topic.saving', icon: PiggyBank },
+  { titleKey: 'learn.topic.debt_management', icon: CreditCard },
+  { titleKey: 'learn.topic.real_estate', icon: HomeIcon },
+  { titleKey: 'learn.topic.stock_market', icon: BarChart2 },
+  { titleKey: 'learn.topic.crypto', icon: Zap },
+  { titleKey: 'learn.topic.insurance', icon: Shield },
+  { titleKey: 'learn.topic.retirement', icon: Clock },
+  { titleKey: 'learn.topic.tax_planning', icon: FileText },
+  { titleKey: 'learn.topic.business_finance', icon: Briefcase },
+  { titleKey: 'learn.topic.financial_goals', icon: Target },
 ];
 
 function TopicsTab({ language, intl }: { language: string; intl: ReturnType<typeof useIntl> }) {
@@ -1243,8 +1245,8 @@ function TopicsTab({ language, intl }: { language: string; intl: ReturnType<type
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon size={24} style={{ color: 'var(--ds-primary)' }} />
               </div>
-              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-                {isRtl ? card.titleAr : card.titleEn}
+              <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                {intl.formatMessage({ id: card.titleKey })}
               </h3>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
@@ -1263,57 +1265,17 @@ function TopicsTab({ language, intl }: { language: string; intl: ReturnType<type
 
 /* ----- Achievements tab ----- */
 const ACHIEVEMENT_BADGES = [
-  {
-    titleEn: 'First Steps', titleAr: 'الخطوات الأولى',
-    conditionEn: 'Complete your first lesson', conditionAr: 'أكمل أول درس لك',
-    icon: 'star',
-    progressEn: '0 / 1 lessons', progressAr: '٠ / ١ دروس',
-  },
-  {
-    titleEn: 'Quick Learner', titleAr: 'المتعلم السريع',
-    conditionEn: 'Complete 5 lessons in a week', conditionAr: 'أكمل ٥ دروس في أسبوع',
-    icon: 'flame',
-    progressEn: '0 / 5 lessons this week', progressAr: '٠ / ٥ دروس هذا الأسبوع',
-  },
-  {
-    titleEn: 'Consistent', titleAr: 'المثابر',
-    conditionEn: '7-day learning streak', conditionAr: 'سلسلة تعلم ٧ أيام',
-    icon: 'trending',
-    progressEn: '0 / 7 day streak', progressAr: '٠ / ٧ أيام متتالية',
-  },
-  {
-    titleEn: 'Money Basics', titleAr: 'أساسيات المال',
-    conditionEn: 'Finish Beginner track', conditionAr: 'إنهاء مسار المبتدئين',
-    icon: 'award',
-    progressEn: '0 / 10 courses', progressAr: '٠ / ١٠ دورات',
-  },
-  {
-    titleEn: 'Investor Mindset', titleAr: 'عقلية المستثمر',
-    conditionEn: 'Finish Intermediate track', conditionAr: 'إنهاء مسار المتوسط',
-    icon: 'trophy',
-    progressEn: '0 / 8 courses', progressAr: '٠ / ٨ دورات',
-  },
-  {
-    titleEn: 'Financial Expert', titleAr: 'الخبير المالي',
-    conditionEn: 'Finish Advanced track', conditionAr: 'إنهاء مسار المتقدم',
-    icon: 'target',
-    progressEn: '0 / 10 courses', progressAr: '٠ / ١٠ دورات',
-  },
-  {
-    titleEn: 'Scholar', titleAr: 'العالم',
-    conditionEn: 'Read 10 articles', conditionAr: 'اقرأ ١٠ مقالات',
-    icon: 'book',
-    progressEn: '0 / 10 articles', progressAr: '٠ / ١٠ مقالات',
-  },
-  {
-    titleEn: 'Video Student', titleAr: 'طالب الفيديو',
-    conditionEn: 'Watch 5 videos', conditionAr: 'شاهد ٥ فيديوهات',
-    icon: 'play',
-    progressEn: '0 / 5 videos', progressAr: '٠ / ٥ فيديوهات',
-  },
+  { titleKey: 'learn.achievement.first_steps.title', conditionKey: 'learn.achievement.first_steps.condition', icon: 'star' },
+  { titleKey: 'learn.achievement.quick_learner.title', conditionKey: 'learn.achievement.quick_learner.condition', icon: 'flame' },
+  { titleKey: 'learn.achievement.consistent.title', conditionKey: 'learn.achievement.consistent.condition', icon: 'trending' },
+  { titleKey: 'learn.achievement.money_basics.title', conditionKey: 'learn.achievement.money_basics.condition', icon: 'award' },
+  { titleKey: 'learn.achievement.investor_mindset.title', conditionKey: 'learn.achievement.investor_mindset.condition', icon: 'trophy' },
+  { titleKey: 'learn.achievement.financial_expert.title', conditionKey: 'learn.achievement.financial_expert.condition', icon: 'target' },
+  { titleKey: 'learn.achievement.scholar.title', conditionKey: 'learn.achievement.scholar.condition', icon: 'book' },
+  { titleKey: 'learn.achievement.video_student.title', conditionKey: 'learn.achievement.video_student.condition', icon: 'play' },
 ];
 
-const ACHIEVEMENT_ICONS: Record<string, any> = {
+const ACHIEVEMENT_ICONS: Record<string, LucideIcon> = {
   star: Star,
   flame: Flame,
   trending: TrendingUp,
@@ -1328,12 +1290,13 @@ function AchievementsTab({
   language,
   progressMap,
   courses,
+  lastActivityByBase,
 }: {
   language: string;
   progressMap: Record<string, number>;
   courses: CourseData[];
+  lastActivityByBase: Record<string, string>;
 }) {
-  const isAr = language === 'ar';
   const isRtl = language === 'ar';
 
   const completedByLevel = useMemo(() => {
@@ -1369,6 +1332,34 @@ function AchievementsTab({
     [0, 10],
     [0, 5],
   ];
+
+  // A badge is earned the moment its last contributing course completed, so
+  // its date is the newest activity among those courses. Badges whose
+  // conditions aren't tracked yet (streaks, articles, videos) have no date.
+  const badgeEarnedAt: (string | null)[] = useMemo(() => {
+    const activityFor = (predicate: (c: CourseData) => boolean): string | null => {
+      let newest: string | null = null;
+      for (const course of courses) {
+        if (!predicate(course)) continue;
+        const ts = lastActivityByBase[baseCourseIdOf(course.courseId)];
+        if (ts && (!newest || ts > newest)) newest = ts;
+      }
+      return newest;
+    };
+    const levelComplete = (level: CourseLevel) => (c: CourseData) =>
+      (c.level ?? 'beginner') === level && (progressMap[c.courseId] ?? 0) >= 100;
+
+    return [
+      activityFor((c) => (progressMap[c.courseId] ?? 0) > 0),
+      null,
+      null,
+      activityFor(levelComplete('beginner')),
+      activityFor(levelComplete('intermediate')),
+      activityFor(levelComplete('advanced')),
+      null,
+      null,
+    ];
+  }, [courses, progressMap, lastActivityByBase]);
 
   const intl = useIntl();
   const unlockedCount = ACHIEVEMENT_BADGES.reduce((sum, _badge, i) => {
@@ -1425,9 +1416,8 @@ function AchievementsTab({
           const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
           const IconComponent = ACHIEVEMENT_ICONS[badge.icon] || Lock;
           const remaining = Math.max(0, total - current);
-          const progressLabel = isAr
-            ? `${toArabicNumerals(String(current))} / ${toArabicNumerals(String(total))}`
-            : `${current} / ${total}`;
+          const progressLabel = `${intl.formatNumber(current)} / ${intl.formatNumber(total)}`;
+          const earnedAt = earned ? badgeEarnedAt[i] : null;
 
           const ringRadius = 25;
           const ringCircumference = 2 * Math.PI * ringRadius;
@@ -1518,18 +1508,29 @@ function AchievementsTab({
                 )}
               </div>
 
-              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
-                {isAr ? badge.titleAr : badge.titleEn}
+              <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
+                {intl.formatMessage({ id: badge.titleKey })}
               </h3>
 
               <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', margin: 0, marginBottom: '10px', lineHeight: 1.5 }}>
                 {locked
                   ? intl.formatMessage(
                       { id: 'learn.achievements_unlock_by', defaultMessage: 'Unlock by: {condition}' },
-                      { condition: isAr ? badge.conditionAr : badge.conditionEn }
+                      { condition: intl.formatMessage({ id: badge.conditionKey }) }
                     )
-                  : isAr ? badge.conditionAr : badge.conditionEn}
+                  : intl.formatMessage({ id: badge.conditionKey })}
               </p>
+
+              {earnedAt && (
+                <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ds-accent-gold)', margin: 0, marginBottom: '10px' }}>
+                  {intl.formatMessage(
+                    { id: 'learn.achievements_earned_on' },
+                    {
+                      date: intl.formatDate(earnedAt, { year: 'numeric', month: 'short', day: 'numeric' }),
+                    }
+                  )}
+                </p>
+              )}
 
               {inProgress && (
                 <span style={{
@@ -1561,7 +1562,7 @@ export default function LearnPage() {
   const intl = useIntl();
   const language = useStore((s) => s.language);
   const isRtl = language === 'ar';
-  const { courses, progressMap, completedByBase, resumeCourse } = useLearnPageData();
+  const { courses, progressMap, completedByBase, resumeCourse, lastActivityByBase } = useLearnPageData();
   const searchParams = useSearchParams();
 
   const VALID_TABS: LearnTab[] = ['home', 'articles', 'videos', 'topics', 'achievements'];
@@ -1570,8 +1571,14 @@ export default function LearnPage() {
 
   const [activeTab, setActiveTab] = useState<LearnTab>(initialTab);
   const [courseFilter, setCourseFilter] = useState<CourseFilter>('all');
+  // Progress bars render at 0% then transition to their real width. Flipping
+  // this on the next frame guarantees the browser paints the 0% state first,
+  // otherwise the bars jump straight to full with no animation.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const literacyScore = useMemo(() => {
     const vals = Object.values(progressMap);
@@ -1647,7 +1654,9 @@ export default function LearnPage() {
           <ArticlesTab
             language={language}
             intl={intl}
-            minReadLabel={(min) => (language === 'ar' ? `${intl.formatNumber(min)} دقيقة قراءة` : `${min} MIN READ`)}
+            minReadLabel={(min) =>
+              intl.formatMessage({ id: 'learn.min_read' }, { min: intl.formatNumber(min) })
+            }
           />
         )}
         {activeTab === 'videos' && (
@@ -1656,7 +1665,14 @@ export default function LearnPage() {
         {activeTab === 'topics' && (
           <TopicsTab language={language} intl={intl} />
         )}
-        {activeTab === 'achievements' && <AchievementsTab language={language} progressMap={progressMap} courses={courses} />}
+        {activeTab === 'achievements' && (
+          <AchievementsTab
+            language={language}
+            progressMap={progressMap}
+            courses={courses}
+            lastActivityByBase={lastActivityByBase}
+          />
+        )}
       </div>
     </div>
   );

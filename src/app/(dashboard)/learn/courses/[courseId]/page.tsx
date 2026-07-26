@@ -179,7 +179,9 @@ export default function CourseViewerPage() {
             <button
               type="button"
               onClick={() => setSidebarOpen((o) => !o)}
-              aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+              aria-label={intl.formatMessage({
+                id: sidebarOpen ? 'learn.course.toggle_sidebar_close' : 'learn.course.toggle_sidebar_open',
+              })}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -265,11 +267,7 @@ export default function CourseViewerPage() {
         </div>
       </div>
 
-      <CourseTutorChat
-        courseId={courseId}
-        courseTitle={course.title}
-        currentLessons={currentPageLessons}
-      />
+      <CourseTutorChat courseId={courseId} />
 
       <style>{`
         @media (min-width: 640px) {
