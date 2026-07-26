@@ -5,8 +5,9 @@ import { useIntl } from 'react-intl';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getAllCourses } from '@/data/courses';
+import { getCategory } from '@/data/courses/categories';
 import { getAllArticles } from '@/data/articles';
-import { getTotalSections } from '@/types/course';
+import { getTotalSections, parseEstimatedMinutes } from '@/types/course';
 import type { CourseData, CourseLevel } from '@/types/course';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuthStore } from '@/store/authStore';
@@ -17,6 +18,9 @@ import {
   BookOpen,
   Play,
   Lock,
+  Bell,
+  ArrowLeft,
+  ArrowRight,
   Wallet,
   TrendingUp,
   PiggyBank,
@@ -34,9 +38,11 @@ import {
   Trophy,
   Star,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Toast } from '@/components/ui/Toast';
 
 /* ============================================
-   LEARN PAGE – Accordion layout + tabs
+   LEARN PAGE – Course grid + filters + tabs
    ============================================ */
 
 type LearnTab = 'home' | 'articles' | 'videos' | 'topics' | 'achievements';
@@ -49,19 +55,10 @@ function toArabicNumerals(str: string): string {
 const PAGE_BG = 'var(--ds-bg-page)';
 const LEARN_GREEN = 'var(--ds-primary)';
 
-const LEVEL_CONFIG: Record<
-  CourseLevel,
-  { dotColor: string; expandedBg: string; labelEn: string; labelAr: string }
-> = {
-  beginner: { dotColor: 'var(--ds-primary)', expandedBg: 'var(--ds-bg-tinted)', labelEn: 'Beginner', labelAr: 'مبتدئ' },
-  intermediate: { dotColor: 'var(--ds-accent-gold)', expandedBg: 'var(--ds-warning-bg)', labelEn: 'Intermediate', labelAr: 'متوسط' },
-  advanced: { dotColor: 'var(--ds-error)', expandedBg: 'var(--ds-error-bg)', labelEn: 'Advanced', labelAr: 'متقدم' },
-};
-
-const LEVEL_GRADIENTS: Record<CourseLevel, string> = {
-  beginner: 'linear-gradient(90deg, #2D6A4F, #22c55e)',
-  intermediate: 'linear-gradient(90deg, #D97706, #FBBF24)',
-  advanced: 'linear-gradient(90deg, #DC2626, #F87171)',
+const LEVEL_CONFIG: Record<CourseLevel, { dotColor: string; labelKey: string }> = {
+  beginner: { dotColor: 'var(--ds-primary)', labelKey: 'learn.level_beginner' },
+  intermediate: { dotColor: 'var(--ds-accent-gold)', labelKey: 'learn.level_intermediate' },
+  advanced: { dotColor: 'var(--ds-error)', labelKey: 'learn.level_advanced' },
 };
 
 const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; border: string }> = {
@@ -70,82 +67,103 @@ const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; bor
   advanced: { background: 'var(--ds-error-bg)', color: 'var(--ds-error-text)', border: '0.5px solid var(--ds-error-border)' },
 };
 
-/* ----- Data hook (unchanged) ----- */
+/* ----- Data hook ----- */
+function baseCourseIdOf(courseId: string): string {
+  return courseId.replace(/_(en|ar)$/, '');
+}
+
 function useLearnPageData() {
   const language = useStore((s) => s.language);
   const user = useAuthStore((s) => s.user);
   const initialized = useAuthStore((s) => s.initialized);
   const courses = useMemo(() => getAllCourses(language), [language]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  // Completed section ids are tracked per base course (locales share section
+  // ids), so progress, the resume strip, and the next-lesson line all derive
+  // from one merged local + Supabase source.
+  const [completedByBase, setCompletedByBase] = useState<Record<string, string[]>>({});
+  const [lastActivityByBase, setLastActivityByBase] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const map: Record<string, number> = {};
-    const localProgress = getAllLocalProgress();
-    for (const course of courses) {
-      const baseCourseId = course.courseId.replace(/_(en|ar)$/, '');
-      const enData = localProgress[`${baseCourseId}_en`];
-      const arData = localProgress[`${baseCourseId}_ar`];
-      const merged = new Set<string>();
-      for (const d of [enData, arData]) {
-        if (!d) continue;
-        for (const id of d.completedSectionIds ?? []) merged.add(id);
-      }
-      if (merged.size > 0) {
-        const total = getTotalSections(course);
-        map[course.courseId] = total > 0 ? Math.min(100, Math.round((merged.size / total) * 100)) : 0;
-      }
+    const mergeIn = (incoming: Record<string, Set<string>>) => {
+      setCompletedByBase((prev) => {
+        const merged: Record<string, string[]> = { ...prev };
+        for (const [base, ids] of Object.entries(incoming)) {
+          merged[base] = Array.from(new Set([...(merged[base] ?? []), ...ids]));
+        }
+        return merged;
+      });
+    };
+
+    const localByBase: Record<string, Set<string>> = {};
+    for (const [courseId, data] of Object.entries(getAllLocalProgress())) {
+      const base = baseCourseIdOf(courseId);
+      if (!localByBase[base]) localByBase[base] = new Set();
+      for (const id of data.completedSectionIds ?? []) localByBase[base].add(id);
     }
-    setProgressMap((prev) => ({ ...prev, ...map }));
+    mergeIn(localByBase);
 
     if (!initialized || !user) return;
     const fetchProgress = async () => {
       try {
         const { data } = await supabase
           .from('course_progress')
-          .select('course_id, completed_section_ids, locale')
+          .select('course_id, completed_section_ids, locale, updated_at')
           .eq('user_id', user.id);
         if (!data) return;
-        const sectionsByBase = new Map<string, Set<string>>();
+        const supaByBase: Record<string, Set<string>> = {};
+        const activity: Record<string, string> = {};
         for (const row of data) {
-          const base = (row.course_id as string).replace(/_(en|ar)$/, '');
-          if (!sectionsByBase.has(base)) sectionsByBase.set(base, new Set());
+          const base = baseCourseIdOf(row.course_id as string);
+          if (!supaByBase[base]) supaByBase[base] = new Set();
           for (const id of (row.completed_section_ids as string[]) ?? []) {
-            sectionsByBase.get(base)!.add(id);
+            supaByBase[base].add(id);
           }
+          const ts = row.updated_at as string | null;
+          if (ts && (!activity[base] || ts > activity[base])) activity[base] = ts;
         }
-        const supaMap: Record<string, number> = {};
-        for (const course of courses) {
-          const base = course.courseId.replace(/_(en|ar)$/, '');
-          const ids = sectionsByBase.get(base);
-          if (ids && ids.size > 0) {
-            const total = getTotalSections(course);
-            supaMap[course.courseId] = total > 0 ? Math.min(100, Math.round((ids.size / total) * 100)) : 0;
-          }
-        }
-        setProgressMap((prev) => {
-          const merged = { ...prev };
-          for (const [k, v] of Object.entries(supaMap)) {
-            merged[k] = Math.max(merged[k] ?? 0, v);
-          }
-          return merged;
-        });
+        mergeIn(supaByBase);
+        setLastActivityByBase((prev) => ({ ...prev, ...activity }));
       } catch {
         // Supabase unavailable
       }
     };
     fetchProgress();
-  }, [initialized, user, language, courses]);
+  }, [initialized, user]);
 
-  const hasStartedAnyCourse = Object.values(progressMap).some((p) => p > 0);
-  const firstCourse = courses[0];
-  const recommendedCourse = hasStartedAnyCourse
-    ? courses.find((c) => {
-        const p = progressMap[c.courseId] ?? 0;
-        return p > 0 && p < 100;
-      }) || firstCourse
-    : firstCourse;
+  const progressMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const course of courses) {
+      const ids = completedByBase[baseCourseIdOf(course.courseId)];
+      if (ids && ids.length > 0) {
+        const total = getTotalSections(course);
+        map[course.courseId] = total > 0 ? Math.min(100, Math.round((ids.length / total) * 100)) : 0;
+      }
+    }
+    return map;
+  }, [courses, completedByBase]);
 
-  return { courses, progressMap, recommendedCourse: recommendedCourse ?? null };
+  const resumeCourse = useMemo(() => {
+    const inProgress = courses.filter((c) => {
+      const p = progressMap[c.courseId] ?? 0;
+      return p > 0 && p < 100;
+    });
+    if (inProgress.length === 0) return null;
+    return [...inProgress].sort((a, b) => {
+      const ta = lastActivityByBase[baseCourseIdOf(a.courseId)] ?? '';
+      const tb = lastActivityByBase[baseCourseIdOf(b.courseId)] ?? '';
+      return tb.localeCompare(ta);
+    })[0];
+  }, [courses, progressMap, lastActivityByBase]);
+
+  return { courses, progressMap, completedByBase, resumeCourse, lastActivityByBase };
+}
+
+function getNextLessonTitle(course: CourseData, completedIds: string[] | undefined): string | null {
+  const done = new Set(completedIds ?? []);
+  for (const lesson of course.lessons) {
+    if (lesson.sections.some((s) => !done.has(s.id))) return lesson.title;
+  }
+  return null;
 }
 
 /* ----- Animated score ring ----- */
@@ -187,9 +205,27 @@ function ScoreRing({ score }: { score: number | string }) {
   );
 }
 
-/* ----- Slim hero ----- */
+/* ----- Slim hero with literacy milestone context ----- */
+const SCORE_MILESTONES = [
+  { threshold: 0, labelKey: 'learn.milestone.beginner', labelDefault: 'Beginner' },
+  { threshold: 60, labelKey: 'learn.milestone.confident', labelDefault: 'Confident' },
+  { threshold: 90, labelKey: 'learn.milestone.expert', labelDefault: 'Expert' },
+];
+
 function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof useIntl>; scoreDisplay: number | string; language: string }) {
   const isRtl = language === 'ar';
+  const [showExplainer, setShowExplainer] = useState(false);
+  const numericScore = typeof scoreDisplay === 'number' ? scoreDisplay : 0;
+  const nextMilestone = SCORE_MILESTONES.find((m) => m.threshold > numericScore) ?? null;
+  const currentMilestone =
+    [...SCORE_MILESTONES].reverse().find((m) => m.threshold <= numericScore) ?? SCORE_MILESTONES[0];
+  const milestoneProgress = nextMilestone
+    ? Math.min(100, Math.round((numericScore / nextMilestone.threshold) * 100))
+    : 100;
+
+  const milestoneLabel = (m: (typeof SCORE_MILESTONES)[number]) =>
+    intl.formatMessage({ id: m.labelKey, defaultMessage: m.labelDefault });
+
   return (
     <div
       style={{
@@ -206,21 +242,442 @@ function LearnHero({ intl, scoreDisplay, language }: { intl: ReturnType<typeof u
         direction: isRtl ? 'rtl' : 'ltr',
       }}
     >
-      <div>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px', fontFeatureSettings: '"kern" 1' }}>
+      <div style={{ flex: 1, minWidth: '220px' }}>
+        <h1 className="ds-display-heading" style={{ fontSize: '24px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
           {intl.formatMessage({ id: 'learn.title', defaultMessage: 'Learn' })}
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0 }}>
           {intl.formatMessage({ id: 'learn.subtitle', defaultMessage: 'Master your financial future' })}
         </p>
+        {showExplainer && (
+          <p style={{ fontSize: '13px', color: 'var(--ds-text-muted)', margin: '10px 0 0', lineHeight: 1.6, maxWidth: '420px' }}>
+            {intl.formatMessage({
+              id: 'learn.how_to_raise_explainer',
+              defaultMessage: 'Your score is the average completion across all courses. Complete course sections to raise it.',
+            })}
+          </p>
+        )}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', minWidth: '176px' }}>
         <ScoreRing score={scoreDisplay} />
-        <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginTop: '4px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {intl.formatMessage({ id: 'learn.literacy_score', defaultMessage: 'Financial Literacy Score' })}
         </span>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ds-text-body)' }}>
+          {nextMilestone
+            ? intl.formatMessage(
+                { id: 'learn.milestone_path', defaultMessage: '{from} → {to} at {score}' },
+                {
+                  from: milestoneLabel(currentMilestone),
+                  to: milestoneLabel(nextMilestone),
+                  score: intl.formatNumber(nextMilestone.threshold),
+                }
+              )
+            : intl.formatMessage({ id: 'learn.milestone_reached', defaultMessage: 'Top milestone reached' })}
+        </span>
+        <div style={{ width: '100%', maxWidth: '176px', height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div
+            style={{
+              width: `${milestoneProgress}%`,
+              height: '100%',
+              background: 'var(--ds-primary)',
+              borderRadius: '4px',
+              transition: 'width 600ms ease-out',
+            }}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowExplainer((v) => !v)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--ds-primary)',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            // Padded out to the 44px minimum hit target, then pulled back so
+            // the extra tap area doesn't push the milestone stack apart.
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '44px',
+            padding: '0 8px',
+            margin: '-9px 0',
+          }}
+        >
+          {intl.formatMessage({ id: 'learn.how_to_raise', defaultMessage: 'How to raise it' })}
+        </button>
       </div>
     </div>
+  );
+}
+
+/* ----- CTA fill-effect inner layers (see .ds-fill-btn in globals.css) ----- */
+function FillLabel({ label, isRtl }: { label: string; isRtl: boolean }) {
+  const Arrow = isRtl ? ArrowLeft : ArrowRight;
+  return (
+    <>
+      <span className="ds-fill-btn-circle" aria-hidden />
+      <span className="ds-fill-btn-label">{label}</span>
+      <span className="ds-fill-btn-hover" aria-hidden>
+        {label}
+        <Arrow size={14} />
+      </span>
+    </>
+  );
+}
+
+/* ----- Resume strip (Continue learning) ----- */
+function ResumeStrip({
+  course,
+  progress,
+  nextLessonTitle,
+  intl,
+  language,
+  mounted,
+}: {
+  course: CourseData;
+  progress: number;
+  nextLessonTitle: string | null;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+  mounted: boolean;
+}) {
+  const isRtl = language === 'ar';
+  const category = getCategory(course.courseId);
+  const Icon = category.icon;
+
+  return (
+    <Link href={`/learn/courses/${course.courseId}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <div
+        style={{
+          background: 'var(--color-bg-hero)',
+          borderRadius: '20px',
+          padding: '20px 24px',
+          boxShadow: 'var(--shadow-hero)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '20px',
+          flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '12px',
+            background: 'rgba(255,255,255,0.12)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <Icon size={26} style={{ color: '#FFFFFF' }} />
+        </div>
+
+        <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {intl.formatMessage({ id: 'learn.continue_learning', defaultMessage: 'Continue Learning' })}
+          </span>
+          <span className="ds-display-heading" style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.3 }}>
+            {course.title}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ flex: 1, maxWidth: '260px', height: '5px', background: 'rgba(255,255,255,0.18)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div
+                style={{
+                  width: mounted ? `${progress}%` : '0%',
+                  height: '100%',
+                  background: 'var(--color-primary-glow)',
+                  borderRadius: '4px',
+                  transition: 'width 600ms ease-out',
+                }}
+              />
+            </div>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF' }}>
+              {intl.formatNumber(progress)}%
+            </span>
+          </div>
+          {nextLessonTitle && (
+            <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)' }}>
+              {intl.formatMessage(
+                { id: 'learn.resume_next_lesson', defaultMessage: 'Next: {title}' },
+                { title: nextLessonTitle }
+              )}
+            </span>
+          )}
+        </div>
+
+        <span
+          className="ds-fill-btn"
+          style={{
+            background: '#FFFFFF',
+            color: '#0F1E2E',
+            borderRadius: '9999px',
+            padding: '12px 24px',
+            fontSize: '13px',
+            fontWeight: 600,
+            minHeight: '44px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            '--fill-bg': 'var(--ds-primary)',
+          } as React.CSSProperties}
+        >
+          <FillLabel
+            label={intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })}
+            isRtl={isRtl}
+          />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+/* ----- Course filter bar ----- */
+type CourseFilter = 'all' | CourseLevel | 'in_progress';
+
+const COURSE_FILTERS: CourseFilter[] = ['all', 'beginner', 'intermediate', 'advanced', 'in_progress'];
+
+function FilterBar({
+  filter,
+  onChange,
+  intl,
+  language,
+}: {
+  filter: CourseFilter;
+  onChange: (f: CourseFilter) => void;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+}) {
+  const isRtl = language === 'ar';
+  const labelFor = (f: CourseFilter): string => {
+    if (f === 'all') return intl.formatMessage({ id: 'learn.filter_all', defaultMessage: 'All courses' });
+    if (f === 'in_progress') return intl.formatMessage({ id: 'learn.filter_in_progress', defaultMessage: 'In progress' });
+    return intl.formatMessage({ id: LEVEL_CONFIG[f].labelKey });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', direction: isRtl ? 'rtl' : 'ltr' }}>
+      {COURSE_FILTERS.map((f) => {
+        const isActive = filter === f;
+        return (
+          <button
+            key={f}
+            type="button"
+            onClick={() => onChange(f)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '9999px',
+              border: isActive ? '0.5px solid var(--ds-primary)' : '0.5px solid var(--ds-border)',
+              fontSize: '12px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              minHeight: '44px',
+              background: isActive ? 'var(--ds-primary)' : 'transparent',
+              color: isActive ? '#FFFFFF' : 'var(--ds-text-body)',
+              transition: 'background 0.2s, color 0.2s, border-color 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive) e.currentTarget.style.background = 'var(--ds-bg-tinted)';
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            {labelFor(f)}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ----- Course card (grid) ----- */
+function CourseCardV2({
+  course,
+  progress,
+  intl,
+  language,
+  mounted,
+}: {
+  course: CourseData;
+  progress: number;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+  mounted: boolean;
+}) {
+  const isRtl = language === 'ar';
+  const level = course.level ?? 'beginner';
+  const badgeColor = BADGE_COLORS[level];
+  const category = getCategory(course.courseId);
+  const Icon = category.icon;
+  const lessonCount = course.lessons.length;
+  const estMinutes = parseEstimatedMinutes(course.estimatedTime);
+  const isCompleted = progress >= 100;
+  const isInProgress = progress > 0 && progress < 100;
+
+  const ctaBase: React.CSSProperties = {
+    borderRadius: '8px',
+    padding: '10px 18px',
+    fontSize: '13px',
+    fontWeight: 500,
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+  };
+
+  const metaParts = [
+    intl.formatMessage(
+      { id: 'learn.card_lessons', defaultMessage: '{count} lessons' },
+      { count: intl.formatNumber(lessonCount) }
+    ),
+  ];
+  if (estMinutes !== null) {
+    metaParts.push(
+      intl.formatMessage(
+        { id: 'learn.card_minutes', defaultMessage: '{min} min' },
+        { min: intl.formatNumber(estMinutes) }
+      )
+    );
+  }
+
+  return (
+    <Link href={`/learn/courses/${course.courseId}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+      <div
+        style={{
+          background: 'var(--ds-bg-card)',
+          border: '0.5px solid var(--ds-border)',
+          borderRadius: '16px',
+          boxShadow: 'var(--ds-shadow-card)',
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          height: '100%',
+          transition: 'box-shadow 0.2s ease',
+          direction: isRtl ? 'rtl' : 'ltr',
+          textAlign: 'start',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--ds-shadow-card)'; }}
+      >
+        {/* Icon chip + level badge */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: category.color,
+              boxShadow: `0 4px 10px ${category.color}40`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={24} style={{ color: '#FFFFFF' }} />
+          </div>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
+            fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
+            background: badgeColor.background, color: badgeColor.color, border: badgeColor.border,
+          }}>
+            {intl.formatMessage({ id: LEVEL_CONFIG[level].labelKey })}
+          </span>
+        </div>
+
+        {/* Category label */}
+        <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: category.labelVar }}>
+          {isRtl ? category.labelAr : category.labelEn}
+        </span>
+
+        {/* Title */}
+        <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, lineHeight: 1.4 }}>
+          {course.title}
+        </h3>
+
+        {/* Description — 2 line clamp */}
+        <p style={{
+          fontSize: '13px', fontWeight: 400, color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6,
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+        }}>
+          {course.description ?? ''}
+        </p>
+
+        {/* Meta row */}
+        <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
+          {metaParts.join(' · ')}
+        </span>
+
+        {/* State area, pinned to card bottom */}
+        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {isInProgress && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ flex: 1, height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: mounted ? `${progress}%` : '0%', height: '100%', background: 'var(--ds-primary-glow)', borderRadius: '4px', transition: 'width 600ms ease-out' }} />
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)' }}>
+                {intl.formatNumber(progress)}%
+              </span>
+            </div>
+          )}
+
+          {isCompleted && (
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ds-success-text)' }}>
+              {intl.formatMessage({ id: 'learn.completed_check', defaultMessage: 'Completed ✓' })}
+            </span>
+          )}
+
+          {isCompleted ? (
+            <span
+              className="ds-fill-btn"
+              style={{
+                ...ctaBase,
+                background: 'transparent',
+                color: 'var(--ds-primary)',
+                border: '1.5px solid var(--ds-btn-secondary-border)',
+                '--fill-bg': 'var(--ds-primary)',
+              } as React.CSSProperties}
+            >
+              <FillLabel
+                label={intl.formatMessage({ id: 'learn.review', defaultMessage: 'Review' })}
+                isRtl={isRtl}
+              />
+            </span>
+          ) : (
+            <span
+              className="ds-fill-btn"
+              style={{
+                ...ctaBase,
+                background: 'var(--ds-primary)',
+                color: '#FFFFFF',
+                border: 'none',
+                '--fill-bg': '#0F1E2E',
+              } as React.CSSProperties}
+            >
+              <FillLabel
+                label={
+                  isInProgress
+                    ? intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })
+                    : intl.formatMessage({ id: 'learn.start_course', defaultMessage: 'Start Course' })
+                }
+                isRtl={isRtl}
+              />
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -346,8 +803,8 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
 
   return (
     <div style={{ marginTop: '16px' }}>
-      <div style={{ marginBottom: '20px', direction: isRtl ? 'rtl' : 'ltr', textAlign: isRtl ? 'right' : 'left' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)', margin: 0 }}>
+      <div style={{ marginBottom: '20px', direction: isRtl ? 'rtl' : 'ltr', textAlign: 'start' }}>
+        <h2 className="ds-display-heading" style={{ fontSize: '22px', fontWeight: 700, color: 'var(--ds-text-heading)', margin: 0 }}>
           {intl.formatMessage({ id: 'learn.articles.heading', defaultMessage: 'Practical Financial Insights' })}
         </h2>
         <p style={{ fontSize: '15px', color: 'var(--ds-text-body)', margin: '6px 0 0', lineHeight: 1.5 }}>
@@ -385,7 +842,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                   border: 'none',
                   cursor: 'pointer',
                   direction: isRtl ? 'rtl' : 'ltr',
-                  textAlign: isRtl ? 'right' : 'left',
+                  textAlign: 'start',
                   minHeight: '56px',
                   gap: '12px',
                 }}
@@ -395,9 +852,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                     {weekLabel}
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--ds-text-body)' }}>
-                    {language === 'ar'
-                      ? `${intl.formatNumber(articleCount)} ${articleCount === 1 ? 'مقال' : 'مقالات'}`
-                      : `${articleCount} ${articleCount === 1 ? 'article' : 'articles'}`}
+                    {intl.formatMessage({ id: 'learn.articles_count' }, { count: articleCount })}
                   </span>
                 </div>
                 <ChevronDown
@@ -436,7 +891,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                           border: '0.5px solid var(--ds-border)',
                           cursor: 'pointer',
                           direction: isRtl ? 'rtl' : 'ltr',
-                          textAlign: isRtl ? 'right' : 'left',
+                          textAlign: 'start',
                           transition: 'box-shadow 0.2s ease',
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
@@ -447,7 +902,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                             style={{
                               position: 'absolute',
                               top: '8px',
-                              [isRtl ? 'left' : 'right']: '8px',
+                              insetInlineEnd: '8px',
                               fontSize: '10px',
                               fontWeight: 500,
                               color: '#FFFFFF',
@@ -460,7 +915,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                           </span>
                         </div>
                         <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
+                          <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
                             {article.title}
                           </h3>
                           <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>
@@ -489,7 +944,7 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
                               transition: 'background-color 150ms ease',
                             }}
                           >
-                            {language === 'ar' ? 'اقرأ المقال' : 'Read Article'}
+                            {intl.formatMessage({ id: 'learn.article.read_article' })}
                           </span>
                         </div>
                       </div>
@@ -505,203 +960,322 @@ function ArticlesTab({ language, minReadLabel, intl }: { language: string; minRe
   );
 }
 
+/* ----- Coming-soon banner (Topics & Videos placeholders) ----- */
+const NOTIFY_PREFS_KEY = 'rasmalak-learn-notify';
+
+function getNotifyPrefs(): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(NOTIFY_PREFS_KEY) ?? '{}');
+  } catch {
+    return {};
+  }
+}
+
+function ComingSoonBanner({
+  feature,
+  titleKey,
+  titleDefault,
+  descKey,
+  descDefault,
+  intl,
+  language,
+}: {
+  feature: string;
+  titleKey: string;
+  titleDefault: string;
+  descKey: string;
+  descDefault: string;
+  intl: ReturnType<typeof useIntl>;
+  language: string;
+}) {
+  const isRtl = language === 'ar';
+  const [notified, setNotified] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !!getNotifyPrefs()[feature];
+  });
+  const [toastVisible, setToastVisible] = useState(false);
+
+  // The notification endpoint is not built yet — persist the opt-in locally
+  // and confirm with a toast so the button stays a real interaction.
+  const handleNotify = () => {
+    try {
+      const prefs = getNotifyPrefs();
+      prefs[feature] = true;
+      localStorage.setItem(NOTIFY_PREFS_KEY, JSON.stringify(prefs));
+    } catch { /* storage unavailable */ }
+    setNotified(true);
+    setToastVisible(true);
+  };
+
+  return (
+    <div
+      style={{
+        background: 'var(--ds-bg-card)',
+        border: '0.5px solid var(--ds-border)',
+        borderRadius: '16px',
+        boxShadow: 'var(--ds-shadow-card)',
+        padding: '20px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        flexWrap: 'wrap',
+        direction: isRtl ? 'rtl' : 'ltr',
+      }}
+    >
+      <div
+        style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '12px',
+          background: 'var(--ds-plan-bg)',
+          border: '0.5px solid var(--ds-plan-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        <Bell size={22} style={{ color: 'var(--ds-plan)' }} />
+      </div>
+
+      <div style={{ flex: 1, minWidth: '220px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+          <h2 className="ds-display-heading" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ds-text-heading)', margin: 0 }}>
+            {intl.formatMessage({ id: titleKey, defaultMessage: titleDefault })}
+          </h2>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
+            fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
+            background: 'var(--ds-plan-bg)', color: 'var(--ds-plan)', border: '0.5px solid var(--ds-plan-border)',
+          }}>
+            {intl.formatMessage({ id: 'learn.coming_soon_tag', defaultMessage: 'Coming soon' })}
+          </span>
+        </div>
+        <p style={{ fontSize: '13px', color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6, maxWidth: '520px' }}>
+          {intl.formatMessage({ id: descKey, defaultMessage: descDefault })}
+        </p>
+      </div>
+
+      {notified ? (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '10px 18px',
+            minHeight: '44px',
+            borderRadius: '8px',
+            border: '1.5px solid var(--ds-btn-secondary-border)',
+            color: 'var(--ds-primary)',
+            fontSize: '13px',
+            fontWeight: 500,
+            flexShrink: 0,
+          }}
+        >
+          {intl.formatMessage({ id: 'learn.coming_soon_notified', defaultMessage: "You're on the list ✓" })}
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={handleNotify}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '10px 18px',
+            minHeight: '44px',
+            background: 'var(--ds-primary)',
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background-color 150ms ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
+        >
+          <Bell size={14} />
+          {intl.formatMessage({ id: 'learn.coming_soon_notify', defaultMessage: 'Notify me' })}
+        </button>
+      )}
+
+      <Toast
+        message={intl.formatMessage({ id: 'learn.coming_soon_toast', defaultMessage: "We'll notify you when it launches." })}
+        visible={toastVisible}
+        onHide={() => setToastVisible(false)}
+      />
+    </div>
+  );
+}
+
 /* ----- Videos tab (placeholder) ----- */
-const VIDEO_CARDS: { titleEn: string; titleAr: string; duration: string; level: CourseLevel }[] = [
-  { titleEn: 'Introduction to Stock Markets', titleAr: 'مقدمة إلى أسواق الأسهم', duration: '15:20', level: 'beginner' },
-  { titleEn: 'How Central Banks Work', titleAr: 'كيف تعمل البنوك المركزية', duration: '22:45', level: 'intermediate' },
-  { titleEn: 'Technical Analysis Basics', titleAr: 'أساسيات التحليل الفني', duration: '18:30', level: 'intermediate' },
-  { titleEn: 'Crypto and Blockchain Explained', titleAr: 'العملات الرقمية والبلوكتشين', duration: '25:00', level: 'advanced' },
-  { titleEn: 'Budgeting for Beginners', titleAr: 'وضع الميزانية للمبتدئين', duration: '12:10', level: 'beginner' },
-  { titleEn: 'Options Trading: Risk and Reward', titleAr: 'تداول الخيارات: المخاطر والعوائد', duration: '30:15', level: 'advanced' },
+const VIDEO_CARDS: { titleKey: string; duration: string; level: CourseLevel }[] = [
+  { titleKey: 'learn.video.stock_markets', duration: '15:20', level: 'beginner' },
+  { titleKey: 'learn.video.central_banks', duration: '22:45', level: 'intermediate' },
+  { titleKey: 'learn.video.technical_analysis', duration: '18:30', level: 'intermediate' },
+  { titleKey: 'learn.video.crypto_blockchain', duration: '25:00', level: 'advanced' },
+  { titleKey: 'learn.video.budgeting_beginners', duration: '12:10', level: 'beginner' },
+  { titleKey: 'learn.video.options_trading', duration: '30:15', level: 'advanced' },
 ];
 
-function VideosTab({ language }: { language: string }) {
+function VideosTab({ language, intl }: { language: string; intl: ReturnType<typeof useIntl> }) {
   const isRtl = language === 'ar';
   return (
-    <div className="learn-accordion-grid" style={{ marginTop: '16px' }}>
-      {VIDEO_CARDS.map((card, i) => {
-        const levelLabel = language === 'ar' ? LEVEL_CONFIG[card.level].labelAr : LEVEL_CONFIG[card.level].labelEn;
-        return (
-          <div
-            key={i}
-            style={{
-              background: 'var(--ds-bg-card)',
-              borderRadius: '16px',
-              boxShadow: 'var(--ds-shadow-card)',
-              overflow: 'hidden',
-              border: '0.5px solid var(--ds-border)',
-              opacity: 0.7,
-              cursor: 'default',
-              direction: isRtl ? 'rtl' : 'ltr',
-            }}
-          >
-            <div style={{ position: 'relative', height: '140px', background: 'linear-gradient(135deg, #1B4332 0%, #0d2818 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Play size={28} style={{ color: '#FFFFFF', marginLeft: '4px' }} fill="currentColor" />
+    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <ComingSoonBanner
+        feature="videos"
+        titleKey="learn.coming_soon_videos_title"
+        titleDefault="Video lessons are coming"
+        descKey="learn.coming_soon_videos_desc"
+        descDefault="Short, practical videos that pair with the courses. Tell us to notify you and be first to watch."
+        intl={intl}
+        language={language}
+      />
+
+      <div className="learn-accordion-grid">
+        {VIDEO_CARDS.map((card, i) => {
+          const levelLabel = intl.formatMessage({ id: LEVEL_CONFIG[card.level].labelKey });
+          return (
+            <div
+              key={i}
+              style={{
+                background: 'var(--ds-bg-card)',
+                borderRadius: '16px',
+                boxShadow: 'var(--ds-shadow-card)',
+                overflow: 'hidden',
+                border: '1px dashed var(--ds-border)',
+                direction: isRtl ? 'rtl' : 'ltr',
+              }}
+            >
+              <div style={{ position: 'relative', height: '140px', background: 'linear-gradient(135deg, #1B4332 0%, #0d2818 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Lock size={24} style={{ color: '#FFFFFF' }} />
+                </div>
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    insetInlineEnd: '8px',
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    color: '#FFFFFF',
+                    background: 'rgba(0,0,0,0.4)',
+                    padding: '4px 8px',
+                    borderRadius: '8px',
+                  }}
+                >
+                  {isRtl ? toArabicNumerals(card.duration) : card.duration}
+                </span>
               </div>
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  [isRtl ? 'left' : 'right']: '8px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  color: '#FFFFFF',
-                  background: 'rgba(0,0,0,0.4)',
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                }}
-              >
-                {isRtl ? toArabicNumerals(card.duration) : card.duration}
-              </span>
+              <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'start' }}>
+                <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                  {intl.formatMessage({ id: card.titleKey })}
+                </h3>
+                <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>{levelLabel}</span>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '4px', borderRadius: '4px',
+                  fontSize: '10px', fontWeight: 500, padding: '3px 8px', letterSpacing: '0.04em',
+                  background: 'var(--ds-plan-bg)', color: 'var(--ds-plan)', border: '0.5px solid var(--ds-plan-border)',
+                  alignSelf: 'flex-start', marginTop: '4px',
+                }}>
+                  {intl.formatMessage({ id: 'learn.coming_soon_tag', defaultMessage: 'Coming soon' })}
+                </span>
+              </div>
             </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: isRtl ? 'right' : 'left' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-                {isRtl ? card.titleAr : card.titleEn}
-              </h3>
-              <span style={{ fontSize: '10px', fontWeight: 500, color: LEARN_GREEN, letterSpacing: '0.04em' }}>{levelLabel}</span>
-              <button
-                style={{
-                  background: 'transparent',
-                  color: 'var(--ds-primary)',
-                  border: '1.5px solid var(--ds-btn-secondary-border)',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'default',
-                  alignSelf: isRtl ? 'flex-end' : 'flex-start',
-                  marginTop: '8px',
-                }}
-              >
-                {language === 'ar' ? 'قريباً' : 'Coming soon'}
-              </button>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 /* ----- Topics & Skills tab (placeholder) ----- */
 const TOPIC_CARDS = [
-  { titleEn: 'Budgeting', titleAr: 'الميزانية', icon: Wallet },
-  { titleEn: 'Investing', titleAr: 'الاستثمار', icon: TrendingUp },
-  { titleEn: 'Saving', titleAr: 'الادخار', icon: PiggyBank },
-  { titleEn: 'Debt Management', titleAr: 'إدارة الديون', icon: CreditCard },
-  { titleEn: 'Real Estate', titleAr: 'العقارات', icon: HomeIcon },
-  { titleEn: 'Stock Market', titleAr: 'سوق الأسهم', icon: BarChart2 },
-  { titleEn: 'Crypto', titleAr: 'العملات الرقمية', icon: Zap },
-  { titleEn: 'Insurance', titleAr: 'التأمين', icon: Shield },
-  { titleEn: 'Retirement', titleAr: 'التقاعد', icon: Clock },
-  { titleEn: 'Tax Planning', titleAr: 'التخطيط الضريبي', icon: FileText },
-  { titleEn: 'Business Finance', titleAr: 'تمويل الأعمال', icon: Briefcase },
-  { titleEn: 'Financial Goals', titleAr: 'الأهداف المالية', icon: Target },
+  { titleKey: 'learn.topic.budgeting', icon: Wallet },
+  { titleKey: 'learn.topic.investing', icon: TrendingUp },
+  { titleKey: 'learn.topic.saving', icon: PiggyBank },
+  { titleKey: 'learn.topic.debt_management', icon: CreditCard },
+  { titleKey: 'learn.topic.real_estate', icon: HomeIcon },
+  { titleKey: 'learn.topic.stock_market', icon: BarChart2 },
+  { titleKey: 'learn.topic.crypto', icon: Zap },
+  { titleKey: 'learn.topic.insurance', icon: Shield },
+  { titleKey: 'learn.topic.retirement', icon: Clock },
+  { titleKey: 'learn.topic.tax_planning', icon: FileText },
+  { titleKey: 'learn.topic.business_finance', icon: Briefcase },
+  { titleKey: 'learn.topic.financial_goals', icon: Target },
 ];
 
-function TopicsTab({ language }: { language: string }) {
+function TopicsTab({ language, intl }: { language: string; intl: ReturnType<typeof useIntl> }) {
   const isRtl = language === 'ar';
   return (
-    <div style={{ marginTop: '16px' }} className="learn-topics-grid">
-      {TOPIC_CARDS.map((card, i) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={i}
-            style={{
-              background: 'var(--ds-bg-card)',
-              borderRadius: '16px',
-              boxShadow: 'var(--ds-shadow-card)',
-              padding: '20px 24px',
-              border: '0.5px solid var(--ds-border)',
-              opacity: 0.7,
-              cursor: 'default',
-              direction: isRtl ? 'rtl' : 'ltr',
-              textAlign: isRtl ? 'right' : 'left',
-            }}
-          >
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: LEARN_GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-              <Icon size={24} style={{ color: '#FFFFFF' }} />
-            </div>
-            <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '8px', fontFeatureSettings: '"kern" 1' }}>
-              {isRtl ? card.titleAr : card.titleEn}
-            </h3>
-            <button
+    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <ComingSoonBanner
+        feature="topics"
+        titleKey="learn.coming_soon_topics_title"
+        titleDefault="Topics & Skills are on the way"
+        descKey="learn.coming_soon_topics_desc"
+        descDefault="Focused skill tracks that connect courses, tools, and practice. These are the tracks we're planning."
+        intl={intl}
+        language={language}
+      />
+
+      <div className="learn-topics-grid">
+        {TOPIC_CARDS.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={i}
               style={{
-                background: 'transparent',
-                color: 'var(--ds-primary)',
-                border: '1.5px solid var(--ds-btn-secondary-border)',
-                borderRadius: '8px',
-                padding: '10px 16px',
-                fontSize: '13px',
-                fontWeight: 500,
-                minHeight: '44px',
-                cursor: 'default',
+                background: 'var(--ds-bg-card)',
+                borderRadius: '16px',
+                boxShadow: 'var(--ds-shadow-card)',
+                padding: '20px 24px',
+                border: '1px dashed var(--ds-border)',
+                direction: isRtl ? 'rtl' : 'ltr',
+                textAlign: 'start',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: '8px',
               }}
             >
-              {language === 'ar' ? 'قريباً' : 'Coming soon'}
-            </button>
-          </div>
-        );
-      })}
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={24} style={{ color: 'var(--ds-primary)' }} />
+              </div>
+              <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0 }}>
+                {intl.formatMessage({ id: card.titleKey })}
+              </h3>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
+                fontSize: '10px', fontWeight: 500, padding: '3px 8px', letterSpacing: '0.04em',
+                background: 'var(--ds-plan-bg)', color: 'var(--ds-plan)', border: '0.5px solid var(--ds-plan-border)',
+              }}>
+                {intl.formatMessage({ id: 'learn.coming_soon_planned', defaultMessage: 'Planned' })}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 /* ----- Achievements tab ----- */
 const ACHIEVEMENT_BADGES = [
-  {
-    titleEn: 'First Steps', titleAr: 'الخطوات الأولى',
-    conditionEn: 'Complete your first lesson', conditionAr: 'أكمل أول درس لك',
-    icon: 'star',
-    progressEn: '0 / 1 lessons', progressAr: '٠ / ١ دروس',
-  },
-  {
-    titleEn: 'Quick Learner', titleAr: 'المتعلم السريع',
-    conditionEn: 'Complete 5 lessons in a week', conditionAr: 'أكمل ٥ دروس في أسبوع',
-    icon: 'flame',
-    progressEn: '0 / 5 lessons this week', progressAr: '٠ / ٥ دروس هذا الأسبوع',
-  },
-  {
-    titleEn: 'Consistent', titleAr: 'المثابر',
-    conditionEn: '7-day learning streak', conditionAr: 'سلسلة تعلم ٧ أيام',
-    icon: 'trending',
-    progressEn: '0 / 7 day streak', progressAr: '٠ / ٧ أيام متتالية',
-  },
-  {
-    titleEn: 'Money Basics', titleAr: 'أساسيات المال',
-    conditionEn: 'Finish Beginner track', conditionAr: 'إنهاء مسار المبتدئين',
-    icon: 'award',
-    progressEn: '0 / 10 courses', progressAr: '٠ / ١٠ دورات',
-  },
-  {
-    titleEn: 'Investor Mindset', titleAr: 'عقلية المستثمر',
-    conditionEn: 'Finish Intermediate track', conditionAr: 'إنهاء مسار المتوسط',
-    icon: 'trophy',
-    progressEn: '0 / 8 courses', progressAr: '٠ / ٨ دورات',
-  },
-  {
-    titleEn: 'Financial Expert', titleAr: 'الخبير المالي',
-    conditionEn: 'Finish Advanced track', conditionAr: 'إنهاء مسار المتقدم',
-    icon: 'target',
-    progressEn: '0 / 10 courses', progressAr: '٠ / ١٠ دورات',
-  },
-  {
-    titleEn: 'Scholar', titleAr: 'العالم',
-    conditionEn: 'Read 10 articles', conditionAr: 'اقرأ ١٠ مقالات',
-    icon: 'book',
-    progressEn: '0 / 10 articles', progressAr: '٠ / ١٠ مقالات',
-  },
-  {
-    titleEn: 'Video Student', titleAr: 'طالب الفيديو',
-    conditionEn: 'Watch 5 videos', conditionAr: 'شاهد ٥ فيديوهات',
-    icon: 'play',
-    progressEn: '0 / 5 videos', progressAr: '٠ / ٥ فيديوهات',
-  },
+  { titleKey: 'learn.achievement.first_steps.title', conditionKey: 'learn.achievement.first_steps.condition', icon: 'star' },
+  { titleKey: 'learn.achievement.quick_learner.title', conditionKey: 'learn.achievement.quick_learner.condition', icon: 'flame' },
+  { titleKey: 'learn.achievement.consistent.title', conditionKey: 'learn.achievement.consistent.condition', icon: 'trending' },
+  { titleKey: 'learn.achievement.money_basics.title', conditionKey: 'learn.achievement.money_basics.condition', icon: 'award' },
+  { titleKey: 'learn.achievement.investor_mindset.title', conditionKey: 'learn.achievement.investor_mindset.condition', icon: 'trophy' },
+  { titleKey: 'learn.achievement.financial_expert.title', conditionKey: 'learn.achievement.financial_expert.condition', icon: 'target' },
+  { titleKey: 'learn.achievement.scholar.title', conditionKey: 'learn.achievement.scholar.condition', icon: 'book' },
+  { titleKey: 'learn.achievement.video_student.title', conditionKey: 'learn.achievement.video_student.condition', icon: 'play' },
 ];
 
-const ACHIEVEMENT_ICONS: Record<string, any> = {
+const ACHIEVEMENT_ICONS: Record<string, LucideIcon> = {
   star: Star,
   flame: Flame,
   trending: TrendingUp,
@@ -716,12 +1290,13 @@ function AchievementsTab({
   language,
   progressMap,
   courses,
+  lastActivityByBase,
 }: {
   language: string;
   progressMap: Record<string, number>;
   courses: CourseData[];
+  lastActivityByBase: Record<string, string>;
 }) {
-  const isAr = language === 'ar';
   const isRtl = language === 'ar';
 
   const completedByLevel = useMemo(() => {
@@ -758,300 +1333,225 @@ function AchievementsTab({
     [0, 5],
   ];
 
-  return (
-    <div style={{ marginTop: '16px' }} className="learn-achievements-grid">
-      {ACHIEVEMENT_BADGES.map((badge, i) => {
-        const [current, total] = badgeProgress[i] ?? [0, 1];
-        const unlocked = current >= total;
-        const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
-        const IconComponent = ACHIEVEMENT_ICONS[badge.icon] || Lock;
-        const progressLabel = isAr
-          ? `${toArabicNumerals(String(current))} / ${toArabicNumerals(String(total))}`
-          : `${current} / ${total}`;
+  // A badge is earned the moment its last contributing course completed, so
+  // its date is the newest activity among those courses. Badges whose
+  // conditions aren't tracked yet (streaks, articles, videos) have no date.
+  const badgeEarnedAt: (string | null)[] = useMemo(() => {
+    const activityFor = (predicate: (c: CourseData) => boolean): string | null => {
+      let newest: string | null = null;
+      for (const course of courses) {
+        if (!predicate(course)) continue;
+        const ts = lastActivityByBase[baseCourseIdOf(course.courseId)];
+        if (ts && (!newest || ts > newest)) newest = ts;
+      }
+      return newest;
+    };
+    const levelComplete = (level: CourseLevel) => (c: CourseData) =>
+      (c.level ?? 'beginner') === level && (progressMap[c.courseId] ?? 0) >= 100;
 
-        return (
-          <div
-            key={i}
-            style={{
-              opacity: unlocked ? 1 : 0.7,
-              background: 'var(--ds-bg-card)',
-              border: `0.5px solid ${unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-border)'}`,
-              borderRadius: '16px',
-              padding: '20px 24px',
-              boxShadow: 'var(--ds-shadow-card)',
-              textAlign: 'center',
-              direction: isRtl ? 'rtl' : 'ltr',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                background: unlocked ? 'rgba(217,119,6,0.1)' : 'var(--ds-bg-tinted)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <IconComponent
-                  size={28}
-                  style={{ color: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-primary)', opacity: unlocked ? 1 : 0.5 }}
-                />
-              </div>
-            </div>
+    return [
+      activityFor((c) => (progressMap[c.courseId] ?? 0) > 0),
+      null,
+      null,
+      activityFor(levelComplete('beginner')),
+      activityFor(levelComplete('intermediate')),
+      activityFor(levelComplete('advanced')),
+      null,
+      null,
+    ];
+  }, [courses, progressMap, lastActivityByBase]);
 
-            <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
-              {isAr ? badge.titleAr : badge.titleEn}
-            </h3>
-
-            <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', margin: 0, marginBottom: '12px' }}>
-              {isAr ? badge.conditionAr : badge.conditionEn}
-            </p>
-
-            <div style={{ height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{
-                width: `${pct}%`,
-                height: '100%',
-                background: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-primary-glow)',
-                borderRadius: '4px',
-              }} />
-            </div>
-
-            <span style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              color: unlocked ? 'var(--ds-accent-gold)' : 'var(--ds-text-muted)',
-              marginTop: '6px',
-              display: 'block',
-            }}>
-              {unlocked ? (isAr ? 'مكتمل ✓' : 'Completed ✓') : progressLabel}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ----- Course card (inside accordion body) ----- */
-function AccordionCourseCard({
-  course,
-  progress,
-  intl,
-  language,
-  mounted,
-}: {
-  course: CourseData;
-  progress: number;
-  intl: ReturnType<typeof useIntl>;
-  language: string;
-  mounted?: boolean;
-}) {
-  const total = getTotalSections(course);
-  const isRtl = language === 'ar';
-  const level = course.level ?? 'beginner';
-  const badgeColor = BADGE_COLORS[level];
+  const intl = useIntl();
+  const unlockedCount = ACHIEVEMENT_BADGES.reduce((sum, _badge, i) => {
+    const [current, total] = badgeProgress[i] ?? [0, 1];
+    return sum + (current >= total ? 1 : 0);
+  }, 0);
+  const summaryPct = Math.round((unlockedCount / ACHIEVEMENT_BADGES.length) * 100);
 
   return (
-    <Link
-      href={`/learn/courses/${course.courseId}`}
-      style={{ textDecoration: 'none', display: 'block' }}
-    >
+    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Summary bar */}
       <div
         style={{
           background: 'var(--ds-bg-card)',
           border: '0.5px solid var(--ds-border)',
           borderRadius: '16px',
-          overflow: 'hidden',
           boxShadow: 'var(--ds-shadow-card)',
-          transition: 'box-shadow 0.2s ease',
-          direction: isRtl ? 'rtl' : 'ltr',
-          textAlign: isRtl ? 'right' : 'left',
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.08)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}
-      >
-        {/* Thin top strip — 6px */}
-        <div style={{ height: '6px', background: LEVEL_GRADIENTS[level] }} />
-
-        {/* Card body */}
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-
-          {/* Row: level badge + section count */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', borderRadius: '4px',
-              fontSize: '10px', fontWeight: 500, padding: '2px 8px', letterSpacing: '0.04em',
-              background: badgeColor.background, color: badgeColor.color, border: badgeColor.border,
-            }}>
-              {language === 'ar' ? LEVEL_CONFIG[level].labelAr : LEVEL_CONFIG[level].labelEn}
-            </span>
-            <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
-              {intl.formatMessage({ id: 'learn.sections_count', defaultMessage: '{count} sections' }, { count: intl.formatNumber(total) })}
-            </span>
-          </div>
-
-          {/* Primary title (active locale) */}
-          <h3 style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, fontFeatureSettings: '"kern" 1' }}>
-            {course.title}
-          </h3>
-
-          {/* Description — 2 line clamp */}
-          <p style={{
-            fontSize: '14px', fontWeight: 400, color: 'var(--ds-text-body)', margin: 0, lineHeight: 1.6,
-            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
-          }}>
-            {course.description ?? ''}
-          </p>
-
-          {/* Progress bar + label (only if progress > 0) */}
-          {progress > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-              <div style={{ flex: 1, height: '4px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: mounted ? `${progress}%` : '0%', height: '100%', background: 'var(--ds-primary-glow)', borderRadius: '4px', transition: 'width 600ms ease-out' }} />
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-primary)', minWidth: '32px', textAlign: isRtl ? 'left' : 'right' }}>
-                {intl.formatNumber(progress)}%
-              </span>
-            </div>
-          )}
-
-          {/* CTA button */}
-          <button
-            style={{
-              marginTop: '4px',
-              background: 'var(--ds-primary)',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '10px 18px',
-              fontSize: '13px',
-              fontWeight: 500,
-              minHeight: '44px',
-              cursor: 'pointer',
-              alignSelf: isRtl ? 'flex-end' : 'flex-start',
-              transition: 'background-color 150ms ease',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--ds-primary-hover)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--ds-primary)'; }}
-          >
-            {progress > 0
-              ? intl.formatMessage({ id: 'learn.continue', defaultMessage: 'Continue' })
-              : intl.formatMessage({ id: 'learn.start_course', defaultMessage: 'Start Course' })}
-          </button>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-/* ----- Single accordion section ----- */
-function LevelAccordion({
-  level,
-  courses,
-  progressMap,
-  intl,
-  isOpen,
-  onToggle,
-  language,
-  mounted,
-}: {
-  level: CourseLevel;
-  courses: CourseData[];
-  progressMap: Record<string, number>;
-  intl: ReturnType<typeof useIntl>;
-  isOpen: boolean;
-  onToggle: () => void;
-  language: string;
-  mounted?: boolean;
-}) {
-  const config = LEVEL_CONFIG[level];
-  const label = language === 'ar' ? config.labelAr : config.labelEn;
-  const isRtl = language === 'ar';
-
-  return (
-    <div
-      style={{
-        background: 'var(--ds-bg-card)',
-        border: '0.5px solid var(--ds-border)',
-        borderRadius: '16px',
-        boxShadow: 'var(--ds-shadow-card)',
-        overflow: 'hidden',
-      }}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        style={{
-          width: '100%',
+          padding: '16px 24px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px 24px',
-          background: isOpen ? config.expandedBg : 'var(--ds-bg-card)',
-          border: 'none',
-          cursor: 'pointer',
+          gap: '16px',
+          flexWrap: 'wrap',
           direction: isRtl ? 'rtl' : 'ltr',
-          textAlign: isRtl ? 'right' : 'left',
-          transition: 'background 0.2s ease',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
-              background: config.dotColor,
-              flexShrink: 0,
-            }}
-          />
-          <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ds-text-heading)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {label}
-          </span>
+        <div style={{
+          width: '44px', height: '44px', borderRadius: '12px',
+          background: 'rgba(217,119,6,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          <Trophy size={22} style={{ color: 'var(--ds-accent-gold)' }} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)' }}>
-            {intl.formatMessage({ id: 'learn.courses_count', defaultMessage: '{count} courses' }, { count: intl.formatNumber(courses.length) })}
-          </span>
-          <ChevronDown
-            size={20}
-            style={{
-              color: '#0F1914',
-              flexShrink: 0,
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 200ms ease',
-            }}
-          />
+        <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ds-text-heading)' }}>
+          {intl.formatMessage(
+            { id: 'learn.achievements_unlocked_of', defaultMessage: '{count} of {total} unlocked' },
+            {
+              count: intl.formatNumber(unlockedCount),
+              total: intl.formatNumber(ACHIEVEMENT_BADGES.length),
+            }
+          )}
+        </span>
+        <div style={{ flex: 1, minWidth: '120px', maxWidth: '260px', height: '5px', background: 'var(--ds-bg-tinted)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: `${summaryPct}%`, height: '100%', background: 'var(--ds-accent-gold)', borderRadius: '4px', transition: 'width 600ms ease-out' }} />
         </div>
-      </button>
-      <div
-        style={{
-          maxHeight: isOpen ? '2000px' : '0px',
-          overflow: 'hidden',
-          transition: 'max-height 300ms ease',
-        }}
-      >
-        <div
-          style={{
-            padding: '16px 24px',
-            background: config.expandedBg,
-            borderTop: '0.5px solid var(--ds-border-tinted)',
-          }}
-        >
-          <div className="learn-accordion-grid">
-            {courses.map((course) => (
-              <AccordionCourseCard
-                key={course.courseId}
-                course={course}
-                progress={progressMap[course.courseId] ?? 0}
-                intl={intl}
-                language={language}
-                mounted={mounted}
-              />
-            ))}
-          </div>
-        </div>
+      </div>
+
+      {/* Badge grid — three explicit states: earned / in-progress / locked */}
+      <div className="learn-achievements-grid">
+        {ACHIEVEMENT_BADGES.map((badge, i) => {
+          const [current, total] = badgeProgress[i] ?? [0, 1];
+          const earned = current >= total;
+          const inProgress = !earned && current > 0;
+          const locked = !earned && !inProgress;
+          const pct = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
+          const IconComponent = ACHIEVEMENT_ICONS[badge.icon] || Lock;
+          const remaining = Math.max(0, total - current);
+          const progressLabel = `${intl.formatNumber(current)} / ${intl.formatNumber(total)}`;
+          const earnedAt = earned ? badgeEarnedAt[i] : null;
+
+          const ringRadius = 25;
+          const ringCircumference = 2 * Math.PI * ringRadius;
+
+          return (
+            <div
+              key={i}
+              style={{
+                background: 'var(--ds-bg-card)',
+                border: earned
+                  ? '1px solid var(--ds-accent-gold)'
+                  : locked
+                    ? '1px dashed var(--ds-border)'
+                    : '0.5px solid var(--ds-border)',
+                borderRadius: '16px',
+                padding: '20px 24px',
+                boxShadow: 'var(--ds-shadow-card)',
+                textAlign: 'center',
+                direction: isRtl ? 'rtl' : 'ltr',
+                position: 'relative',
+              }}
+            >
+              {/* State chip, pinned to the top corner */}
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '12px',
+                  insetInlineEnd: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  padding: '3px 8px',
+                  letterSpacing: '0.04em',
+                  ...(earned
+                    ? { background: 'rgba(217,119,6,0.1)', color: 'var(--ds-accent-gold)', border: '0.5px solid var(--ds-warning-border)' }
+                    : locked
+                      ? { background: 'var(--ds-bg-tinted)', color: 'var(--ds-text-muted)', border: '0.5px solid var(--ds-border)' }
+                      : { background: 'var(--ds-success-bg)', color: 'var(--ds-success-text)', border: '0.5px solid var(--ds-success-border)' }),
+                }}
+              >
+                {earned ? (
+                  intl.formatMessage({ id: 'learn.achievements_earned', defaultMessage: 'Earned ✓' })
+                ) : locked ? (
+                  <>
+                    <Lock size={10} />
+                    {intl.formatMessage({ id: 'learn.achievements_locked', defaultMessage: 'Locked' })}
+                  </>
+                ) : (
+                  progressLabel
+                )}
+              </span>
+
+              {/* Icon — earned: gold disc; in-progress: emerald progress ring; locked: muted disc */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', marginTop: '8px' }}>
+                {inProgress ? (
+                  <div style={{ position: 'relative', width: 56, height: 56 }}>
+                    <svg width="56" height="56" viewBox="0 0 56 56" style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}>
+                      <circle cx="28" cy="28" r={ringRadius} fill="none" stroke="var(--ds-bg-tinted)" strokeWidth="3" />
+                      <circle
+                        cx="28" cy="28" r={ringRadius} fill="none"
+                        stroke="var(--ds-primary)" strokeWidth="3" strokeLinecap="round"
+                        strokeDasharray={ringCircumference}
+                        strokeDashoffset={ringCircumference - (pct / 100) * ringCircumference}
+                      />
+                    </svg>
+                    <div style={{ position: 'absolute', inset: '7px', borderRadius: '50%', background: 'var(--ds-bg-tinted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <IconComponent size={22} style={{ color: 'var(--ds-primary)' }} />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    background: earned ? 'rgba(217,119,6,0.1)' : 'var(--ds-bg-tinted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <IconComponent
+                      size={28}
+                      style={{ color: earned ? 'var(--ds-accent-gold)' : 'var(--ds-text-muted)' }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <h3 className="ds-display-heading" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--ds-text-heading)', margin: 0, marginBottom: '4px' }}>
+                {intl.formatMessage({ id: badge.titleKey })}
+              </h3>
+
+              <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--ds-text-muted)', margin: 0, marginBottom: '10px', lineHeight: 1.5 }}>
+                {locked
+                  ? intl.formatMessage(
+                      { id: 'learn.achievements_unlock_by', defaultMessage: 'Unlock by: {condition}' },
+                      { condition: intl.formatMessage({ id: badge.conditionKey }) }
+                    )
+                  : intl.formatMessage({ id: badge.conditionKey })}
+              </p>
+
+              {earnedAt && (
+                <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ds-accent-gold)', margin: 0, marginBottom: '10px' }}>
+                  {intl.formatMessage(
+                    { id: 'learn.achievements_earned_on' },
+                    {
+                      date: intl.formatDate(earnedAt, { year: 'numeric', month: 'short', day: 'numeric' }),
+                    }
+                  )}
+                </p>
+              )}
+
+              {inProgress && (
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  borderRadius: '9999px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '4px 12px',
+                  background: 'var(--ds-bg-tinted)',
+                  color: 'var(--ds-primary)',
+                }}>
+                  {intl.formatMessage(
+                    { id: 'learn.achievements_remaining', defaultMessage: '{count} to go' },
+                    { count: intl.formatNumber(remaining) }
+                  )}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1062,7 +1562,7 @@ export default function LearnPage() {
   const intl = useIntl();
   const language = useStore((s) => s.language);
   const isRtl = language === 'ar';
-  const { courses, progressMap } = useLearnPageData();
+  const { courses, progressMap, completedByBase, resumeCourse, lastActivityByBase } = useLearnPageData();
   const searchParams = useSearchParams();
 
   const VALID_TABS: LearnTab[] = ['home', 'articles', 'videos', 'topics', 'achievements'];
@@ -1070,9 +1570,15 @@ export default function LearnPage() {
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'home';
 
   const [activeTab, setActiveTab] = useState<LearnTab>(initialTab);
-  const [openAccordion, setOpenAccordion] = useState<CourseLevel | null>(null);
+  const [courseFilter, setCourseFilter] = useState<CourseFilter>('all');
+  // Progress bars render at 0% then transition to their real width. Flipping
+  // this on the next frame guarantees the browser paints the 0% state first,
+  // otherwise the bars jump straight to full with no animation.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const literacyScore = useMemo(() => {
     const vals = Object.values(progressMap);
@@ -1080,18 +1586,16 @@ export default function LearnPage() {
     return Math.min(100, Math.round(vals.reduce((a, b) => a + b, 0) / vals.length));
   }, [progressMap]);
 
-  const grouped = useMemo(() => {
-    const groups: Record<CourseLevel, CourseData[]> = { beginner: [], intermediate: [], advanced: [] };
-    for (const c of courses) {
-      const level = c.level ?? 'beginner';
-      groups[level].push(c);
+  const visibleCourses = useMemo(() => {
+    if (courseFilter === 'all') return courses;
+    if (courseFilter === 'in_progress') {
+      return courses.filter((c) => {
+        const p = progressMap[c.courseId] ?? 0;
+        return p > 0 && p < 100;
+      });
     }
-    return groups;
-  }, [courses]);
-
-  const toggle = (level: CourseLevel) => {
-    setOpenAccordion((prev) => (prev === level ? null : level));
-  };
+    return courses.filter((c) => (c.level ?? 'beginner') === courseFilter);
+  }, [courses, courseFilter, progressMap]);
 
   return (
     <div className="ds-page" style={{ background: PAGE_BG, direction: isRtl ? 'rtl' : 'ltr' }}>
@@ -1103,20 +1607,46 @@ export default function LearnPage() {
 
       <div key={activeTab} style={{ animation: 'fadeIn 200ms ease-out' }}>
         {activeTab === 'home' && (
-          <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {(['beginner', 'intermediate', 'advanced'] as CourseLevel[]).map((level) => (
-              <LevelAccordion
-                key={level}
-                level={level}
-                courses={grouped[level]}
-                progressMap={progressMap}
+          <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {resumeCourse && (
+              <ResumeStrip
+                course={resumeCourse}
+                progress={progressMap[resumeCourse.courseId] ?? 0}
+                nextLessonTitle={getNextLessonTitle(
+                  resumeCourse,
+                  completedByBase[baseCourseIdOf(resumeCourse.courseId)]
+                )}
                 intl={intl}
-                isOpen={openAccordion === level}
-                onToggle={() => toggle(level)}
                 language={language}
                 mounted={mounted}
               />
-            ))}
+            )}
+
+            <FilterBar filter={courseFilter} onChange={setCourseFilter} intl={intl} language={language} />
+
+            {visibleCourses.length > 0 ? (
+              <div className="learn-grid">
+                {visibleCourses.map((course) => (
+                  <CourseCardV2
+                    key={course.courseId}
+                    course={course}
+                    progress={progressMap[course.courseId] ?? 0}
+                    intl={intl}
+                    language={language}
+                    mounted={mounted}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="ds-empty-state">
+                <p style={{ fontSize: '14px', color: 'var(--ds-text-body)', margin: 0 }}>
+                  {intl.formatMessage({
+                    id: 'learn.filter_in_progress_empty',
+                    defaultMessage: "You haven't started any course yet — pick one to begin.",
+                  })}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -1124,16 +1654,25 @@ export default function LearnPage() {
           <ArticlesTab
             language={language}
             intl={intl}
-            minReadLabel={(min) => (language === 'ar' ? `${intl.formatNumber(min)} دقيقة قراءة` : `${min} MIN READ`)}
+            minReadLabel={(min) =>
+              intl.formatMessage({ id: 'learn.min_read' }, { min: intl.formatNumber(min) })
+            }
           />
         )}
         {activeTab === 'videos' && (
-          <VideosTab language={language} />
+          <VideosTab language={language} intl={intl} />
         )}
         {activeTab === 'topics' && (
-          <TopicsTab language={language} />
+          <TopicsTab language={language} intl={intl} />
         )}
-        {activeTab === 'achievements' && <AchievementsTab language={language} progressMap={progressMap} courses={courses} />}
+        {activeTab === 'achievements' && (
+          <AchievementsTab
+            language={language}
+            progressMap={progressMap}
+            courses={courses}
+            lastActivityByBase={lastActivityByBase}
+          />
+        )}
       </div>
     </div>
   );

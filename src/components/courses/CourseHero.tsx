@@ -1,12 +1,13 @@
 'use client';
 
+import { useIntl } from 'react-intl';
 import type { CourseData, CourseLevel } from '@/types/course';
-import { getTotalSections } from '@/types/course';
+import { getTotalSections, parseEstimatedMinutes } from '@/types/course';
 
-const LEVEL_LABELS: Record<CourseLevel, { en: string; ar: string }> = {
-  beginner: { en: 'Beginner', ar: 'مبتدئ' },
-  intermediate: { en: 'Intermediate', ar: 'متوسط' },
-  advanced: { en: 'Advanced', ar: 'متقدم' },
+const LEVEL_KEYS: Record<CourseLevel, string> = {
+  beginner: 'learn.level_beginner',
+  intermediate: 'learn.level_intermediate',
+  advanced: 'learn.level_advanced',
 };
 
 const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; border: string }> = {
@@ -16,12 +17,14 @@ const BADGE_COLORS: Record<CourseLevel, { background: string; color: string; bor
 };
 
 export default function CourseHero({ course }: { course: CourseData }) {
+  const intl = useIntl();
   const isRtl = course.locale === 'ar';
   const totalSections = getTotalSections(course);
   const totalLessons = course.lessons.length;
   const level = course.level || 'beginner';
-  const levelLabel = LEVEL_LABELS[level][course.locale];
+  const levelLabel = intl.formatMessage({ id: LEVEL_KEYS[level] });
   const badgeColor = BADGE_COLORS[level];
+  const estMinutes = parseEstimatedMinutes(course.estimatedTime);
 
   return (
     <div
@@ -78,7 +81,12 @@ export default function CourseHero({ course }: { course: CourseData }) {
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              {course.estimatedTime}
+              {estMinutes !== null
+                ? intl.formatMessage(
+                    { id: 'learn.card_minutes', defaultMessage: '{min} min' },
+                    { min: intl.formatNumber(estMinutes) }
+                  )
+                : course.estimatedTime}
             </span>
           )}
 
@@ -97,22 +105,25 @@ export default function CourseHero({ course }: { course: CourseData }) {
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
             </svg>
-            {isRtl
-              ? `${totalLessons} دروس · ${totalSections} قسم`
-              : `${totalLessons} lessons · ${totalSections} sections`
-            }
+            {intl.formatMessage(
+              { id: 'learn.course.hero_lessons_sections' },
+              {
+                lessons: intl.formatNumber(totalLessons),
+                sections: intl.formatNumber(totalSections),
+              }
+            )}
           </span>
         </div>
 
         {/* Title */}
         <h1
+          className="ds-display-heading"
           style={{
             fontSize: '24px',
             fontWeight: 600,
             color: 'var(--color-text-primary)',
             lineHeight: 1.3,
             marginBottom: 'var(--spacing-2)',
-            fontFeatureSettings: '"kern" 1',
           }}
         >
           {course.title}

@@ -33,10 +33,24 @@ export interface ActionPromptBlock {
   text: string;
 }
 
+export interface QuizOption {
+  text: string;
+  correct?: boolean;
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: QuizOption[];
+  explanation: string;
+}
+
 export interface CheckpointBlock {
   type: 'checkpoint';
   title?: string;
-  items: string[];
+  items?: string[];
+  // When present, the checkpoint renders as an interactive quiz that gates
+  // page navigation until passed; without it, the static checklist renders.
+  quiz?: QuizQuestion[];
 }
 
 export type Block =
@@ -81,4 +95,10 @@ export function getAllSectionIds(course: CourseData): string[] {
   return course.lessons.flatMap((lesson) =>
     lesson.sections.map((section) => section.id)
   );
+}
+
+export function parseEstimatedMinutes(estimatedTime: string | undefined): number | null {
+  if (!estimatedTime) return null;
+  const match = estimatedTime.match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
 }

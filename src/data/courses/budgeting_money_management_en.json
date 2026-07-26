@@ -43,6 +43,59 @@
             {
               "type": "action_prompt",
               "text": "Calculate what 50%, 30%, and 20% of your current net income looks like in numbers."
+            },
+            {
+              "type": "checkpoint",
+              "quiz": [
+                {
+                  "question": "In the 50/30/20 rule, what does the 20% go toward?",
+                  "options": [
+                    {
+                      "text": "Wants like hobbies and dining out"
+                    },
+                    {
+                      "text": "Financial goals like savings and debt repayment",
+                      "correct": true
+                    },
+                    {
+                      "text": "Needs like rent and groceries"
+                    }
+                  ],
+                  "explanation": "The 20% is reserved for financial goals — savings and debt repayment. Needs take 50% and wants take 30%."
+                },
+                {
+                  "question": "Your net income is 1,000. Following the rule, how much should cover your needs?",
+                  "options": [
+                    {
+                      "text": "500",
+                      "correct": true
+                    },
+                    {
+                      "text": "300"
+                    },
+                    {
+                      "text": "200"
+                    }
+                  ],
+                  "explanation": "Needs get 50% of income — half of 1,000 is 500."
+                },
+                {
+                  "question": "Dining out with friends falls under which bucket?",
+                  "options": [
+                    {
+                      "text": "Needs"
+                    },
+                    {
+                      "text": "Wants",
+                      "correct": true
+                    },
+                    {
+                      "text": "Financial goals"
+                    }
+                  ],
+                  "explanation": "Dining out improves your quality of life but isn't essential, so it's a want — part of the 30%."
+                }
+              ]
             }
           ]
         }
@@ -274,6 +327,59 @@
             {
               "type": "action_prompt",
               "text": "Look at your last three non-essential purchases and label them honestly as either a \"need\" or a \"want.\""
+            },
+            {
+              "type": "checkpoint",
+              "quiz": [
+                {
+                  "question": "Which of these is a \"need\"?",
+                  "options": [
+                    {
+                      "text": "Basic transport to get to work",
+                      "correct": true
+                    },
+                    {
+                      "text": "Upgrading to the newest phone"
+                    },
+                    {
+                      "text": "A streaming subscription"
+                    }
+                  ],
+                  "explanation": "A need is essential for survival and working — basic transport qualifies. The others improve life but aren't strictly necessary."
+                },
+                {
+                  "question": "What question does this lesson suggest asking before a purchase?",
+                  "options": [
+                    {
+                      "text": "\"Is it on sale right now?\""
+                    },
+                    {
+                      "text": "\"Could I still function without it for a month?\"",
+                      "correct": true
+                    },
+                    {
+                      "text": "\"Do my friends already have it?\""
+                    }
+                  ],
+                  "explanation": "The one-month test cuts through emotion and reveals whether something is truly essential or just a want."
+                },
+                {
+                  "question": "Why does mastering the needs-vs-wants distinction matter?",
+                  "options": [
+                    {
+                      "text": "It prevents your wants from eating your future wealth",
+                      "correct": true
+                    },
+                    {
+                      "text": "It removes all enjoyment from spending"
+                    },
+                    {
+                      "text": "It guarantees your investments will grow"
+                    }
+                  ],
+                  "explanation": "The distinction is the foundation of self-discipline — it protects your future wealth without banning enjoyment."
+                }
+              ]
             }
           ]
         }
@@ -379,6 +485,59 @@
             {
               "type": "action_prompt",
               "text": "Set a daily notification in your Rasmalak app to spend 2 minutes reviewing your spending for the day."
+            },
+            {
+              "type": "checkpoint",
+              "quiz": [
+                {
+                  "question": "How often does this lesson recommend checking your budgeting app?",
+                  "options": [
+                    {
+                      "text": "Daily",
+                      "correct": true
+                    },
+                    {
+                      "text": "Once a month"
+                    },
+                    {
+                      "text": "Only after overspending"
+                    }
+                  ],
+                  "explanation": "A short daily check keeps your spending visible before it drifts off course."
+                },
+                {
+                  "question": "Why does categorizing every transaction correctly matter?",
+                  "options": [
+                    {
+                      "text": "It makes the charts more colorful"
+                    },
+                    {
+                      "text": "It lets the AI provide accurate insights",
+                      "correct": true
+                    },
+                    {
+                      "text": "It makes the app run faster"
+                    }
+                  ],
+                  "explanation": "Insights are only as good as the data behind them — clean categories mean accurate AI guidance."
+                },
+                {
+                  "question": "What is the app's right role in your money management?",
+                  "options": [
+                    {
+                      "text": "Making every financial decision for you"
+                    },
+                    {
+                      "text": "Doing the heavy lifting of calculation so you focus on decisions",
+                      "correct": true
+                    },
+                    {
+                      "text": "Hiding transactions you regret"
+                    }
+                  ],
+                  "explanation": "Let the app handle the calculations — you keep the higher-level decisions that grow your wealth."
+                }
+              ]
             }
           ]
         }

@@ -9,9 +9,18 @@ import {
   ComparisonBlock as ComparisonComp,
   ActionPromptBlock as ActionPromptComp,
   CheckpointBlock as CheckpointComp,
+  CheckpointQuiz,
 } from './blocks';
 
-function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
+function BlockRenderer({
+  block,
+  quizPassed,
+  onQuizPass,
+}: {
+  block: Block;
+  quizPassed?: boolean;
+  onQuizPass?: () => void;
+}) {
   switch (block.type) {
     case 'p':
       return <TextBlock text={block.text} />;
@@ -33,7 +42,16 @@ function BlockRenderer({ block, isRtl }: { block: Block; isRtl: boolean }) {
     case 'action_prompt':
       return <ActionPromptComp text={block.text} />;
     case 'checkpoint':
-      return <CheckpointComp title={block.title} items={block.items} isRtl={isRtl} />;
+      return block.quiz && block.quiz.length > 0 ? (
+        <CheckpointQuiz
+          title={block.title}
+          quiz={block.quiz}
+          passed={quizPassed}
+          onPass={onQuizPass}
+        />
+      ) : (
+        <CheckpointComp title={block.title} items={block.items} />
+      );
     default:
       return null;
   }
@@ -43,17 +61,19 @@ interface LessonSectionContainerProps {
   section: Section;
   sectionIndex: number;
   lessonLabel: string;
-  isRtl: boolean;
   completed: boolean;
   alternateBackground: boolean;
+  quizPassed?: boolean;
+  onQuizPass?: () => void;
 }
 
 export default function LessonSectionContainer({
   section,
   lessonLabel,
-  isRtl,
   completed,
   alternateBackground,
+  quizPassed,
+  onQuizPass,
 }: LessonSectionContainerProps) {
   return (
     <div
@@ -71,7 +91,7 @@ export default function LessonSectionContainer({
           position: 'absolute',
           top: 'var(--spacing-4)',
           bottom: 'var(--spacing-4)',
-          [isRtl ? 'right' : 'left']: 0,
+          insetInlineStart: 0,
           width: '2px',
           background: completed
             ? 'var(--color-success)'
@@ -151,7 +171,7 @@ export default function LessonSectionContainer({
       {/* Content blocks */}
       <div style={{ paddingInlineStart: '50px' }}>
         {section.blocks.map((block, i) => (
-          <BlockRenderer key={i} block={block} isRtl={isRtl} />
+          <BlockRenderer key={i} block={block} quizPassed={quizPassed} onQuizPass={onQuizPass} />
         ))}
       </div>
     </div>
