@@ -1,0 +1,11 @@
+# This project has its own dependencies; the repo root .gitignore only covers
+# /node_modules and rasmalak-app/node_modules, so they must be excluded here too.
+node_modules/
+
+# Render output and voice auditions are reproducible build artifacts.
+# The narration clips in public/vo/ are committed deliberately: they cost API
+# calls to regenerate and are inputs to every render.
+out/
+vo-samples/
+
+.DS_Store

@@ -1,0 +1,28 @@
+{
+  "name": "rasmalak-video",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Programmatic, owned, watermark-free bilingual (Arabic RTL + English) video for Rasmalak, built with Remotion.",
+  "scripts": {
+    "studio": "remotion studio",
+    "voiceover": "node scripts/generate-voiceover.mjs",
+    "voiceover:samples": "node scripts/voice-samples.mjs",
+    "voiceover:brand": "node scripts/brand-audition.mjs",
+    "render:ar": "remotion render LessonIntroAR out/foundations-of-money-l1-ar.mp4",
+    "render:en": "remotion render LessonIntroEN out/foundations-of-money-l1-en.mp4",
+    "render:all": "npm run render:ar && npm run render:en",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/media-utils": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}
